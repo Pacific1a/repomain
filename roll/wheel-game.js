@@ -83,6 +83,14 @@
     const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
     if (!success) return;
 
+    // МУЛЬТИПЛЕЕР: отправляем ставку через WebSocket
+    if (window.RollMultiplayer && window.RollMultiplayer.placeBet) {
+      window.RollMultiplayer.placeBet(betAmount);
+      showNotification('Ставка сделана! Ожидание игроков...');
+      return;
+    }
+
+    // Fallback: старая логика (если нет мультиплеера)
     const userData = window.TelegramUserData || { first_name: 'Player', photo_url: null, id: 'user_' + Date.now() };
     
     const added = addPlayer({

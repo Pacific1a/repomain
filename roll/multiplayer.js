@@ -15,21 +15,29 @@
   // ============ СОЗДАНИЕ/ПОИСК КОМНАТЫ ============
   
   function findOrCreateRoom() {
+    console.log('🔍 Поиск комнаты для Roll...');
+    
     // Ищем доступную комнату для Roll
     ws.socket.emit('get_rooms');
     
     ws.socket.once('rooms_list', (rooms) => {
+      console.log('📋 Найдено комнат:', rooms.length);
+      
       const rollRooms = rooms.filter(r => 
         r.game === 'roll' && 
         r.status === 'waiting' && 
         r.players < r.maxPlayers
       );
 
+      console.log('🎰 Roll комнат доступно:', rollRooms.length);
+
       if (rollRooms.length > 0) {
         // Присоединяемся к существующей комнате
+        console.log('👥 Присоединяемся к комнате:', rollRooms[0].id);
         joinRoom(rollRooms[0].id);
       } else {
         // Создаём новую комнату
+        console.log('🆕 Создаём новую комнату');
         createRoom();
       }
     });
@@ -156,6 +164,23 @@
       waitText.textContent = `Waiting for players... (${playersCount}/${maxPlayers})`;
     }
 
+    // Обновляем верхнюю панель с аватаркой текущего игрока
+    const accountInfo = document.querySelector('.account-info');
+    if (accountInfo && ws.currentUser) {
+      const avatar = accountInfo.querySelector('.avatar');
+      const nickname = accountInfo.querySelector('.nickname .text-wrapper');
+      
+      if (avatar && ws.currentUser.photoUrl) {
+        avatar.style.backgroundImage = `url(${ws.currentUser.photoUrl})`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+      }
+      
+      if (nickname) {
+        nickname.textContent = ws.currentUser.nickname || 'Player';
+      }
+    }
+
     // Обновляем список игроков
     updatePlayersList();
 
@@ -186,20 +211,22 @@
       const playerEl = document.createElement('div');
       playerEl.className = 'default';
       
-      // Аватарка из Telegram
-      const avatarStyle = player.photoUrl 
-        ? `background-image: url(${player.photoUrl}); background-size: cover; background-position: center;`
-        : `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;`;
-      
-      const avatarContent = player.photoUrl ? '' : player.nickname[0].toUpperCase();
+      // Аватарка из Telegram с правильными стилями
+      let avatarHTML = '';
+      if (player.photoUrl) {
+        avatarHTML = `<div class="avatar-2" style="background-image: url(${player.photoUrl}); background-size: cover; background-position: center; width: 32px; height: 32px; border-radius: 50%;"></div>`;
+      } else {
+        const initial = player.nickname ? player.nickname[0].toUpperCase() : 'P';
+        avatarHTML = `<div class="avatar-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; width: 32px; height: 32px; border-radius: 50%; font-size: 16px;">${initial}</div>`;
+      }
       
       playerEl.innerHTML = `
         <div class="acc-inf">
           <div class="avatar-wrapper">
-            <div class="avatar-2" style="${avatarStyle}">${avatarContent}</div>
+            ${avatarHTML}
           </div>
           <div class="n-k">
-            <div class="n-k-2">${player.nickname}</div>
+            <div class="n-k-2">${player.nickname || 'Player'}</div>
           </div>
         </div>
         <div class="div-wrapper-2">
