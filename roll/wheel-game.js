@@ -190,14 +190,20 @@
 
     elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
 
-    // Очищаем только если количество игроков изменилось
+    // Удаляем старые аватарки которых нет в текущих игроках
     const existingAvatars = elements.wheel.querySelectorAll('.dynamic-avatar');
-    if (existingAvatars.length !== players.length) {
-      elements.wheel.innerHTML = '';
-    }
+    const currentPlayerIds = new Set(players.map(p => p.id));
+    existingAvatars.forEach(avatar => {
+      const playerId = avatar.getAttribute('data-player-id');
+      if (!currentPlayerIds.has(playerId)) {
+        avatar.remove();
+      }
+    });
 
     // Создаем или обновляем аватарки
     segments.forEach((seg, index) => {
+      if (!seg.player || !seg.player.id) return; // Пропускаем если нет данных игрока
+      
       // Ищем существующую аватарку или создаем новую
       let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
       if (!avatar) {

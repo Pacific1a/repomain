@@ -221,6 +221,9 @@
     if (!playersList) return;
 
     gameState.players.forEach(player => {
+      // Пропускаем невалидных игроков
+      if (!player || !player.userId || !player.nickname) return;
+      
       // Ищем существующий блок игрока
       let playerEl = playersList.querySelector(`[data-player-id="${player.userId}"]`);
       
@@ -262,24 +265,24 @@
       }
     });
   }
-
   // Синхронизация игроков с колесом
   function syncPlayersToWheel() {
     if (!window.rollGame || !window.rollGame.updateState) return;
     
-    // Преобразуем формат для wheel-game
-    const wheelPlayers = gameState.players.map((player, index) => ({
-      id: player.userId,
-      username: player.nickname,
-      photo_url: player.photoUrl,
-      betAmount: player.bet,
-      isUser: false,
-      isBot: false
-    }));
+    // Преобразуем формат для wheel-game (фильтруем невалидных игроков)
+    const wheelPlayers = gameState.players
+      .filter(player => player && player.userId && player.nickname) // Только валидные игроки
+      .map((player, index) => ({
+        id: player.userId,
+        username: player.nickname,
+        photo_url: player.photoUrl,
+        betAmount: player.bet || 0,
+        isUser: false,
+        isBot: false
+      }));
     
     window.rollGame.updateState({ players: wheelPlayers });
   }
-
   // Экспорт
   window.RollSync = {
     placeBet,
