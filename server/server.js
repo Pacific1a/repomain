@@ -514,23 +514,32 @@ io.on('connection', (socket) => {
 
   // Сделать ставку в глобальной игре
   socket.on('place_bet', ({ game, userId, nickname, photoUrl, bet }) => {
+    console.log(`📥 Получена ставка:`, { game, userId, nickname, bet });
+    
     const gameState = globalGames[game];
+    
+    if (!gameState) {
+      console.error(`❌ Игра ${game} не найдена`);
+      return;
+    }
     
     // Добавляем/обновляем игрока
     const existingPlayer = gameState.players.find(p => p.userId === userId);
     if (existingPlayer) {
       existingPlayer.bet += bet;
+      console.log(`➕ Обновлена ставка игрока ${nickname}: ${existingPlayer.bet}`);
     } else {
       gameState.players.push({ userId, nickname, photoUrl, bet });
+      console.log(`✅ Добавлен новый игрок ${nickname} со ставкой ${bet}`);
     }
 
-    // Отправляем всем
+    // Отправляем всем в комнате
     io.to(`global_${game}`).emit('player_bet', { userId, nickname, photoUrl, bet });
-
-    console.log(`💰 Ставка в ${game}: ${nickname} - ${bet}`);
+    console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
     // Если первая ставка - запускаем таймер
     if (gameState.status === 'waiting' && gameState.players.length === 1) {
+      console.log(`🎮 Запускаем игру ${game} - первая ставка`);
       startGlobalGame(game);
     }
   });

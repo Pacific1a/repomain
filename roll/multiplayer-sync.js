@@ -173,6 +173,7 @@
     }
 
     console.log('💰 Отправляем ставку:', { userId, nickname, photoUrl, bet: amount });
+    console.log('📡 WebSocket состояние:', { connected: ws.connected, socketId: ws.socket?.id });
 
     ws.socket.emit('place_bet', {
       game: 'roll',
@@ -181,6 +182,8 @@
       photoUrl,
       bet: amount
     });
+
+    console.log('✅ Событие place_bet отправлено');
   }
 
   // Обновление UI
