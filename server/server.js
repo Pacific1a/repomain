@@ -512,13 +512,36 @@ io.on('connection', (socket) => {
     socket.join(`global_${game}`);
     console.log(`🌍 Игрок присоединился к глобальной игре: ${game}`);
     
-    // Отправляем текущее состояние
-    socket.emit('game_state_sync', globalGames[game]);
+    // Отправляем текущее состояние (чистая копия без циклических ссылок)
+    const cleanState = {
+      status: globalGames[game].status,
+      players: globalGames[game].players.map(p => ({
+        userId: p.userId,
+        nickname: p.nickname,
+        photoUrl: p.photoUrl,
+        bet: p.bet
+      })),
+      timer: globalGames[game].timer,
+      startTime: globalGames[game].startTime
+    };
+    socket.emit('game_state_sync', cleanState);
   });
 
   // Получить состояние игры
   socket.on('get_game_state', ({ game }) => {
-    socket.emit('game_state_sync', globalGames[game]);
+    // Отправляем чистую копию без циклических ссылок
+    const cleanState = {
+      status: globalGames[game].status,
+      players: globalGames[game].players.map(p => ({
+        userId: p.userId,
+        nickname: p.nickname,
+        photoUrl: p.photoUrl,
+        bet: p.bet
+      })),
+      timer: globalGames[game].timer,
+      startTime: globalGames[game].startTime
+    };
+    socket.emit('game_state_sync', cleanState);
   });
 
   // Сделать ставку в глобальной игре
@@ -532,18 +555,30 @@ io.on('connection', (socket) => {
       return;
     }
     
-    // Добавляем/обновляем игрока
+    // Добавляем/обновляем игрока (только чистые данные)
     const existingPlayer = gameState.players.find(p => p.userId === userId);
     if (existingPlayer) {
       existingPlayer.bet += bet;
       console.log(`➕ Обновлена ставка игрока ${nickname}: ${existingPlayer.bet}`);
     } else {
-      gameState.players.push({ userId, nickname, photoUrl, bet });
+      // Создаем чистый объект игрока без циклических ссылок
+      const cleanPlayer = {
+        userId: userId,
+        nickname: nickname,
+        photoUrl: photoUrl || null,
+        bet: bet
+      };
+      gameState.players.push(cleanPlayer);
       console.log(`✅ Добавлен новый игрок ${nickname} со ставкой ${bet}`);
     }
 
-    // Отправляем всем в комнате
-    io.to(`global_${game}`).emit('player_bet', { userId, nickname, photoUrl, bet });
+    // Отправляем всем в комнате (только чистые данные)
+    io.to(`global_${game}`).emit('player_bet', { 
+      userId: userId, 
+      nickname: nickname, 
+      photoUrl: photoUrl || null, 
+      bet: bet 
+    });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
     // Если первая ставка - запускаем таймер
