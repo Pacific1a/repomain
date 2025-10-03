@@ -150,11 +150,9 @@
   function updateWheel() {
     if (!elements.wheel) return;
 
-    // Очищаем старые аватарки
-    elements.wheel.innerHTML = '';
-
     if (players.length === 0) {
       elements.wheel.style.background = '#2a2a2a';
+      elements.wheel.innerHTML = '';
       return;
     }
 
@@ -192,10 +190,22 @@
 
     elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
 
-    // Создаем аватарки динамически
-    segments.forEach((seg) => {
-      const avatar = document.createElement('div');
-      avatar.className = 'avatar dynamic-avatar';
+    // Очищаем только если количество игроков изменилось
+    const existingAvatars = elements.wheel.querySelectorAll('.dynamic-avatar');
+    if (existingAvatars.length !== players.length) {
+      elements.wheel.innerHTML = '';
+    }
+
+    // Создаем или обновляем аватарки
+    segments.forEach((seg, index) => {
+      // Ищем существующую аватарку или создаем новую
+      let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
+      if (!avatar) {
+        avatar = document.createElement('div');
+        avatar.className = 'avatar dynamic-avatar';
+        avatar.setAttribute('data-player-id', seg.player.id);
+        elements.wheel.appendChild(avatar);
+      }
       
       // Размер зависит от процента (25px - 45px для большего колеса)
       const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
@@ -236,16 +246,14 @@
         avatar.style.fontWeight = 'bold';
         avatar.textContent = seg.player.username ? seg.player.username[0].toUpperCase() : '?';
       }
-      
-      elements.wheel.appendChild(avatar);
     });
   }
 
   // ============ DISPLAY UPDATES ============
   function updateDisplay() {
-    const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
+    const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
     if (elements.totalBets) {
-      elements.totalBets.textContent = totalBets;
+      elements.totalBets.textContent = totalBets || 0;
     }
 
     // Обновляем только если мы в режиме Previos (ставки игроков)
@@ -254,27 +262,48 @@
     }
 
     if (elements.playersList) {
-      elements.playersList.innerHTML = '';
-      
       if (players.length === 0) {
-        // Показываем пустой список
+        elements.playersList.innerHTML = '';
         return;
       }
       
       players.forEach(player => {
-        const div = document.createElement('div');
-        div.className = 'win';
-        div.innerHTML = `
-          <div class="acc-inf">
-            <div class="avatar-wrapper">
-              <div class="avatar-2" style="${player.photo_url ? `background-image: url(${player.photo_url}); background-size: cover;` : ''}"></div>
+        // Ищем существующий блок игрока
+        let playerDiv = elements.playersList.querySelector(`[data-player-id="${player.id}"]`);
+        
+        if (!playerDiv) {
+          // Создаем новый блок только если игрока нет
+          playerDiv = document.createElement('div');
+          playerDiv.className = 'win';
+          playerDiv.setAttribute('data-player-id', player.id);
+          
+          const photoUrl = player.photo_url || player.photoUrl;
+          let avatarStyle = '';
+          if (photoUrl && photoUrl.trim() !== '') {
+            avatarStyle = `background-image: url(${photoUrl}); background-size: cover; background-position: center;`;
+          } else {
+            const initial = player.username ? player.username[0].toUpperCase() : 'P';
+            avatarStyle = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;`;
+          }
+          
+          playerDiv.innerHTML = `
+            <div class="acc-inf">
+              <div class="avatar-wrapper">
+                <div class="avatar-2" style="${avatarStyle}; width: 32px; height: 32px; border-radius: 50%;">${photoUrl ? '' : (player.username ? player.username[0].toUpperCase() : 'P')}</div>
+              </div>
+              <div class="n-k"><div class="n-k-2">${player.username}</div></div>
             </div>
-            <div class="n-k"><div class="n-k-2">${player.username}</div></div>
-          </div>
-          <div class="div-wrapper-2"><div class="text-wrapper-14">${player.betAmount}</div></div>
-          <div class="element-wrapper"><div class="element-3">${player.winAmount || '-'}</div></div>
-        `;
-        elements.playersList.appendChild(div);
+            <div class="div-wrapper-2"><div class="text-wrapper-14" data-bet-amount>${player.betAmount || 0}</div></div>
+            <div class="element-wrapper"><div class="element-3" data-win-amount>${player.winAmount || '-'}</div></div>
+          `;
+          elements.playersList.appendChild(playerDiv);
+        } else {
+          // Обновляем только цифры
+          const betElement = playerDiv.querySelector('[data-bet-amount]');
+          const winElement = playerDiv.querySelector('[data-win-amount]');
+          if (betElement) betElement.textContent = player.betAmount || 0;
+          if (winElement) winElement.textContent = player.winAmount || '-';
+        }
       });
     }
   }

@@ -581,10 +581,12 @@ io.on('connection', (socket) => {
     });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
-    // Если первая ставка - запускаем таймер
-    if (gameState.status === 'waiting' && gameState.players.length === 1) {
-      console.log(`🎮 Запускаем игру ${game} - первая ставка`);
+    // Запускаем таймер только если минимум 2 игрока
+    if (gameState.status === 'waiting' && gameState.players.length >= 2) {
+      console.log(`🎮 Запускаем игру ${game} - минимум 2 игрока`);
       startGlobalGame(game);
+    } else if (gameState.status === 'waiting' && gameState.players.length === 1) {
+      console.log(`⏳ Ожидание второго игрока...`);
     }
   });
 
