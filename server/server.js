@@ -25,7 +25,38 @@ const io = socketIo(server, {
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https://telegram.org",
+        "https://cdn.socket.io"
+      ],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "https:", 
+        "http:",
+        "https://raw.githubusercontent.com",
+        "https://github.com"
+      ],
+      connectSrc: [
+        "'self'",
+        "https:",
+        "wss:",
+        "ws:"
+      ],
+      fontSrc: ["'self'", "data:", "https:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'self'"]
+    }
+  }
+}));
 app.use(cors());
 app.use(express.json());
 
