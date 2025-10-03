@@ -212,11 +212,21 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Позиционируем в центре сегмента (уменьшенный радиус для размещения внутри)
-      const angleRad = (seg.center - 90) * Math.PI / 180;
-      const radius = 35; // Радиус от центра колеса (уменьшен до 35% для размещения внутри 250px колеса)
-      const x = 50 + radius * Math.cos(angleRad);
-      const y = 50 + radius * Math.sin(angleRad);
+      // Позиционируем в ЦЕНТРЕ МАСС сегмента (не просто радиус!)
+      // Формула: для сектора с углом θ, центр масс на расстоянии ≈ 0.6R от центра
+      const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
+      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента
+      
+      // Рассчитываем расстояние до центра масс: 2R·sin(θ/2) / (3·θ/2)
+      // Для упрощения используем приближение ≈ 0.6R для всех углов
+      const wheelRadius = 125; // Радиус колеса в пикселях (250px / 2)
+      const centerOfMassDistance = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
+      
+      // Конвертируем в проценты (от 50% центра)
+      const radiusPercent = (centerOfMassDistance / wheelRadius) * 50;
+      
+      const x = 50 + radiusPercent * Math.cos(angleRad);
+      const y = 50 + radiusPercent * Math.sin(angleRad);
       
       avatar.style.position = 'absolute';
       avatar.style.left = `${x}%`;
