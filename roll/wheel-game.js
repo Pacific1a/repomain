@@ -466,7 +466,13 @@
   window.rollGame = {
     addPlayer,
     players: () => players,
-    spin: spinWheel,
+    spin: (winnerId) => {
+      // Находим победителя
+      const winner = players.find(p => p.id === winnerId);
+      if (winner) {
+        spinToWinner(winner);
+      }
+    },
     updateState: (state) => {
       // Обновление состояния от сервера
       if (state.players) {

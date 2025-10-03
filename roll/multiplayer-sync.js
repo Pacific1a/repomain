@@ -138,18 +138,30 @@
 
   // Сделать ставку
   function placeBet(amount) {
-    if (!ws || !ws.currentUser) {
-      console.error('❌ WebSocket не готов');
+    if (!ws) {
+      console.error('❌ WebSocket не подключен');
       return;
     }
 
-    console.log('💰 Отправляем ставку:', amount);
+    // Получаем данные пользователя из Telegram
+    const userData = window.TelegramUserData || ws.currentUser;
+    
+    if (!userData) {
+      console.error('❌ Нет данных пользователя');
+      return;
+    }
+
+    const userId = userData.id || ws.currentUser?.id || 'user_' + Date.now();
+    const nickname = userData.first_name || userData.username || ws.currentUser?.nickname || 'Player';
+    const photoUrl = userData.photo_url || ws.currentUser?.photoUrl || null;
+
+    console.log('💰 Отправляем ставку:', { userId, nickname, bet: amount });
 
     ws.socket.emit('place_bet', {
       game: 'roll',
-      userId: ws.currentUser.id,
-      nickname: ws.currentUser.nickname,
-      photoUrl: ws.currentUser.photoUrl,
+      userId,
+      nickname,
+      photoUrl,
       bet: amount
     });
   }
