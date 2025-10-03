@@ -2,15 +2,22 @@
 (function() {
   'use strict';
 
-  // Проверяем наличие WebSocket
-  if (!window.GameWebSocket || !window.GameWebSocket.socket) {
-    console.warn('⚠️ WebSocket не подключен. Игра в одиночном режиме.');
-    return;
-  }
-
-  const ws = window.GameWebSocket;
+  let ws = null;
   let currentRoom = null;
   let isHost = false;
+  let myBet = 0;
+
+  // Ждём подключения WebSocket
+  function waitForWebSocket() {
+    if (window.GameWebSocket && window.GameWebSocket.socket && window.GameWebSocket.connected) {
+      ws = window.GameWebSocket;
+      console.log('✅ WebSocket готов для мультиплеера');
+      findOrCreateRoom();
+    } else {
+      console.log('⏳ Ожидание WebSocket...');
+      setTimeout(waitForWebSocket, 500);
+    }
+  }
 
   // ============ СОЗДАНИЕ/ПОИСК КОМНАТЫ ============
   
@@ -97,6 +104,25 @@
 
   ws.socket.on('game_update', (data) => {
     if (currentRoom && data.gameState) {
+      console.log('🔄 Обновление игры:', data);
+      
+      // Если это ставка - добавляем игрока в wheel-game
+      if (data.move === 'place_bet' && data.gameData) {
+        const { userId, nickname, photoUrl, bet } = data.gameData;
+        
+        if (window.rollGame && window.rollGame.addPlayer) {
+          window.rollGame.addPlayer({
+            id: userId,
+            username: nickname,
+            photo_url: photoUrl,
+            betAmount: bet,
+            isBot: false
+          });
+          
+          console.log('✅ Игрок добавлен в колесо:', nickname, 'ставка:', bet);
+        }
+      }
+      
       // Обновляем состояние игры
       updateGameState(data.gameState);
     }
@@ -112,16 +138,28 @@
   // ============ ИГРОВАЯ ЛОГИКА ============
 
   function placeBet(amount) {
-    if (!currentRoom) return;
+    if (!currentRoom || !ws) {
+      console.error('❌ Нет комнаты или WebSocket');
+      return;
+    }
 
+    myBet = amount;
+    
+    console.log('💰 Отправляем ставку:', amount);
+    
     ws.socket.emit('make_move', {
       roomId: currentRoom.id,
       move: 'place_bet',
       gameData: {
         bet: amount,
-        userId: ws.currentUser?.id
+        userId: ws.currentUser?.id,
+        nickname: ws.currentUser?.nickname,
+        photoUrl: ws.currentUser?.photoUrl
       }
     });
+
+    // Обновляем свою ставку в UI
+    updateMyBet(amount);
   }
 
   function playerReady() {
@@ -190,6 +228,24 @@
     }
   }
 
+  function updateMyBet(amount) {
+    const playersList = document.querySelector('.user-templates');
+    if (!playersList || !ws.currentUser) return;
+
+    // Находим свою строку в списке
+    const myRow = Array.from(playersList.children).find(row => {
+      const nickname = row.querySelector('.n-k-2');
+      return nickname && nickname.textContent === ws.currentUser.nickname;
+    });
+
+    if (myRow) {
+      const betCell = myRow.querySelector('.text-wrapper-14');
+      if (betCell) {
+        betCell.textContent = amount;
+      }
+    }
+  }
+
   function updatePlayersList() {
     const playersList = document.querySelector('.user-templates');
     if (!playersList || !currentRoom) return;
@@ -197,16 +253,8 @@
     playersList.innerHTML = '';
 
     currentRoom.players.forEach((player, index) => {
-      // Добавляем игрока в wheel-game
-      if (window.rollGame && window.rollGame.addPlayer) {
-        window.rollGame.addPlayer({
-          id: player.userId,
-          username: player.nickname,
-          photo_url: player.photoUrl,
-          betAmount: 0,
-          isBot: false
-        });
-      }
+      // НЕ добавляем в wheel-game автоматически
+      // Игроки добавятся когда сделают ставку
 
       const playerEl = document.createElement('div');
       playerEl.className = 'default';
@@ -258,12 +306,8 @@
     isHost: () => isHost
   };
 
-  // Автоматически ищем/создаём комнату при загрузке
-  if (ws.connected) {
-    findOrCreateRoom();
-  } else {
-    ws.socket.once('connect', findOrCreateRoom);
-  }
+  // Запускаем ожидание WebSocket
+  waitForWebSocket();
 
   console.log('✅ Roll Multiplayer инициализирован');
 
