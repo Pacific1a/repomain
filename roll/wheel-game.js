@@ -122,22 +122,16 @@
       players.push(player);
     }
 
-    // Добавляем ботов если нужно
-    addBotsIfNeeded();
-
     updateWheel();
     updateDisplay();
     return true;
   }
 
-  // Добавление ботов для заполнения игры
+  // УБРАНО: Больше не добавляем ботов
+  // Только реальные игроки через мультиплеер
   function addBotsIfNeeded() {
-    if (!window.PlayersSystem) return;
-    
-    const neededBots = 3 - players.length;
-    if (neededBots <= 0) return;
-
-    const bots = window.PlayersSystem.getRandomBots(neededBots);
+    // Отключено - только реальные игроки
+    return;
     
     bots.forEach(bot => {
       if (players.length >= 3) return;
@@ -459,4 +453,26 @@
   } else {
     init();
   }
+
+  // Экспорт для мультиплеера
+  window.rollGame = {
+    addPlayer,
+    players: () => players,
+    spin: spinWheel,
+    updateState: (state) => {
+      // Обновление состояния от сервера
+      if (state.players) {
+        players = state.players;
+        updateWheel();
+        updateDisplay();
+      }
+    },
+    showResult: (result) => {
+      // Показать результат
+      const winner = players.find(p => p.id === result.winner);
+      if (winner) {
+        showNotification(`🏆 ${winner.username} выиграл!`);
+      }
+    }
+  };
 })();
