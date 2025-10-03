@@ -124,7 +124,7 @@ const globalGames = {
   roll: {
     status: 'waiting',
     players: [],
-    timer: 30,
+    timer: 60, // 1 минута
     startTime: null,
     timerInterval: null
   }

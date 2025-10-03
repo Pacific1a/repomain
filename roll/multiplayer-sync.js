@@ -54,7 +54,7 @@
         });
       }
 
-      // Обновляем колесо
+      // Обновляем колесо через wheel-game
       if (window.rollGame && window.rollGame.addPlayer) {
         window.rollGame.addPlayer({
           id: data.userId,
@@ -76,7 +76,6 @@
       gameState.timer = data.timer;
       
       syncTimer(data.startTime, data.timer);
-      updateUI();
     });
 
     // Крутим колесо
@@ -93,12 +92,25 @@
     ws.socket.on('game_finished', (data) => {
       console.log('🏁 Игра завершена!');
       gameState.status = 'finished';
-      gameState.players = [];
       
       setTimeout(() => {
         gameState.status = 'waiting';
+        gameState.players = [];
+        
+        // Сброс UI
+        const waitText = document.querySelector('.wait span:first-child');
+        if (waitText) {
+          waitText.style.display = 'inline';
+          waitText.style.color = '#6a6a6a';
+          waitText.textContent = 'Wait...';
+        }
+        const playText = document.querySelector('.wait span:last-child');
+        if (playText) {
+          playText.style.display = 'none';
+        }
+        
         updateUI();
-      }, 5000);
+      }, 8000);
     });
 
     // Запрашиваем текущее состояние
@@ -119,9 +131,16 @@
     const timerInterval = setInterval(() => {
       timeLeft--;
       
-      const waitText = document.querySelector('.wait');
+      // Обновляем таймер в wheel-game
+      const waitText = document.querySelector('.wait span:last-child');
       if (waitText) {
-        waitText.textContent = `Betting ends in ${timeLeft}s`;
+        waitText.style.display = 'inline';
+        waitText.style.color = '#39d811';
+        waitText.textContent = `${timeLeft}s`;
+      }
+      const waitSpan = document.querySelector('.wait span:first-child');
+      if (waitSpan) {
+        waitSpan.style.display = 'none';
       }
 
       if (timeLeft <= 0) {
@@ -130,9 +149,15 @@
     }, 1000);
 
     // Обновляем UI сразу
-    const waitText = document.querySelector('.wait');
+    const waitText = document.querySelector('.wait span:last-child');
     if (waitText) {
-      waitText.textContent = `Betting ends in ${timeLeft}s`;
+      waitText.style.display = 'inline';
+      waitText.style.color = '#39d811';
+      waitText.textContent = `${timeLeft}s`;
+    }
+    const waitSpan = document.querySelector('.wait span:first-child');
+    if (waitSpan) {
+      waitSpan.style.display = 'none';
     }
   }
 
