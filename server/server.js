@@ -522,7 +522,7 @@ io.on('connection', (socket) => {
         bet: p.bet
       })),
       timer: globalGames[game].timer,
-      startTime: globalGames[game].startTime
+      startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null
     };
     socket.emit('game_state_sync', cleanState);
   });
@@ -539,7 +539,7 @@ io.on('connection', (socket) => {
         bet: p.bet
       })),
       timer: globalGames[game].timer,
-      startTime: globalGames[game].startTime
+      startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null
     };
     socket.emit('game_state_sync', cleanState);
   });
@@ -594,8 +594,9 @@ io.on('connection', (socket) => {
     gameState.status = 'betting';
     gameState.startTime = new Date();
     
+    // Отправляем чистые данные без циклических ссылок
     io.to(`global_${game}`).emit('game_started', {
-      startTime: gameState.startTime,
+      startTime: gameState.startTime.toISOString(), // Конвертируем Date в строку
       timer: gameState.timer
     });
 
