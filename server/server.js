@@ -113,10 +113,14 @@ if (MONGODB_URI && MONGODB_URI.trim() !== '') {
 
 // Модели (только если MongoDB подключена)
 let User, Room, GameHistory;
-if (MONGODB_URI) {
-  User = require('./models/User');
-  Room = require('./models/Room');
-  GameHistory = require('./models/GameHistory');
+if (MONGODB_URI && MONGODB_URI.trim() !== '') {
+  try {
+    User = require('./models/User');
+    Room = require('./models/Room');
+    GameHistory = require('./models/GameHistory');
+  } catch (err) {
+    console.error('⚠️ Ошибка загрузки моделей MongoDB:', err.message);
+  }
 }
 
 // Хранилище активных пользователей и комнат
@@ -763,7 +767,7 @@ server.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
   console.log(`📡 WebSocket готов к подключениям`);
   console.log(`💾 Персистентное хранилище: ${DATA_DIR}`);
-  console.log(`🗄️ MongoDB: ${MONGODB_URI ? 'Подключена' : 'Отключена (используется JSON)'}`);
+  console.log(`🗄️ MongoDB: ${MONGODB_URI && MONGODB_URI.trim() !== '' ? 'Настроена' : 'Отключена (используется JSON)'}`);
 });
 
 // Graceful shutdown
