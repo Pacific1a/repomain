@@ -245,14 +245,19 @@
       // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
       
+      // Устанавливаем z-index чтобы аватарки были видны
+      avatar.style.zIndex = '10';
+      
       if (photoUrl && photoUrl.trim() !== '') {
         // Аватарка из Telegram
         avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
         avatar.style.backgroundColor = seg.player.color;
+        avatar.textContent = ''; // Очищаем текст
       } else {
         // Дефолтная аватарка с инициалом
+        avatar.style.backgroundImage = 'none'; // Убираем старое фото
         avatar.style.backgroundColor = seg.player.color;
         avatar.style.display = 'flex';
         avatar.style.alignItems = 'center';
@@ -284,6 +289,9 @@
       }
       
       players.forEach(player => {
+        // Пропускаем невалидных игроков
+        if (!player || !player.id || !player.username || player.id === 'undefined') return;
+        
         // Ищем существующий блок игрока
         let playerDiv = elements.playersList.querySelector(`[data-player-id="${player.id}"]`);
         
