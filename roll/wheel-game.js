@@ -204,7 +204,7 @@
       
       // Позиционируем в центре сегмента (уменьшенный радиус для размещения внутри)
       const angleRad = (seg.center - 90) * Math.PI / 180;
-      const radius = 55; // Радиус от центра колеса (уменьшен с 80 до 55)
+      const radius = 40; // Радиус от центра колеса (уменьшен до 40 для размещения внутри 250px колеса)
       const x = 50 + radius * Math.cos(angleRad);
       const y = 50 + radius * Math.sin(angleRad);
       
