@@ -1488,3 +1488,26 @@ width: 50px;
     line-height: normal;
     white-space: nowrap;
 }
+
+/* Динамические аватарки в колесе */
+.roll-playing .fortune-wheel .dynamic-avatar {
+  pointer-events: none;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* Анимация появления аватарок */
+@keyframes avatarFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.roll-playing .fortune-wheel .dynamic-avatar {
+  animation: avatarFadeIn 0.4s ease;
+}

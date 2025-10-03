@@ -29,6 +29,9 @@
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Синхронизация состояния:', state);
       gameState = state;
+      
+      // Обновляем колесо и список игроков
+      syncPlayersToWheel();
       updateUI();
       
       // Если идёт таймер - запускаем локально
@@ -54,17 +57,8 @@
         });
       }
 
-      // Обновляем колесо через wheel-game
-      if (window.rollGame && window.rollGame.addPlayer) {
-        window.rollGame.addPlayer({
-          id: data.userId,
-          username: data.nickname,
-          photo_url: data.photoUrl,
-          betAmount: data.bet,
-          isBot: false
-        });
-      }
-
+      // Синхронизируем всех игроков с колесом
+      syncPlayersToWheel();
       updateUI();
     });
 
@@ -213,6 +207,16 @@
 
   // Обновление UI
   function updateUI() {
+    // Обновляем колесо через wheel-game
+    if (window.rollGame && window.rollGame.updateState) {
+      window.rollGame.updateState(gameState);
+    }
+
+    // Обновляем список игроков только если вкладка Previos активна
+    if (window.TabsManager && window.TabsManager.getCurrentTab() !== 'previos') {
+      return;
+    }
+
     const playersList = document.querySelector('.user-templates');
     if (!playersList) return;
 
@@ -220,7 +224,7 @@
 
     gameState.players.forEach(player => {
       const playerEl = document.createElement('div');
-      playerEl.className = 'default';
+      playerEl.className = 'win';
       
       let avatarHTML = '';
       if (player.photoUrl) {
@@ -248,12 +252,23 @@
       `;
       playersList.appendChild(playerEl);
     });
+  }
 
-    // Обновляем статус
-    const waitText = document.querySelector('.wait');
-    if (waitText && gameState.status === 'waiting') {
-      waitText.textContent = `Waiting for players... (${gameState.players.length})`;
-    }
+  // Синхронизация игроков с колесом
+  function syncPlayersToWheel() {
+    if (!window.rollGame || !window.rollGame.updateState) return;
+    
+    // Преобразуем формат для wheel-game
+    const wheelPlayers = gameState.players.map((player, index) => ({
+      id: player.userId,
+      username: player.nickname,
+      photo_url: player.photoUrl,
+      betAmount: player.bet,
+      isUser: false,
+      isBot: false
+    }));
+    
+    window.rollGame.updateState({ players: wheelPlayers });
   }
 
   // Экспорт
@@ -266,5 +281,12 @@
   waitForWebSocket();
 
   console.log('✅ Roll Sync инициализирован');
+
+  // Периодически запрашиваем состояние игры для синхронизации
+  setInterval(() => {
+    if (ws && ws.socket && ws.connected) {
+      ws.socket.emit('get_game_state', { game: 'roll' });
+    }
+  }, 2000); // Каждые 2 секунды
 
 })();

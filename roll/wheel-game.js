@@ -11,12 +11,12 @@
 
   // ============ GAME VARIABLES ============
   let gameState = GAME_STATES.WAITING;
-  let players = []; // Максимум 3 игрока
+  let players = []; // Максимум 5 игроков
   let bettingTimeLeft = 60;
   let bettingTimer = null;
   let currentRotation = 0;
 
-  // ============ COLORS (3 команды) ============
+  // ============ COLORS (5 градиентов) ============
   const teams = [
     { 
       start: '#8f7aff', 
@@ -32,15 +32,22 @@
       start: '#ffdcb9', 
       end: '#b38c69', 
       name: 'Beige'
+    },
+    { 
+      start: '#ff6b6b', 
+      end: '#c92a2a', 
+      name: 'Red'
+    },
+    { 
+      start: '#51cf66', 
+      end: '#2f9e44', 
+      name: 'Green'
     }
   ];
 
   // ============ DOM ELEMENTS ============
   const elements = {
     wheel: document.getElementById('fortune-wheel'),
-    avatar1: document.getElementById('avatar-1'),
-    avatar2: document.getElementById('avatar-2'),
-    avatar3: document.getElementById('avatar-3'),
     totalBets: document.querySelector('.text-wrapper-5'),
     waitText: document.querySelector('.wait'),
     betInput: document.querySelector('.element .text-wrapper-7'),
@@ -52,8 +59,6 @@
     halfBtn: document.querySelector('.button-2'),
     doubleBtn: document.querySelector('.button-3')
   };
-  
-  const avatarElements = [elements.avatar1, elements.avatar2, elements.avatar3];
 
   // ============ BET CONTROLS ============
   function getBetAmount() {
@@ -113,9 +118,9 @@
 
   // ============ PLAYER MANAGEMENT ============
   function addPlayer(player) {
-    // Максимум 3 игрока
-    if (players.length >= 3) {
-      showNotification('Максимум 3 игрока!');
+    // Максимум 5 игроков
+    if (players.length >= 5) {
+      showNotification('Максимум 5 игроков!');
       return false;
     }
 
@@ -165,62 +170,91 @@
   function updateWheel() {
     if (!elements.wheel) return;
 
-    // ВСЕГДА 3 равных сегмента по 120° (не зависит от ставок!)
-    elements.wheel.style.background = `conic-gradient(from -90deg,
-      ${teams[0].start} 0deg, ${teams[0].end} 120deg,
-      ${teams[1].start} 120deg, ${teams[1].end} 240deg,
-      ${teams[2].start} 240deg, ${teams[2].end} 360deg
-    )`;
+    // Очищаем старые аватарки
+    elements.wheel.innerHTML = '';
 
-    // Фиксированные углы для каждой позиции
-    const segments = [
-      { start: 0, end: 120, center: 60 },    // Purple
-      { start: 120, end: 240, center: 180 }, // Pink
-      { start: 240, end: 360, center: 300 }  // Beige
-    ];
+    if (players.length === 0) {
+      elements.wheel.style.background = '#2a2a2a';
+      return;
+    }
 
-    // Обновляем аватарки
+    // Рассчитываем пропорциональные сегменты
+    const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
+    let currentAngle = 0;
+    const segments = [];
+
     players.forEach((player, index) => {
-      const avatar = avatarElements[index];
-      if (!avatar) return;
-
-      const segment = segments[index];
-      player.centerAngle = segment.center;
-
-      // Показываем аватарку и загружаем фото
-      avatar.style.display = 'block';
+      const percent = (player.betAmount / totalBets) * 100;
+      const degrees = (player.betAmount / totalBets) * 360;
+      const centerAngle = currentAngle + degrees / 2;
       
-      if (player.photo_url) {
-        // Реальная аватарка из Telegram
-        avatar.style.backgroundImage = `url(${player.photo_url})`;
+      player.percent = percent;
+      player.centerAngle = centerAngle;
+      
+      segments.push({
+        start: currentAngle,
+        end: currentAngle + degrees,
+        center: centerAngle,
+        player: player,
+        percent: percent
+      });
+      
+      currentAngle += degrees;
+    });
+
+    // Создаем conic-gradient для фона
+    let gradientParts = [];
+    segments.forEach((seg, index) => {
+      const team = players[index].team;
+      gradientParts.push(`${team.start} ${seg.start}deg`);
+      gradientParts.push(`${team.end} ${seg.end}deg`);
+    });
+
+    elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
+
+    // Создаем аватарки динамически
+    segments.forEach((seg) => {
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar dynamic-avatar';
+      
+      // Размер зависит от процента (30px - 60px)
+      const size = Math.max(30, Math.min(60, 30 + seg.percent * 0.5));
+      avatar.style.width = `${size}px`;
+      avatar.style.height = `${size}px`;
+      
+      // Позиционируем в центре сегмента
+      const angleRad = (seg.center - 90) * Math.PI / 180;
+      const radius = 80; // Радиус от центра колеса
+      const x = 50 + radius * Math.cos(angleRad);
+      const y = 50 + radius * Math.sin(angleRad);
+      
+      avatar.style.position = 'absolute';
+      avatar.style.left = `${x}%`;
+      avatar.style.top = `${y}%`;
+      avatar.style.transform = 'translate(-50%, -50%)';
+      avatar.style.borderRadius = '50%';
+      avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
+      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+      
+      if (seg.player.photo_url) {
+        // Аватарка из Telegram
+        avatar.style.backgroundImage = `url(${seg.player.photo_url})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
-        avatar.style.background = '';
-      } else if (player.avatarColor) {
-        // Цветной градиент для бота
-        avatar.style.background = player.avatarColor;
-        avatar.style.backgroundImage = '';
+      } else {
+        // Дефолтная аватарка с инициалом
+        avatar.style.background = `linear-gradient(135deg, ${seg.player.team.start}, ${seg.player.team.end})`;
         avatar.style.display = 'flex';
         avatar.style.alignItems = 'center';
         avatar.style.justifyContent = 'center';
         avatar.style.color = 'white';
-        avatar.style.fontSize = '20px';
+        avatar.style.fontSize = `${size * 0.5}px`;
         avatar.style.fontWeight = 'bold';
-        avatar.textContent = player.username ? player.username[0].toUpperCase() : '?';
-      } else {
-        // Дефолтный серый градиент
-        avatar.style.background = 'linear-gradient(180deg, #7d7d7d, #a2a2a2)';
-        avatar.style.backgroundImage = '';
+        avatar.textContent = seg.player.username ? seg.player.username[0].toUpperCase() : '?';
       }
-
+      
+      elements.wheel.appendChild(avatar);
     });
-
-    // Скрываем неиспользуемые аватарки
-    for (let i = players.length; i < 3; i++) {
-      if (avatarElements[i]) {
-        avatarElements[i].style.display = 'none';
-      }
-    }
   }
 
   // ============ DISPLAY UPDATES ============
@@ -476,7 +510,14 @@
     updateState: (state) => {
       // Обновление состояния от сервера
       if (state.players) {
-        players = state.players;
+        // Преобразуем игроков с назначением команд
+        const newPlayers = state.players.map((player, index) => ({
+          ...player,
+          team: teams[index % teams.length],
+          teamIndex: index % teams.length
+        }));
+        
+        players = newPlayers;
         updateWheel();
         updateDisplay();
       }
