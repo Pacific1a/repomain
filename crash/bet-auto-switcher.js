@@ -24,8 +24,10 @@
 
     if (mode === 'bet') {
       // Режим Bet активен
-      elements.betButton.classList.add('bet');
-      elements.betButton.classList.remove('div-wrapper-3');
+      if (elements.betButton) {
+        elements.betButton.classList.add('bet');
+        elements.betButton.classList.remove('div-wrapper-3');
+      }
       
       elements.autoButton.classList.add('div-wrapper-3');
       elements.autoButton.classList.remove('bet');

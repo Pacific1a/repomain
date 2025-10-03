@@ -35,7 +35,12 @@ app.use(helmet({
         "https://telegram.org",
         "https://cdn.socket.io"
       ],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'",
+        "https://cdnjs.cloudflare.com",
+        "https://fonts.googleapis.com"
+      ],
       imgSrc: [
         "'self'", 
         "data:", 
@@ -50,7 +55,12 @@ app.use(helmet({
         "wss:",
         "ws:"
       ],
-      fontSrc: ["'self'", "data:", "https:"],
+      fontSrc: [
+        "'self'", 
+        "data:", 
+        "https:",
+        "https://fonts.gstatic.com"
+      ],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'self'"]
