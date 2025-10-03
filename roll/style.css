@@ -378,7 +378,7 @@
   gap: 2px;
   width: 100%;
   display: flex;
-  top: -15px;
+  top: 1px;
   align-items: center;
   position: relative;
   flex: 1;
@@ -420,19 +420,10 @@
 
 .roll-playing .fortune-wheel {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   border-radius: 50%;
-  background: conic-gradient(
-    from -90deg,
-    #8f7aff 0deg,
-    #4837a8 120deg,
-    #b92eff 120deg,
-    #5a00a0 240deg,
-    #ffdcb9 240deg,
-    #b38c69 360deg,
-    #8f7aff 360deg
-  );
+  background: #2a2a2a; /* Дефолтный фон, будет заменен динамически через JS */
   transition: transform 4.5s cubic-bezier(0.23, 1, 0.32, 1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   z-index: 1;
@@ -442,90 +433,7 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
 
-.roll-playing .fortune-wheel .avatar {
-  --angle: 0deg;
-  --radius: 68px;
-  --color-start: #8f7aff;
-  --color-end: #4837a8;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  transform:
-    translate(-50%, -50%)
-    rotate(var(--angle))
-    translate(0, -var(--radius));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, var(--color-start), var(--color-end));
-  box-shadow:
-    0 6px 12px rgba(0, 0, 0, 0.35),
-    inset 0 2px 4px rgba(255, 255, 255, 0.25);
-  pointer-events: none;
-}
-
-
-.roll-playing .fortune-wheel .avatar:nth-child(1)::after {
-  z-index: 1;
-  border-radius: 100%;
-  background-image: url(img/image.png);
-  background-position: center;
-  background-size: cover;
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: rotate(135deg);
-}
-.roll-playing .fortune-wheel .avatar:nth-child(2)::after {
-  z-index: 1;
-  border-radius: 100%;
-  background-image: url(img/image.png);
-  background-position: center;
-  background-size: cover;
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: rotate(0deg);
-}
-.roll-playing .fortune-wheel .avatar:nth-child(3)::after {
-  transform: rotate(35deg);
-  z-index: 1;
-  border-radius: 100%;
-  background-image: url(img/image.png);
-  background-position: center;
-  background-size: cover;
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-.roll-playing .fortune-wheel .avatar:nth-child(1) {
-  --angle: -30deg;
-  --color-start: #9a84ff;
-  --color-end: #4d3cb2;
-  top: 11%;
-    left: 22%;
-}
-
-.roll-playing .fortune-wheel .avatar:nth-child(2) {
-  transform: rotate(-90deg);
-  --angle: 90deg;
-  --color-start: #c239ff;
-  --color-end: #6410b8;
-  left: 71%;
-  top: 38%;
-
-}
-
-.roll-playing .fortune-wheel .avatar:nth-child(3) {
-  --angle: 210deg;
-  top: 126px;left: 39px;
-  --color-start: #ffffff;
-  --color-end: #ba916c;
-  color: #2f1b0d;
-}
+/* Старые стили для статичных аватарок удалены - теперь создаются динамически через JS */
 .wait{
   z-index: 2;
   display: inline-flex;
@@ -538,7 +446,7 @@ border-radius: 50%;
 justify-content: center;
 align-items: center;
 position: absolute;
-top: 57%;
+top: 50%;
 left: 50.5%;
 transform: translate(-50%, -50%);
 height: 50px;

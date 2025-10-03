@@ -140,6 +140,16 @@ class TelegramUserData {
     updateUI() {
         const displayName = this.getDisplayName();
         
+        // Создаем глобальный объект для совместимости
+        window.TelegramUserData = {
+            id: this.getUserId(),
+            first_name: this.userData?.firstName || '',
+            last_name: this.userData?.lastName || '',
+            username: this.userData?.username || '',
+            photo_url: this.getPhotoUrl(),
+            is_premium: this.userData?.isPremium || false
+        };
+        
         // Обновляем все блоки account-info
         const accountInfoBlocks = document.querySelectorAll('.account-info');
         accountInfoBlocks.forEach(block => {

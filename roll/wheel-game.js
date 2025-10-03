@@ -11,38 +11,18 @@
 
   // ============ GAME VARIABLES ============
   let gameState = GAME_STATES.WAITING;
-  let players = []; // Максимум 5 игроков
+  let players = []; // Максимум 10+ игроков
   let bettingTimeLeft = 60;
   let bettingTimer = null;
   let currentRotation = 0;
 
-  // ============ COLORS (5 градиентов) ============
-  const teams = [
-    { 
-      start: '#8f7aff', 
-      end: '#4837a8', 
-      name: 'Purple'
-    },
-    { 
-      start: '#b92eff', 
-      end: '#5a00a0', 
-      name: 'Pink'
-    },
-    { 
-      start: '#ffdcb9', 
-      end: '#b38c69', 
-      name: 'Beige'
-    },
-    { 
-      start: '#ff6b6b', 
-      end: '#c92a2a', 
-      name: 'Red'
-    },
-    { 
-      start: '#51cf66', 
-      end: '#2f9e44', 
-      name: 'Green'
-    }
+  // ============ COLORS (однотонные цвета) ============
+  const colors = [
+    '#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff',
+    '#dee2e6', '#e9ecef', '#eae2b7', '#fcbf49', '#4cc9f0',
+    '#f72585', '#8ac926', '#e0fbfc', '#ee6c4d', '#56cfe1',
+    '#ffc971', '#e0afa0', '#ffffff', '#9d4edd', '#b8f2e6',
+    '#06d6a0', '#abc4ff', '#dcf763'
   ];
 
   // ============ DOM ELEMENTS ============
@@ -118,9 +98,9 @@
 
   // ============ PLAYER MANAGEMENT ============
   function addPlayer(player) {
-    // Максимум 5 игроков
-    if (players.length >= 5) {
-      showNotification('Максимум 5 игроков!');
+    // Максимум 23 игрока (по количеству цветов)
+    if (players.length >= colors.length) {
+      showNotification(`Максимум ${colors.length} игроков!`);
       return false;
     }
 
@@ -128,10 +108,10 @@
     if (existing) {
       existing.betAmount += player.betAmount;
     } else {
-      // Назначаем команду по порядку
-      const teamIndex = players.length;
-      player.team = teams[teamIndex];
-      player.teamIndex = teamIndex;
+      // Назначаем цвет по порядку
+      const colorIndex = players.length;
+      player.color = colors[colorIndex];
+      player.colorIndex = colorIndex;
       players.push(player);
     }
 
@@ -202,12 +182,12 @@
       currentAngle += degrees;
     });
 
-    // Создаем conic-gradient для фона
+    // Создаем conic-gradient для фона (однотонные цвета)
     let gradientParts = [];
     segments.forEach((seg, index) => {
-      const team = players[index].team;
-      gradientParts.push(`${team.start} ${seg.start}deg`);
-      gradientParts.push(`${team.end} ${seg.end}deg`);
+      const color = players[index].color;
+      gradientParts.push(`${color} ${seg.start}deg`);
+      gradientParts.push(`${color} ${seg.end}deg`);
     });
 
     elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
@@ -217,14 +197,14 @@
       const avatar = document.createElement('div');
       avatar.className = 'avatar dynamic-avatar';
       
-      // Размер зависит от процента (30px - 60px)
-      const size = Math.max(30, Math.min(60, 30 + seg.percent * 0.5));
+      // Размер зависит от процента (25px - 45px для большего колеса)
+      const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Позиционируем в центре сегмента
+      // Позиционируем в центре сегмента (уменьшенный радиус для размещения внутри)
       const angleRad = (seg.center - 90) * Math.PI / 180;
-      const radius = 80; // Радиус от центра колеса
+      const radius = 55; // Радиус от центра колеса (уменьшен с 80 до 55)
       const x = 50 + radius * Math.cos(angleRad);
       const y = 50 + radius * Math.sin(angleRad);
       
@@ -236,14 +216,18 @@
       avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
       avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
       
-      if (seg.player.photo_url) {
+      // Проверяем наличие аватарки из Telegram
+      const photoUrl = seg.player.photo_url || seg.player.photoUrl;
+      
+      if (photoUrl && photoUrl.trim() !== '') {
         // Аватарка из Telegram
-        avatar.style.backgroundImage = `url(${seg.player.photo_url})`;
+        avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
+        avatar.style.backgroundColor = seg.player.color;
       } else {
         // Дефолтная аватарка с инициалом
-        avatar.style.background = `linear-gradient(135deg, ${seg.player.team.start}, ${seg.player.team.end})`;
+        avatar.style.backgroundColor = seg.player.color;
         avatar.style.display = 'flex';
         avatar.style.alignItems = 'center';
         avatar.style.justifyContent = 'center';
@@ -510,11 +494,11 @@
     updateState: (state) => {
       // Обновление состояния от сервера
       if (state.players) {
-        // Преобразуем игроков с назначением команд
+        // Преобразуем игроков с назначением цветов
         const newPlayers = state.players.map((player, index) => ({
           ...player,
-          team: teams[index % teams.length],
-          teamIndex: index % teams.length
+          color: colors[index % colors.length],
+          colorIndex: index % colors.length
         }));
         
         players = newPlayers;
