@@ -83,10 +83,10 @@
     const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
     if (!success) return;
 
-    // МУЛЬТИПЛЕЕР: отправляем ставку через WebSocket
-    if (window.RollMultiplayer && window.RollMultiplayer.placeBet) {
-      window.RollMultiplayer.placeBet(betAmount);
-      showNotification('Ставка сделана! Ожидание игроков...');
+    // СИНХРОНИЗАЦИЯ: отправляем ставку через WebSocket
+    if (window.RollSync && window.RollSync.placeBet) {
+      window.RollSync.placeBet(betAmount);
+      showNotification('Ставка сделана!');
       return;
     }
 

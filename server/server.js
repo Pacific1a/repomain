@@ -119,6 +119,17 @@ const onlineUsers = new Map(); // socketId -> userData
 const activeRooms = new Map(); // roomId -> roomData
 const userSockets = new Map(); // userId -> socketId
 
+// Глобальное состояние игр
+const globalGames = {
+  roll: {
+    status: 'waiting',
+    players: [],
+    timer: 30,
+    startTime: null,
+    timerInterval: null
+  }
+};
+
 // Персистентное хранилище (JSON файлы)
 const DATA_DIR = path.join(__dirname, 'data');
 const ROOMS_FILE = path.join(DATA_DIR, 'rooms.json');
@@ -484,6 +495,104 @@ io.on('connection', (socket) => {
       socket.emit('error', { message: 'Ошибка обработки хода' });
     }
   });
+
+  // ============ ГЛОБАЛЬНАЯ СИНХРОНИЗАЦИЯ ИГР ============
+
+  // Присоединиться к глобальной игре
+  socket.on('join_global_game', ({ game }) => {
+    socket.join(`global_${game}`);
+    console.log(`🌍 Игрок присоединился к глобальной игре: ${game}`);
+    
+    // Отправляем текущее состояние
+    socket.emit('game_state_sync', globalGames[game]);
+  });
+
+  // Получить состояние игры
+  socket.on('get_game_state', ({ game }) => {
+    socket.emit('game_state_sync', globalGames[game]);
+  });
+
+  // Сделать ставку в глобальной игре
+  socket.on('place_bet', ({ game, userId, nickname, photoUrl, bet }) => {
+    const gameState = globalGames[game];
+    
+    // Добавляем/обновляем игрока
+    const existingPlayer = gameState.players.find(p => p.userId === userId);
+    if (existingPlayer) {
+      existingPlayer.bet += bet;
+    } else {
+      gameState.players.push({ userId, nickname, photoUrl, bet });
+    }
+
+    // Отправляем всем
+    io.to(`global_${game}`).emit('player_bet', { userId, nickname, photoUrl, bet });
+
+    console.log(`💰 Ставка в ${game}: ${nickname} - ${bet}`);
+
+    // Если первая ставка - запускаем таймер
+    if (gameState.status === 'waiting' && gameState.players.length === 1) {
+      startGlobalGame(game);
+    }
+  });
+
+  // Запуск глобальной игры
+  function startGlobalGame(game) {
+    const gameState = globalGames[game];
+    gameState.status = 'betting';
+    gameState.startTime = new Date();
+    
+    io.to(`global_${game}`).emit('game_started', {
+      startTime: gameState.startTime,
+      timer: gameState.timer
+    });
+
+    console.log(`🎮 Глобальная игра ${game} началась! Таймер: ${gameState.timer}с`);
+
+    // Таймер
+    gameState.timerInterval = setTimeout(() => {
+      spinGlobalGame(game);
+    }, gameState.timer * 1000);
+  }
+
+  // Крутим колесо
+  function spinGlobalGame(game) {
+    const gameState = globalGames[game];
+    
+    if (gameState.players.length === 0) {
+      gameState.status = 'waiting';
+      return;
+    }
+
+    // Выбираем победителя по весам
+    const totalBets = gameState.players.reduce((sum, p) => sum + p.bet, 0);
+    const random = Math.random() * totalBets;
+    let sum = 0;
+    let winner = gameState.players[0];
+
+    for (const player of gameState.players) {
+      sum += player.bet;
+      if (random <= sum) {
+        winner = player;
+        break;
+      }
+    }
+
+    console.log(`🎰 Победитель в ${game}: ${winner.nickname}`);
+
+    io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
+
+    // Завершаем игру через 5 секунд
+    setTimeout(() => {
+      io.to(`global_${game}`).emit('game_finished', { winner: winner.userId });
+      
+      // Сбрасываем состояние
+      gameState.status = 'waiting';
+      gameState.players = [];
+      gameState.startTime = null;
+      
+      console.log(`🏁 Глобальная игра ${game} завершена`);
+    }, 5000);
+  }
 
   // Отключение
   socket.on('disconnect', () => {
