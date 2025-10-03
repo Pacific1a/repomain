@@ -98,12 +98,17 @@ app.use('/api/', limiter);
 
 // MongoDB подключение (опционально)
 const MONGODB_URI = process.env.MONGODB_URI;
-if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI)
+if (MONGODB_URI && MONGODB_URI.trim() !== '') {
+  mongoose.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 5000, // Таймаут 5 секунд
+  })
     .then(() => console.log('✅ MongoDB подключена'))
-    .catch(err => console.error('❌ MongoDB ошибка:', err));
+    .catch(err => {
+      console.error('❌ MongoDB ошибка:', err.message);
+      console.log('⚠️ Продолжаем работу без MongoDB (используется JSON хранилище)');
+    });
 } else {
-  console.log('⚠️ MongoDB не настроена (работает без БД)');
+  console.log('⚠️ MongoDB не настроена (работает без БД - используется JSON хранилище)');
 }
 
 // Модели (только если MongoDB подключена)
