@@ -143,19 +143,36 @@
       return;
     }
 
-    // Получаем данные пользователя из Telegram
-    const userData = window.TelegramUserData || ws.currentUser;
-    
-    if (!userData) {
-      console.error('❌ Нет данных пользователя');
-      return;
+    // Получаем данные пользователя из разных источников
+    let userId, nickname, photoUrl;
+
+    // Приоритет 1: Telegram WebApp
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+      userId = tgUser.id;
+      nickname = tgUser.first_name || tgUser.username || 'Player';
+      photoUrl = tgUser.photo_url || null;
+    }
+    // Приоритет 2: TelegramUserData
+    else if (window.TelegramUserData) {
+      userId = window.TelegramUserData.id;
+      nickname = window.TelegramUserData.first_name || window.TelegramUserData.username || 'Player';
+      photoUrl = window.TelegramUserData.photo_url || null;
+    }
+    // Приоритет 3: WebSocket currentUser
+    else if (ws.currentUser) {
+      userId = ws.currentUser.id;
+      nickname = ws.currentUser.nickname || 'Player';
+      photoUrl = ws.currentUser.photoUrl || null;
+    }
+    // Fallback
+    else {
+      userId = 'user_' + Date.now();
+      nickname = 'Player';
+      photoUrl = null;
     }
 
-    const userId = userData.id || ws.currentUser?.id || 'user_' + Date.now();
-    const nickname = userData.first_name || userData.username || ws.currentUser?.nickname || 'Player';
-    const photoUrl = userData.photo_url || ws.currentUser?.photoUrl || null;
-
-    console.log('💰 Отправляем ставку:', { userId, nickname, bet: amount });
+    console.log('💰 Отправляем ставку:', { userId, nickname, photoUrl, bet: amount });
 
     ws.socket.emit('place_bet', {
       game: 'roll',
