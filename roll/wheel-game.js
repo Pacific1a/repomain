@@ -233,18 +233,32 @@
         console.log('✅ Создана аватарка для игрока:', seg.player.username, 'ID:', seg.player.id);
       }
       
-      // Размер зависит от процента (30px - 50px)
-      const size = Math.max(30, Math.min(50, 30 + seg.percent * 0.4));
+      // Размер зависит от процента (25px - 45px, уменьшается при малом сегменте)
+      const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // УПРОЩЕННОЕ позиционирование - фиксированный радиус 70px от центра
+      // Позиционирование в ЦЕНТРЕ МАСС сегмента
       const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
-      const radius = 70; // Фиксированный радиус от центра колеса
+      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента
+      
+      // Формула центра масс: для сектора радиуса R с углом θ
+      // Центр масс находится на расстоянии: (2R * sin(θ/2)) / (3 * θ/2)
+      const wheelRadius = 125; // Радиус колеса
+      let centerOfMassRadius;
+      
+      if (segmentAngleRad > 0) {
+        centerOfMassRadius = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
+      } else {
+        centerOfMassRadius = wheelRadius * 0.6; // Дефолт
+      }
+      
+      // Ограничиваем радиус чтобы аватарки были внутри колеса
+      centerOfMassRadius = Math.min(centerOfMassRadius, 80);
       
       // Позиция в пикселях от центра колеса (125px, 125px)
-      const xPx = 125 + radius * Math.cos(angleRad);
-      const yPx = 125 + radius * Math.sin(angleRad);
+      const xPx = 125 + centerOfMassRadius * Math.cos(angleRad);
+      const yPx = 125 + centerOfMassRadius * Math.sin(angleRad);
       
       // Применяем стили
       avatar.style.position = 'absolute';
