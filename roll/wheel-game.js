@@ -238,31 +238,34 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Вычисляем центр сегмента
+      // Вычисляем центр сегмента математически
       // 1. Средний угол между началом и концом сегмента
-      const centerAngle = (seg.start + seg.end) / 2;
+      const middleAngle = (seg.start + seg.end) / 2;
       
-      // 2. Переводим в радианы
-      // ВАЖНО: conic-gradient(from -90deg) означает что 0° сверху
-      // В математике: 0° справа, 90° снизу, 180° слева, 270° сверху
-      // Поэтому НЕ нужно вычитать 90, градиент уже повернут
-      const angleRad = centerAngle * (Math.PI / 180);
+      // 2. Переводим в радианы с учетом что conic-gradient(from -90deg)
+      // Градиент начинается сверху, но Math.cos/sin считают что 0° справа
+      // Поэтому вычитаем 90° чтобы совместить системы координат
+      const angleRad = (middleAngle - 90) * (Math.PI / 180);
       
-      // 3. Центр колеса
-      const centerX = 125; // px
-      const centerY = 125; // px
+      // 3. Центр колеса (250px / 2 = 125px)
+      const centerX = 125;
+      const centerY = 125;
       
-      // 4. Радиус (фиксированный для всех аватарок)
-      const radius = 62.5; // Половина радиуса колеса
+      // 4. Радиус - 60-70% от радиуса колеса для центра сегмента
+      const wheelRadius = 125;
+      const radius = wheelRadius * 0.65; // 65% = 81.25px
       
       // 5. Вычисляем координаты по формулам
+      // x = centerX + radius * cos(angleRad)
+      // y = centerY + radius * sin(angleRad)
       const xPx = centerX + radius * Math.cos(angleRad);
       const yPx = centerY + radius * Math.sin(angleRad);
       
       console.log(`📍 ${seg.player.username}:`, {
         segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
-        centerAngle: centerAngle.toFixed(1) + '°',
-        radius: radius + 'px',
+        middleAngle: middleAngle.toFixed(1) + '°',
+        angleRad: angleRad.toFixed(3) + ' rad',
+        radius: radius.toFixed(1) + 'px',
         position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`
       });
       
