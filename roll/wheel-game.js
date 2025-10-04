@@ -156,162 +156,107 @@
       return;
     }
 
-    // Рассчитываем пропорциональные сегменты
-    const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
-    
-    if (totalBets === 0) {
-      console.warn('⚠️ Общая сумма ставок = 0, не можем создать сегменты');
-      return;
-    }
-    
-    let currentAngle = 0;
-    const segments = [];
+    console.log('🎨 Создаем колесо для', players.length, 'игроков');
 
-    players.forEach((player, index) => {
-      const betAmount = player.betAmount || 0;
-      const percent = (betAmount / totalBets) * 100;
-      const degrees = (betAmount / totalBets) * 360;
-      const centerAngle = currentAngle + degrees / 2;
-      
-      player.percent = percent;
-      player.centerAngle = centerAngle;
-      
-      console.log(`📊 Сегмент ${index}:`, {
-        player: player.username,
-        betAmount,
-        percent: percent.toFixed(1) + '%',
-        degrees: degrees.toFixed(1) + '°',
-        start: currentAngle.toFixed(1),
-        end: (currentAngle + degrees).toFixed(1)
-      });
-      
-      segments.push({
-        start: currentAngle,
-        end: currentAngle + degrees,
-        center: centerAngle,
-        player: player,
-        percent: percent
-      });
-      
-      currentAngle += degrees;
-    });
-
-    // Создаем conic-gradient для фона (однотонные цвета)
-    // ВАЖНО: from 0deg = начало СПРАВА (3 часа), from -90deg = начало СВЕРХУ (12 часов)
+    // 1. СОЗДАЕМ СЕГМЕНТЫ (равномерно делим круг)
+    const totalPlayers = players.length;
+    const degreesPerPlayer = 360 / totalPlayers; // Каждому игроку одинаковый угол
+    
+    // Начинаем СНИЗУ (90° в стандартной системе, где 0° = право)
+    // Но conic-gradient начинается с -90° (сверху), поэтому для низа нужно 180°
+    const startOffset = 180; // Начало снизу
+    
     let gradientParts = [];
-    segments.forEach((seg, index) => {
-      const color = players[index].color;
-      gradientParts.push(`${color} ${seg.start}deg`);
-      gradientParts.push(`${color} ${seg.end}deg`);
+    
+    players.forEach((player, index) => {
+      const startAngle = startOffset + (index * degreesPerPlayer);
+      const endAngle = startOffset + ((index + 1) * degreesPerPlayer);
+      
+      console.log(`📊 Игрок ${index} (${player.username}):`, {
+        color: player.color,
+        startAngle: startAngle.toFixed(1) + '°',
+        endAngle: endAngle.toFixed(1) + '°',
+        degrees: degreesPerPlayer.toFixed(1) + '°'
+      });
+      
+      gradientParts.push(`${player.color} ${startAngle}deg`);
+      gradientParts.push(`${player.color} ${endAngle}deg`);
     });
-
-    // Используем from 0deg чтобы начинать СПРАВА (горизонтально)
+    
+    // Применяем градиент (from -90deg = начало сверху, но мы сдвинули на 180° = низ)
     elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
-
-
-    // Удаляем старые аватарки которых нет в текущих игроках
-    const existingAvatars = elements.wheel.querySelectorAll('.dynamic-avatar');
-    const currentPlayerIds = new Set(players.map(p => p.id));
-    existingAvatars.forEach(avatar => {
-      const playerId = avatar.getAttribute('data-player-id');
-      if (!currentPlayerIds.has(playerId)) {
-        avatar.remove();
-      }
-    });
-
-    // Создаем или обновляем аватарки
-    segments.forEach((seg, index) => {
-      if (!seg.player || !seg.player.id) {
-        console.warn('⚠️ Пропущен сегмент без игрока:', seg);
-        return;
-      }
+    
+    
+    // 2. СОЗДАЕМ АВАТАРКИ (фиксированные в центре сегментов)
+    // Удаляем старые аватарки
+    const oldAvatars = elements.wheel.querySelectorAll('.dynamic-avatar');
+    oldAvatars.forEach(av => av.remove());
+    
+    players.forEach((player, index) => {
+      // Вычисляем ЦЕНТР сегмента
+      const startAngle = startOffset + (index * degreesPerPlayer);
+      const endAngle = startOffset + ((index + 1) * degreesPerPlayer);
+      const middleAngle = (startAngle + endAngle) / 2;
       
-      // Ищем существующую аватарку или создаем новую
-      let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
-      if (!avatar) {
-        avatar = document.createElement('div');
-        avatar.className = 'avatar dynamic-avatar';
-        avatar.setAttribute('data-player-id', seg.player.id);
-        elements.wheel.appendChild(avatar);
-        console.log('✅ Создана аватарка для игрока:', seg.player.username, 'ID:', seg.player.id);
-      }
+      // Переводим в радианы (вычитаем 90° потому что градиент from -90deg)
+      const angleRad = (middleAngle - 90) * (Math.PI / 180);
       
-      // Размер зависит от процента (25px - 45px, уменьшается при малом сегменте)
-      const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
-      avatar.style.width = `${size}px`;
-      avatar.style.height = `${size}px`;
-      
-      // Вычисляем центр сегмента
-      // 1. Средний угол между началом и концом сегмента
-      const centerAngle = (seg.start + seg.end) / 2;
-      
-      // 2. Переводим в радианы
-      // ВАЖНО: conic-gradient(from 0deg) означает что 0° СПРАВА (3 часа)
-      // Math.cos/sin тоже используют 0° = СПРАВА
-      // Поэтому можем использовать centerAngle напрямую без коррекции!
-      const angleRad = (centerAngle - 90) * (Math.PI / 180);
-      
-      // 3. Центр колеса
+      // Центр колеса
       const centerX = 125;
       const centerY = 125;
       
-      // 4. Радиус (фиксированный для всех аватарок - половина радиуса колеса)
-      const radius = 62.5; // px (125px / 2)
+      // Радиус - 65% от радиуса колеса (центр сегмента)
+      const radius = 125 * 0.65; // 81.25px
       
-      // 5. Вычисляем координаты по формулам (стандартная тригонометрия)
+      // Координаты аватарки
       const xPx = centerX + radius * Math.cos(angleRad);
       const yPx = centerY + radius * Math.sin(angleRad);
       
-      console.log(`📍 ${seg.player.username}:`, {
-        segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
-        centerAngle: centerAngle.toFixed(1) + '°',
-        angleRad: angleRad.toFixed(3) + ' rad',
-        radius: radius + 'px',
-        position: `x=${xPx.toFixed(1)}px, y=${yPx.toFixed(1)}px`,
-        color: seg.player.color
-      });
+      // Создаем аватарку
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar dynamic-avatar';
+      avatar.setAttribute('data-player-id', player.id);
       
-      // Применяем стили - ВАЖНО: аватарка НЕ должна вращаться!
-      // Добавляем counter-rotation чтобы компенсировать вращение колеса
+      // Размер
+      const size = 35; // Фиксированный размер
+      avatar.style.width = `${size}px`;
+      avatar.style.height = `${size}px`;
+      
+      // ФИКСИРОВАННАЯ позиция
       avatar.style.position = 'absolute';
       avatar.style.left = `${xPx}px`;
       avatar.style.top = `${yPx}px`;
-      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`; // Counter-rotation!
+      avatar.style.transform = 'translate(-50%, -50%)';
       avatar.style.borderRadius = '50%';
-      avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
-      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
-      avatar.style.pointerEvents = 'none';
+      avatar.style.border = '3px solid rgba(255, 255, 255, 0.9)';
+      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.5)';
+      avatar.style.zIndex = '10';
       avatar.style.display = 'flex';
       avatar.style.alignItems = 'center';
       avatar.style.justifyContent = 'center';
-      avatar.style.transition = 'none'; // Убираем transition для мгновенного обновления
+      avatar.style.pointerEvents = 'none';
       
-      // Проверяем наличие аватарки из Telegram
-      const photoUrl = seg.player.photo_url || seg.player.photoUrl;
-      
-      // Устанавливаем z-index чтобы аватарки были видны
-      avatar.style.zIndex = '10';
-      
+      // Фото или инициал
+      const photoUrl = player.photo_url || player.photoUrl;
       if (photoUrl && photoUrl.trim() !== '') {
-        // Аватарка из Telegram
         avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
-        avatar.style.backgroundColor = seg.player.color;
-        avatar.textContent = ''; // Очищаем текст
-        console.log('🖼️ Аватарка с фото:', seg.player.username);
       } else {
-        // Дефолтная аватарка с инициалом
-        avatar.style.backgroundImage = 'none';
-        avatar.style.backgroundColor = seg.player.color;
+        avatar.style.backgroundColor = player.color;
         avatar.style.color = 'white';
-        avatar.style.fontSize = `${size * 0.5}px`;
+        avatar.style.fontSize = '16px';
         avatar.style.fontWeight = 'bold';
-        avatar.textContent = seg.player.username ? seg.player.username[0].toUpperCase() : '?';
-        console.log('🔤 Аватарка с инициалом:', seg.player.username, 'Цвет:', seg.player.color);
+        avatar.textContent = player.username ? player.username[0].toUpperCase() : '?';
       }
       
-      console.log('🎯 Позиция аватарки:', { left: avatar.style.left, top: avatar.style.top, zIndex: avatar.style.zIndex });
+      elements.wheel.appendChild(avatar);
+      
+      console.log(`✅ Аватарка создана:`, {
+        player: player.username,
+        position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`,
+        angle: middleAngle.toFixed(1) + '°'
+      });
     });
   }
 
@@ -454,27 +399,12 @@
     elements.wheel.style.transform = `rotate(${finalRotation}deg)`;
     currentRotation = finalRotation;
 
-    // Обновляем аватарки во время вращения
-    updateAvatarsRotation();
+    // TODO: Обновление аватарок при вращении
 
     setTimeout(() => finishRound(winner), 5000);
   }
 
-  // Функция для обновления вращения всех аватарок
-  function updateAvatarsRotation() {
-    const avatars = elements.wheel?.querySelectorAll('.dynamic-avatar');
-    if (!avatars) return;
-    
-    avatars.forEach(avatar => {
-      // Получаем текущую позицию (left, top остаются прежними)
-      const left = avatar.style.left;
-      const top = avatar.style.top;
-      
-      // Применяем counter-rotation
-      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`;
-      avatar.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)'; // Синхронизируем с колесом
-    });
-  }
+  // TODO: Функция для работы с аватарками будет здесь
 
   function finishRound(winner) {
     gameState = GAME_STATES.FINISHED;
