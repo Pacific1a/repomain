@@ -107,9 +107,13 @@
     }
   });
 
+  // Хранилище цветов игроков (userId -> color)
+  const playerColors = new Map();
+  let nextColorIndex = 0;
+
   // ============ PLAYER MANAGEMENT ============
   function addPlayer(player) {
-    // Максимум 23 игрока (по количеству цветов)
+    // Максимум 16 игроков (по количеству цветов)
     if (players.length >= colors.length) {
       showNotification(`Максимум ${colors.length} игроков!`);
       return false;
