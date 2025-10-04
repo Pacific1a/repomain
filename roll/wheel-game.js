@@ -180,6 +180,12 @@
     let gradientParts = [];
     
     players.forEach((player, index) => {
+      // ПРОВЕРКА: если нет цвета - назначаем
+      if (!player.color) {
+        console.warn('⚠️ У игрока нет цвета, назначаем:', player.username);
+        player.color = colors[index % colors.length];
+      }
+      
       const startAngle = startOffset + (index * degreesPerPlayer);
       const endAngle = startOffset + ((index + 1) * degreesPerPlayer);
       
