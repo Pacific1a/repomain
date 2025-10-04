@@ -273,11 +273,11 @@
         position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`
       });
       
-      // Применяем стили
+      // Применяем стили - ВАЖНО: аватарка вращается вместе с колесом!
       avatar.style.position = 'absolute';
       avatar.style.left = `${xPx}px`;
       avatar.style.top = `${yPx}px`;
-      avatar.style.transform = 'translate(-50%, -50%)';
+      avatar.style.transform = 'translate(-50%, -50%)'; // НЕ добавляем rotate - колесо само вращается
       avatar.style.borderRadius = '50%';
       avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
       avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
@@ -285,6 +285,7 @@
       avatar.style.display = 'flex';
       avatar.style.alignItems = 'center';
       avatar.style.justifyContent = 'center';
+      avatar.style.transition = 'none'; // Убираем transition чтобы вращалась с колесом
       
       // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
