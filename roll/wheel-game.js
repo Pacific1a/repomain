@@ -238,19 +238,22 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // ПРОСТОЕ позиционирование: биссектриса + половина радиуса
-      const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
+      // Позиционирование: все аватарки на одной окружности, но на разных углах
+      // Угол = центр сегмента (биссектриса между start и end)
+      const centerAngle = (seg.start + seg.end) / 2; // Средний угол сегмента
+      const angleRad = (centerAngle - 90) * Math.PI / 180; // Конвертируем в радианы, -90° для поворота
+      
+      // ФИКСИРОВАННЫЙ радиус для всех аватарок (на окружности)
       const radius = 62.5; // Половина радиуса колеса (125 / 2)
       
       // Позиция в пикселях от центра колеса (125px, 125px)
       const xPx = 125 + radius * Math.cos(angleRad);
       const yPx = 125 + radius * Math.sin(angleRad);
       
-      console.log(`📍 Позиция для ${seg.player.username}:`, {
-        angle: seg.center.toFixed(1) + '°',
-        radius: radius + 'px',
-        x: xPx.toFixed(1),
-        y: yPx.toFixed(1)
+      console.log(`📍 ${seg.player.username}:`, {
+        segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
+        centerAngle: centerAngle.toFixed(1) + '°',
+        position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`
       });
       
       // Применяем стили

@@ -77,34 +77,47 @@
       console.log('🎰 Крутим колесо! Победитель:', data.winner);
       gameState.status = 'spinning';
       
+      // НЕ очищаем игроков! Колесо должно крутиться с текущими игроками
       if (window.rollGame && window.rollGame.spin) {
         window.rollGame.spin(data.winner);
       }
+      
+      // Показываем победителя через 5 секунд (после анимации)
+      setTimeout(() => {
+        const winner = gameState.players.find(p => p.userId === data.winner);
+        if (winner) {
+          console.log('🏆 Победитель:', winner.nickname);
+          if (window.rollGame && window.rollGame.showResult) {
+            window.rollGame.showResult({ winner: data.winner, amount: data.amount });
+          }
+        }
+        
+        // Очищаем колесо через 3 секунды после показа победителя
+        setTimeout(() => {
+          console.log('🔄 Сброс игры');
+          gameState.status = 'waiting';
+          gameState.players = [];
+          
+          // Сброс UI
+          const waitText = document.querySelector('.wait span:first-child');
+          if (waitText) {
+            waitText.style.display = 'inline';
+            waitText.style.color = '#6a6a6a';
+            waitText.textContent = 'Wait...';
+          }
+          const playText = document.querySelector('.wait span:last-child');
+          if (playText) {
+            playText.style.display = 'none';
+          }
+          
+          updateUI();
+        }, 3000);
+      }, 5000);
     });
 
-    // Игра завершена
+    // Игра завершена (удалено - теперь обрабатывается в spin_wheel)
     ws.socket.on('game_finished', (data) => {
-      console.log('🏁 Игра завершена!');
-      gameState.status = 'finished';
-      
-      setTimeout(() => {
-        gameState.status = 'waiting';
-        gameState.players = [];
-        
-        // Сброс UI
-        const waitText = document.querySelector('.wait span:first-child');
-        if (waitText) {
-          waitText.style.display = 'inline';
-          waitText.style.color = '#6a6a6a';
-          waitText.textContent = 'Wait...';
-        }
-        const playText = document.querySelector('.wait span:last-child');
-        if (playText) {
-          playText.style.display = 'none';
-        }
-        
-        updateUI();
-      }, 8000);
+      console.log('🏁 Игра завершена (событие получено)');
     });
 
     // Запрашиваем текущее состояние
