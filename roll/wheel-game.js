@@ -256,18 +256,19 @@
         avatar.style.backgroundPosition = 'center';
         avatar.style.backgroundColor = seg.player.color;
         avatar.textContent = ''; // Очищаем текст
+        console.log('🖼️ Аватарка с фото:', seg.player.username);
       } else {
         // Дефолтная аватарка с инициалом
-        avatar.style.backgroundImage = 'none'; // Убираем старое фото
+        avatar.style.backgroundImage = 'none';
         avatar.style.backgroundColor = seg.player.color;
-        avatar.style.display = 'flex';
-        avatar.style.alignItems = 'center';
-        avatar.style.justifyContent = 'center';
         avatar.style.color = 'white';
         avatar.style.fontSize = `${size * 0.5}px`;
         avatar.style.fontWeight = 'bold';
         avatar.textContent = seg.player.username ? seg.player.username[0].toUpperCase() : '?';
+        console.log('🔤 Аватарка с инициалом:', seg.player.username, 'Цвет:', seg.player.color);
       }
+      
+      console.log('🎯 Позиция аватарки:', { left: avatar.style.left, top: avatar.style.top, zIndex: avatar.style.zIndex });
     });
   }
 
@@ -308,13 +309,13 @@
             avatarStyle = `background-image: url(${photoUrl}); background-size: cover; background-position: center;`;
           } else {
             const initial = player.username ? player.username[0].toUpperCase() : 'P';
-            avatarStyle = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;`;
+            avatarStyle = `background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px;`;
           }
           
           playerDiv.innerHTML = `
             <div class="acc-inf">
               <div class="avatar-wrapper">
-                <div class="avatar-2" style="${avatarStyle}; width: 32px; height: 32px; border-radius: 50%;">${photoUrl ? '' : (player.username ? player.username[0].toUpperCase() : 'P')}</div>
+                <div class="avatar-2" style="${avatarStyle}; width: 21px; height: 21px; border-radius: 50%;">${photoUrl ? '' : (player.username ? player.username[0].toUpperCase() : 'P')}</div>
               </div>
               <div class="n-k"><div class="n-k-2">${player.username}</div></div>
             </div>

@@ -128,9 +128,13 @@
       // Обновляем таймер в wheel-game
       const waitText = document.querySelector('.wait span:last-child');
       if (waitText) {
-        waitText.style.display = 'inline';
-        waitText.style.color = '#39d811';
-        waitText.textContent = `${timeLeft}s`;
+        if (timeLeft > 0) {
+          waitText.style.display = 'inline';
+          waitText.style.color = '#39d811';
+          waitText.textContent = `${timeLeft}s`;
+        } else {
+          waitText.textContent = 'Spinning...';
+        }
       }
       const waitSpan = document.querySelector('.wait span:first-child');
       if (waitSpan) {
@@ -139,6 +143,7 @@
 
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        console.log('⏰ Таймер закончился, ожидаем spin_wheel от сервера...');
       }
     }, 1000);
 
