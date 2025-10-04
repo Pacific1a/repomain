@@ -161,12 +161,11 @@
     });
   }
 
-  // ============ WHEEL RENDERING ============
+  // ============ WHEEL RENDERING (SVG КРУГОВОЕ КОЛЕСО) ============
   function updateWheel() {
     if (!elements.wheel) return;
 
     if (players.length === 0) {
-      elements.wheel.style.background = '#2a2a2a';
       elements.wheel.innerHTML = '';
       return;
     }
@@ -175,7 +174,7 @@
     const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
     
     if (totalBets === 0) {
-      console.warn('⚠️ Общая сумма ставок = 0, не можем создать сегменты');
+      console.warn('⚠️ Общая сумма ставок = 0');
       return;
     }
     
@@ -186,24 +185,11 @@
       const betAmount = player.betAmount || 0;
       const percent = (betAmount / totalBets) * 100;
       const degrees = (betAmount / totalBets) * 360;
-      const centerAngle = currentAngle + degrees / 2;
-      
-      player.percent = percent;
-      player.centerAngle = centerAngle;
-      
-      console.log(`📊 Сегмент ${index}:`, {
-        player: player.username,
-        betAmount,
-        percent: percent.toFixed(1) + '%',
-        degrees: degrees.toFixed(1) + '°',
-        start: currentAngle.toFixed(1),
-        end: (currentAngle + degrees).toFixed(1)
-      });
       
       segments.push({
         start: currentAngle,
         end: currentAngle + degrees,
-        center: centerAngle,
+        center: currentAngle + degrees / 2,
         player: player,
         percent: percent
       });
@@ -211,122 +197,97 @@
       currentAngle += degrees;
     });
 
-    // Создаем conic-gradient для фона (однотонные цвета)
-    // ВАЖНО: from 0deg = начало СПРАВА (3 часа), from -90deg = начало СВЕРХУ (12 часов)
-    let gradientParts = [];
+    // Создаем SVG колесо с настоящими секторами
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("width", "250");
+    svg.setAttribute("height", "250");
+    svg.setAttribute("viewBox", "0 0 250 250");
+    svg.style.position = "absolute";
+    svg.style.top = "0";
+    svg.style.left = "0";
+    
+    const centerX = 125;
+    const centerY = 125;
+    const radius = 125;
+    
+    // Создаем каждый сектор как SVG path
     segments.forEach((seg, index) => {
-      const color = players[index].color;
-      gradientParts.push(`${color} ${seg.start}deg`);
-      gradientParts.push(`${color} ${seg.end}deg`);
-    });
-
-    // Используем from 0deg чтобы начинать СПРАВА (горизонтально)
-    elements.wheel.style.background = `conic-gradient(from -90deg, ${gradientParts.join(', ')})`;
-
-
-    // Удаляем старые аватарки которых нет в текущих игроках
-    const existingAvatars = elements.wheel.querySelectorAll('.dynamic-avatar');
-    const currentPlayerIds = new Set(players.map(p => p.id));
-    existingAvatars.forEach(avatar => {
-      const playerId = avatar.getAttribute('data-player-id');
-      if (!currentPlayerIds.has(playerId)) {
-        avatar.remove();
-      }
-    });
-
-    // Создаем или обновляем аватарки
-    segments.forEach((seg, index) => {
-      if (!seg.player || !seg.player.id) {
-        console.warn('⚠️ Пропущен сегмент без игрока:', seg);
-        return;
-      }
+      const startAngle = (seg.start - 90) * Math.PI / 180;
+      const endAngle = (seg.end - 90) * Math.PI / 180;
       
-      // Ищем существующую аватарку или создаем новую
-      let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
-      if (!avatar) {
-        avatar = document.createElement('div');
-        avatar.className = 'avatar dynamic-avatar';
-        avatar.setAttribute('data-player-id', seg.player.id);
-        elements.wheel.appendChild(avatar);
-        console.log('✅ Создана аватарка для игрока:', seg.player.username, 'ID:', seg.player.id);
-      }
+      const x1 = centerX + radius * Math.cos(startAngle);
+      const y1 = centerY + radius * Math.sin(startAngle);
+      const x2 = centerX + radius * Math.cos(endAngle);
+      const y2 = centerY + radius * Math.sin(endAngle);
       
-      // Размер зависит от процента (25px - 45px, уменьшается при малом сегменте)
-      const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
+      const largeArc = seg.end - seg.start > 180 ? 1 : 0;
+      
+      const pathData = [
+        `M ${centerX} ${centerY}`,
+        `L ${x1} ${y1}`,
+        `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+        `Z`
+      ].join(' ');
+      
+      const path = document.createElementNS(svgNS, "path");
+      path.setAttribute("d", pathData);
+      path.setAttribute("fill", seg.player.color);
+      path.setAttribute("stroke", "rgba(0,0,0,0.2)");
+      path.setAttribute("stroke-width", "1");
+      path.classList.add('wheel-segment');
+      path.setAttribute('data-player-id', seg.player.id);
+      
+      svg.appendChild(path);
+    });
+    
+    // Очищаем и добавляем SVG
+    elements.wheel.innerHTML = '';
+    elements.wheel.appendChild(svg);
+    
+    // Создаем аватарки поверх SVG
+    segments.forEach((seg) => {
+      const centerAngle = seg.center;
+      const angleRad = (centerAngle - 90) * (Math.PI / 180);
+      const avatarRadius = 62.5;
+      
+      const xPx = centerX + avatarRadius * Math.cos(angleRad);
+      const yPx = centerY + avatarRadius * Math.sin(angleRad);
+      
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar dynamic-avatar';
+      avatar.setAttribute('data-player-id', seg.player.id);
+      
+      const size = Math.max(30, Math.min(45, 30 + seg.percent * 0.3));
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
-      
-      // Вычисляем центр сегмента
-      // 1. Средний угол между началом и концом сегмента
-      const centerAngle = (seg.start + seg.end) / 2;
-      
-      // 2. Переводим в радианы
-      // ВАЖНО: conic-gradient(from 0deg) означает что 0° СПРАВА (3 часа)
-      // Math.cos/sin тоже используют 0° = СПРАВА
-      // Поэтому можем использовать centerAngle напрямую без коррекции!
-      const angleRad = (centerAngle - 90) * (Math.PI / 180);
-      
-      // 3. Центр колеса
-      const centerX = 125;
-      const centerY = 125;
-      
-      // 4. Радиус (фиксированный для всех аватарок - половина радиуса колеса)
-      const radius = 62.5; // px (125px / 2)
-      
-      // 5. Вычисляем координаты по формулам (стандартная тригонометрия)
-      const xPx = centerX + radius * Math.cos(angleRad);
-      const yPx = centerY + radius * Math.sin(angleRad);
-      
-      console.log(`📍 ${seg.player.username}:`, {
-        segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
-        centerAngle: centerAngle.toFixed(1) + '°',
-        angleRad: angleRad.toFixed(3) + ' rad',
-        radius: radius + 'px',
-        position: `x=${xPx.toFixed(1)}px, y=${yPx.toFixed(1)}px`,
-        color: seg.player.color
-      });
-      
-      // Применяем стили - ВАЖНО: аватарка НЕ должна вращаться!
-      // Добавляем counter-rotation чтобы компенсировать вращение колеса
       avatar.style.position = 'absolute';
       avatar.style.left = `${xPx}px`;
       avatar.style.top = `${yPx}px`;
-      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`; // Counter-rotation!
+      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`;
       avatar.style.borderRadius = '50%';
-      avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
-      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
-      avatar.style.pointerEvents = 'none';
+      avatar.style.border = '3px solid rgba(255, 255, 255, 0.9)';
+      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.5)';
+      avatar.style.zIndex = '10';
       avatar.style.display = 'flex';
       avatar.style.alignItems = 'center';
       avatar.style.justifyContent = 'center';
-      avatar.style.transition = 'none'; // Убираем transition для мгновенного обновления
+      avatar.style.pointerEvents = 'none';
       
-      // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
-      
-      // Устанавливаем z-index чтобы аватарки были видны
-      avatar.style.zIndex = '10';
-      
       if (photoUrl && photoUrl.trim() !== '') {
-        // Аватарка из Telegram
         avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
-        avatar.style.backgroundColor = seg.player.color;
-        avatar.textContent = ''; // Очищаем текст
-        console.log('🖼️ Аватарка с фото:', seg.player.username);
       } else {
-        // Дефолтная аватарка с инициалом
-        avatar.style.backgroundImage = 'none';
         avatar.style.backgroundColor = seg.player.color;
         avatar.style.color = 'white';
         avatar.style.fontSize = `${size * 0.5}px`;
         avatar.style.fontWeight = 'bold';
         avatar.textContent = seg.player.username ? seg.player.username[0].toUpperCase() : '?';
-        console.log('🔤 Аватарка с инициалом:', seg.player.username, 'Цвет:', seg.player.color);
       }
       
-      console.log('🎯 Позиция аватарки:', { left: avatar.style.left, top: avatar.style.top, zIndex: avatar.style.zIndex });
+      elements.wheel.appendChild(avatar);
     });
   }
 
