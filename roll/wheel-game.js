@@ -438,8 +438,8 @@
     }
     
     // Вращаем так чтобы сегмент победителя оказался СВЕРХУ (под указателем)
-    // Указатель находится сверху (0°), поэтому вращаем на -winnerAngle
-    const spins = 5 + Math.floor(Math.random() * 3); // 5-7 полных оборотов
+    // 10 полных оборотов для драматичности
+    const spins = 10;
     const finalRotation = spins * 360 - winnerAngle;
 
     elements.wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
@@ -471,10 +471,13 @@
   function finishRound(winner) {
     gameState = GAME_STATES.FINISHED;
     
+    // Считаем общую сумму ставок (Total bets)
     const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
     
-    if (winner.isUser && window.GameBalanceAPI) {
+    // Победитель получает ВСЕ ставки (Total bets)
+    if (window.GameBalanceAPI) {
       window.GameBalanceAPI.payWinnings(totalBets, 'chips');
+      console.log(`💰 Победитель ${winner.username} получил ${totalBets} фишек`);
     }
     
     winner.winAmount = totalBets;

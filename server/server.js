@@ -140,12 +140,24 @@ const colors = [
 
 // Хранилище цветов игроков (userId -> color)
 const playerColors = new Map();
+const usedColors = new Set();
 
 function getPlayerColor(userId) {
   if (!playerColors.has(userId)) {
-    // Назначаем случайный цвет
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    // Находим свободный цвет (не используемый другими игроками)
+    let availableColors = colors.filter(color => !usedColors.has(color));
+    
+    // Если все цвета заняты, сбрасываем и начинаем заново
+    if (availableColors.length === 0) {
+      usedColors.clear();
+      availableColors = [...colors];
+    }
+    
+    // Назначаем случайный свободный цвет
+    const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
     playerColors.set(userId, randomColor);
+    usedColors.add(randomColor);
+    console.log(`🎨 Игрок ${userId} получил уникальный цвет ${randomColor}`);
   }
   return playerColors.get(userId);
 }
