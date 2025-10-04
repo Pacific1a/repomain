@@ -537,23 +537,18 @@ io.on('connection', (socket) => {
       console.error('❌ Ошибка хода:', error);
       socket.emit('error', { message: 'Ошибка обработки хода' });
     }
-  });
-
-  // ============ ГЛОБАЛЬНАЯ СИНХРОНИЗАЦИЯ ИГР ============
-
-  // Присоединиться к глобальной игре
-  socket.on('join_global_game', ({ game }) => {
     socket.join(`global_${game}`);
     console.log(`🌍 Игрок присоединился к глобальной игре: ${game}`);
     
-    // Отправляем текущее состояние (чистая копия без циклических ссылок)
+    // Отправляем текущее состояние игры (чистая копия без циклических ссылок + ЦВЕТ)
     const cleanState = {
       status: globalGames[game].status,
       players: globalGames[game].players.map(p => ({
         userId: p.userId,
         nickname: p.nickname,
         photoUrl: p.photoUrl,
-        bet: p.bet
+        bet: p.bet,
+        color: p.color // ДОБАВЛЯЕМ ЦВЕТ
       })),
       timer: globalGames[game].timer,
       startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null
@@ -563,14 +558,15 @@ io.on('connection', (socket) => {
 
   // Получить состояние игры
   socket.on('get_game_state', ({ game }) => {
-    // Отправляем чистую копию без циклических ссылок
+    // Отправляем чистую копию без циклических ссылок + ЦВЕТ
     const cleanState = {
       status: globalGames[game].status,
       players: globalGames[game].players.map(p => ({
         userId: p.userId,
         nickname: p.nickname,
         photoUrl: p.photoUrl,
-        bet: p.bet
+        bet: p.bet,
+        color: p.color // ДОБАВЛЯЕМ ЦВЕТ
       })),
       timer: globalGames[game].timer,
       startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null

@@ -27,10 +27,7 @@
     '#02b3f6'
   ];
   
-  // Функция для получения случайного цвета
-  function getRandomColor() {
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
+  // Функция удалена - цвета только с сервера
 
   // ============ DOM ELEMENTS ============
   const elements = {
@@ -612,16 +609,12 @@
         const newPlayers = state.players.map((player) => {
           const playerId = player.id || player.userId;
           
-          // Используем цвет с сервера или назначаем случайный
-          let playerColor = player.color; // Цвет с сервера
+          // Используем ТОЛЬКО цвет с сервера
+          let playerColor = player.color;
+          
           if (!playerColor) {
-            if (!playerColors.has(playerId)) {
-              playerColor = getRandomColor();
-              playerColors.set(playerId, playerColor);
-              console.log(`🎨 Игрок ${player.username || player.nickname} получил случайный цвет ${playerColor}`);
-            } else {
-              playerColor = playerColors.get(playerId);
-            }
+            console.error(`❌ Игрок ${player.username || player.nickname} не получил цвет с сервера!`);
+            playerColor = '#808080'; // Серый цвет по умолчанию (ошибка)
           } else {
             // Сохраняем цвет с сервера
             playerColors.set(playerId, playerColor);
