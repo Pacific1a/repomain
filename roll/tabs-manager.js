@@ -29,14 +29,11 @@
     });
 
     if (tabName === 'live-bets') {
-      // Live Bets - показываем количество онлайн игроков
+      // Live Bets - показываем количество онлайн игроков и список
       elements.roundResultBlock.style.display = 'none'; // НЕ показываем результат
       elements.playersOnlineBlock.style.display = 'block';
       
-      // Очищаем список (будет заполнен реальными игроками из multiplayer-sync)
-      if (elements.playersList) {
-        elements.playersList.innerHTML = '';
-      }
+      // НЕ очищаем список - он будет заполнен реальными игроками из multiplayer-sync
     } else if (tabName === 'previos') {
       // Previos - показываем текущие ставки и результат
       elements.playersOnlineBlock.style.display = 'none';

@@ -238,11 +238,6 @@
     if (currentTab === 'live-bets' && window.TabsManager) {
       window.TabsManager.updatePlayersCount(gameState.players.length);
     }
-    
-    // Список игроков показываем только в Previos
-    if (currentTab !== 'previos') {
-      return;
-    }
 
     const playersList = document.querySelector('.user-templates');
     if (!playersList) return;
@@ -278,27 +273,49 @@
           avatarHTML = `<div class="avatar-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; width: 32px; height: 32px; border-radius: 50%; font-size: 16px;">${initial}</div>`;
         }
         
-        playerEl.innerHTML = `
-          <div class="acc-inf">
-            <div class="avatar-wrapper">
-              ${avatarHTML}
+        // В Live Bets показываем только ник и аватарку, в Previos - полную информацию
+        if (currentTab === 'live-bets') {
+          playerEl.innerHTML = `
+            <div class="acc-inf">
+              <div class="avatar-wrapper">
+                ${avatarHTML}
+              </div>
+              <div class="n-k">
+                <div class="n-k-2">${player.nickname || 'Player'}</div>
+              </div>
             </div>
-            <div class="n-k">
-              <div class="n-k-2">${player.nickname || 'Player'}</div>
+            <div class="div-wrapper-2">
+              <div class="text-wrapper-14">-</div>
             </div>
-          </div>
-          <div class="div-wrapper-2">
-            <div class="text-wrapper-14" data-bet-amount>${player.bet}</div>
-          </div>
-          <div class="element-wrapper">
-            <div class="element-3" data-win-amount>-</div>
-          </div>
-        `;
+            <div class="element-wrapper">
+              <div class="element-3">-</div>
+            </div>
+          `;
+        } else {
+          playerEl.innerHTML = `
+            <div class="acc-inf">
+              <div class="avatar-wrapper">
+                ${avatarHTML}
+              </div>
+              <div class="n-k">
+                <div class="n-k-2">${player.nickname || 'Player'}</div>
+              </div>
+            </div>
+            <div class="div-wrapper-2">
+              <div class="text-wrapper-14" data-bet-amount>${player.bet}</div>
+            </div>
+            <div class="element-wrapper">
+              <div class="element-3" data-win-amount>-</div>
+            </div>
+          `;
+        }
         playersList.appendChild(playerEl);
       } else {
-        // Обновляем только цифры
-        const betElement = playerEl.querySelector('[data-bet-amount]');
-        if (betElement) betElement.textContent = player.bet;
+        // Обновляем только цифры в Previos
+        if (currentTab === 'previos') {
+          const betElement = playerEl.querySelector('[data-bet-amount]');
+          if (betElement) betElement.textContent = player.bet;
+        }
       }
     });
   }
