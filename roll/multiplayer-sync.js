@@ -239,6 +239,16 @@
     const playersList = document.querySelector('.user-templates');
     if (!playersList) return;
 
+    // Удаляем старых игроков которых нет в текущем состоянии
+    const currentPlayerIds = new Set(gameState.players.map(p => p.userId));
+    const existingPlayers = playersList.querySelectorAll('[data-player-id]');
+    existingPlayers.forEach(el => {
+      const playerId = parseInt(el.getAttribute('data-player-id'));
+      if (!currentPlayerIds.has(playerId)) {
+        el.remove(); // Удаляем фейковых/старых игроков
+      }
+    });
+
     gameState.players.forEach(player => {
       // Пропускаем невалидных игроков
       if (!player || !player.userId || !player.nickname) return;
