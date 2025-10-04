@@ -96,10 +96,6 @@
     }
   });
 
-  // Хранилище цветов игроков (userId -> color)
-  const playerColors = new Map();
-  let nextColorIndex = 0;
-
   // ============ PLAYER MANAGEMENT ============
   function addPlayer(player) {
     // Максимум 23 игрока (по количеству цветов)
@@ -112,12 +108,10 @@
     if (existing) {
       existing.betAmount += player.betAmount;
     } else {
-      // Назначаем цвет НАВСЕГДА для этого игрока
-      if (!playerColors.has(player.id)) {
-        playerColors.set(player.id, colors[nextColorIndex % colors.length]);
-        nextColorIndex++;
-      }
-      player.color = playerColors.get(player.id);
+      // Назначаем цвет по порядку
+      const colorIndex = players.length;
+      player.color = colors[colorIndex];
+      player.colorIndex = colorIndex;
       players.push(player);
     }
 
@@ -231,8 +225,6 @@
       
       // Ищем существующую аватарку или создаем новую
       let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
-      const isNewAvatar = !avatar;
-      
       if (!avatar) {
         avatar = document.createElement('div');
         avatar.className = 'avatar dynamic-avatar';
@@ -246,51 +238,47 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // ПОЗИЦИЯ РАССЧИТЫВАЕТСЯ ТОЛЬКО ПРИ СОЗДАНИИ!
-      // При обновлении ставки позиция НЕ меняется
-      if (isNewAvatar) {
-        // Вычисляем центр сегмента
-        // 1. Средний угол между началом и концом сегмента
-        const centerAngle = (seg.start + seg.end) / 2;
-        
-        // 2. Переводим в радианы
-        // ВАЖНО: conic-gradient(from -90deg) сдвигает начало на -90°
-        const angleRad = (centerAngle - 90) * (Math.PI / 180);
-        
-        // 3. Центр колеса
-        const centerX = 125; // px
-        const centerY = 125; // px
-        
-        // 4. Радиус (фиксированный для всех аватарок)
-        const radius = 62.5; // Половина радиуса колеса
-        
-        // 5. Вычисляем координаты по формулам
-        const xPx = centerX + radius * Math.cos(angleRad);
-        const yPx = centerY + radius * Math.sin(angleRad);
-        
-        console.log(`📍 ${seg.player.username}:`, {
-          segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
-          centerAngle: centerAngle.toFixed(1) + '°',
-          angleWithOffset: (centerAngle - 90).toFixed(1) + '°',
-          radius: radius + 'px',
-          position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`,
-          color: seg.player.color
-        });
-        
-        // Применяем стили - ВАЖНО: аватарка вращается вместе с колесом!
-        avatar.style.position = 'absolute';
-        avatar.style.left = `${xPx}px`;
-        avatar.style.top = `${yPx}px`;
-        avatar.style.transform = 'translate(-50%, -50%)';
-        avatar.style.borderRadius = '50%';
-        avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
-        avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
-        avatar.style.pointerEvents = 'none';
-        avatar.style.display = 'flex';
-        avatar.style.alignItems = 'center';
-        avatar.style.justifyContent = 'center';
-        avatar.style.transition = 'none';
-      }
+      // Вычисляем центр сегмента
+      // 1. Средний угол между началом и концом сегмента
+      const centerAngle = (seg.start + seg.end) / 2;
+      
+      // 2. Переводим в радианы
+      // ВАЖНО: conic-gradient(from -90deg) означает что 0° сверху
+      // В математике: 0° справа, 90° снизу, 180° слева, 270° сверху
+      // Поэтому НЕ нужно вычитать 90, градиент уже повернут
+      const angleRad = centerAngle * (Math.PI / 180);
+      
+      // 3. Центр колеса
+      const centerX = 125; // px
+      const centerY = 125; // px
+      
+      // 4. Радиус (фиксированный для всех аватарок)
+      const radius = 62.5; // Половина радиуса колеса
+      
+      // 5. Вычисляем координаты по формулам
+      const xPx = centerX + radius * Math.cos(angleRad);
+      const yPx = centerY + radius * Math.sin(angleRad);
+      
+      console.log(`📍 ${seg.player.username}:`, {
+        segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
+        centerAngle: centerAngle.toFixed(1) + '°',
+        radius: radius + 'px',
+        position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`
+      });
+      
+      // Применяем стили - ВАЖНО: аватарка вращается вместе с колесом!
+      avatar.style.position = 'absolute';
+      avatar.style.left = `${xPx}px`;
+      avatar.style.top = `${yPx}px`;
+      avatar.style.transform = 'translate(-50%, -50%)'; // НЕ добавляем rotate - колесо само вращается
+      avatar.style.borderRadius = '50%';
+      avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
+      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+      avatar.style.pointerEvents = 'none';
+      avatar.style.display = 'flex';
+      avatar.style.alignItems = 'center';
+      avatar.style.justifyContent = 'center';
+      avatar.style.transition = 'none'; // Убираем transition чтобы вращалась с колесом
       
       // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
@@ -600,25 +588,15 @@
       if (state.players) {
         console.log('🔄 updateState получил игроков:', state.players);
         
-        // Преобразуем игроков с ПОСТОЯННЫМИ цветами
-        const newPlayers = state.players.map((player) => {
-          const playerId = player.id || player.userId;
-          
-          // Назначаем цвет НАВСЕГДА для этого игрока
-          if (!playerColors.has(playerId)) {
-            playerColors.set(playerId, colors[nextColorIndex % colors.length]);
-            nextColorIndex++;
-            console.log(`🎨 Назначен цвет ${playerColors.get(playerId)} для игрока ${player.username || player.nickname}`);
-          }
-          
-          return {
-            id: playerId,
-            username: player.username || player.nickname,
-            photo_url: player.photo_url || player.photoUrl,
-            betAmount: player.betAmount || player.bet || 0,
-            color: playerColors.get(playerId) // Постоянный цвет
-          };
-        });
+        // Преобразуем игроков с назначением цветов
+        const newPlayers = state.players.map((player, index) => ({
+          id: player.id || player.userId,
+          username: player.username || player.nickname,
+          photo_url: player.photo_url || player.photoUrl,
+          betAmount: player.betAmount || player.bet || 0,
+          color: colors[index % colors.length],
+          colorIndex: index % colors.length
+        }));
         
         console.log('✅ Преобразованные игроки:', newPlayers);
         
