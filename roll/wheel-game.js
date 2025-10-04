@@ -378,7 +378,7 @@
   // ============ GAME PHASES ============
   function startBetting() {
     gameState = GAME_STATES.BETTING;
-    bettingTimeLeft = 60;
+    bettingTimeLeft = 30;
     updateWaitText();
 
     bettingTimer = setInterval(() => {
