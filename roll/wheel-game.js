@@ -238,27 +238,20 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Позиционирование в ЦЕНТРЕ МАСС сегмента
+      // ПРОСТОЕ позиционирование: биссектриса + половина радиуса
       const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
-      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента
-      
-      // Формула центра масс: для сектора радиуса R с углом θ
-      // Центр масс находится на расстоянии: (2R * sin(θ/2)) / (3 * θ/2)
-      const wheelRadius = 125; // Радиус колеса
-      let centerOfMassRadius;
-      
-      if (segmentAngleRad > 0) {
-        centerOfMassRadius = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
-      } else {
-        centerOfMassRadius = wheelRadius * 0.6; // Дефолт
-      }
-      
-      // Ограничиваем радиус чтобы аватарки были внутри колеса
-      centerOfMassRadius = Math.min(centerOfMassRadius, 80);
+      const radius = 62.5; // Половина радиуса колеса (125 / 2)
       
       // Позиция в пикселях от центра колеса (125px, 125px)
-      const xPx = 125 + centerOfMassRadius * Math.cos(angleRad);
-      const yPx = 125 + centerOfMassRadius * Math.sin(angleRad);
+      const xPx = 125 + radius * Math.cos(angleRad);
+      const yPx = 125 + radius * Math.sin(angleRad);
+      
+      console.log(`📍 Позиция для ${seg.player.username}:`, {
+        angle: seg.center.toFixed(1) + '°',
+        radius: radius + 'px',
+        x: xPx.toFixed(1),
+        y: yPx.toFixed(1)
+      });
       
       // Применяем стили
       avatar.style.position = 'absolute';
@@ -579,12 +572,19 @@
     updateState: (state) => {
       // Обновление состояния от сервера
       if (state.players) {
+        console.log('🔄 updateState получил игроков:', state.players);
+        
         // Преобразуем игроков с назначением цветов
         const newPlayers = state.players.map((player, index) => ({
-          ...player,
+          id: player.id || player.userId,
+          username: player.username || player.nickname,
+          photo_url: player.photo_url || player.photoUrl,
+          betAmount: player.betAmount || player.bet || 0,
           color: colors[index % colors.length],
           colorIndex: index % colors.length
         }));
+        
+        console.log('✅ Преобразованные игроки:', newPlayers);
         
         players = newPlayers;
         updateWheel();
