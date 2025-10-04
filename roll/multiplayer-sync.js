@@ -146,7 +146,8 @@
           waitText.style.color = '#39d811';
           waitText.textContent = `${timeLeft}s`;
         } else {
-          waitText.textContent = 'Spinning...';
+          waitText.textContent = 'Play';
+          waitText.style.color = '#39d811';
         }
       }
       const waitSpan = document.querySelector('.wait span:first-child');

@@ -608,11 +608,20 @@
         const newPlayers = state.players.map((player) => {
           const playerId = player.id || player.userId;
           
-          // Назначаем СЛУЧАЙНЫЙ цвет для этого игрока
-          if (!playerColors.has(playerId)) {
-            const randomColor = getRandomColor();
-            playerColors.set(playerId, randomColor);
-            console.log(`🎨 Игрок ${player.username || player.nickname} получил случайный цвет ${randomColor}`);
+          // Используем цвет с сервера или назначаем случайный
+          let playerColor = player.color; // Цвет с сервера
+          if (!playerColor) {
+            if (!playerColors.has(playerId)) {
+              playerColor = getRandomColor();
+              playerColors.set(playerId, playerColor);
+              console.log(`🎨 Игрок ${player.username || player.nickname} получил случайный цвет ${playerColor}`);
+            } else {
+              playerColor = playerColors.get(playerId);
+            }
+          } else {
+            // Сохраняем цвет с сервера
+            playerColors.set(playerId, playerColor);
+            console.log(`🎨 Игрок ${player.username || player.nickname} получил цвет с сервера: ${playerColor}`);
           }
           
           return {
@@ -620,7 +629,7 @@
             username: player.username || player.nickname,
             photo_url: player.photo_url || player.photoUrl,
             betAmount: player.betAmount || player.bet || 0,
-            color: playerColors.get(playerId) // Постоянный цвет для PvP
+            color: playerColor // Цвет с сервера или локальный
           };
         });
         

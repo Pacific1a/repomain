@@ -122,18 +122,40 @@ if (MONGODB_URI && MONGODB_URI.trim() !== '') {
     console.error('⚠️ Ошибка загрузки моделей MongoDB:', err.message);
   }
 }
-
 // Хранилище активных пользователей и комнат
 const onlineUsers = new Map(); // socketId -> userData
 const activeRooms = new Map(); // roomId -> roomData
 const userSockets = new Map(); // userId -> socketId
 
-// Глобальное состояние игр
+// Палитра цветов для игроков
+const colors = [
+  '#bde0fe', '#ffafcc', '#ade8f4', '#edede9', '#6f2dbd',
+  '#b8c0ff', '#ff9e00', '#826aed', '#ffff3f', '#1dd3b0',
+  '#ffd449', '#54defd', '#2fe6de', '#00f2f2', '#2d00f7',
+  '#00ccf5', '#00f59b', '#7014f2', '#ff00ff', '#ffe017',
+  '#44d800', '#ff8c00', '#ff3800', '#fff702', '#00ffff',
+  '#00ffe0', '#00ffc0', '#00ffa0', '#00ffff', '#8000ff',
+  '#02b3f6'
+];
+
+// Хранилище цветов игроков (userId -> color)
+const playerColors = new Map();
+
+function getPlayerColor(userId) {
+  if (!playerColors.has(userId)) {
+    // Назначаем случайный цвет
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    playerColors.set(userId, randomColor);
+  }
+  return playerColors.get(userId);
+}
+
+// Глобальные игры (одна игра для всех пользователей)
 const globalGames = {
   roll: {
-    status: 'waiting',
+    status: 'waiting', // waiting, betting, spinning
     players: [],
-    timer: 60, // 1 минута
+    timer: 60,
     startTime: null,
     timerInterval: null
   }
@@ -562,22 +584,25 @@ io.on('connection', (socket) => {
       console.log(`➕ Обновлена ставка игрока ${nickname}: ${existingPlayer.bet}`);
     } else {
       // Создаем чистый объект игрока без циклических ссылок
+      const playerColor = getPlayerColor(userId); // Получаем постоянный цвет
       const cleanPlayer = {
         userId: userId,
         nickname: nickname,
         photoUrl: photoUrl || null,
-        bet: bet
+        bet: bet,
+        color: playerColor // Добавляем цвет
       };
       gameState.players.push(cleanPlayer);
-      console.log(`✅ Добавлен новый игрок ${nickname} со ставкой ${bet}`);
+      console.log(`✅ Добавлен новый игрок ${nickname} со ставкой ${bet}, цвет: ${playerColor}`);
     }
 
-    // Отправляем всем в комнате (только чистые данные)
+    // Отправляем всем в комнате (только чистые данные + цвет)
     io.to(`global_${game}`).emit('player_bet', { 
       userId: userId, 
       nickname: nickname, 
       photoUrl: photoUrl || null, 
-      bet: bet 
+      bet: bet,
+      color: cleanPlayer.color // Добавляем цвет для синхронизации
     });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
