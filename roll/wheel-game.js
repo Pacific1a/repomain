@@ -96,6 +96,10 @@
     }
   });
 
+  // Хранилище цветов игроков (userId -> color)
+  const playerColors = new Map();
+  let nextColorIndex = 0;
+
   // ============ PLAYER MANAGEMENT ============
   function addPlayer(player) {
     // Максимум 23 игрока (по количеству цветов)
@@ -108,10 +112,12 @@
     if (existing) {
       existing.betAmount += player.betAmount;
     } else {
-      // Назначаем цвет по порядку
-      const colorIndex = players.length;
-      player.color = colors[colorIndex];
-      player.colorIndex = colorIndex;
+      // Назначаем цвет НАВСЕГДА для этого игрока
+      if (!playerColors.has(player.id)) {
+        playerColors.set(player.id, colors[nextColorIndex % colors.length]);
+        nextColorIndex++;
+      }
+      player.color = playerColors.get(player.id);
       players.push(player);
     }
 
@@ -594,15 +600,25 @@
       if (state.players) {
         console.log('🔄 updateState получил игроков:', state.players);
         
-        // Преобразуем игроков с назначением цветов
-        const newPlayers = state.players.map((player, index) => ({
-          id: player.id || player.userId,
-          username: player.username || player.nickname,
-          photo_url: player.photo_url || player.photoUrl,
-          betAmount: player.betAmount || player.bet || 0,
-          color: colors[index % colors.length],
-          colorIndex: index % colors.length
-        }));
+        // Преобразуем игроков с ПОСТОЯННЫМИ цветами
+        const newPlayers = state.players.map((player) => {
+          const playerId = player.id || player.userId;
+          
+          // Назначаем цвет НАВСЕГДА для этого игрока
+          if (!playerColors.has(playerId)) {
+            playerColors.set(playerId, colors[nextColorIndex % colors.length]);
+            nextColorIndex++;
+            console.log(`🎨 Назначен цвет ${playerColors.get(playerId)} для игрока ${player.username || player.nickname}`);
+          }
+          
+          return {
+            id: playerId,
+            username: player.username || player.nickname,
+            photo_url: player.photo_url || player.photoUrl,
+            betAmount: player.betAmount || player.bet || 0,
+            color: playerColors.get(playerId) // Постоянный цвет
+          };
+        });
         
         console.log('✅ Преобразованные игроки:', newPlayers);
         
