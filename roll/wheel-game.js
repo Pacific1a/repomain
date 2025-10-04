@@ -218,29 +218,32 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Позиционируем в ЦЕНТРЕ МАСС сегмента (не просто радиус!)
-      // Формула: для сектора с углом θ, центр масс на расстоянии ≈ 0.6R от центра
+      // Позиционируем в ЦЕНТРЕ МАСС сегмента
       const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
-      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента
+      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента в радианах
       
       // Рассчитываем расстояние до центра масс: 2R·sin(θ/2) / (3·θ/2)
-      // Для упрощения используем приближение ≈ 0.6R для всех углов
       const wheelRadius = 125; // Радиус колеса в пикселях (250px / 2)
-      const centerOfMassDistance = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
+      let centerOfMassDistance;
       
-      // Конвертируем в проценты (от 50% центра)
-      const radiusPercent = (centerOfMassDistance / wheelRadius) * 50;
+      if (segmentAngleRad > 0) {
+        centerOfMassDistance = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
+      } else {
+        centerOfMassDistance = wheelRadius * 0.6; // Дефолт если угол 0
+      }
       
-      const x = 50 + radiusPercent * Math.cos(angleRad);
-      const y = 50 + radiusPercent * Math.sin(angleRad);
+      // Позиция в пикселях от центра колеса
+      const xPx = 125 + centerOfMassDistance * Math.cos(angleRad);
+      const yPx = 125 + centerOfMassDistance * Math.sin(angleRad);
       
       avatar.style.position = 'absolute';
-      avatar.style.left = `${x}%`;
-      avatar.style.top = `${y}%`;
+      avatar.style.left = `${xPx}px`;
+      avatar.style.top = `${yPx}px`;
       avatar.style.transform = 'translate(-50%, -50%)';
       avatar.style.borderRadius = '50%';
       avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
       avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+      avatar.style.pointerEvents = 'none';
       
       // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
