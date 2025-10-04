@@ -16,25 +16,21 @@
   let bettingTimer = null;
   let currentRotation = 0;
 
-  // ============ COLORS (только яркие цвета для PvP) ============
+  // ============ COLORS (новая палитра) ============
   const colors = [
-    '#ffbe0b', // Желтый
-    '#fb5607', // Оранжевый  
-    '#ff006e', // Розовый
-    '#8338ec', // Фиолетовый
-    '#3a86ff', // Синий
-    '#fcbf49', // Золотой
-    '#4cc9f0', // Голубой
-    '#f72585', // Малиновый
-    '#8ac926', // Зеленый
-    '#ee6c4d', // Коралловый
-    '#56cfe1', // Бирюзовый
-    '#ffc971', // Персиковый
-    '#9d4edd', // Пурпурный
-    '#06d6a0', // Мятный
-    '#abc4ff', // Лавандовый
-    '#dcf763'  // Лаймовый
+    '#bde0fe', '#ffafcc', '#ade8f4', '#edede9', '#6f2dbd',
+    '#b8c0ff', '#ff9e00', '#826aed', '#ffff3f', '#1dd3b0',
+    '#ffd449', '#54defd', '#2fe6de', '#00f2f2', '#2d00f7',
+    '#00ccf5', '#00f59b', '#7014f2', '#ff00ff', '#ffe017',
+    '#44d800', '#ff8c00', '#ff3800', '#fff702', '#00ffff',
+    '#00ffe0', '#00ffc0', '#00ffa0', '#00ffff', '#8000ff',
+    '#02b3f6'
   ];
+  
+  // Функция для получения случайного цвета
+  function getRandomColor() {
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
 
   // ============ DOM ELEMENTS ============
   const elements = {
@@ -197,19 +193,19 @@
       currentAngle += degrees;
     });
 
-    // Создаем SVG колесо с настоящими секторами
+    // Создаем SVG колесо с настоящими секторами (300x300)
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("width", "250");
-    svg.setAttribute("height", "250");
-    svg.setAttribute("viewBox", "0 0 250 250");
+    svg.setAttribute("width", "300");
+    svg.setAttribute("height", "300");
+    svg.setAttribute("viewBox", "0 0 300 300");
     svg.style.position = "absolute";
     svg.style.top = "0";
     svg.style.left = "0";
     
-    const centerX = 125;
-    const centerY = 125;
-    const radius = 125;
+    const centerX = 150;
+    const centerY = 150;
+    const radius = 150;
     
     // Создаем каждый сектор как SVG path
     segments.forEach((seg, index) => {
@@ -249,7 +245,7 @@
     segments.forEach((seg) => {
       const centerAngle = seg.center;
       const angleRad = (centerAngle - 90) * (Math.PI / 180);
-      const avatarRadius = 62.5;
+      const avatarRadius = 75; // 50% от 150px
       
       const xPx = centerX + avatarRadius * Math.cos(angleRad);
       const yPx = centerY + avatarRadius * Math.sin(angleRad);
@@ -422,9 +418,28 @@
   }
 
   function spinToWinner(winner) {
-    const spins = 5 + Math.floor(Math.random() * 3);
-    const targetAngle = winner.centerAngle;
-    const finalRotation = spins * 360 + (360 - targetAngle);
+    console.log('🎰 Крутим колесо к победителю:', winner.username);
+    
+    // Находим сегмент победителя
+    const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
+    let currentAngle = 0;
+    let winnerAngle = 0;
+    
+    for (const player of players) {
+      const degrees = (player.betAmount / totalBets) * 360;
+      const centerAngle = currentAngle + degrees / 2;
+      
+      if (player.id === winner.id) {
+        winnerAngle = centerAngle;
+        break;
+      }
+      currentAngle += degrees;
+    }
+    
+    // Вращаем так чтобы сегмент победителя оказался СВЕРХУ (под указателем)
+    // Указатель находится сверху (0°), поэтому вращаем на -winnerAngle
+    const spins = 5 + Math.floor(Math.random() * 3); // 5-7 полных оборотов
+    const finalRotation = spins * 360 - winnerAngle;
 
     elements.wheel.style.transition = 'transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
     elements.wheel.style.transform = `rotate(${finalRotation}deg)`;
@@ -593,11 +608,11 @@
         const newPlayers = state.players.map((player) => {
           const playerId = player.id || player.userId;
           
-          // Назначаем цвет НАВСЕГДА для этого игрока (PvP требование)
+          // Назначаем СЛУЧАЙНЫЙ цвет для этого игрока
           if (!playerColors.has(playerId)) {
-            playerColors.set(playerId, colors[nextColorIndex % colors.length]);
-            console.log(`🎨 Игрок ${player.username || player.nickname} получил цвет ${colors[nextColorIndex % colors.length]}`);
-            nextColorIndex++;
+            const randomColor = getRandomColor();
+            playerColors.set(playerId, randomColor);
+            console.log(`🎨 Игрок ${player.username || player.nickname} получил случайный цвет ${randomColor}`);
           }
           
           return {

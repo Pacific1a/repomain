@@ -87,7 +87,6 @@
   flex-direction: column;
   align-items: center;
   gap: 9px;
-  height: 100%;
   padding: 14px 18px;
   position: relative;
 }
@@ -273,7 +272,7 @@
 .roll-playing .game {
   display: flex;
   flex-direction: column;
-  height: 300px;
+  height: 320px;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -400,12 +399,13 @@
 
 .roll-playing .wheel-pointer {
   position: absolute;
-  top: 0;
+  top: -46px;
   left: 50%;
   transform: translate(-50%, 4px);
-  width: 72px;
-  height: 72px;
-  display: flex;
+  width: 29px;
+  height: 39px;
+  display: flex
+;
   align-items: flex-start;
   justify-content: center;
   pointer-events: none;
