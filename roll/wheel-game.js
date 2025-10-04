@@ -16,13 +16,24 @@
   let bettingTimer = null;
   let currentRotation = 0;
 
-  // ============ COLORS (однотонные цвета) ============
+  // ============ COLORS (только яркие цвета) ============
   const colors = [
-    '#ffbe0b', '#fb5607', '#ff006e', '#8338ec', '#3a86ff',
-    '#dee2e6', '#e9ecef', '#eae2b7', '#fcbf49', '#4cc9f0',
-    '#f72585', '#8ac926', '#e0fbfc', '#ee6c4d', '#56cfe1',
-    '#ffc971', '#e0afa0', '#ffffff', '#9d4edd', '#b8f2e6',
-    '#06d6a0', '#abc4ff', '#dcf763'
+    '#ffbe0b', // Желтый
+    '#fb5607', // Оранжевый
+    '#ff006e', // Розовый
+    '#8338ec', // Фиолетовый
+    '#3a86ff', // Синий
+    '#fcbf49', // Золотой
+    '#4cc9f0', // Голубой
+    '#f72585', // Малиновый
+    '#8ac926', // Зеленый
+    '#ee6c4d', // Коралловый
+    '#56cfe1', // Бирюзовый
+    '#ffc971', // Персиковый
+    '#9d4edd', // Пурпурный
+    '#06d6a0', // Мятный
+    '#abc4ff', // Лавандовый
+    '#dcf763'  // Лаймовый
   ];
 
   // ============ DOM ELEMENTS ============
@@ -543,15 +554,25 @@
       if (state.players) {
         console.log('🔄 updateState получил игроков:', state.players);
         
-        // Преобразуем игроков с назначением цветов
-        const newPlayers = state.players.map((player, index) => ({
-          id: player.id || player.userId,
-          username: player.username || player.nickname,
-          photo_url: player.photo_url || player.photoUrl,
-          betAmount: player.betAmount || player.bet || 0,
-          color: colors[index % colors.length],
-          colorIndex: index % colors.length
-        }));
+        // Преобразуем игроков с ПОСТОЯННЫМИ цветами
+        const newPlayers = state.players.map((player) => {
+          const playerId = player.id || player.userId;
+          
+          // Назначаем цвет НАВСЕГДА для этого игрока
+          if (!playerColors.has(playerId)) {
+            playerColors.set(playerId, colors[nextColorIndex % colors.length]);
+            console.log(`🎨 Игрок ${player.username || player.nickname} получил цвет ${colors[nextColorIndex % colors.length]}`);
+            nextColorIndex++;
+          }
+          
+          return {
+            id: playerId,
+            username: player.username || player.nickname,
+            photo_url: player.photo_url || player.photoUrl,
+            betAmount: player.betAmount || player.bet || 0,
+            color: playerColors.get(playerId) // Постоянный цвет
+          };
+        });
         
         console.log('✅ Преобразованные игроки:', newPlayers);
         
