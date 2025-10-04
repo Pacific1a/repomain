@@ -202,7 +202,10 @@
 
     // Создаем или обновляем аватарки
     segments.forEach((seg, index) => {
-      if (!seg.player || !seg.player.id) return; // Пропускаем если нет данных игрока
+      if (!seg.player || !seg.player.id) {
+        console.warn('⚠️ Пропущен сегмент без игрока:', seg);
+        return;
+      }
       
       // Ищем существующую аватарку или создаем новую
       let avatar = elements.wheel.querySelector(`[data-player-id="${seg.player.id}"]`);
@@ -211,31 +214,23 @@
         avatar.className = 'avatar dynamic-avatar';
         avatar.setAttribute('data-player-id', seg.player.id);
         elements.wheel.appendChild(avatar);
+        console.log('✅ Создана аватарка для игрока:', seg.player.username, 'ID:', seg.player.id);
       }
       
-      // Размер зависит от процента (25px - 45px для большего колеса)
-      const size = Math.max(25, Math.min(45, 25 + seg.percent * 0.3));
+      // Размер зависит от процента (30px - 50px)
+      const size = Math.max(30, Math.min(50, 30 + seg.percent * 0.4));
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // Позиционируем в ЦЕНТРЕ МАСС сегмента
+      // УПРОЩЕННОЕ позиционирование - фиксированный радиус 70px от центра
       const angleRad = (seg.center - 90) * Math.PI / 180; // Биссектриса сегмента
-      const segmentAngleRad = (seg.end - seg.start) * Math.PI / 180; // Угол сегмента в радианах
+      const radius = 70; // Фиксированный радиус от центра колеса
       
-      // Рассчитываем расстояние до центра масс: 2R·sin(θ/2) / (3·θ/2)
-      const wheelRadius = 125; // Радиус колеса в пикселях (250px / 2)
-      let centerOfMassDistance;
+      // Позиция в пикселях от центра колеса (125px, 125px)
+      const xPx = 125 + radius * Math.cos(angleRad);
+      const yPx = 125 + radius * Math.sin(angleRad);
       
-      if (segmentAngleRad > 0) {
-        centerOfMassDistance = (2 * wheelRadius * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
-      } else {
-        centerOfMassDistance = wheelRadius * 0.6; // Дефолт если угол 0
-      }
-      
-      // Позиция в пикселях от центра колеса
-      const xPx = 125 + centerOfMassDistance * Math.cos(angleRad);
-      const yPx = 125 + centerOfMassDistance * Math.sin(angleRad);
-      
+      // Применяем стили
       avatar.style.position = 'absolute';
       avatar.style.left = `${xPx}px`;
       avatar.style.top = `${yPx}px`;
@@ -244,6 +239,9 @@
       avatar.style.border = '3px solid rgba(255, 255, 255, 0.8)';
       avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
       avatar.style.pointerEvents = 'none';
+      avatar.style.display = 'flex';
+      avatar.style.alignItems = 'center';
+      avatar.style.justifyContent = 'center';
       
       // Проверяем наличие аватарки из Telegram
       const photoUrl = seg.player.photo_url || seg.player.photoUrl;
