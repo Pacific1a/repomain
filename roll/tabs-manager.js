@@ -30,7 +30,7 @@
 
     if (tabName === 'live-bets') {
       // Live Bets - показываем количество онлайн игроков
-      elements.roundResultBlock.style.display = 'none';
+      elements.roundResultBlock.style.display = 'none'; // НЕ показываем результат
       elements.playersOnlineBlock.style.display = 'block';
       
       // Очищаем список (будет заполнен реальными игроками из multiplayer-sync)
@@ -38,8 +38,9 @@
         elements.playersList.innerHTML = '';
       }
     } else if (tabName === 'previos') {
-      // Previos - показываем текущие ставки реальных игроков
+      // Previos - показываем текущие ставки и результат
       elements.playersOnlineBlock.style.display = 'none';
+      // Результат показывается только здесь (управляется из wheel-game.js)
       
       // Обновляем список реальных игроков из wheel-game.js
       if (window.updateDisplay) {

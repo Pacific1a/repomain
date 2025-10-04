@@ -483,9 +483,9 @@
       elements.resultText.textContent = `${winner.username} WIN`;
     }
     
-    // Показываем блок результата
+    // Показываем блок результата ТОЛЬКО если вкладка Previos активна
     const resultBlock = document.getElementById('round-result-block');
-    if (resultBlock) {
+    if (resultBlock && window.TabsManager && window.TabsManager.getCurrentTab() === 'previos') {
       resultBlock.style.display = 'block';
     }
 
@@ -642,10 +642,11 @@
       }
     },
     showResult: (result) => {
-      // Показать результат
+      // Показываем результат только в Previos (убрано уведомление)
       const winner = players.find(p => p.id === result.winner);
       if (winner) {
-        showNotification(`🏆 ${winner.username} выиграл!`);
+        console.log(`🏆 Победитель: ${winner.username}`);
+        // Уведомление убрано
       }
     }
   };

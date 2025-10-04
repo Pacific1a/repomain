@@ -231,8 +231,16 @@
       window.rollGame.updateState(gameState);
     }
 
-    // Обновляем список игроков только если вкладка Previos активна
-    if (window.TabsManager && window.TabsManager.getCurrentTab() !== 'previos') {
+    // Обновляем список игроков в зависимости от активной вкладки
+    const currentTab = window.TabsManager ? window.TabsManager.getCurrentTab() : 'previos';
+    
+    // Обновляем счетчик онлайн игроков для Live Bets
+    if (currentTab === 'live-bets' && window.TabsManager) {
+      window.TabsManager.updatePlayersCount(gameState.players.length);
+    }
+    
+    // Список игроков показываем только в Previos
+    if (currentTab !== 'previos') {
       return;
     }
 
