@@ -427,6 +427,7 @@
   transition: transform 4.5s cubic-bezier(0.23, 1, 0.32, 1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   z-index: 1;
+  overflow: hidden; /* Чтобы элементы не выходили за пределы круга */
 }
 
 .roll-playing .fortune-wheel.is-spinning {
