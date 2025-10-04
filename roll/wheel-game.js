@@ -157,17 +157,33 @@
     }
 
     // Рассчитываем пропорциональные сегменты
-    const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
+    const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
+    
+    if (totalBets === 0) {
+      console.warn('⚠️ Общая сумма ставок = 0, не можем создать сегменты');
+      return;
+    }
+    
     let currentAngle = 0;
     const segments = [];
 
     players.forEach((player, index) => {
-      const percent = (player.betAmount / totalBets) * 100;
-      const degrees = (player.betAmount / totalBets) * 360;
+      const betAmount = player.betAmount || 0;
+      const percent = (betAmount / totalBets) * 100;
+      const degrees = (betAmount / totalBets) * 360;
       const centerAngle = currentAngle + degrees / 2;
       
       player.percent = percent;
       player.centerAngle = centerAngle;
+      
+      console.log(`📊 Сегмент ${index}:`, {
+        player: player.username,
+        betAmount,
+        percent: percent.toFixed(1) + '%',
+        degrees: degrees.toFixed(1) + '°',
+        start: currentAngle.toFixed(1),
+        end: (currentAngle + degrees).toFixed(1)
+      });
       
       segments.push({
         start: currentAngle,
