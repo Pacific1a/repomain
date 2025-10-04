@@ -238,38 +238,28 @@
       avatar.style.width = `${size}px`;
       avatar.style.height = `${size}px`;
       
-      // ПРАВИЛЬНОЕ позиционирование: центр масс сегмента
-      // Угол = биссектриса сегмента
+      // Вычисляем центр сегмента
+      // 1. Средний угол между началом и концом сегмента
       const centerAngle = (seg.start + seg.end) / 2;
-      const angleRad = (centerAngle - 90) * Math.PI / 180;
       
-      // Угол сегмента в радианах
-      const segmentAngleRad = ((seg.end - seg.start) * Math.PI) / 180;
+      // 2. Переводим в радианы (вычитаем 90° чтобы 0° был сверху)
+      const angleRad = (centerAngle - 90) * (Math.PI / 180);
       
-      // Формула центра масс сектора: r = (2R * sin(θ/2)) / (3 * θ/2)
-      // где R = радиус колеса, θ = угол сегмента
-      const R = 125; // Радиус колеса
-      let centerOfMassRadius;
+      // 3. Центр колеса
+      const centerX = 125; // px
+      const centerY = 125; // px
       
-      if (segmentAngleRad > 0) {
-        // Центр масс для данного угла
-        centerOfMassRadius = (2 * R * Math.sin(segmentAngleRad / 2)) / (3 * (segmentAngleRad / 2));
-      } else {
-        centerOfMassRadius = R * 0.6; // Дефолт
-      }
+      // 4. Радиус (фиксированный для всех аватарок)
+      const radius = 62.5; // Половина радиуса колеса
       
-      // Ограничиваем чтобы не выходили за пределы
-      centerOfMassRadius = Math.min(centerOfMassRadius, 80);
-      centerOfMassRadius = Math.max(centerOfMassRadius, 40);
-      
-      // Позиция в пикселях
-      const xPx = 125 + centerOfMassRadius * Math.cos(angleRad);
-      const yPx = 125 + centerOfMassRadius * Math.sin(angleRad);
+      // 5. Вычисляем координаты по формулам
+      const xPx = centerX + radius * Math.cos(angleRad);
+      const yPx = centerY + radius * Math.sin(angleRad);
       
       console.log(`📍 ${seg.player.username}:`, {
         segment: `${seg.start.toFixed(0)}° - ${seg.end.toFixed(0)}°`,
-        angle: centerAngle.toFixed(1) + '°',
-        radius: centerOfMassRadius.toFixed(1) + 'px',
+        centerAngle: centerAngle.toFixed(1) + '°',
+        radius: radius + 'px',
         position: `(${xPx.toFixed(1)}, ${yPx.toFixed(1)})`
       });
       
