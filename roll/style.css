@@ -272,7 +272,7 @@
 .roll-playing .game {
   display: flex;
   flex-direction: column;
-  height: 320px;
+  height: 350px;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -389,7 +389,7 @@
 .roll-playing .wheel-wrapper {
   position: relative;
   width: 200px;
-  height: 240px;
+  height: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -399,7 +399,7 @@
 
 .roll-playing .wheel-pointer {
   position: absolute;
-  top: -46px;
+  top: -40px;
   left: 50%;
   transform: translate(-50%, 4px);
   width: 29px;
@@ -413,15 +413,15 @@
 }
 
 .roll-playing .polygon {
-  width: 54px;
-  height: 50px;
+  width: 71px;
+  height: 71px;
 }
 
 
 .roll-playing .fortune-wheel {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
   background: #2a2a2a; /* Дефолтный фон, будет заменен динамически через JS */
   transition: transform 4.5s cubic-bezier(0.23, 1, 0.32, 1);
