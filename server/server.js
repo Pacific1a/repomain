@@ -579,12 +579,13 @@ io.on('connection', (socket) => {
     
     // Добавляем/обновляем игрока (только чистые данные)
     const existingPlayer = gameState.players.find(p => p.userId === userId);
+    const playerColor = getPlayerColor(userId); // Получаем постоянный цвет
+    
     if (existingPlayer) {
       existingPlayer.bet += bet;
       console.log(`➕ Обновлена ставка игрока ${nickname}: ${existingPlayer.bet}`);
     } else {
       // Создаем чистый объект игрока без циклических ссылок
-      const playerColor = getPlayerColor(userId); // Получаем постоянный цвет
       const cleanPlayer = {
         userId: userId,
         nickname: nickname,
@@ -602,7 +603,7 @@ io.on('connection', (socket) => {
       nickname: nickname, 
       photoUrl: photoUrl || null, 
       bet: bet,
-      color: cleanPlayer.color // Добавляем цвет для синхронизации
+      color: playerColor // Цвет доступен в обоих случаях
     });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
