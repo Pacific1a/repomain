@@ -941,6 +941,18 @@
     console.log('✅ Crash Game готов - ожидание WebSocket...');
   }
 
+  // Экспорт для WebSocket
+  window.crashGame = {
+    start: startFlyingPhase,
+    crash: crashRound,
+    updateMultiplier: (multiplier) => {
+      currentMultiplier = multiplier;
+      if (elements.currentMultiplier) {
+        elements.currentMultiplier.textContent = `${multiplier.toFixed(2)}x`;
+      }
+    }
+  };
+
   // Start game when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

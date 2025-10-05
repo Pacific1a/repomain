@@ -218,6 +218,32 @@
     }
   }
   
+  // Обновление статистики
+  function updateStats() {
+    const totalBets = gameState.players.reduce((sum, p) => sum + (p.bet || 0), 0);
+    const totalWin = gameState.players.reduce((sum, p) => sum + (p.cashout || 0), 0);
+    const betsCount = gameState.players.length;
+    
+    // Обновляем Total Bets
+    const betsEl = document.querySelector('.total-bets .text-wrapper-17');
+    if (betsEl) {
+      betsEl.textContent = `${betsCount}/550`;
+    }
+    
+    // Обновляем Total Win
+    const winEl = document.querySelector('.total-win .text-wrapper-19');
+    if (winEl) {
+      winEl.textContent = totalWin > 0 ? totalWin.toLocaleString() : '0';
+    }
+    
+    // Обновляем прогресс-бар
+    const progressBar = document.querySelector('.progress-bar .rectangle-3');
+    if (progressBar) {
+      const progress = Math.min((betsCount / 550) * 100, 100);
+      progressBar.style.width = `${progress}%`;
+    }
+  }
+  
   // Обновление списка игроков (без перерисовки)
   function updatePlayersUI() {
     const playersList = document.querySelector('.user-templates');
@@ -286,6 +312,9 @@
         setTimeout(() => el.remove(), 300);
       }
     });
+    
+    // Обновляем статистику
+    updateStats();
   }
 
   // Экспорт
