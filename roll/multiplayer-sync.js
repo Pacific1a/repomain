@@ -74,12 +74,17 @@
 
     // Крутим колесо
     ws.socket.on('spin_wheel', (data) => {
+      console.log('📥 ПОЛУЧЕНО СОБЫТИЕ spin_wheel!', data);
       console.log('🎰 Крутим колесо! Победитель:', data.winner);
+      console.log('📊 Текущие игроки:', gameState.players);
       gameState.status = 'spinning';
       
       // НЕ очищаем игроков! Колесо должно крутиться с текущими игроками
       if (window.rollGame && window.rollGame.spin) {
+        console.log('✅ Вызываем window.rollGame.spin(', data.winner, ')');
         window.rollGame.spin(data.winner);
+      } else {
+        console.error('❌ window.rollGame.spin не доступен!');
       }
       
       // Показываем победителя через 5 секунд (после анимации)

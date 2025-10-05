@@ -667,9 +667,10 @@ io.on('connection', (socket) => {
       }
     }
 
-    console.log(`🎰 Победитель в ${game}: ${winner.nickname}`);
+    console.log(`🎰 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
 
     io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
+    console.log(`📤 Отправлено событие spin_wheel в комнату global_${game} с winnerId: ${winner.userId}`);
 
     // Завершаем игру через 5 секунд
     setTimeout(() => {
