@@ -64,14 +64,27 @@
     elements.gameEnded.style.display = 'none';
   }
   
-  // Скрываем multiplier-layer при загрузке
+  // Создаем эффект загрузки (стеклянный блюр)
+  const gameContainer = document.querySelector('.game');
+  if (gameContainer) {
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+      <div class="glass-loader">
+        <div class="glass-shine"></div>
+      </div>
+    `;
+    gameContainer.appendChild(loadingOverlay);
+    elements.loadingOverlay = loadingOverlay;
+  }
+  
+  // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
     elements.multiplierLayer.style.display = 'none';
   }
   
-  // Показываем waiting при загрузке
   if (elements.waitingRoot) {
-    elements.waitingRoot.style.display = 'flex';
+    elements.waitingRoot.style.display = 'none';
     
     // Создаем таймер динамически
     const timerSpan = document.createElement('span');
@@ -112,14 +125,6 @@
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Crash состояние:', state);
       
-      // Если игра уже идет - скрываем waiting
-      if (state.status === 'flying' && elements.waitingRoot) {
-        elements.waitingRoot.style.display = 'none';
-        if (elements.multiplierLayer) {
-          elements.multiplierLayer.style.display = 'flex';
-        }
-      }
-      
       players = state.players || [];
       updatePlayersUI();
       updateStats();
@@ -155,6 +160,14 @@
       console.log('⏳ Ожидание:', data.timeLeft);
       gameState = GAME_STATES.WAITING;
       
+      // Убираем загрузку
+      if (elements.loadingOverlay) {
+        elements.loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          elements.loadingOverlay.style.display = 'none';
+        }, 300);
+      }
+      
       // Показываем waiting
       if (elements.waitingRoot) {
         elements.waitingRoot.style.display = 'flex';
@@ -179,6 +192,14 @@
     ws.socket.on('crash_started', (data) => {
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
+      
+      // Убираем загрузку
+      if (elements.loadingOverlay) {
+        elements.loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          elements.loadingOverlay.style.display = 'none';
+        }, 300);
+      }
       
       // Скрываем waiting, показываем множитель СРАЗУ
       if (elements.waitingRoot) {
