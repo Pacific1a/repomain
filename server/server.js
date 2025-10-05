@@ -180,7 +180,8 @@ const globalGames = {
     crashPoint: null,
     startTime: null,
     gameInterval: null,
-    bettingTimer: null
+    bettingTimer: null,
+    autoStartTimer: null // Автозапуск
   }
 };
 
@@ -648,14 +649,32 @@ io.on('connection', (socket) => {
       }
     } else if (game === 'crash') {
       // Crash: запускаем когда есть хотя бы 1 игрок
-      if (gameState.status === 'waiting' && gameState.players.length >= 1) {
-        console.log(`🚀 Запускаем Crash через 5 секунд...`);
+      if (gameState.status === 'waiting' && gameState.players.length === 1) {
+        console.log(`🚀 Первый игрок! Запускаем Crash через 5 секунд...`);
         gameState.status = 'betting';
+        
+        // Очищаем старый таймер
+        if (gameState.bettingTimer) {
+          clearTimeout(gameState.bettingTimer);
+        }
         
         // Таймер 5 секунд на ставки
         gameState.bettingTimer = setTimeout(() => {
           startCrashGame();
         }, 5000);
+        
+        // Отправляем обновление статуса
+        io.to('global_crash').emit('game_state_sync', {
+          status: 'betting',
+          players: gameState.players.map(p => ({
+            userId: p.userId,
+            nickname: p.nickname,
+            photoUrl: p.photoUrl,
+            bet: p.bet
+          })),
+          multiplier: 1.00,
+          crashPoint: null
+        });
       }
     }
   });

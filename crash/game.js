@@ -944,13 +944,14 @@
   // Экспорт для WebSocket
   window.crashGame = {
     start: startFlyingPhase,
-    crash: crashRound,
+    crash: crash,
     updateMultiplier: (multiplier) => {
       currentMultiplier = multiplier;
       if (elements.currentMultiplier) {
         elements.currentMultiplier.textContent = `${multiplier.toFixed(2)}x`;
       }
-    }
+    },
+    getState: () => gameState
   };
 
   // Start game when DOM is ready
