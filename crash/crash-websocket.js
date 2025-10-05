@@ -107,6 +107,7 @@
   let graphPoints = [];
   let graphTime = 0;
   let graphCrashed = false;
+  let animationFrame = null;
   
   // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
@@ -626,7 +627,7 @@
     });
   }
 
-  // ============ ГРАФИК ============
+  // ============ ГРАФИК (ОПТИМИЗИРОВАННЫЙ) ============
   function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
@@ -640,8 +641,8 @@
     if (graphPoints.length < 2) return;
     
     // Цвет #FF1D50
-    const lineColor = graphCrashed ? '#FF1D50' : '#FF1D50';
-    const gradientColor = graphCrashed ? 'rgba(255, 29, 80, 0.3)' : 'rgba(255, 29, 80, 0.3)';
+    const lineColor = '#FF1D50';
+    const gradientColor = 'rgba(255, 29, 80, 0.3)';
     
     // Градиент снизу
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
@@ -659,45 +660,36 @@
     ctx.fillStyle = gradient;
     ctx.fill();
     
-    // Рисуем линию с сглаживанием
+    // Рисуем линию (БЕЗ сглаживания для производительности)
     ctx.beginPath();
     ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
-    
-    for (let i = 1; i < graphPoints.length - 1; i++) {
-      const xc = (graphPoints[i].x + graphPoints[i + 1].x) / 2;
-      const yc = (graphPoints[i].y + graphPoints[i + 1].y) / 2;
-      ctx.quadraticCurveTo(graphPoints[i].x, graphPoints[i].y, xc, yc);
+    for (let i = 1; i < graphPoints.length; i++) {
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
     }
-    
-    if (graphPoints.length > 1) {
-      const lastPoint = graphPoints[graphPoints.length - 1];
-      ctx.lineTo(lastPoint.x, lastPoint.y);
-    }
-    
     ctx.strokeStyle = lineColor;
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
     
-    // Рисуем стрелку ➤ только если не краш
-    if (!graphCrashed && graphPoints.length > 1) {
-      const lastPoint = graphPoints[graphPoints.length - 1];
-      const prevPoint = graphPoints[graphPoints.length - 2];
+    // Стрелка ➤ ФИКСИРОВАНА СЛЕВА ВНИЗУ
+    if (!graphCrashed) {
+      const arrowX = 30;
+      const arrowY = height - 30;
       
       ctx.save();
-      ctx.translate(lastPoint.x, lastPoint.y);
+      ctx.translate(arrowX, arrowY);
       
-      // Угол по направлению линии
-      const angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
+      // Угол в правый верхний угол
+      const angle = -Math.PI / 4; // 45° вверх-вправо
       ctx.rotate(angle);
       
-      // Рисуем стрелку ➤ (треугольник)
+      // Рисуем стрелку ➤
       ctx.beginPath();
-      ctx.moveTo(15, 0);        // Кончик
-      ctx.lineTo(0, -8);        // Верх
-      ctx.lineTo(5, 0);         // Середина
-      ctx.lineTo(0, 8);         // Низ
+      ctx.moveTo(15, 0);
+      ctx.lineTo(0, -8);
+      ctx.lineTo(5, 0);
+      ctx.lineTo(0, 8);
       ctx.closePath();
       ctx.fillStyle = lineColor;
       ctx.fill();
@@ -712,33 +704,20 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Увеличиваем время (МЕДЛЕННО)
-    graphTime += 0.05;
+    // Увеличиваем время
+    graphTime += 1;
     
-    // Медленный рост в правый верхний угол
-    const progress = Math.min(graphTime / 20, 1); // Нормализуем 0-1
+    // График двигается вправо-вверх
+    const x = 30 + graphTime * 3; // Движение вправо
+    const y = (height - 30) - graphTime * 2; // Движение вверх
     
-    // Позиция от левого низа к правому верху
-    const startX = 30;
-    const startY = height - 30;
-    const endX = width - 30;
-    const endY = 30;
+    // Колебания
+    const noise = Math.sin(graphTime * 0.1) * 8;
     
-    const baseX = startX + (endX - startX) * progress;
-    const baseY = startY + (endY - startY) * progress;
+    graphPoints.push({ x, y: y + noise });
     
-    // Добавляем колебания
-    const noise = Math.sin(graphTime * 3) * 5 + Math.cos(graphTime * 7) * 3;
-    
-    const x = baseX;
-    const y = baseY + noise;
-    
-    graphPoints.push({ x, y });
-    
-    // Ограничиваем количество точек (ВСЕГДА В ЗОНЕ ВИДИМОСТИ)
-    if (graphPoints.length > 100) {
-      graphPoints.shift();
-    }
+    // Удаляем точки за пределами экрана
+    graphPoints = graphPoints.filter(p => p.x < width + 50 && p.y > -50);
     
     drawGraph();
   }
