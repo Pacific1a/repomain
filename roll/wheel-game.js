@@ -221,8 +221,9 @@
         avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
+        avatar.style.backgroundColor = player.color || '#808080';
       } else {
-        avatar.style.backgroundColor = player.color;
+        avatar.style.backgroundColor = player.color || '#808080';
         avatar.style.color = 'white';
         avatar.style.fontSize = '20px';
         avatar.style.fontWeight = 'bold';
@@ -230,6 +231,8 @@
       }
       
       elements.wheel.appendChild(avatar);
+      
+      console.log('✅ 1 игрок занимает все колесо:', player.username, 'цвет:', player.color);
       return;
     }
     
@@ -656,10 +659,17 @@
     addPlayer,
     players: () => players,
     spin: (winnerId) => {
-      // Находим победителя
-      const winner = players.find(p => p.id === winnerId);
+      console.log('🎰 Получен запрос на вращение, winnerId:', winnerId);
+      console.log('📋 Текущие игроки:', players.map(p => ({ id: p.id, username: p.username })));
+      
+      // Находим победителя (проверяем и id и userId)
+      const winner = players.find(p => p.id === winnerId || p.id == winnerId);
+      
       if (winner) {
+        console.log('✅ Победитель найден:', winner.username);
         spinToWinner(winner);
+      } else {
+        console.error('❌ Победитель не найден! winnerId:', winnerId);
       }
     },
     updateState: (state) => {
