@@ -239,6 +239,7 @@
       graphPoints = [];
       graphTime = 0;
       graphCrashed = false;
+      graphStartTime = Date.now(); // Инициализируем время старта
       
       // Показываем canvas
       if (elements.graphCanvas) {
@@ -719,39 +720,42 @@
     }
   }
   
+  // Сохраняем время старта графика
+  let graphStartTime = 0;
+  
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Увеличиваем время
-    graphTime += 1;
+    // ТОЧНАЯ ЛОГИКА ИЗ GAME.JS
+    const elapsed = (Date.now() - graphStartTime) / 1000;
     
-    // Медленный рост в правый верхний угол
-    const progress = Math.min(graphTime / 200, 1); // Очень медленно
+    // Прогресс по времени (очень медленно)
+    const timeProgress = Math.min(elapsed / 20, 1); // 20 секунд до конца экрана
+    const curveProgress = Math.pow(timeProgress, 0.85); // Плавная кривая
     
-    // Позиция от левого низа к правому верху
-    const startX = 30;
-    const startY = height - 30;
-    const endX = width - 30;
-    const endY = 30;
+    // X position: медленно движется к правому краю
+    const marginX = 20;
+    const maxWidth = width - marginX * 2;
+    const xPos = marginX + (curveProgress * maxWidth * 0.88);
     
-    const baseX = startX + (endX - startX) * progress;
-    const baseY = startY + (endY - startY) * progress;
+    // Y position: медленно поднимается к верху
+    const marginY = 30;
+    const maxHeight = height - marginY * 2;
+    const yProgress = Math.pow(curveProgress, 0.8); // Плавный подъем
+    const baseY = height - marginY - (yProgress * maxHeight * 0.82);
     
-    // Добавляем колебания
-    const noise = Math.sin(graphTime * 0.05) * 8;
+    // Add subtle wave
+    const waveAmplitude = 6;
+    const waveFrequency = 1.2;
+    const wave = Math.sin(elapsed * waveFrequency) * waveAmplitude;
+    const graphY = baseY + wave;
     
-    const x = baseX;
-    const y = baseY + noise;
-    
-    graphPoints.push({ x, y });
-    
-    // Ограничиваем количество точек
-    if (graphPoints.length > 150) {
-      graphPoints.shift();
-    }
+    // Add trail point (сохраняем ВСЕ точки, не удаляем старые)
+    graphPoints.push({ x: xPos, y: graphY });
+    // НЕ удаляем старые точки - хвост должен быть на весь график!
     
     drawGraph();
   }
