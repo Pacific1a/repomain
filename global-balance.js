@@ -253,6 +253,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ============ ADMIN FUNCTIONS ============
+// Выдать баланс конкретному игроку
+window.giveBalanceToPlayer = async function(userId, chips = 100000, rubles = 0) {
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    
+    if (currentUserId === userId) {
+        // Это текущий игрок
+        if (window.GlobalBalance) {
+            window.GlobalBalance.balance.chips += chips;
+            window.GlobalBalance.balance.rubles += rubles;
+            await window.GlobalBalance.saveBalance();
+            window.GlobalBalance.updateMainBalance();
+            console.log(`✅ Выдано: ${chips} chips, ${rubles} rubles`);
+            return true;
+        }
+    } else {
+        console.log(`❌ Это не ваш ID. Ваш ID: ${currentUserId}`);
+        return false;
+    }
+};
+
+// Установить баланс (заменить)
+window.setBalanceForPlayer = async function(userId, chips = 100000, rubles = 1000) {
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    
+    if (currentUserId === userId) {
+        if (window.GlobalBalance) {
+            window.GlobalBalance.balance.chips = chips;
+            window.GlobalBalance.balance.rubles = rubles;
+            await window.GlobalBalance.saveBalance();
+            window.GlobalBalance.updateMainBalance();
+            console.log(`✅ Установлен баланс: ${chips} chips, ${rubles} rubles`);
+            return true;
+        }
+    } else {
+        console.log(`❌ Это не ваш ID. Ваш ID: ${currentUserId}`);
+        return false;
+    }
+};
+
+// Показать текущий ID
+window.getMyId = function() {
+    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || localStorage.getItem('testUserId');
+    console.log(`🆔 Ваш ID: ${userId}`);
+    return userId;
+};
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = GlobalBalance;
 }

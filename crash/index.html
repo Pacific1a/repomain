@@ -38,19 +38,14 @@
       </header>
       <div class="fixed-block">
         <div class="game">
-          <img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/crash/union.svg" />
-          <canvas class="game-canvas" id="gameCanvas"></canvas>
+          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" />
           <div class="waiting" id="waitingRoot">
-            <div class="frame" id="aviatorSplash"><img class="img-2" src="https://github.com/Pacific1a/img/blob/main/crash/Crush.png?raw=true" /></div>
-            <div class="frame-2" id="waitingPanel">
-              <div class="waiting-2" id="waitingText">Waiting...</div>
-              <div class="loading-bar"><div class="rectangle" id="waitingBar"></div></div>
-            </div>
+            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="">
+            <span style="font-size: 42px; font-family: 'Montserrat', Helvetica; color: white; position: absolute;">0</span>
           </div>
-          <!-- Crash overlay (darken background on crash) -->
-          <div class="crash-overlay" id="crashOverlay"></div>
-          <div class="multiplier-layer" id="multiplierLayer">
+          <div class="multiplier-layer" id="multiplierLayer" style="display: none;">
             <div class="multiplier-label" id="currentMultiplier">1.00x</div>
+            <div class="game-ended">Round ended</div>
           </div>
         </div>
         <div class="bet-section">
@@ -115,7 +110,24 @@
                 <div class="text-wrapper-21">Win Chips</div>
               </div>
               <div class="user-templates">
-                <!-- Реальные игроки будут добавляться через WebSocket -->
+                <div class="win">
+                  <div class="acc-inf">
+                    <div class="div-wrapper-2"><div class="avatar-2"></div></div>
+                    <div class="div-wrapper-3"><div class="text-wrapper-22">N***k</div></div>
+                  </div>
+                  <div class="div-wrapper-3"><div class="text-wrapper-23">200</div></div>
+                  <div class="div-wrapper-3"><div class="text-wrapper-24">1.22x</div></div>
+                  <div class="div-wrapper-4"><div class="text-wrapper-25">244</div></div>
+                </div>
+                <div class="default">
+                  <div class="acc-inf-2">
+                    <div class="avatar-wrapper"><div class="avatar-3"></div></div>
+                    <div class="n-k"><div class="text-wrapper-26">N***k</div></div>
+                  </div>
+                  <div class="div-wrapper-3"><div class="text-wrapper-27">200</div></div>
+                  <div class="div-wrapper-3"><div class="text-wrapper-27">-</div></div>
+                  <div class="div-wrapper-4"><div class="text-wrapper-28">-</div></div>
+                </div>
               </div>
             </div>
           </div>
@@ -153,12 +165,11 @@
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="../global-balance.js?v=3"></script>
-    <script src="../game-balance-api.js?v=3"></script>
-    <script src="../telegram-user-data.js?v=3"></script>
-    <script src="../players-system.js?v=3"></script>
-    <script src="crash-multiplayer-sync.js?v=3"></script>
-    <script src="bet-auto-switcher.js?v=3"></script>
-    <script src="game.js?v=3"></script>
+    <script src="../global-balance.js"></script>
+    <script src="../game-balance-api.js"></script>
+    <script src="../players-system.js"></script>
+    <script src="../telegram-user-data.js"></script>
+    <script src="bet-auto-switcher.js"></script>
+
   </body>
 </html>

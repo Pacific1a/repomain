@@ -29,10 +29,8 @@
         elements.betButton.classList.remove('div-wrapper-3');
       }
       
-      if (elements.autoButton) {
-        elements.autoButton.classList.add('div-wrapper-3');
-        elements.autoButton.classList.remove('bet');
-      }
+      elements.autoButton.classList.add('div-wrapper-3');
+      elements.autoButton.classList.remove('bet');
       
       // Скрываем Auto Cash Out секцию
       if (elements.autoSection) {
