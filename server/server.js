@@ -172,6 +172,16 @@ const globalGames = {
     winner: null,
     totalBet: 0,
     bets: {}
+  },
+  crash: {
+    status: 'waiting', // waiting, flying, crashed
+    players: [],
+    multiplier: 1.00,
+    crashPoint: null,
+    startTime: null,
+    gameInterval: null,
+    waitingTimer: null,
+    waitingTime: 5 // 5 секунд ожидания
   }
 };
 
@@ -628,12 +638,21 @@ io.on('connection', (socket) => {
     });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
-    // Запускаем таймер только если минимум 2 игрока
-    if (gameState.status === 'waiting' && gameState.players.length >= 2) {
-      console.log(`🎮 Запускаем игру ${game} - минимум 2 игрока`);
-      startGlobalGame(game);
-    } else if (gameState.status === 'waiting' && gameState.players.length === 1) {
-      console.log(`⏳ Ожидание второго игрока...`);
+    // Запуск в зависимости от игры
+    if (game === 'roll') {
+      // Roll: минимум 2 игрока
+      if (gameState.status === 'waiting' && gameState.players.length >= 2) {
+        console.log(`🎮 Запускаем Roll`);
+        startGlobalGame(game);
+      } else if (gameState.status === 'waiting' && gameState.players.length === 1) {
+        console.log(`⏳ Roll: Ожидание второго игрока...`);
+      }
+    } else if (game === 'crash') {
+      // Crash: запускаем при первой ставке
+      if (gameState.status === 'waiting' && gameState.players.length === 1) {
+        console.log(`🚀 Crash: Запуск таймера ожидания...`);
+        startCrashWaiting();
+      }
     }
   });
 
@@ -705,6 +724,124 @@ io.on('connection', (socket) => {
       console.log(`🏁 Глобальная игра ${game} завершена`);
     }, 5000);
   }
+
+  // ============ CRASH GAME ============
+  
+  // Запуск Crash (таймер ожидания)
+  function startCrashWaiting() {
+    const gameState = globalGames.crash;
+    gameState.status = 'waiting';
+    gameState.waitingTime = 5;
+    
+    console.log('⏳ Crash: Таймер ожидания 5 секунд...');
+    
+    // Очищаем старый таймер
+    if (gameState.waitingTimer) {
+      clearInterval(gameState.waitingTimer);
+    }
+    
+    // Таймер обратного отсчета
+    gameState.waitingTimer = setInterval(() => {
+      gameState.waitingTime--;
+      
+      io.to('global_crash').emit('crash_waiting', {
+        timeLeft: gameState.waitingTime
+      });
+      
+      if (gameState.waitingTime <= 0) {
+        clearInterval(gameState.waitingTimer);
+        startCrashGame();
+      }
+    }, 1000);
+  }
+  
+  // Запуск Crash игры
+  function startCrashGame() {
+    const gameState = globalGames.crash;
+    gameState.status = 'flying';
+    gameState.startTime = new Date();
+    gameState.multiplier = 1.00;
+    gameState.crashPoint = (Math.random() * 9 + 1).toFixed(2);
+    
+    io.to('global_crash').emit('crash_started', {
+      startTime: gameState.startTime.toISOString()
+    });
+    
+    console.log(`🚀 Crash начался! Краш на: ${gameState.crashPoint}x`);
+    
+    // Увеличиваем множитель каждые 100мс
+    gameState.gameInterval = setInterval(() => {
+      gameState.multiplier += 0.01;
+      
+      io.to('global_crash').emit('crash_multiplier', {
+        multiplier: parseFloat(gameState.multiplier.toFixed(2))
+      });
+      
+      // Проверяем краш
+      if (gameState.multiplier >= parseFloat(gameState.crashPoint)) {
+        crashCrashGame();
+      }
+    }, 100);
+  }
+  
+  // Краш
+  function crashCrashGame() {
+    const gameState = globalGames.crash;
+    
+    if (gameState.gameInterval) {
+      clearInterval(gameState.gameInterval);
+    }
+    
+    gameState.status = 'crashed';
+    
+    io.to('global_crash').emit('crash_ended', {
+      crashPoint: parseFloat(gameState.crashPoint)
+    });
+    
+    console.log(`💥 Crash упал на: ${gameState.crashPoint}x`);
+    
+    // Сброс через 3 секунды
+    setTimeout(() => {
+      gameState.players = [];
+      gameState.multiplier = 1.00;
+      
+      io.to('global_crash').emit('game_state_sync', {
+        status: 'waiting',
+        players: [],
+        multiplier: 1.00,
+        crashPoint: null
+      });
+      
+      // Запускаем новый раунд если есть игроки
+      if (gameState.players.length > 0) {
+        startCrashWaiting();
+      }
+      
+      console.log('🔄 Crash сброшен');
+    }, 3000);
+  }
+  
+  // Cashout
+  socket.on('crash_cashout', ({ game, userId }) => {
+    const gameState = globalGames.crash;
+    
+    if (gameState.status !== 'flying') return;
+    
+    const player = gameState.players.find(p => p.userId === userId);
+    if (!player || player.cashout) return;
+    
+    const cashout = Math.floor(player.bet * gameState.multiplier);
+    player.cashout = cashout;
+    player.multiplier = gameState.multiplier;
+    
+    io.to('global_crash').emit('player_cashout', {
+      userId: userId,
+      cashout: cashout,
+      multiplier: gameState.multiplier
+    });
+    
+    console.log(`💵 ${player.nickname} забрал ${cashout} на ${gameState.multiplier.toFixed(2)}x`);
+  });
 
   // Отключение
   socket.on('disconnect', () => {
