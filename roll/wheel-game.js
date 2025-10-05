@@ -471,10 +471,19 @@
     // Считаем общую сумму ставок (Total bets)
     const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
     
-    // Победитель получает ВСЕ ставки (Total bets)
-    if (window.GameBalanceAPI) {
+    // Получаем ID текущего пользователя
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 
+                         localStorage.getItem('testUserId') || 
+                         123456789;
+    
+    // Победитель получает ВСЕ ставки (ТОЛЬКО ЕСЛИ ЭТО ОН!)
+    const isWinner = winner.id == currentUserId || winner.id === currentUserId;
+    
+    if (isWinner && window.GameBalanceAPI) {
       window.GameBalanceAPI.payWinnings(totalBets, 'chips');
-      console.log(`💰 Победитель ${winner.username} получил ${totalBets} фишек`);
+      console.log(`🏆 Вы победили! Получено ${totalBets} фишек`);
+    } else {
+      console.log(`💰 Победил ${winner.username}, выиграл ${totalBets} фишек`);
     }
     
     winner.winAmount = totalBets;
