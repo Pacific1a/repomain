@@ -664,11 +664,9 @@
       window.BetAutoSwitcher.setGameActive(false);
     }
     
-    generateFakePlayers();
+    // УБРАНО: generateFakePlayers() - теперь только реальные игроки через WebSocket
     
-    // Clear existing bets first
-    const existingBets = elements.userTemplates.querySelectorAll('.default, .win:not(.player-bet)');
-    existingBets.forEach(el => el.remove());
+    // НЕ очищаем список - игроки управляются через crash-multiplayer-sync.js
     
     elements.waitingRoot.classList.remove('hidden');
     elements.crashOverlay.classList.remove('show');
@@ -715,7 +713,8 @@
       if (bettingTimeLeft <= 0) {
         clearInterval(countdownInterval);
         clearInterval(addPlayerInterval);
-        startFlyingPhase();
+        // УБРАНО: Локальный запуск - сервер запустит crash_started
+        // startFlyingPhase();
       }
     }, 100);
   }
@@ -887,10 +886,10 @@
     // Update final stats
     updateGameStats();
     
-    // Wait 3 seconds then start new round
-    setTimeout(() => {
-      startBettingPhase();
-    }, 3000);
+    // УБРАНО: Локальный запуск - теперь только через WebSocket
+    // setTimeout(() => {
+    //   startBettingPhase();
+    // }, 3000);
   }
 
   // ============ CRASH HISTORY MANAGEMENT ============
@@ -939,16 +938,7 @@
     // Load saved state
     loadGameState();
     
-    // Wait for balance API to be ready
-    const checkReady = () => {
-      if (window.GameBalanceAPI && window.GameBalanceAPI.balance) {
-        startBettingPhase();
-      } else {
-        setTimeout(checkReady, 100);
-      }
-    };
-    
-    checkReady();
+    console.log('✅ Crash Game готов - ожидание WebSocket...');
   }
 
   // Start game when DOM is ready
