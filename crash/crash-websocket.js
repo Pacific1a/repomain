@@ -235,19 +235,12 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // Сбрасываем график
-      graphPoints = [];
-      graphTime = 0;
-      graphCrashed = false;
-      graphStartTime = Date.now(); // Инициализируем время старта
-      
-      // Запускаем анимацию
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      animateGraph();
-      
-      // Показываем canvas
-      if (elements.graphCanvas) {
-        elements.graphCanvas.style.display = 'block';
+      // Показываем цифры
+      if (elements.multiplierLayer) {
+        elements.multiplierLayer.style.display = 'flex';
+      }
+      if (elements.currentMultiplier) {
+        elements.currentMultiplier.classList.remove('crashed');
       }
       
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
@@ -284,13 +277,17 @@
       }
     });
 
-    // Обновление множителя (ОПТИМИЗИРОВАНО - БЕЗ DOM!)
+    // Обновление множителя (ОПТИМИЗИРОВАНО)
+    let lastMultiplierUpdate = 0;
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
-      // НЕ обновляем HTML - рисуем на canvas!
       
-      // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
-      updateGraph();
+      // THROTTLE: Обновляем только каждые 100ms
+      const now = Date.now();
+      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 100)) {
+        elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
+        lastMultiplierUpdate = now;
+      }
       
       // Обновляем live выигрыш в Auto Cash Out
       if (autoCashOutEnabled && playerHasBet && !playerCashedOut && elements.betButtonChips) {
@@ -324,13 +321,11 @@
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
       
-      // Краш графика
-      graphCrashed = true;
-      currentMultiplier = data.crashPoint; // Сохраняем краш значение
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      
-      // Рисуем красным
-      drawGraph();
+      // Краш - показываем красным
+      if (elements.currentMultiplier) {
+        elements.currentMultiplier.textContent = `${data.crashPoint.toFixed(2)}x`;
+        elements.currentMultiplier.classList.add('crashed');
+      }
       
       // Показываем "Round ended" ПОД canvas
       if (elements.gameEnded) {
@@ -624,131 +619,9 @@
     });
   }
 
-  // ============ ГРАФИК (КАК В GAME.JS) ============
-  function drawGraph() {
-    if (!elements.graphCtx || !elements.graphCanvas) return;
-    
-    const ctx = elements.graphCtx;
-    const width = elements.graphCanvas.width;
-    const height = elements.graphCanvas.height;
-    
-    // Очищаем
-    ctx.clearRect(0, 0, width, height);
-    
-    // Рисуем множитель НА CANVAS
-    if ((gameState === GAME_STATES.FLYING || gameState === GAME_STATES.CRASHED) && currentMultiplier > 0) {
-      ctx.save();
-      ctx.font = 'bold 62px Montserrat, sans-serif';
-      ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
-      ctx.restore();
-    }
-    
-    if (graphPoints.length < 1) return;
-    
-    const lastPoint = graphPoints[graphPoints.length - 1];
-    
-    // Цвет #FF1D50
-    const lineColor = '#FF1D50';
-    
-    // Заливка под кривой
-    ctx.beginPath();
-    ctx.moveTo(0, height);
-    
-    if (graphPoints.length === 1) {
-      ctx.lineTo(lastPoint.x, lastPoint.y);
-    } else {
-      ctx.lineTo(graphPoints[0].x, graphPoints[0].y);
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
-      }
-    }
-    
-    ctx.lineTo(lastPoint.x, height);
-    ctx.lineTo(0, height);
-    ctx.closePath();
-    
-    const fillGradient = ctx.createLinearGradient(0, height, 0, 0);
-    fillGradient.addColorStop(0, 'rgba(255, 29, 80, 0.08)');
-    fillGradient.addColorStop(0.5, 'rgba(255, 29, 80, 0.18)');
-    fillGradient.addColorStop(1, 'rgba(255, 155, 176, 0.3)');
-    ctx.fillStyle = fillGradient;
-    ctx.fill();
-    
-    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo БЕЗ эффектов)
-    if (graphPoints.length >= 2) {
-      ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
-      
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
-      }
-      
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-    }
-    // Стрелка на конце (УПРОЩЕННАЯ)
-    if (!graphCrashed && graphPoints.length >= 2) {
-      const lastPoint = graphPoints[graphPoints.length - 1];
-      
-      ctx.save();
-      ctx.translate(lastPoint.x, lastPoint.y);
-      ctx.rotate(-Math.PI / 4); // 45° вверх-вправо
-      
-      // Простой треугольник
-      ctx.beginPath();
-      ctx.moveTo(12, 0);
-      ctx.lineTo(0, -6);
-      ctx.lineTo(0, 6);
-      ctx.closePath();
-      ctx.fillStyle = lineColor;
-      ctx.fill();
-      
-      ctx.restore();
-    }
-  }
+  // ============ УДАЛЕНО - ТОЛЬКО ЦИФРЫ ============
   
-  // Сохраняем время старта графика
-  let graphStartTime = 0;
-  let animationFrameId = null;
-  
-  // Цикл рисования (КАК В GAME.JS)
-  function animateGraph() {
-    if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-      drawGraph();
-      animationFrameId = requestAnimationFrame(animateGraph);
-    }
-  }
-  
-  function updateGraph() {
-    if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
-    
-    const now = Date.now();
-    
-    const width = elements.graphCanvas.width;
-    const height = elements.graphCanvas.height;
-    
-    // ОЧЕНЬ МЕДЛЕННО (60 FPS)
-    const elapsed = (now - graphStartTime) / 1000;
-    const progress = Math.min(elapsed / 30, 0.75); // 30 секунд, макс 75% экрана
-    
-    // X: ИЗ САМОГО ЛЕВОГО НИЗА (0, height)
-    const x = (width - 30) * progress;
-    
-    // Y: плавный подъем ИЗ САМОГО НИЗА
-    const y = height - (height - 30) * progress;
-    
-    // Минимальная волна
-    const wave = Math.sin(elapsed * 1.2) * 5;
-    
-    graphPoints.push({ x, y: y + wave });
-    // НЕ рисуем здесь - рисует requestAnimationFrame!
-  }
+  // ============ УДАЛЕНО ============
 
   // ============ ЗАПУСК ============
   waitForWebSocket();
