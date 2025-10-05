@@ -550,32 +550,33 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Присоединиться к глобальной игре
+  // Подключение к глобальной игре
   socket.on('join_game', ({ game }) => {
     socket.join(`global_${game}`);
-    console.log(`🌍 Игрок присоединился к глобальной игре: ${game}`);
+    console.log(`🎮 Подключение к global_${game}`);
     
     const gameState = globalGames[game];
-    
-    // Отправляем текущее состояние игры
-    const cleanState = {
-      status: gameState.status,
-      players: gameState.players.map(p => ({
-        userId: p.userId,
-        nickname: p.nickname,
-        photoUrl: p.photoUrl,
-        bet: p.bet,
-        color: p.color
-      })),
-      timer: gameState.timer,
-      startTime: gameState.startTime ? gameState.startTime.toISOString() : null
-    };
-    socket.emit('game_state_sync', cleanState);
-    
-    // Если игра в режиме spinning - отправляем spin_wheel
-    if (gameState.status === 'spinning' && gameState.winner) {
-      console.log(`🔄 Переподключение во время spinning, отправляем spin_wheel`);
-      socket.emit('spin_wheel', { winner: gameState.winner });
+    if (gameState) {
+      // Отправляем текущее состояние игры
+      socket.emit('game_state_sync', {
+        status: gameState.status,
+        players: gameState.players.map(p => ({
+          userId: p.userId,
+          nickname: p.nickname,
+          photoUrl: p.photoUrl,
+          bet: p.bet,
+          color: p.color
+        })),
+        startTime: gameState.startTime
+      });
+      
+      // Автозапуск Crash если не запущен
+      if (game === 'crash' && gameState.status === 'waiting' && !gameState.waitingTimer && !gameState.gameInterval) {
+        console.log('🚀 Crash: Первый запуск...');
+        setTimeout(() => {
+          startCrashWaiting();
+        }, 2000);
+      }
     }
   });
 
@@ -648,11 +649,8 @@ io.on('connection', (socket) => {
         console.log(`⏳ Roll: Ожидание второго игрока...`);
       }
     } else if (game === 'crash') {
-      // Crash: запускаем при первой ставке
-      if (gameState.status === 'waiting' && gameState.players.length === 1) {
-        console.log(`🚀 Crash: Запуск таймера ожидания...`);
-        startCrashWaiting();
-      }
+      // Crash: автозапуск всегда (не требуется ставок)
+      // Логика автозапуска в crashCrashGame()
     }
   });
 
@@ -808,8 +806,6 @@ io.on('connection', (socket) => {
     
     // Сброс через 3 секунды
     setTimeout(() => {
-      const hadPlayers = gameState.players.length > 0;
-      
       gameState.players = [];
       gameState.multiplier = 1.00;
       gameState.status = 'waiting';
@@ -823,12 +819,10 @@ io.on('connection', (socket) => {
       
       console.log('🔄 Crash сброшен');
       
-      // Автозапуск нового раунда если были игроки
-      if (hadPlayers) {
-        setTimeout(() => {
-          startCrashWaiting();
-        }, 1000);
-      }
+      // Автозапуск ВСЕГДА (не зависит от игроков)
+      setTimeout(() => {
+        startCrashWaiting();
+      }, 1000);
     }, 3000);
   }
   

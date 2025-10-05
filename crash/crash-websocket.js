@@ -18,9 +18,12 @@
   let buttonState = BUTTON_STATES.BET;
   let playerBetAmount = 0;
   let playerHasBet = false;
+  let playerCashedOut = false;
   let currentMultiplier = 1.00;
   let players = [];
   let ws = null;
+  let autoCashOutEnabled = false;
+  let autoCashOutMultiplier = 2.0;
 
   // ============ ЭЛЕМЕНТЫ ============
   const elements = {
@@ -39,6 +42,13 @@
     minusBtn: document.querySelector('.button'),
     plusBtn: document.querySelector('.union-wrapper'),
     multiplyButtons: document.querySelectorAll('.button-2'),
+    
+    // Auto Cash Out
+    autoSection: document.querySelector('.auto-section'),
+    autoSwitcher: document.querySelector('.bg-svitch'),
+    autoSwitcherBg: document.querySelector('.bg-sv'),
+    autoInput: document.querySelector('.text-auto-2 span:first-child'),
+    autoClear: document.querySelector('.text-auto-2 .close'),
     
     // Статистика
     totalBetsCount: document.querySelector('.total-bets .text-wrapper-17'),
@@ -139,9 +149,12 @@
         elements.gameEnded.style.display = 'none';
       }
       
-      // Если есть ставка - показываем CASHOUT
-      if (playerHasBet) {
+      // Если есть ставка и не забрали - показываем CASHOUT
+      if (playerHasBet && !playerCashedOut) {
         setButtonState(BUTTON_STATES.CASHOUT);
+      } else if (playerHasBet && playerCashedOut) {
+        // Уже забрали - показываем BET для следующего раунда
+        setButtonState(BUTTON_STATES.BET);
       }
     });
 
@@ -151,6 +164,12 @@
       
       if (elements.currentMultiplier) {
         elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
+      }
+      
+      // Auto Cash Out
+      if (autoCashOutEnabled && playerHasBet && !playerCashedOut && currentMultiplier >= autoCashOutMultiplier) {
+        console.log(`🤖 Auto Cash Out на ${currentMultiplier.toFixed(2)}x`);
+        performCashOut();
       }
     });
 
@@ -183,9 +202,14 @@
         elements.gameEnded.style.display = 'block';
       }
       
-      // Сбрасываем ставку
-      playerHasBet = false;
-      playerBetAmount = 0;
+      // Сбрасываем только если НЕ забрали
+      if (playerHasBet && !playerCashedOut) {
+        // Проиграли
+        playerHasBet = false;
+        playerBetAmount = 0;
+        playerCashedOut = false;
+      }
+      
       setButtonState(BUTTON_STATES.BET);
     });
   }
@@ -261,10 +285,33 @@
     }
   }
 
+  // Функция Cash Out
+  async function performCashOut() {
+    if (!playerHasBet || playerCashedOut) return;
+    
+    const winAmount = Math.floor(playerBetAmount * currentMultiplier);
+    await window.GameBalanceAPI.payWinnings(winAmount, 'chips');
+    
+    playerCashedOut = true;
+    setButtonState(BUTTON_STATES.BET);
+    
+    // Отправляем на сервер
+    if (ws) {
+      const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 123456789;
+      
+      ws.socket.emit('crash_cashout', {
+        game: 'crash',
+        userId
+      });
+    }
+    
+    console.log(`💰 Cash Out: ${winAmount} chips (${currentMultiplier.toFixed(2)}x)`);
+  }
+
   if (elements.betButton) {
     elements.betButton.addEventListener('click', async () => {
-      if (buttonState === BUTTON_STATES.BET) {
-        // Делаем ставку
+      if (buttonState === BUTTON_STATES.BET && gameState !== GAME_STATES.FLYING) {
+        // Делаем ставку (только в waiting)
         const betAmount = getBetAmount();
         
         if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
@@ -276,6 +323,7 @@
         if (success) {
           playerBetAmount = betAmount;
           playerHasBet = true;
+          playerCashedOut = false;
           setButtonState(BUTTON_STATES.CANCEL);
           
           // Отправляем на сервер
@@ -296,24 +344,34 @@
           
           console.log(`✅ Ставка: ${betAmount} chips`);
         }
+      } else if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.FLYING) {
+        // Делаем ставку во время игры (для следующего раунда)
+        const betAmount = getBetAmount();
+        
+        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+          console.log('❌ Недостаточно фишек');
+          return;
+        }
+        
+        const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
+        if (success) {
+          playerBetAmount = betAmount;
+          playerHasBet = true;
+          playerCashedOut = false;
+          setButtonState(BUTTON_STATES.CANCEL);
+          console.log(`✅ Ставка на следующий раунд: ${betAmount} chips`);
+        }
       } else if (buttonState === BUTTON_STATES.CANCEL) {
         // Отменяем ставку
         await window.GameBalanceAPI.payWinnings(playerBetAmount, 'chips');
         playerBetAmount = 0;
         playerHasBet = false;
+        playerCashedOut = false;
         setButtonState(BUTTON_STATES.BET);
         console.log('❌ Ставка отменена');
       } else if (buttonState === BUTTON_STATES.CASHOUT) {
         // Забираем выигрыш
-        if (ws) {
-          const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 123456789;
-          
-          ws.socket.emit('crash_cashout', {
-            game: 'crash',
-            userId
-          });
-        }
-        console.log('💰 Забрали выигрыш');
+        await performCashOut();
       }
     });
   }
@@ -383,6 +441,48 @@
       const progress = Math.min((betsCount / 550) * 100, 100);
       elements.progressBar.style.width = `${progress}%`;
     }
+  }
+
+  // ============ AUTO CASH OUT ============
+  
+  // Переключатель
+  if (elements.autoSwitcher) {
+    elements.autoSwitcher.addEventListener('click', () => {
+      autoCashOutEnabled = !autoCashOutEnabled;
+      
+      if (elements.autoSwitcherBg) {
+        if (autoCashOutEnabled) {
+          elements.autoSwitcherBg.style.transform = 'translateX(20px)';
+          elements.autoSwitcherBg.style.background = '#39d811';
+        } else {
+          elements.autoSwitcherBg.style.transform = 'translateX(0)';
+          elements.autoSwitcherBg.style.background = '#6a6a6a';
+        }
+      }
+      
+      console.log(`🤖 Auto Cash Out: ${autoCashOutEnabled ? 'ON' : 'OFF'}`);
+    });
+  }
+  
+  // Ввод множителя
+  if (elements.autoInput) {
+    elements.autoInput.contentEditable = 'true';
+    elements.autoInput.addEventListener('input', (e) => {
+      let value = e.target.textContent.replace(/[^0-9.]/g, '');
+      const num = parseFloat(value) || 2.0;
+      autoCashOutMultiplier = Math.max(1.01, Math.min(100, num));
+      e.target.textContent = autoCashOutMultiplier.toFixed(2);
+    });
+  }
+  
+  // Очистка
+  if (elements.autoClear) {
+    elements.autoClear.addEventListener('click', () => {
+      if (elements.autoInput) {
+        elements.autoInput.textContent = '2.00';
+        autoCashOutMultiplier = 2.0;
+      }
+    });
   }
 
   // ============ ЗАПУСК ============
