@@ -289,12 +289,15 @@
     });
 
     // Обновление множителя (ОПТИМИЗИРОВАНО)
+    let lastMultiplierUpdate = 0;
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
-      if (elements.currentMultiplier) {
-        // Без transition - мгновенное обновление
+      // THROTTLE: Обновляем текст только каждые 200ms
+      const now = Date.now();
+      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 200)) {
         elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
+        lastMultiplierUpdate = now;
       }
       
       // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
