@@ -39,6 +39,11 @@
       // Обновляем UI без перерисовки
       updatePlayersUI();
       updateGamePhase(state.status);
+      
+      // Если статус waiting - сбрасываем UI
+      if (state.status === 'waiting') {
+        resetGameUI();
+      }
     });
 
     // Новый игрок сделал ставку
@@ -110,8 +115,42 @@
         window.crashGame.crash(data.crashPoint);
       }
 
-      // НЕ сбрасываем - ждем новое событие waiting с сервера
+      // НЕ сбрасываем - ждем game_state_sync со статусом waiting
     });
+  }
+  
+  // Сброс UI после краша
+  function resetGameUI() {
+    console.log('🔄 Сброс Crash UI');
+    
+    const waitingRoot = document.getElementById('waitingRoot');
+    const crashOverlay = document.getElementById('crashOverlay');
+    const currentMultiplier = document.getElementById('currentMultiplier');
+    
+    if (waitingRoot) {
+      waitingRoot.classList.remove('hidden');
+    }
+    
+    if (crashOverlay) {
+      crashOverlay.classList.remove('show');
+    }
+    
+    if (currentMultiplier) {
+      currentMultiplier.textContent = '1.00x';
+      currentMultiplier.classList.remove('crashed');
+      currentMultiplier.style.display = 'none';
+    }
+    
+    // Обновляем waiting text
+    const waitingText = document.getElementById('waitingText');
+    if (waitingText) {
+      waitingText.textContent = 'Waiting...';
+    }
+    
+    const waitingBar = document.getElementById('waitingBar');
+    if (waitingBar) {
+      waitingBar.style.width = '0%';
+    }
   }
 
   // Сделать ставку

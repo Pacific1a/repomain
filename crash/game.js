@@ -283,8 +283,8 @@
 
   // ============ BET BUTTON HANDLER ============
   elements.betButton.addEventListener('click', async () => {
-    if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.BETTING) {
-      // Place bet
+    if (buttonState === BUTTON_STATES.BET && (gameState === GAME_STATES.BETTING || gameState === GAME_STATES.WAITING)) {
+      // Place bet через WebSocket
       const betAmount = getBetAmount();
       
       if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
@@ -299,11 +299,11 @@
         playerCashedOut = false;
         setButtonState(BUTTON_STATES.CANCEL);
         
-        // Add player to bets list
-        addPlayerBetToList();
-        
-        // Update stats
-        updateGameStats();
+        // Отправляем ставку на сервер через WebSocket
+        if (window.CrashSync) {
+          window.CrashSync.placeBet(betAmount);
+          console.log(`📤 Ставка отправлена на сервер: ${betAmount}`);
+        }
         
         console.log(`🎲 Bet placed: ${betAmount} chips`);
         
@@ -350,7 +350,11 @@
       playerHasBet = false;
       setButtonState(BUTTON_STATES.BET);
     } else if (buttonState === BUTTON_STATES.CASHOUT && gameState === GAME_STATES.FLYING) {
-      // Manual cash out
+      // Manual cash out через WebSocket
+      if (window.CrashSync) {
+        window.CrashSync.cashout();
+        console.log('📤 Cashout отправлен на сервер');
+      }
       await performCashOut();
     }
   });
@@ -943,8 +947,39 @@
 
   // Экспорт для WebSocket
   window.crashGame = {
-    start: startFlyingPhase,
-    crash: crash,
+    start: () => {
+      console.log('🚀 WebSocket: Запуск игры');
+      gameState = GAME_STATES.FLYING;
+      flyingStartTime = Date.now();
+      
+      // Скрываем waiting, показываем множитель
+      elements.waitingRoot.classList.add('hidden');
+      elements.currentMultiplier.style.display = 'block';
+      elements.currentMultiplier.textContent = '1.00x';
+      
+      // Запускаем анимацию
+      trailPoints = [];
+      animateFlying();
+    },
+    crash: (crashPoint) => {
+      console.log('💥 WebSocket: Краш на', crashPoint);
+      gameState = GAME_STATES.CRASHED;
+      currentMultiplier = parseFloat(crashPoint);
+      
+      // Останавливаем анимацию
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      
+      // Показываем краш
+      elements.currentMultiplier.textContent = `${crashPoint}x`;
+      elements.currentMultiplier.classList.add('crashed');
+      elements.crashOverlay.classList.add('show');
+      
+      // Добавляем в историю
+      addCrashToHistory(parseFloat(crashPoint));
+    },
     updateMultiplier: (multiplier) => {
       currentMultiplier = multiplier;
       if (elements.currentMultiplier) {
