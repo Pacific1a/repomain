@@ -507,7 +507,7 @@
     const spins = 7;
     
     // Добавляем случайное смещение внутри сегмента (не на центре!)
-    const segmentSize = 360 / totalBet * winner.bet;
+    const segmentSize = 360 / totalBets * winner.betAmount;
     const randomOffset = (Math.random() - 0.5) * segmentSize * 0.7; // ±35% от размера сегмента
     
     const finalRotation = spins * 360 - winnerAngle + randomOffset;
