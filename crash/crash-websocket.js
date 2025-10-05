@@ -160,12 +160,14 @@
       console.log('⏳ Ожидание:', data.timeLeft);
       gameState = GAME_STATES.WAITING;
       
-      // Убираем загрузку
+      // Убираем загрузку плавно
       if (elements.loadingOverlay) {
-        elements.loadingOverlay.style.opacity = '0';
         setTimeout(() => {
-          elements.loadingOverlay.style.display = 'none';
-        }, 300);
+          elements.loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            elements.loadingOverlay.style.display = 'none';
+          }, 500);
+        }, 200);
       }
       
       // Показываем waiting
@@ -193,12 +195,14 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // Убираем загрузку
+      // Убираем загрузку плавно
       if (elements.loadingOverlay) {
-        elements.loadingOverlay.style.opacity = '0';
         setTimeout(() => {
-          elements.loadingOverlay.style.display = 'none';
-        }, 300);
+          elements.loadingOverlay.style.opacity = '0';
+          setTimeout(() => {
+            elements.loadingOverlay.style.display = 'none';
+          }, 500);
+        }, 200);
       }
       
       // Скрываем waiting, показываем множитель СРАЗУ
