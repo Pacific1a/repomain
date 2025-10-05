@@ -530,30 +530,41 @@ io.on('connection', (socket) => {
           winner: gameResult.winner,
           results: gameResult.results
         });
-
         console.log(`🏁 Игра завершена в комнате ${room.name}`);
       }
     } catch (error) {
       console.error('❌ Ошибка хода:', error);
       socket.emit('error', { message: 'Ошибка обработки хода' });
     }
+  });
+
+  // Присоединиться к глобальной игре
+  socket.on('join_game', ({ game }) => {
     socket.join(`global_${game}`);
     console.log(`🌍 Игрок присоединился к глобальной игре: ${game}`);
     
-    // Отправляем текущее состояние игры (чистая копия без циклических ссылок + ЦВЕТ)
+    const gameState = globalGames[game];
+    
+    // Отправляем текущее состояние игры
     const cleanState = {
-      status: globalGames[game].status,
-      players: globalGames[game].players.map(p => ({
+      status: gameState.status,
+      players: gameState.players.map(p => ({
         userId: p.userId,
         nickname: p.nickname,
         photoUrl: p.photoUrl,
         bet: p.bet,
-        color: p.color // ДОБАВЛЯЕМ ЦВЕТ
+        color: p.color
       })),
-      timer: globalGames[game].timer,
-      startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null
+      timer: gameState.timer,
+      startTime: gameState.startTime ? gameState.startTime.toISOString() : null
     };
     socket.emit('game_state_sync', cleanState);
+    
+    // Если игра в режиме spinning - отправляем spin_wheel
+    if (gameState.status === 'spinning' && gameState.winner) {
+      console.log(`🔄 Переподключение во время spinning, отправляем spin_wheel`);
+      socket.emit('spin_wheel', { winner: gameState.winner });
+    }
   });
 
   // Получить состояние игры
@@ -648,7 +659,10 @@ io.on('connection', (socket) => {
   function spinGlobalGame(game) {
     const gameState = globalGames[game];
     
+    console.log(`🎰 spinGlobalGame вызван для ${game}, игроков: ${gameState.players.length}`);
+    
     if (gameState.players.length === 0) {
+      console.log(`⚠️ Нет игроков, сброс игры`);
       gameState.status = 'waiting';
       return;
     }
@@ -667,10 +681,15 @@ io.on('connection', (socket) => {
       }
     }
 
-    console.log(`🎰 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
+    console.log(`🏆 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
+    
+    // Сохраняем победителя в состоянии
+    gameState.status = 'spinning';
+    gameState.winner = winner.userId;
 
     io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
     console.log(`📤 Отправлено событие spin_wheel в комнату global_${game} с winnerId: ${winner.userId}`);
+    console.log(`📊 Клиентов в комнате global_${game}:`, io.sockets.adapter.rooms.get(`global_${game}`)?.size || 0);
 
     // Завершаем игру через 5 секунд
     setTimeout(() => {
