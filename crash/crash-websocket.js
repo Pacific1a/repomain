@@ -29,12 +29,15 @@
     waitingTimer: document.querySelector('#waitingRoot span'),
     multiplierLayer: document.getElementById('multiplierLayer'),
     currentMultiplier: document.getElementById('currentMultiplier'),
+    gameEnded: document.querySelector('.game-ended'),
     
     // Ставка
     betInput: document.querySelector('#betInput'),
-    betButton: document.querySelector('.bet-button'),
-    minusBtn: document.querySelector('.button'),
-    plusBtn: document.querySelector('.button-2'),
+    betButton: document.querySelector('.cancel-button-next'),
+    betButtonText: document.querySelector('.cancel-button-next .text-wrapper-15'),
+    betButtonChips: document.querySelector('.cancel-button-next .text-wrapper-16'),
+    minusBtn: document.querySelector('.element'),
+    plusBtn: document.querySelector('.element-2'),
     
     // Статистика
     totalBetsCount: document.querySelector('.total-bets .text-wrapper-17'),
@@ -44,6 +47,11 @@
     // Игроки
     playersList: document.querySelector('.user-templates')
   };
+  
+  // Скрываем "Round ended" при загрузке
+  if (elements.gameEnded) {
+    elements.gameEnded.style.display = 'none';
+  }
 
   // ============ WEBSOCKET ============
   function waitForWebSocket() {
@@ -125,6 +133,11 @@
         elements.currentMultiplier.classList.remove('crashed');
       }
       
+      // Скрываем "Round ended"
+      if (elements.gameEnded) {
+        elements.gameEnded.style.display = 'none';
+      }
+      
       // Если есть ставка - показываем CASHOUT
       if (playerHasBet) {
         setButtonState(BUTTON_STATES.CASHOUT);
@@ -162,6 +175,11 @@
       if (elements.currentMultiplier) {
         elements.currentMultiplier.textContent = `${data.crashPoint}x`;
         elements.currentMultiplier.classList.add('crashed');
+      }
+      
+      // Показываем "Round ended"
+      if (elements.gameEnded) {
+        elements.gameEnded.style.display = 'block';
       }
       
       // Сбрасываем ставку
@@ -203,21 +221,25 @@
     const betButton = elements.betButton;
     if (!betButton) return;
 
-    const textEl = betButton.querySelector('.text-wrapper-14');
+    const textEl = elements.betButtonText;
+    const chipsEl = elements.betButtonChips;
 
     switch(state) {
       case BUTTON_STATES.BET:
         if (textEl) textEl.textContent = 'BET';
+        if (chipsEl) chipsEl.textContent = `${getBetAmount()} chips`;
         betButton.style.background = 'linear-gradient(180deg, rgb(57, 216, 17) 0%, rgb(41, 155, 13) 100%)';
         break;
         
       case BUTTON_STATES.CANCEL:
         if (textEl) textEl.textContent = 'CANCEL';
+        if (chipsEl) chipsEl.textContent = 'Wait to next round';
         betButton.style.background = 'linear-gradient(180deg, rgb(255, 87, 87) 0%, rgb(200, 50, 50) 100%)';
         break;
         
       case BUTTON_STATES.CASHOUT:
         if (textEl) textEl.textContent = 'CASH OUT';
+        if (chipsEl) chipsEl.textContent = '';
         betButton.style.background = 'linear-gradient(180deg, rgb(255, 215, 0) 0%, rgb(200, 170, 0) 100%)';
         break;
     }
@@ -349,6 +371,9 @@
 
   // ============ ЗАПУСК ============
   waitForWebSocket();
+  
+  // Инициализация кнопки
+  setButtonState(BUTTON_STATES.BET);
 
   console.log('✅ Crash WebSocket инициализирован');
 
