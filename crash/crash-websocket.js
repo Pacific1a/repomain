@@ -237,6 +237,7 @@
       
       // Сбрасываем график
       points.length = 0;
+      virtualX = 0;
       graphCrashed = false;
       
       // Показываем canvas
@@ -251,7 +252,7 @@
       
       // Запускаем анимацию
       if (animationId) cancelAnimationFrame(animationId);
-      drawSimpleGraph();
+      drawAviatorGraph();
       
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
       if (!dataReceived && elements.loadingOverlay) {
@@ -291,21 +292,22 @@
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
-      // Добавляем точку на график
+      // Добавляем точку на график (ЛИНИЯ РАСТЕТ ПО ЦЕНТРУ)
       if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-        const width = elements.graphCanvas.width;
         const height = elements.graphCanvas.height;
         
-        // X: движется слева направо
-        const x = points.length * 5; // 5px между точками
+        // X: виртуальная позиция растет
+        virtualX += 5;
         
         // Y: растет вверх по множителю
-        const y = height - (currentMultiplier - 1) * 50; // 50px на 1x
+        const y = height - (currentMultiplier - 1) * 50;
         
-        points.push({ x, y });
+        points.push({ x: virtualX, y });
         
-        // Удаляем старые точки если выходят за экран
-        if (points.length > 0 && points[0].x < -50) {
+        // Удаляем старые точки (за кадром слева)
+        const centerX = elements.graphCanvas.width / 2;
+        const offset = virtualX - centerX;
+        while (points.length > 0 && points[0].x - offset < -50) {
           points.shift();
         }
       }
@@ -349,7 +351,7 @@
       if (animationId) cancelAnimationFrame(animationId);
       
       // Последняя отрисовка красным
-      drawSimpleGraph();
+      drawAviatorGraph();
       
       // Показываем "Round ended" ПОД canvas
       if (elements.gameEnded) {
@@ -643,22 +645,24 @@
     });
   }
 
-  // ============ ПРОСТОЙ ГРАФИК (КАК В ПРИМЕРЕ) ============
+  // ============ ГРАФИК КАК В AVIATOR (ЛИНИЯ ПО ЦЕНТРУ) ============
   const points = [];
   let animationId = null;
+  let virtualX = 0; // Виртуальная позиция
   
-  function drawSimpleGraph() {
+  function drawAviatorGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
     const ctx = elements.graphCtx;
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
+    const centerX = width / 2;
     
     // Очистка
     ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(0, 0, width, height);
     
-    // Линия графика
+    // Линия графика (КАМЕРА СЛЕДИТ ЗА ЛИНИЕЙ)
     if (points.length > 1) {
       ctx.beginPath();
       ctx.strokeStyle = '#FF1D50';
@@ -666,26 +670,31 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
+      // Сдвиг камеры - линия всегда по центру
+      const offset = virtualX - centerX;
+      
       for (let i = 0; i < points.length; i++) {
         const p = points[i];
-        if (i === 0) ctx.moveTo(p.x, p.y);
-        else ctx.lineTo(p.x, p.y);
+        const screenX = p.x - offset; // Сдвигаем все точки
+        
+        if (i === 0) ctx.moveTo(screenX, p.y);
+        else ctx.lineTo(screenX, p.y);
       }
       ctx.stroke();
     }
     
-    // Текст множителя
+    // Текст множителя (ВСЕГДА ПО ЦЕНТРУ)
     if (gameState === GAME_STATES.FLYING || gameState === GAME_STATES.CRASHED) {
       ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
       ctx.font = 'bold 48px Montserrat, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
+      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, centerX, height / 2);
     }
     
     // Продолжаем анимацию
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-      animationId = requestAnimationFrame(drawSimpleGraph);
+      animationId = requestAnimationFrame(drawAviatorGraph);
     }
   }
 
