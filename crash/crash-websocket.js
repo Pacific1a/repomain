@@ -36,8 +36,9 @@
     betButton: document.querySelector('.cancel-button-next'),
     betButtonText: document.querySelector('.cancel-button-next .text-wrapper-15'),
     betButtonChips: document.querySelector('.cancel-button-next .text-wrapper-16'),
-    minusBtn: document.querySelector('.element'),
-    plusBtn: document.querySelector('.element-2'),
+    minusBtn: document.querySelector('.button'),
+    plusBtn: document.querySelector('.union-wrapper'),
+    multiplyButtons: document.querySelectorAll('.button-2'),
     
     // Статистика
     totalBetsCount: document.querySelector('.total-bets .text-wrapper-17'),
@@ -205,6 +206,7 @@
     elements.minusBtn.addEventListener('click', () => {
       if (gameState === GAME_STATES.FLYING) return;
       setBetAmount(getBetAmount() - 50);
+      setButtonState(BUTTON_STATES.BET); // Обновляем текст
     });
   }
 
@@ -212,6 +214,20 @@
     elements.plusBtn.addEventListener('click', () => {
       if (gameState === GAME_STATES.FLYING) return;
       setBetAmount(getBetAmount() + 50);
+      setButtonState(BUTTON_STATES.BET); // Обновляем текст
+    });
+  }
+  
+  // Кнопки умножения (1x, 2x, 5x, 10x)
+  if (elements.multiplyButtons) {
+    elements.multiplyButtons.forEach((btn, index) => {
+      btn.addEventListener('click', () => {
+        if (gameState === GAME_STATES.FLYING) return;
+        const multipliers = [1, 2, 5, 10];
+        const current = getBetAmount();
+        setBetAmount(current * multipliers[index]);
+        setButtonState(BUTTON_STATES.BET); // Обновляем текст
+      });
     });
   }
 

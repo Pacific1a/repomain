@@ -769,9 +769,15 @@ io.on('connection', (socket) => {
     
     console.log(`🚀 Crash начался! Краш на: ${gameState.crashPoint}x`);
     
-    // Увеличиваем множитель каждые 100мс
+    // Увеличиваем множитель каждые 100мс (ускоряется с ростом)
     gameState.gameInterval = setInterval(() => {
-      gameState.multiplier += 0.01;
+      // Ускоряем рост по мере увеличения
+      let increment = 0.01;
+      if (gameState.multiplier > 2) increment = 0.02;
+      if (gameState.multiplier > 5) increment = 0.05;
+      if (gameState.multiplier > 10) increment = 0.1;
+      
+      gameState.multiplier += increment;
       
       io.to('global_crash').emit('crash_multiplier', {
         multiplier: parseFloat(gameState.multiplier.toFixed(2))
@@ -802,8 +808,11 @@ io.on('connection', (socket) => {
     
     // Сброс через 3 секунды
     setTimeout(() => {
+      const hadPlayers = gameState.players.length > 0;
+      
       gameState.players = [];
       gameState.multiplier = 1.00;
+      gameState.status = 'waiting';
       
       io.to('global_crash').emit('game_state_sync', {
         status: 'waiting',
@@ -812,12 +821,14 @@ io.on('connection', (socket) => {
         crashPoint: null
       });
       
-      // Запускаем новый раунд если есть игроки
-      if (gameState.players.length > 0) {
-        startCrashWaiting();
-      }
-      
       console.log('🔄 Crash сброшен');
+      
+      // Автозапуск нового раунда если были игроки
+      if (hadPlayers) {
+        setTimeout(() => {
+          startCrashWaiting();
+        }, 1000);
+      }
     }, 3000);
   }
   

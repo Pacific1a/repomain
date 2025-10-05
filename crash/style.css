@@ -927,35 +927,18 @@
   display: flex;
   flex-direction: column;
   width: 171px;
-  height: 64px;
   align-items: center;
   justify-content: center;
+  gap: 2px;
+  padding: 10px 0px;
   position: relative;
-  border-radius: 18px;
-  border: 1px solid;
-  background: linear-gradient(90deg, #407b3d, #54a450);
-  border: 1px solid #77c074;
+  border-radius: 10px;
+  border: 1px solid #39d811;
+  background: linear-gradient(180deg, rgb(57, 216, 17) 0%, rgb(41, 155, 13) 100%);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-/* BET state - green (default) */
-.aviator .cancel-button-next-2.btn-bet {
-  background: linear-gradient(90deg, #407b3d, #54a450);
-  border: 1px solid #77c074;
-}
-
-/* CANCEL state - red */
-.aviator .cancel-button-next-2.btn-cancel {
-  background: linear-gradient(90deg, #874041, #BA5759);
-  border: 1px solid #BA5759;
-}
-
-/* CASH OUT state - yellow/gold */
-.aviator .cancel-button-next-2.btn-cashout {
-  background: linear-gradient(90deg, #877440, #BAA657);
-  border: 1px solid #BAA657;
-}
 
 .aviator .text-wrapper-15 {
   position: relative;
