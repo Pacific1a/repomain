@@ -243,32 +243,35 @@
     }
   }
 
-  // Кнопки +/-
+  // Кнопки +/- (активны всегда)
   if (elements.minusBtn) {
     elements.minusBtn.addEventListener('click', () => {
-      if (gameState === GAME_STATES.FLYING) return;
       setBetAmount(getBetAmount() - 50);
-      setButtonState(BUTTON_STATES.BET); // Обновляем текст
+      if (buttonState === BUTTON_STATES.BET) {
+        setButtonState(BUTTON_STATES.BET); // Обновляем текст
+      }
     });
   }
 
   if (elements.plusBtn) {
     elements.plusBtn.addEventListener('click', () => {
-      if (gameState === GAME_STATES.FLYING) return;
       setBetAmount(getBetAmount() + 50);
-      setButtonState(BUTTON_STATES.BET); // Обновляем текст
+      if (buttonState === BUTTON_STATES.BET) {
+        setButtonState(BUTTON_STATES.BET); // Обновляем текст
+      }
     });
   }
   
-  // Кнопки умножения (1x, 2x, 5x, 10x)
+  // Кнопки умножения (1x, 2x, 5x, 10x) - активны всегда
   if (elements.multiplyButtons) {
     elements.multiplyButtons.forEach((btn, index) => {
       btn.addEventListener('click', () => {
-        if (gameState === GAME_STATES.FLYING) return;
         const multipliers = [1, 2, 5, 10];
         const current = getBetAmount();
         setBetAmount(current * multipliers[index]);
-        setButtonState(BUTTON_STATES.BET); // Обновляем текст
+        if (buttonState === BUTTON_STATES.BET) {
+          setButtonState(BUTTON_STATES.BET); // Обновляем текст
+        }
       });
     });
   }
@@ -328,6 +331,12 @@
 
   if (elements.betButton) {
     elements.betButton.addEventListener('click', async () => {
+      // Блокируем кнопку если Auto Cash Out включен
+      if (autoCashOutEnabled && buttonState === BUTTON_STATES.BET) {
+        console.log('🚫 Auto Cash Out включен - кнопка заблокирована');
+        return;
+      }
+      
       if (buttonState === BUTTON_STATES.BET && gameState !== GAME_STATES.FLYING) {
         // Делаем ставку (только в waiting)
         const betAmount = getBetAmount();
@@ -473,6 +482,12 @@
           elements.autoSwitcherBg.style.transform = 'translateX(20px)';
           elements.autoSwitcherBg.style.background = '#39d811';
           
+          // Блокируем кнопку BET
+          if (elements.betButton) {
+            elements.betButton.style.opacity = '0.5';
+            elements.betButton.style.cursor = 'not-allowed';
+          }
+          
           // Автоматическая ставка при включении
           if (!playerHasBet && gameState === GAME_STATES.WAITING) {
             const betAmount = getBetAmount();
@@ -508,6 +523,12 @@
         } else {
           elements.autoSwitcherBg.style.transform = 'translateX(0)';
           elements.autoSwitcherBg.style.background = '#6a6a6a';
+          
+          // Разблокируем кнопку BET
+          if (elements.betButton) {
+            elements.betButton.style.opacity = '1';
+            elements.betButton.style.cursor = 'pointer';
+          }
         }
       }
       

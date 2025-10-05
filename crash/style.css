@@ -1829,3 +1829,16 @@
   margin-top: 10px;
   display: none;
 }
+
+/* Стили для таймера */
+.waiting span {
+  font-size: 42px;
+  font-family: 'Montserrat', Helvetica;
+  color: white;
+  position: absolute;
+}
+
+/* Скрываем multiplier-layer по умолчанию */
+.multiplier-layer {
+  display: none;
+}
