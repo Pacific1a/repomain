@@ -570,12 +570,30 @@ io.on('connection', (socket) => {
         startTime: gameState.startTime
       });
       
-      // Автозапуск Crash если не запущен
-      if (game === 'crash' && gameState.status === 'waiting' && !gameState.waitingTimer && !gameState.gameInterval) {
-        console.log('🚀 Crash: Первый запуск...');
-        setTimeout(() => {
-          startCrashWaiting();
-        }, 2000);
+      // Crash: отправляем текущее состояние
+      if (game === 'crash') {
+        if (gameState.status === 'waiting' && !gameState.waitingTimer && !gameState.gameInterval) {
+          // Первый запуск
+          console.log('🚀 Crash: Первый запуск...');
+          setTimeout(() => {
+            startCrashWaiting();
+          }, 2000);
+        } else if (gameState.status === 'waiting' && gameState.waitingTimer) {
+          // Отправляем текущее время таймера
+          console.log(`🔄 Crash: Отправляем таймер ${gameState.waitingTime}`);
+          socket.emit('crash_waiting', {
+            timeLeft: gameState.waitingTime
+          });
+        } else if (gameState.status === 'flying' && gameState.gameInterval) {
+          // Отправляем текущий множитель
+          console.log(`🔄 Crash: Отправляем множитель ${gameState.multiplier.toFixed(2)}x`);
+          socket.emit('crash_started', {
+            startTime: gameState.startTime.toISOString()
+          });
+          socket.emit('crash_multiplier', {
+            multiplier: parseFloat(gameState.multiplier.toFixed(2))
+          });
+        }
       }
     }
   });

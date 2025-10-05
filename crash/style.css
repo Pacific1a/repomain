@@ -577,6 +577,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   position: absolute;
   left: 50%;
   top: 50%;

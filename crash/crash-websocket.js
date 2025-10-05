@@ -87,6 +87,9 @@
       players = state.players || [];
       updatePlayersUI();
       updateStats();
+      
+      // НЕ сбрасываем локальное состояние игрока
+      // playerHasBet, playerCashedOut, playerBetAmount остаются неизменными
     });
 
     // Новая ставка
@@ -117,10 +120,15 @@
       gameState = GAME_STATES.WAITING;
       
       // Показываем waiting
-      if (elements.waitingRoot) elements.waitingRoot.style.display = 'flex';
-      if (elements.multiplierLayer) elements.multiplierLayer.style.display = 'none';
+      if (elements.waitingRoot) {
+        elements.waitingRoot.style.display = 'flex';
+        elements.waitingRoot.style.visibility = 'visible';
+      }
+      if (elements.multiplierLayer) {
+        elements.multiplierLayer.style.display = 'none';
+      }
       
-      // Обновляем таймер
+      // Обновляем таймер всегда
       if (elements.waitingTimer) {
         elements.waitingTimer.textContent = data.timeLeft;
       }
@@ -138,9 +146,11 @@
       
       // Скрываем waiting, показываем множитель
       if (elements.waitingRoot) elements.waitingRoot.style.display = 'none';
-      if (elements.multiplierLayer) elements.multiplierLayer.style.display = 'flex';
+      if (elements.multiplierLayer) {
+        elements.multiplierLayer.style.display = 'flex';
+        elements.multiplierLayer.style.visibility = 'visible';
+      }
       if (elements.currentMultiplier) {
-        elements.currentMultiplier.textContent = '1.00x';
         elements.currentMultiplier.classList.remove('crashed');
       }
       
