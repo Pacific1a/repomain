@@ -639,9 +639,9 @@
     
     if (graphPoints.length < 2) return;
     
-    // Цвет в зависимости от состояния
-    const lineColor = graphCrashed ? '#CA3959' : '#39d811';
-    const gradientColor = graphCrashed ? 'rgba(202, 57, 89, 0.3)' : 'rgba(57, 216, 17, 0.3)';
+    // Цвет #FF1D50
+    const lineColor = graphCrashed ? '#FF1D50' : '#FF1D50';
+    const gradientColor = graphCrashed ? 'rgba(255, 29, 80, 0.3)' : 'rgba(255, 29, 80, 0.3)';
     
     // Градиент снизу
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
@@ -680,7 +680,7 @@
     ctx.lineJoin = 'round';
     ctx.stroke();
     
-    // Рисуем стрелку только если не краш
+    // Рисуем стрелку ➤ только если не краш
     if (!graphCrashed && graphPoints.length > 1) {
       const lastPoint = graphPoints[graphPoints.length - 1];
       const prevPoint = graphPoints[graphPoints.length - 2];
@@ -692,12 +692,12 @@
       const angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
       ctx.rotate(angle);
       
-      // Рисуем стрелку
+      // Рисуем стрелку ➤ (треугольник)
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(-12, -6);
-      ctx.lineTo(-8, 0);
-      ctx.lineTo(-12, 6);
+      ctx.moveTo(15, 0);        // Кончик
+      ctx.lineTo(0, -8);        // Верх
+      ctx.lineTo(5, 0);         // Середина
+      ctx.lineTo(0, 8);         // Низ
       ctx.closePath();
       ctx.fillStyle = lineColor;
       ctx.fill();
@@ -712,14 +712,22 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Увеличиваем время
-    graphTime += 0.1;
+    // Увеличиваем время (МЕДЛЕННО)
+    graphTime += 0.05;
     
-    // Расчет позиции (реалистичный рост)
-    const baseX = graphTime * 15; // Скорость по X
-    const baseY = height - 50 - Math.pow(graphTime, 1.3) * 8; // Экспоненциальный рост
+    // Медленный рост в правый верхний угол
+    const progress = Math.min(graphTime / 20, 1); // Нормализуем 0-1
     
-    // Добавляем колебания (как у реального графика)
+    // Позиция от левого низа к правому верху
+    const startX = 30;
+    const startY = height - 30;
+    const endX = width - 30;
+    const endY = 30;
+    
+    const baseX = startX + (endX - startX) * progress;
+    const baseY = startY + (endY - startY) * progress;
+    
+    // Добавляем колебания
     const noise = Math.sin(graphTime * 3) * 5 + Math.cos(graphTime * 7) * 3;
     
     const x = baseX;
@@ -727,8 +735,8 @@
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек
-    if (graphPoints.length > 150) {
+    // Ограничиваем количество точек (ВСЕГДА В ЗОНЕ ВИДИМОСТИ)
+    if (graphPoints.length > 100) {
       graphPoints.shift();
     }
     
