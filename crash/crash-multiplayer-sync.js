@@ -35,7 +35,10 @@
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Crash синхронизация:', state);
       gameState = state;
-      updateUI();
+      
+      // Обновляем UI без перерисовки
+      updatePlayersUI();
+      updateGamePhase(state.status);
     });
 
     // Новый игрок сделал ставку
@@ -50,27 +53,28 @@
         gameState.players.push({
           userId: data.userId,
           nickname: data.nickname,
-          photoUrl: data.photoUrl,
           bet: data.bet,
           cashout: null,
           multiplier: null
         });
       }
 
-      updateUI();
+      updatePlayersUI();
     });
 
     // Игра началась (ракета взлетает)
     ws.socket.on('crash_started', (data) => {
-      console.log('🚀 Crash началась!', data);
+      console.log('🚀 Crash начался!', data);
       gameState.status = 'flying';
       gameState.startTime = data.startTime;
       
+      // Переключаем панели без удаления DOM
+      updateGamePhase('flying');
+      
       if (window.crashGame && window.crashGame.start) {
-        window.crashGame.start();
+        window.crashGame.start(data.startTime);
       }
     });
-
     // Обновление множителя
     ws.socket.on('crash_multiplier', (data) => {
       gameState.multiplier = data.multiplier;
@@ -90,7 +94,7 @@
         player.multiplier = data.multiplier;
       }
       
-      updateUI();
+      updatePlayersUI();
     });
 
     // Игра упала (crashed)
@@ -99,18 +103,14 @@
       gameState.status = 'crashed';
       gameState.crashPoint = data.crashPoint;
       
+      // Переключаем в режим crashed
+      updateGamePhase('crashed');
+      
       if (window.crashGame && window.crashGame.crash) {
         window.crashGame.crash(data.crashPoint);
       }
 
-      // Сброс через 5 секунд
-      setTimeout(() => {
-        gameState.status = 'waiting';
-        gameState.players = [];
-        gameState.multiplier = 1.00;
-        gameState.crashPoint = null;
-        updateUI();
-      }, 5000);
+      // НЕ сбрасываем - ждем новое событие waiting с сервера
     });
   }
 
@@ -174,20 +174,68 @@
     });
   }
 
-  // Обновление UI
-  function updateUI() {
+  // Обновление фазы игры (без удаления DOM)
+  function updateGamePhase(phase) {
+    const waitingPanel = document.getElementById('waitingPanel');
+    const crashPanel = document.getElementById('crashPanel');
+    const gameCanvas = document.getElementById('gameCanvas');
+    
+    if (!waitingPanel || !crashPanel) return;
+    
+    // Убираем все классы состояния
+    const gameContainer = document.querySelector('.game');
+    if (gameContainer) {
+      gameContainer.classList.remove('waiting', 'flying', 'crashed');
+    }
+    
+    switch(phase) {
+      case 'waiting':
+        waitingPanel.style.display = 'flex';
+        crashPanel.style.display = 'none';
+        if (gameContainer) gameContainer.classList.add('waiting');
+        console.log('🔄 Фаза: WAITING');
+        break;
+        
+      case 'betting':
+        waitingPanel.style.display = 'flex';
+        crashPanel.style.display = 'none';
+        if (gameContainer) gameContainer.classList.add('waiting');
+        console.log('💰 Фаза: BETTING');
+        break;
+        
+      case 'flying':
+        waitingPanel.style.display = 'none';
+        crashPanel.style.display = 'flex';
+        if (gameContainer) gameContainer.classList.add('flying');
+        console.log('🚀 Фаза: FLYING');
+        break;
+        
+      case 'crashed':
+        crashPanel.style.display = 'flex';
+        if (gameContainer) gameContainer.classList.add('crashed');
+        console.log('💥 Фаза: CRASHED');
+        break;
+    }
+  }
+  
+  // Обновление списка игроков (без перерисовки)
+  function updatePlayersUI() {
     const playersList = document.querySelector('.user-templates');
     if (!playersList) return;
 
-    // Очищаем список
-    playersList.innerHTML = '';
+    // НЕ очищаем - только обновляем/добавляем
 
     gameState.players.forEach(player => {
       if (!player || !player.userId || !player.nickname) return;
       
-      const playerEl = document.createElement('div');
-      playerEl.className = 'default bet-fade-in';
-      playerEl.setAttribute('data-player-id', player.userId);
+      // Ищем существующий элемент
+      let playerEl = playersList.querySelector(`[data-player-id="${player.userId}"]`);
+      
+      if (!playerEl) {
+        // Создаем только если нет
+        playerEl = document.createElement('div');
+        playerEl.className = 'default bet-fade-in';
+        playerEl.setAttribute('data-player-id', player.userId);
       
       let avatarHTML = '';
       if (player.photoUrl) {
@@ -214,8 +262,29 @@
         <div class="div-wrapper-3"><div class="text-wrapper-27">${multiplierText}</div></div>
         <div class="div-wrapper-4"><div class="text-wrapper-28">${cashoutText}</div></div>
       `;
-      
-      playersList.appendChild(playerEl);
+        
+        playersList.appendChild(playerEl);
+      } else {
+        // Обновляем существующий
+        const betEl = playerEl.querySelector('.text-wrapper-27');
+        const multiplierEl = playerEl.querySelectorAll('.text-wrapper-27')[1];
+        const cashoutEl = playerEl.querySelector('.text-wrapper-28');
+        
+        if (betEl) betEl.textContent = player.bet;
+        if (multiplierEl) multiplierEl.textContent = player.multiplier ? `${player.multiplier.toFixed(2)}x` : '-';
+        if (cashoutEl) cashoutEl.textContent = player.cashout ? player.cashout.toFixed(0) : '-';
+      }
+    });
+    
+    // Удаляем только тех кого нет в gameState
+    const currentPlayerIds = new Set(gameState.players.map(p => p.userId));
+    const allPlayerEls = playersList.querySelectorAll('[data-player-id]');
+    allPlayerEls.forEach(el => {
+      const playerId = el.getAttribute('data-player-id');
+      if (!currentPlayerIds.has(playerId)) {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }
     });
   }
 

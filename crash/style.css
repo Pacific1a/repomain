@@ -5,7 +5,35 @@
 }
 
 .win, .default {
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  opacity: 1;
+}
+
+/* Плавное появление игроков */
+.bet-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Плавные переходы панелей */
+#waitingPanel, #crashPanel {
+  transition: opacity 0.3s ease, display 0.3s ease;
+}
+
+/* Фиксированная высота для списка игроков */
+.user-templates {
+  min-height: 100px;
+  transition: all 0.3s ease;
 }
 
 /* Bet/Auto Switcher Styles */
@@ -371,6 +399,7 @@
   display: flex;
   flex-direction: column;
   height: 258px;
+  min-height: 258px; /* Фиксированная высота */
   align-items: flex-start;
   gap: 10px;
   width: 100%;
@@ -387,6 +416,27 @@
   );
   position: relative;
   align-self: stretch;
+  transition: all 0.3s ease; /* Плавные переходы */
+}
+
+/* Фазы игры */
+.aviator .game.waiting {
+  /* Ожидание */
+}
+
+.aviator .game.flying {
+  /* Полет */
+}
+
+.aviator .game.crashed {
+  /* Краш */
+  animation: crashShake 0.5s ease;
+}
+
+@keyframes crashShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 /* Canvas covers game area for drawing trail/fill */
