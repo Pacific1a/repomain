@@ -402,12 +402,6 @@
 
   if (elements.betButton) {
     elements.betButton.addEventListener('click', async () => {
-      // Блокируем кнопку если Auto Cash Out включен
-      if (autoCashOutEnabled && buttonState === BUTTON_STATES.BET) {
-        console.log('🚫 Auto Cash Out включен - кнопка заблокирована');
-        return;
-      }
-      
       if (buttonState === BUTTON_STATES.BET && gameState !== GAME_STATES.FLYING) {
         // Делаем ставку (только в waiting)
         const betAmount = getBetAmount();
@@ -543,63 +537,18 @@
 
   // ============ AUTO CASH OUT ============
   
-  // Переключатель
+  // Переключатель Auto Cash Out
   if (elements.autoSwitcher) {
-    elements.autoSwitcher.addEventListener('click', async () => {
+    elements.autoSwitcher.addEventListener('click', () => {
       autoCashOutEnabled = !autoCashOutEnabled;
       
       if (elements.autoSwitcherBg) {
         if (autoCashOutEnabled) {
           elements.autoSwitcherBg.style.transform = 'translateX(20px)';
           elements.autoSwitcherBg.style.background = '#39d811';
-          
-          // Блокируем кнопку BET
-          if (elements.betButton) {
-            elements.betButton.style.opacity = '0.5';
-            elements.betButton.style.cursor = 'not-allowed';
-          }
-          
-          // Автоматическая ставка при включении
-          if (!playerHasBet && gameState === GAME_STATES.WAITING) {
-            const betAmount = getBetAmount();
-            
-            if (window.GameBalanceAPI && window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
-              const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
-              if (success) {
-                playerBetAmount = betAmount;
-                playerHasBet = true;
-                playerCashedOut = false;
-                setButtonState(BUTTON_STATES.CANCEL);
-                
-                // Отправляем на сервер
-                if (ws) {
-                  const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 123456789;
-                  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-                  const nickname = tgUser?.first_name || 'Test';
-                  const photoUrl = tgUser?.photo_url || null;
-
-                  ws.socket.emit('place_bet', {
-                    game: 'crash',
-                    userId,
-                    nickname,
-                    photoUrl,
-                    bet: betAmount
-                  });
-                }
-                
-                console.log(`🤖 Auto: Ставка ${betAmount} chips`);
-              }
-            }
-          }
         } else {
           elements.autoSwitcherBg.style.transform = 'translateX(0)';
           elements.autoSwitcherBg.style.background = '#6a6a6a';
-          
-          // Разблокируем кнопку BET
-          if (elements.betButton) {
-            elements.betButton.style.opacity = '1';
-            elements.betButton.style.cursor = 'pointer';
-          }
         }
       }
       
