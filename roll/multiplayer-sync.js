@@ -30,8 +30,7 @@
       console.log('🔄 Синхронизация состояния:', state);
       gameState = state;
       
-      // Обновляем колесо и список игроков
-      syncPlayersToWheel();
+      // ТОЛЬКО updateUI (внутри уже есть syncPlayersToWheel)
       updateUI();
       
       // Если идёт таймер - запускаем локально
@@ -40,26 +39,10 @@
       }
     });
 
-    // Новый игрок сделал ставку
+    // Новый игрок сделал ставку (УДАЛЕНО - теперь обрабатывается через game_state_sync)
     ws.socket.on('player_bet', (data) => {
       console.log('💰 Игрок сделал ставку:', data);
-      
-      // Добавляем/обновляем игрока
-      const existingPlayer = gameState.players.find(p => p.userId === data.userId);
-      if (existingPlayer) {
-        existingPlayer.bet += data.bet;
-      } else {
-        gameState.players.push({
-          userId: data.userId,
-          nickname: data.nickname,
-          photoUrl: data.photoUrl,
-          bet: data.bet
-        });
-      }
-
-      // Синхронизируем всех игроков с колесом
-      syncPlayersToWheel();
-      updateUI();
+      // Ничего не делаем - обновление придет через game_state_sync
     });
 
     // Игра началась
@@ -319,24 +302,7 @@
       }
     });
   }
-  // Синхронизация игроков с колесом
-  function syncPlayersToWheel() {
-    if (!window.rollGame || !window.rollGame.updateState) return;
-    
-    // Преобразуем формат для wheel-game (фильтруем невалидных игроков)
-    const wheelPlayers = gameState.players
-      .filter(player => player && player.userId && player.nickname) // Только валидные игроки
-      .map((player, index) => ({
-        id: player.userId,
-        username: player.nickname,
-        photo_url: player.photoUrl,
-        betAmount: player.bet || 0,
-        isUser: false,
-        isBot: false
-      }));
-    
-    window.rollGame.updateState({ players: wheelPlayers });
-  }
+  // Функция удалена - обновление происходит через updateUI
   // Экспорт
   window.RollSync = {
     placeBet,
