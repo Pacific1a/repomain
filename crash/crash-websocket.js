@@ -268,19 +268,19 @@
       case BUTTON_STATES.BET:
         if (textEl) textEl.textContent = 'BET';
         if (chipsEl) chipsEl.textContent = `${getBetAmount()} chips`;
-        betButton.style.background = 'linear-gradient(180deg, rgb(57, 216, 17) 0%, rgb(41, 155, 13) 100%)';
+        betButton.style.background = 'linear-gradient(90deg, #407B3D 0%, #54A450 100%)';
         break;
         
       case BUTTON_STATES.CANCEL:
         if (textEl) textEl.textContent = 'CANCEL';
         if (chipsEl) chipsEl.textContent = 'Wait to next round';
-        betButton.style.background = 'linear-gradient(180deg, rgb(255, 87, 87) 0%, rgb(200, 50, 50) 100%)';
+        betButton.style.background = 'linear-gradient(90deg, #874041 0%, #BA5759 100%)';
         break;
         
       case BUTTON_STATES.CASHOUT:
         if (textEl) textEl.textContent = 'CASH OUT';
         if (chipsEl) chipsEl.textContent = '';
-        betButton.style.background = 'linear-gradient(180deg, rgb(255, 215, 0) 0%, rgb(200, 170, 0) 100%)';
+        betButton.style.background = 'linear-gradient(90deg, #877440 0%, #BAA657 100%)';
         break;
     }
   }

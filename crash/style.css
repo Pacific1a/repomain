@@ -933,8 +933,6 @@
   padding: 10px 0px;
   position: relative;
   border-radius: 10px;
-  border: 1px solid #39d811;
-  background: linear-gradient(180deg, rgb(57, 216, 17) 0%, rgb(41, 155, 13) 100%);
   transition: all 0.3s ease;
   cursor: pointer;
 }
