@@ -699,7 +699,7 @@ io.on('connection', (socket) => {
     io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
     console.log(`📤 Отправлено событие spin_wheel с winnerId: ${winner.userId}`);
 
-    // Завершаем игру через 5 секунд
+    // Завершаем игру через 8 секунд (после анимации)
     setTimeout(() => {
       io.to(`global_${game}`).emit('game_finished', { winner: winner.userId });
       
@@ -707,9 +707,13 @@ io.on('connection', (socket) => {
       gameState.status = 'waiting';
       gameState.players = [];
       gameState.startTime = null;
+      gameState.timerInterval = null; // Очищаем таймер
       
-      console.log(`🏁 Глобальная игра ${game} завершена`);
-    }, 5000);
+      // Очищаем использованные цвета
+      usedColors.clear();
+      
+      console.log(`🏁 Глобальная игра ${game} завершена, состояние сброшено`);
+    }, 8000);
   }
 
   // Отключение

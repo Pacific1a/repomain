@@ -172,8 +172,9 @@
     }
     
     // Если 1 игрок - он занимает все колесо (360°)
-    if (players.length === 1 && players[0].color) {
+    if (players.length === 1) {
       const player = players[0];
+      const playerColor = player.color || '#808080'; // Серый если нет цвета
       
       // Создаем полный круг одного цвета
       const svgNS = "http://www.w3.org/2000/svg";
@@ -189,7 +190,7 @@
       circle.setAttribute("cx", "150");
       circle.setAttribute("cy", "150");
       circle.setAttribute("r", "150");
-      circle.setAttribute("fill", player.color);
+      circle.setAttribute("fill", playerColor);
       svg.appendChild(circle);
       
       elements.wheel.innerHTML = '';
@@ -221,9 +222,9 @@
         avatar.style.backgroundImage = `url(${photoUrl})`;
         avatar.style.backgroundSize = 'cover';
         avatar.style.backgroundPosition = 'center';
-        avatar.style.backgroundColor = player.color || '#808080';
+        avatar.style.backgroundColor = playerColor;
       } else {
-        avatar.style.backgroundColor = player.color || '#808080';
+        avatar.style.backgroundColor = playerColor;
         avatar.style.color = 'white';
         avatar.style.fontSize = '20px';
         avatar.style.fontWeight = 'bold';
@@ -232,7 +233,7 @@
       
       elements.wheel.appendChild(avatar);
       
-      console.log('✅ 1 игрок занимает все колесо:', player.username, 'цвет:', player.color);
+      console.log('✅ 1 игрок занимает все колесо:', player.username, 'цвет:', playerColor, 'аватарка добавлена');
       return;
     }
     
