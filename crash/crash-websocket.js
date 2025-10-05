@@ -33,6 +33,8 @@
     multiplierLayer: document.getElementById('multiplierLayer'),
     currentMultiplier: document.getElementById('currentMultiplier'),
     gameEnded: document.querySelector('.game-ended'),
+    graphCanvas: null, // Canvas для графика
+    graphCtx: null,
     
     // Ставка
     betInput: document.querySelector('#betInput'),
@@ -82,6 +84,28 @@
   
   // Флаг что данные получены
   let dataReceived = false;
+  
+  // Создаем Canvas для графика
+  if (gameContainer) {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'crashGraph';
+    canvas.width = 400;
+    canvas.height = 256;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.display = 'none';
+    gameContainer.appendChild(canvas);
+    elements.graphCanvas = canvas;
+    elements.graphCtx = canvas.getContext('2d');
+  }
+  
+  // Данные графика
+  let graphPoints = [];
+  let graphProgress = 0;
   
   // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
@@ -201,6 +225,15 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
+      // Сбрасываем график
+      graphPoints = [];
+      graphProgress = 0;
+      
+      // Показываем canvas
+      if (elements.graphCanvas) {
+        elements.graphCanvas.style.display = 'block';
+      }
+      
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
       if (!dataReceived && elements.loadingOverlay) {
         dataReceived = true;
@@ -249,6 +282,9 @@
         elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
       }
       
+      // Обновляем график
+      updateGraph();
+      
       // Обновляем live выигрыш в Auto Cash Out
       if (autoCashOutEnabled && playerHasBet && !playerCashedOut && elements.betButtonChips) {
         const potentialWin = Math.floor(playerBetAmount * currentMultiplier);
@@ -280,6 +316,11 @@
     ws.socket.on('crash_ended', (data) => {
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
+      
+      // Скрываем график
+      if (elements.graphCanvas) {
+        elements.graphCanvas.style.display = 'none';
+      }
       
       if (elements.currentMultiplier) {
         elements.currentMultiplier.textContent = `${data.crashPoint}x`;
@@ -575,6 +616,88 @@
         autoCashOutMultiplier = 2.0;
       }
     });
+  }
+
+  // ============ ГРАФИК ============
+  function drawGraph() {
+    if (!elements.graphCtx || !elements.graphCanvas) return;
+    
+    const ctx = elements.graphCtx;
+    const width = elements.graphCanvas.width;
+    const height = elements.graphCanvas.height;
+    
+    // Очищаем
+    ctx.clearRect(0, 0, width, height);
+    
+    if (graphPoints.length < 2) return;
+    
+    // Градиент снизу
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, 'rgba(57, 216, 17, 0.3)');
+    gradient.addColorStop(1, 'rgba(57, 216, 17, 0)');
+    
+    // Рисуем заливку
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    for (let i = 0; i < graphPoints.length; i++) {
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    }
+    ctx.lineTo(graphPoints[graphPoints.length - 1].x, height);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    
+    // Рисуем линию
+    ctx.beginPath();
+    ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+    for (let i = 1; i < graphPoints.length; i++) {
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    }
+    ctx.strokeStyle = '#39d811';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Рисуем стрелку/ракету на конце
+    const lastPoint = graphPoints[graphPoints.length - 1];
+    ctx.save();
+    ctx.translate(lastPoint.x, lastPoint.y);
+    
+    // Угол стрелки (всегда вверх-вправо)
+    const angle = -Math.PI / 4; // 45 градусов вверх
+    ctx.rotate(angle);
+    
+    // Рисуем стрелку
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-10, -5);
+    ctx.lineTo(-7, 0);
+    ctx.lineTo(-10, 5);
+    ctx.closePath();
+    ctx.fillStyle = '#39d811';
+    ctx.fill();
+    
+    ctx.restore();
+  }
+  
+  function updateGraph() {
+    if (gameState !== GAME_STATES.FLYING) return;
+    
+    const width = elements.graphCanvas.width;
+    const height = elements.graphCanvas.height;
+    
+    // Добавляем точку (идет вверх-вправо)
+    graphProgress += 2;
+    const x = graphProgress;
+    const y = height - 50 - (graphProgress * 0.5); // Линейный рост вверх
+    
+    graphPoints.push({ x, y });
+    
+    // Ограничиваем количество точек
+    if (graphPoints.length > 200) {
+      graphPoints.shift();
+    }
+    
+    drawGraph();
   }
 
   // ============ ЗАПУСК ============
