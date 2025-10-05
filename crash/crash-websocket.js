@@ -64,11 +64,13 @@
     elements.gameEnded.style.display = 'none';
   }
   
-  // Создаем эффект загрузки (стеклянный блюр)
+  // Создаем эффект загрузки (стеклянный блюр) - С САМОГО НАЧАЛА
   const gameContainer = document.querySelector('.game');
   if (gameContainer) {
     const loadingOverlay = document.createElement('div');
     loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.style.opacity = '1';
+    loadingOverlay.style.display = 'flex';
     loadingOverlay.innerHTML = `
       <div class="glass-loader">
         <div class="glass-shine"></div>
@@ -77,6 +79,9 @@
     gameContainer.appendChild(loadingOverlay);
     elements.loadingOverlay = loadingOverlay;
   }
+  
+  // Флаг что данные получены
+  let dataReceived = false;
   
   // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
@@ -160,14 +165,15 @@
       console.log('⏳ Ожидание:', data.timeLeft);
       gameState = GAME_STATES.WAITING;
       
-      // Убираем загрузку плавно
-      if (elements.loadingOverlay) {
+      // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
+      if (!dataReceived && elements.loadingOverlay) {
+        dataReceived = true;
         setTimeout(() => {
           elements.loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             elements.loadingOverlay.style.display = 'none';
           }, 500);
-        }, 200);
+        }, 300);
       }
       
       // Показываем waiting
@@ -195,14 +201,15 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // Убираем загрузку плавно
-      if (elements.loadingOverlay) {
+      // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
+      if (!dataReceived && elements.loadingOverlay) {
+        dataReceived = true;
         setTimeout(() => {
           elements.loadingOverlay.style.opacity = '0';
           setTimeout(() => {
             elements.loadingOverlay.style.display = 'none';
           }, 500);
-        }, 200);
+        }, 300);
       }
       
       // Скрываем waiting, показываем множитель СРАЗУ
