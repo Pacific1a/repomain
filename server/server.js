@@ -167,7 +167,7 @@ const globalGames = {
   roll: {
     status: 'waiting', // waiting, betting, spinning
     players: [],
-    timer: 30, // 30 секунд
+    timer: 60,
     startTime: null,
     timerInterval: null
   }
@@ -613,22 +613,6 @@ io.on('connection', (socket) => {
       bet: bet,
       color: playerColor // Цвет доступен в обоих случаях
     });
-    
-    // МОМЕНТАЛЬНО отправляем обновленное состояние всем игрокам
-    const updatedState = {
-      status: gameState.status,
-      players: gameState.players.map(p => ({
-        userId: p.userId,
-        nickname: p.nickname,
-        photoUrl: p.photoUrl,
-        bet: p.bet,
-        color: p.color
-      })),
-      timer: gameState.timer,
-      startTime: gameState.startTime ? gameState.startTime.toISOString() : null
-    };
-    io.to(`global_${game}`).emit('game_state_sync', updatedState);
-    
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
     // Запускаем таймер только если минимум 2 игрока
@@ -643,14 +627,6 @@ io.on('connection', (socket) => {
   // Запуск глобальной игры
   function startGlobalGame(game) {
     const gameState = globalGames[game];
-    
-    // ВАЖНО: Очищаем старый таймер если есть
-    if (gameState.timerInterval) {
-      clearTimeout(gameState.timerInterval);
-      gameState.timerInterval = null;
-      console.log(`⏹️ Очищен старый таймер для ${game}`);
-    }
-    
     gameState.status = 'betting';
     gameState.startTime = new Date();
     
@@ -662,7 +638,7 @@ io.on('connection', (socket) => {
 
     console.log(`🎮 Глобальная игра ${game} началась! Таймер: ${gameState.timer}с`);
 
-    // Новый таймер
+    // Таймер
     gameState.timerInterval = setTimeout(() => {
       spinGlobalGame(game);
     }, gameState.timer * 1000);
@@ -672,10 +648,7 @@ io.on('connection', (socket) => {
   function spinGlobalGame(game) {
     const gameState = globalGames[game];
     
-    console.log(`🎰 spinGlobalGame вызван для ${game}, игроков: ${gameState.players.length}`);
-    
     if (gameState.players.length === 0) {
-      console.log(`⚠️ Нет игроков, сброс игры`);
       gameState.status = 'waiting';
       return;
     }
@@ -694,12 +667,11 @@ io.on('connection', (socket) => {
       }
     }
 
-    console.log(`🏆 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
+    console.log(`🎰 Победитель в ${game}: ${winner.nickname}`);
 
     io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
-    console.log(`📤 Отправлено событие spin_wheel с winnerId: ${winner.userId}`);
 
-    // Завершаем игру через 8 секунд (после анимации)
+    // Завершаем игру через 5 секунд
     setTimeout(() => {
       io.to(`global_${game}`).emit('game_finished', { winner: winner.userId });
       
@@ -707,13 +679,9 @@ io.on('connection', (socket) => {
       gameState.status = 'waiting';
       gameState.players = [];
       gameState.startTime = null;
-      gameState.timerInterval = null; // Очищаем таймер
       
-      // Очищаем использованные цвета
-      usedColors.clear();
-      
-      console.log(`🏁 Глобальная игра ${game} завершена, состояние сброшено`);
-    }, 8000);
+      console.log(`🏁 Глобальная игра ${game} завершена`);
+    }, 5000);
   }
 
   // Отключение
