@@ -505,7 +505,14 @@
     // Вращаем так чтобы сегмент победителя оказался СВЕРХУ (под указателем)
     // 7 полных оборотов (помедленнее)
     const spins = 7;
-    const finalRotation = spins * 360 - winnerAngle;
+    
+    // Добавляем случайное смещение внутри сегмента (не на центре!)
+    const segmentSize = 360 / totalBet * winner.bet;
+    const randomOffset = (Math.random() - 0.5) * segmentSize * 0.7; // ±35% от размера сегмента
+    
+    const finalRotation = spins * 360 - winnerAngle + randomOffset;
+    
+    console.log(`🎯 Смещение: ${randomOffset.toFixed(2)}° (сегмент: ${segmentSize.toFixed(2)}°)`);
 
     elements.wheel.style.transition = 'transform 6s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
     elements.wheel.style.transform = `rotate(${finalRotation}deg)`;
