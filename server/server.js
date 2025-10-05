@@ -156,7 +156,6 @@ function getPlayerColor(userId) {
     // Назначаем случайный свободный цвет
     const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
     playerColors.set(userId, randomColor);
-    usedColors.add(randomColor);
     console.log(`🎨 Игрок ${userId} получил уникальный цвет ${randomColor}`);
   }
   return playerColors.get(userId);
@@ -167,9 +166,12 @@ const globalGames = {
   roll: {
     status: 'waiting', // waiting, betting, spinning
     players: [],
-    timer: 60,
+    timer: 30, // 30 секунд
     startTime: null,
-    timerInterval: null
+    timerInterval: null,
+    winner: null,
+    totalBet: 0,
+    bets: {}
   }
 };
 
