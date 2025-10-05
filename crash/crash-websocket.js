@@ -327,7 +327,12 @@
       // Краш графика
       graphCrashed = true;
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      drawGraph(); // Последняя перерисовка
+      drawGraph(); // Последняя перерисовка (красным)
+      
+      // Показываем "Round ended"
+      if (elements.gameEnded) {
+        elements.gameEnded.style.display = 'block';
+      }
       
       // Скрываем график через 3 секунды
       setTimeout(() => {
@@ -643,15 +648,13 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // Рисуем множитель НА CANVAS (вместо HTML)
+    // Рисуем множитель НА CANVAS (БЕЗ SHADOW - не лагает!)
     if (gameState === GAME_STATES.FLYING && currentMultiplier > 0) {
       ctx.save();
       ctx.font = 'bold 62px Montserrat, sans-serif';
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-      ctx.shadowBlur = 40;
       ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
       ctx.restore();
     }
@@ -702,25 +705,19 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    
-    // Рисуем стрелку ➤ на конце линии
+    // Стрелка на конце (УПРОЩЕННАЯ)
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
-      const prevPoint = graphPoints[graphPoints.length - 2];
       
       ctx.save();
       ctx.translate(lastPoint.x, lastPoint.y);
+      ctx.rotate(-Math.PI / 4); // 45° вверх-вправо
       
-      // Угол по направлению линии
-      const angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
-      ctx.rotate(angle);
-      
-      // Рисуем стрелку ➤
+      // Простой треугольник
       ctx.beginPath();
-      ctx.moveTo(15, 0);        // Кончик
-      ctx.lineTo(0, -8);        // Верх
-      ctx.lineTo(5, 0);         // Середина
-      ctx.lineTo(0, 8);         // Низ
+      ctx.moveTo(12, 0);
+      ctx.lineTo(0, -6);
+      ctx.lineTo(0, 6);
       ctx.closePath();
       ctx.fillStyle = lineColor;
       ctx.fill();
