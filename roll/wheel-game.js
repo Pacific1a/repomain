@@ -53,10 +53,59 @@
     elements.betInput.textContent = Math.max(50, amount);
   }
 
-  elements.minusBtn?.addEventListener('click', () => setBetAmount(getBetAmount() - 50));
-  elements.plusBtn?.addEventListener('click', () => setBetAmount(getBetAmount() + 50));
-  elements.halfBtn?.addEventListener('click', () => setBetAmount(Math.floor(getBetAmount() / 2)));
-  elements.doubleBtn?.addEventListener('click', () => setBetAmount(getBetAmount() * 2));
+  // Валидация ввода - только цифры
+  if (elements.betInput) {
+    elements.betInput.addEventListener('input', (e) => {
+      // Удаляем все кроме цифр
+      let value = e.target.textContent.replace(/\D/g, '');
+      
+      // Минимум 50
+      if (value && parseInt(value) < 50) {
+        value = '50';
+      }
+      
+      // Максимум 1,000,000
+      if (value && parseInt(value) > 1000000) {
+        value = '1000000';
+      }
+      
+      e.target.textContent = value || '50';
+      
+      // Устанавливаем курсор в конец
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(e.target);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    
+    // При потере фокуса - проверяем
+    elements.betInput.addEventListener('blur', (e) => {
+      const value = parseInt(e.target.textContent) || 50;
+      e.target.textContent = Math.max(50, Math.min(1000000, value));
+    });
+  }
+
+  elements.minusBtn?.addEventListener('click', () => {
+    if (gameState === GAME_STATES.SPINNING) return;
+    setBetAmount(getBetAmount() - 50);
+  });
+  
+  elements.plusBtn?.addEventListener('click', () => {
+    if (gameState === GAME_STATES.SPINNING) return;
+    setBetAmount(getBetAmount() + 50);
+  });
+  
+  elements.halfBtn?.addEventListener('click', () => {
+    if (gameState === GAME_STATES.SPINNING) return;
+    setBetAmount(Math.floor(getBetAmount() / 2));
+  });
+  
+  elements.doubleBtn?.addEventListener('click', () => {
+    if (gameState === GAME_STATES.SPINNING) return;
+    setBetAmount(getBetAmount() * 2);
+  });
 
   // ============ BET BUTTON ============
   elements.betButton?.addEventListener('click', async () => {
@@ -486,6 +535,17 @@
   function spinToWinner(winner) {
     console.log('🎰 Крутим колесо к победителю:', winner.username);
     
+    // Блокируем поле ввода и кнопки
+    if (elements.betInput) {
+      elements.betInput.contentEditable = 'false';
+      elements.betInput.style.opacity = '0.5';
+      elements.betInput.style.pointerEvents = 'none';
+    }
+    if (elements.betButton) {
+      elements.betButton.style.opacity = '0.5';
+      elements.betButton.style.pointerEvents = 'none';
+    }
+    
     // Находим сегмент победителя
     const totalBets = players.reduce((sum, p) => sum + (p.betAmount || 0), 0);
     let currentAngle = 0;
@@ -593,6 +653,17 @@
     const resultBlock = document.getElementById('round-result-block');
     if (resultBlock) {
       resultBlock.style.display = 'none';
+    }
+    
+    // Разблокируем поле ввода и кнопки
+    if (elements.betInput) {
+      elements.betInput.contentEditable = 'true';
+      elements.betInput.style.opacity = '1';
+      elements.betInput.style.pointerEvents = 'auto';
+    }
+    if (elements.betButton) {
+      elements.betButton.style.opacity = '1';
+      elements.betButton.style.pointerEvents = 'auto';
     }
 
     currentRotation = 0;
