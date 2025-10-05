@@ -1,4 +1,3 @@
-// Синхронизация состояния Roll игры для всех игроков
 (function() {
   'use strict';
 
@@ -9,6 +8,8 @@
     timer: 0,
     startTime: null
   };
+  
+  let timerActive = false; // Флаг чтобы не запускать таймер несколько раз
 
   // Ждём WebSocket
   function waitForWebSocket() {
@@ -35,14 +36,22 @@
     // Получаем текущее состояние
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Синхронизация состояния:', state);
+      
+      const wasWaiting = gameState.status === 'waiting';
       gameState = state;
       
       // ТОЛЬКО updateUI (внутри уже есть обновление колеса)
       updateUI();
       
-      // Если идёт таймер - запускаем локально
-      if (state.status === 'betting' && state.startTime) {
+      // Запускаем таймер ТОЛЬКО ПРИ ПЕРЕХОДЕ waiting -> betting
+      if (state.status === 'betting' && state.startTime && wasWaiting && !timerActive) {
+        timerActive = true;
         syncTimer(state.startTime, state.timer);
+      }
+      
+      // Сбрасываем флаг когда игра закончилась
+      if (state.status === 'waiting') {
+        timerActive = false;
       }
     });
 
@@ -50,16 +59,21 @@
     ws.socket.on('player_bet', (data) => {
       console.log('💰 Игрок сделал ставку:', data);
       
-      // Добавляем/обновляем игрока
+      // Добавляем/обновляем игрока (С ЦВЕТОМ!)
       const existingPlayer = gameState.players.find(p => p.userId === data.userId);
       if (existingPlayer) {
         existingPlayer.bet += data.bet;
+        // Обновляем цвет если пришел
+        if (data.color) {
+          existingPlayer.color = data.color;
+        }
       } else {
         gameState.players.push({
           userId: data.userId,
           nickname: data.nickname,
           photoUrl: data.photoUrl,
-          bet: data.bet
+          bet: data.bet,
+          color: data.color // ДОБАВЛЯЕМ ЦВЕТ!
         });
       }
 
@@ -349,16 +363,19 @@
         username: player.nickname,
         photo_url: player.photoUrl,
         betAmount: player.bet || 0,
+        color: player.color || '#39d811', // ДОБАВЛЯЕМ ЦВЕТ!
         isUser: false,
         isBot: false
       }));
     
+    console.log('🔄 syncPlayersToWheel:', wheelPlayers);
     window.rollGame.updateState({ players: wheelPlayers });
   }
   // Экспорт
   window.RollSync = {
     placeBet,
-    getState: () => gameState
+    getState: () => gameState,
+    syncPlayersToWheel
   };
 
   // Запуск
@@ -366,11 +383,7 @@
 
   console.log('✅ Roll Sync инициализирован');
 
-  // Периодически запрашиваем состояние игры для синхронизации
-  setInterval(() => {
-    if (ws && ws.socket && ws.connected) {
-      ws.socket.emit('get_game_state', { game: 'roll' });
-    }
-  }, 2000); // Каждые 2 секунды
+  // УБРАНО: Периодический запрос вызывал задержку
+  // Обновления приходят через game_state_sync автоматически
 
 })();
