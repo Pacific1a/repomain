@@ -15,15 +15,21 @@
     if (window.GameWebSocket && window.GameWebSocket.socket && window.GameWebSocket.connected) {
       ws = window.GameWebSocket;
       console.log('✅ WebSocket готов для синхронизации');
+      console.log('🔌 WebSocket подключен:', ws.connected);
+      console.log('🆔 Socket ID:', ws.socket.id);
       initSync();
     } else {
+      console.log('⏳ Ожидание WebSocket...');
       setTimeout(waitForWebSocket, 500);
     }
   }
 
   function initSync() {
+    console.log('🚀 Инициализация синхронизации Roll...');
+    
     // Подписываемся на глобальное состояние Roll
     ws.socket.emit('join_game', { game: 'roll' });
+    console.log('📡 Отправлен запрос join_game для roll');
     console.log('🔗 Подключение к комнате global_roll');
 
     // Получаем текущее состояние
@@ -73,6 +79,7 @@
     });
 
     // Крутим колесо
+    console.log('🎯 Подписка на событие spin_wheel...');
     ws.socket.on('spin_wheel', (data) => {
       console.log('📥 ПОЛУЧЕНО СОБЫТИЕ spin_wheel!', data);
       console.log('🎰 Крутим колесо! Победитель:', data.winner);
