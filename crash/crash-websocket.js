@@ -677,7 +677,7 @@
     ctx.fillStyle = fillGradient;
     ctx.fill();
     
-    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo с шагом 3px)
+    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo БЕЗ эффектов)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
       ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
@@ -686,20 +686,10 @@
         ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
-      const lineGradient = ctx.createLinearGradient(0, height, lastPoint.x, lastPoint.y);
-      lineGradient.addColorStop(0, 'rgba(255, 29, 80, 0.6)');
-      lineGradient.addColorStop(0.5, 'rgba(255, 100, 130, 0.9)');
-      lineGradient.addColorStop(1, 'rgba(255, 155, 176, 1)');
-      ctx.strokeStyle = lineGradient;
+      ctx.strokeStyle = lineColor;
       ctx.lineWidth = 2.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = 'rgba(255, 29, 80, 0.5)';
-      ctx.stroke();
-      
-      ctx.shadowBlur = 0;
       ctx.stroke();
     }
     
@@ -735,11 +725,11 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Увеличиваем время (МЕДЛЕННО)
-    graphTime += 0.05;
+    // Увеличиваем время
+    graphTime += 1;
     
     // Медленный рост в правый верхний угол
-    const progress = Math.min(graphTime / 20, 1); // Нормализуем 0-1
+    const progress = Math.min(graphTime / 200, 1); // Очень медленно
     
     // Позиция от левого низа к правому верху
     const startX = 30;
@@ -751,15 +741,15 @@
     const baseY = startY + (endY - startY) * progress;
     
     // Добавляем колебания
-    const noise = Math.sin(graphTime * 3) * 5 + Math.cos(graphTime * 7) * 3;
+    const noise = Math.sin(graphTime * 0.05) * 8;
     
     const x = baseX;
     const y = baseY + noise;
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек (ВСЕГДА В ЗОНЕ ВИДИМОСТИ)
-    if (graphPoints.length > 100) {
+    // Ограничиваем количество точек
+    if (graphPoints.length > 150) {
       graphPoints.shift();
     }
     
