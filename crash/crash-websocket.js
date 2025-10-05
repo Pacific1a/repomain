@@ -261,17 +261,13 @@
         }, 300);
       }
       
-      // Скрываем waiting, показываем множитель СРАЗУ
+      // Скрываем waiting
       if (elements.waitingRoot) {
         elements.waitingRoot.style.display = 'none';
       }
+      // Скрываем HTML множитель - рисуем на canvas
       if (elements.multiplierLayer) {
-        elements.multiplierLayer.style.display = 'flex';
-        elements.multiplierLayer.style.visibility = 'visible';
-      }
-      if (elements.currentMultiplier) {
-        elements.currentMultiplier.classList.remove('crashed');
-        // Не сбрасываем текст, ждем crash_multiplier
+        elements.multiplierLayer.style.display = 'none';
       }
       
       // Скрываем "Round ended"
@@ -288,17 +284,10 @@
       }
     });
 
-    // Обновление множителя (ОПТИМИЗИРОВАНО)
-    let lastMultiplierUpdate = 0;
+    // Обновление множителя (ОПТИМИЗИРОВАНО - БЕЗ DOM!)
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
-      
-      // THROTTLE: Обновляем текст только каждые 200ms
-      const now = Date.now();
-      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 200)) {
-        elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
-        lastMultiplierUpdate = now;
-      }
+      // НЕ обновляем HTML - рисуем на canvas!
       
       // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
       updateGraph();
@@ -653,6 +642,19 @@
     
     // Очищаем
     ctx.clearRect(0, 0, width, height);
+    
+    // Рисуем множитель НА CANVAS (вместо HTML)
+    if (gameState === GAME_STATES.FLYING && currentMultiplier > 0) {
+      ctx.save();
+      ctx.font = 'bold 62px Montserrat, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+      ctx.shadowBlur = 40;
+      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
+      ctx.restore();
+    }
     
     if (graphPoints.length < 1) return;
     
