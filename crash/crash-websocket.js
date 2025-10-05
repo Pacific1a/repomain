@@ -241,6 +241,10 @@
       graphCrashed = false;
       graphStartTime = Date.now(); // Инициализируем время старта
       
+      // Запускаем анимацию
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animateGraph();
+      
       // Показываем canvas
       if (elements.graphCanvas) {
         elements.graphCanvas.style.display = 'block';
@@ -293,7 +297,7 @@
         elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
       }
       
-      // Обновляем график
+      // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
       updateGraph();
       
       // Обновляем live выигрыш в Auto Cash Out
@@ -330,7 +334,8 @@
       
       // Краш графика
       graphCrashed = true;
-      drawGraph(); // Перерисовываем красным
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      drawGraph(); // Последняя перерисовка
       
       // Скрываем график через 3 секунды
       setTimeout(() => {
@@ -721,6 +726,15 @@
   
   // Сохраняем время старта графика
   let graphStartTime = 0;
+  let animationFrameId = null;
+  
+  // Цикл рисования (КАК В GAME.JS)
+  function animateGraph() {
+    if (gameState === GAME_STATES.FLYING && !graphCrashed) {
+      drawGraph();
+      animationFrameId = requestAnimationFrame(animateGraph);
+    }
+  }
   
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
@@ -744,8 +758,7 @@
     const wave = Math.sin(elapsed * 1.2) * 5;
     
     graphPoints.push({ x, y: y + wave });
-    
-    drawGraph();
+    // НЕ рисуем здесь - рисует requestAnimationFrame!
   }
 
   // ============ ЗАПУСК ============
