@@ -1817,23 +1817,30 @@
 .custom-notification.info .notification-message {
   color: #b3ffc1;
 }
-.game-ended {
+.multiplier-label {
   font-family: "Montserrat", Helvetica;
-  font-weight: 600;
-  font-size: 16px;
-  color: #FF1D50;
-  filter: drop-shadow(0 0 30px #FF1D50);
+  font-weight: 700;
+  font-size: 48px;
+  color: #39d811;
+  filter: drop-shadow(0 0 30px #39d811);
   line-height: 1.3;
   letter-spacing: -0.2px;
   text-align: center;
-  margin-top: 10px;
-  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  /* FIX CLS: Фиксируем размер */
+  min-width: 150px;
+  min-height: 62px;
+  will-change: contents;
+  contain: layout style paint;
 }
 
 /* Стили для таймера */
 .waiting span {
   font-size: 42px;
-  font-family: 'Montserrat', Helvetica;
   color: white;
   position: absolute;
 }

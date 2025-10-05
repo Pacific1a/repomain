@@ -284,13 +284,12 @@
       }
     });
 
-    // Обновление множителя
+    // Обновление множителя (ОПТИМИЗИРОВАНО)
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
       if (elements.currentMultiplier) {
-        // Плавное обновление
-        elements.currentMultiplier.style.transition = 'all 0.1s ease';
+        // Без transition - мгновенное обновление
         elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
       }
       
@@ -744,15 +743,7 @@
     // Минимальная волна
     const wave = Math.sin(elapsed * 1.2) * 5;
     
-    // ОПТИМИЗАЦИЯ: Добавляем точку каждые 3 кадра
-    if (graphPoints.length === 0 || graphPoints.length % 3 === 0) {
-      graphPoints.push({ x, y: y + wave });
-    }
-    
-    // Ограничиваем до 200 точек
-    if (graphPoints.length > 200) {
-      graphPoints.shift();
-    }
+    graphPoints.push({ x, y: y + wave });
     
     drawGraph();
   }
