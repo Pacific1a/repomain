@@ -1,666 +1,960 @@
-// Simple Aviator game logic
-// States: waiting -> flying
-
 (function () {
-  const gameEl = document.querySelector('.aviator .game');
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
+  'use strict';
 
-  const waitingRoot = document.getElementById('waitingRoot');
-  const waitingPanel = document.getElementById('waitingPanel');
-  const waitingText = document.getElementById('waitingText');
-  const waitingBar = document.getElementById('waitingBar');
-  const aviatorSplash = document.getElementById('aviatorSplash');
+  // ============ GAME STATE ============
+  const GAME_STATES = {
+    WAITING: 'waiting',
+    BETTING: 'betting',
+    FLYING: 'flying',
+    CRASHED: 'crashed'
+  };
 
-  const planeWrapper = document.getElementById('planeWrapper');
-  const planeImg = document.getElementById('planeImg');
+  const BUTTON_STATES = {
+    BET: 'bet',
+    CANCEL: 'cancel',
+    CASHOUT: 'cashout'
+  };
 
-  const multiplierLayer = document.getElementById('multiplierLayer');
-  const currentMultiplier = document.getElementById('currentMultiplier');
-  const crashOverlay = document.getElementById('crashOverlay');
+  let gameState = GAME_STATES.WAITING;
+  let buttonState = BUTTON_STATES.BET;
+  let currentMultiplier = 1.00;
+  let crashPoint = 1.50;
+  let playerBetAmount = 0;
+  let playerHasBet = false;
+  let playerCashedOut = false;
+  let bettingTimeLeft = 10;
+  let flyingStartTime = 0;
+  let animationFrameId = null;
 
-  // No reload lock: game always runs its normal cycle
-  let gameLocked = false;
-
-  // --- Persistence helpers ---
-  const STORAGE_KEY = 'aviatorGameStateV1';
-  function saveState(extra = {}) {
+  // ============ STATE PERSISTENCE ============
+  const STORAGE_KEY = 'crash_game_state';
+  
+  function saveGameState() {
     try {
-      const data = {
-        state,
-        // Epoch timestamps to allow cross-reload continuation
-        waitStartEpoch: waitStartEpoch,
-        flightStartEpoch: flightStartEpoch,
-        hoverStartEpoch: hoverStartEpoch,
-        crashStartEpoch: crashStartEpoch,
-        // Gameplay values
-        crashed,
-        crashAt,
-        crashValue,
-        crashX,
-        hoverX,
-        centerLocked,
-        // include any extras
-        ...extra,
+      const state = {
+        playerBetAmount,
+        betAmountValue: getBetAmount(),
+        timestamp: Date.now()
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
-      // ignore
+      // Ignore storage errors
+    }
+  }
+  
+  function loadGameState() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const state = JSON.parse(stored);
+        // Only restore bet amount, not active bets (they expire)
+        if (state.betAmountValue) {
+          setBetAmount(state.betAmountValue);
+        }
+      }
+    } catch (e) {
+      // Ignore storage errors
     }
   }
 
-  function loadState() {
-    try {
-      const s = localStorage.getItem(STORAGE_KEY);
-      if (!s) return null;
-      return JSON.parse(s);
-    } catch (e) { return null; }
-  }
+  // ============ FAKE PLAYERS ============
+  const FAKE_NAMES = [
+    'Alex', 'Maria', 'John', 'Anna', 'Mike', 'Kate', 'Tom', 'Lisa',
+    'David', 'Emma', 'Chris', 'Sofia', 'Max', 'Olga', 'Nick', 'Vera'
+  ];
 
-  // Create an up-to-date snapshot of timers and save to storage
-  function snapshotAndSave() {
-    try {
-      // Recompute epoch anchors from current perf timers
-      const nowEpoch = Date.now();
-      // Update epoch baselines based on current state
-      if (state === 'waiting') {
-        // waitStart = perf time when waiting began
-        const waitedMs = Math.max(0, performance.now() - waitStart);
-        waitStartEpoch = nowEpoch - waitedMs;
-      } else if (state === 'flying') {
-        const flownMs = Math.max(0, performance.now() - flightStart);
-        flightStartEpoch = nowEpoch - flownMs;
-      } else if (state === 'hovering') {
-        const flownMs = Math.max(0, performance.now() - flightStart);
-        const hovMs = Math.max(0, performance.now() - hoverStart);
-        flightStartEpoch = nowEpoch - flownMs;
-        hoverStartEpoch = nowEpoch - hovMs;
-      } else if (state === 'crashing') {
-        const flownMs = (flightStart ? Math.max(0, performance.now() - flightStart) : 0);
-        const crashMs = (crashStart ? Math.max(0, performance.now() - crashStart) : 0);
-        if (flightStart) flightStartEpoch = nowEpoch - flownMs;
-        if (crashStart) crashStartEpoch = nowEpoch - crashMs;
-      }
-      saveState();
-    } catch (e) { /* ignore */ }
-  }
+  let fakePlayers = [];
+  let allBets = [];
 
-  // Epoch mirrors for timers (Date.now-based); perf timers will be aligned
-  let waitStartEpoch = Date.now();
-  let flightStartEpoch = 0;
-  let hoverStartEpoch = 0;
-  let crashStartEpoch = 0;
+  // ============ DOM ELEMENTS ============
+  const elements = {
+    waitingRoot: document.getElementById('waitingRoot'),
+    waitingBar: document.getElementById('waitingBar'),
+    waitingText: document.getElementById('waitingText'),
+    currentMultiplier: document.getElementById('currentMultiplier'),
+    crashOverlay: document.getElementById('crashOverlay'),
+    gameCanvas: document.getElementById('gameCanvas'),
+    betInput: document.getElementById('betInput'),
+    betButton: document.querySelector('.cancel-button-next-2'),
+    betButtonText: document.querySelector('.text-wrapper-15'),
+    betButtonSubtext: document.querySelector('.text-wrapper-16'),
+    userTemplates: document.querySelector('.user-templates'),
+    minusButton: document.querySelector('.button'),
+    plusButton: document.querySelector('.union-wrapper'),
+    multiplierButtons: document.querySelectorAll('.button-2'),
+    totalBetsText: document.querySelector('.text-wrapper-17'),
+    totalWinText: document.querySelector('.text-wrapper-19'),
+    progressBar: document.querySelector('.rectangle-3'),
+    crashHistory: document.getElementById('crashHistory')
+  };
+  
+  // ============ CRASH HISTORY ============
+  let crashHistoryArray = [];
+  
+  // ============ PLANE IMAGE ============
+  const planeImage = new Image();
+  planeImage.src = 'https://raw.githubusercontent.com/Pacific1a/img/main/crash/Union.png';
+  let planeLoaded = false;
+  planeImage.onload = () => {
+    planeLoaded = true;
+    console.log('Plane image loaded!');
+  };
 
-  // Resize canvas to fit parent
+  // ============ CANVAS SETUP ============
+  const canvas = elements.gameCanvas;
+  const ctx = canvas.getContext('2d');
+  let canvasWidth = 0;
+  let canvasHeight = 0;
+  let trailPoints = [];
+
   function resizeCanvas() {
-    const rect = gameEl.getBoundingClientRect();
-    canvas.width = Math.floor(rect.width);
-    canvas.height = Math.floor(rect.height);
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvasWidth = rect.width;
+    canvasHeight = rect.height - 30;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
   }
 
-  function slopeAngleAtX(x) {
-    // Angle of the tangent to the curve at x (screen coordinates, y downwards)
-    const w = Math.max(1, canvas.width - leftMargin - rightMargin);
-    const xn = Math.max(0, Math.min(1, x / w));
-    const A = canvas.height * 0.62;
-    const p = 2.2;
-    // yTop = H - (base + A*xn^p) => dy/dx = -A*p/w * xn^(p-1)
-    const dydx = - (A * p / w) * Math.pow(Math.max(1e-6, xn), p - 1);
-    return Math.atan2(dydx, 1); // atan(dy/dx)
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  // Hide plane before the game starts (during waiting)
-  planeWrapper.style.opacity = '0';
-
-  // Waiting phase (slower)
-  const WAIT_SECONDS = 5.0; // full red bar then empties to 0
-  let state = 'waiting';
-  let waitStart = performance.now();
-
-  // If no saved state exists (first ever launch), persist initial waiting epoch
-  try {
-    const existing = loadState();
-    if (!existing) {
-      waitStartEpoch = Date.now();
-      saveState();
-    }
-  } catch (e) {}
-
-  // Flight parameters
-  let flightStart = 0;
-  let t = 0; // seconds since flight start
-  
-  // Параметры полета
-  const speedX = 70; // px per second horizontally
-  const baseYFromBottom = 40; // starting bottom padding
-  const tailLength = 220; // pixels of visible trail length
-  const leftMargin = 10; // start near left edge
-  const minTop = 85; // keep curve/plane well away from the top edge
-  const rightMargin = 20; // keep inside right edge
-  const oscAmp = 0; // отключаем осцилляцию по вертикали
-  const oscFreq = 0.45; // Hz oscillation frequency
-  // Hover bobbing (active only in 'hovering' state)
-  const hoverAmp = 10; // px amplitude for whole-curve bobbing during hovering
-  const hoverFreq = 0.25; // Hz for whole-curve bobbing
-  const planeAboveOffset = 8; // px to keep plane slightly above the curve
-  
-  // flight phases
-  let centerLocked = false;
-  
-  // Параметры кривой линии и потопления
-  const scale = 0.0009; // vertical growth для кривой
-  const sinkStartDistance = 100; // расстояние от головы, после которого начинается потопление
-  const sinkRate = 30; // скорость потопления в px/s
-  const maxSink = 150; // максимальное потопление
-  const riseRate = 20; // скорость поднятия после потопления
-  let sinkAmount = 0;
-  let lastNow = performance.now();
-
-  // Crash settings
-  let crashAt = null; // multiplier value where we crash this round
-  let crashed = false;
-  let crashValue = null;
-  let crashStart = 0;
-  let crashX = 0; // virtual X at crash moment
-  let crashY = 0; // virtual Y at crash moment
-  let crashTimeoutId = null;
-  // Hovering (hold at max curve)
-  let hoverX = null; // frozen virtual X when we stop extending the curve
-  let hoverStart = 0;
-  // Crash directional flight
-  let crashStartScreenX = 0;
-  let crashStartYTop = 0;
-  let crashAngleRad = 0;
-  let crashPrevScreenX = null;
-  let crashPrevY = null;
-  let currentAngleRad = 0; // plane's current visual angle (radians)
-
-  function updateWaiting(now) {
-    // Compute using epoch so it survives reloads
-    const elapsed = Math.max(0, (Date.now() - waitStartEpoch) / 1000);
-    const remain = Math.max(0, WAIT_SECONDS - elapsed);
-    const pct = Math.max(0, Math.min(1, 1 - elapsed / WAIT_SECONDS));
-
-    // No lock: allow normal flow
-
-    // Set bar width proportionally inside its 170px container (CSS sets full width). We'll transform by scaleX.
-    waitingBar.style.transformOrigin = 'left center';
-    waitingBar.style.transform = `scaleX(${pct})`;
-
-    // Optional countdown text
-    const secondsLeft = Math.ceil(remain);
-    waitingText.textContent = secondsLeft > 0 ? `Waiting... ${secondsLeft}` : 'Starting...';
-    // During waiting, hide multiplier
-    multiplierLayer.classList.add('hidden');
-
-    // Throttled persist so reload continues the same countdown
-    if (!updateWaiting._lastSave || (Date.now() - updateWaiting._lastSave) > 250) {
-      try { saveState(); } catch (e) {}
-      updateWaiting._lastSave = Date.now();
-    }
-
-    if (elapsed >= WAIT_SECONDS) {
-      startFlight();
-    }
+  // ============ UTILITY FUNCTIONS ============
+  function maskName(name) {
+    if (!name || name.length <= 1) return name;
+    if (name.length === 2) return name.charAt(0) + '*';
+    if (name.length === 3) return name.charAt(0) + '*' + name.charAt(2);
+    // For names longer than 3 chars
+    return name.charAt(0) + '***' + name.charAt(name.length - 1);
   }
 
-  function startFlight() {
-    state = 'flying';
-    flightStartEpoch = Date.now();
-    flightStart = performance.now();
-    crashed = false;
-    crashAt = pickCrashMultiplier();
-    crashValue = null;
-    centerLocked = false;
-    hoverX = null;
-    hoverStartEpoch = 0;
-    hoverStart = 0;
-    sinkAmount = 0;
-    lastNow = performance.now();
-    // Hide splash and waiting panel
-    aviatorSplash.classList.add('hidden');
-    waitingPanel.classList.add('hidden');
-    multiplierLayer.classList.remove('hidden');
-    // Hide crash overlay when starting a new flight
-    if (crashOverlay) crashOverlay.classList.remove('show');
-    // Show plane when the game starts
-    planeWrapper.style.opacity = '1';
-    // Keep plane visible and start at initial position
-    // Reset drawing
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    currentMultiplier.classList.remove('crashed');
-    currentMultiplier.textContent = '1.00x';
-    saveState();
-  }
-
-  function pathAtX(x) {
-    // Геометрическая выпуклая (вверх) кривая: h = A * xn^p
-    // Начинаетcя почти плоско и становится всё круче (как на рефе)
-    const w = Math.max(1, canvas.width - leftMargin - rightMargin);
-    const xn = Math.max(0, Math.min(1, x / w));
-    const A = canvas.height * 0.62; // максимальный подъём
-    const p = 2.2; // показатель степени (>1 даёт старт плоским, далее круче)
-    const h = A * Math.pow(xn, p);
-    const yFromBottom = baseYFromBottom + h;
-    let yTop = canvas.height - yFromBottom;
-    // Не позволяем подходить слишком близко к верху
-    yTop = Math.max(minTop, yTop);
-    return yTop;
-  }
-
-  function drawCurvedTrail(virtualX, seconds, headScreenX, vOffset = 0) {
-    ctx.save();
+  function generateCrashPoint() {
+    // Полностью случайный краш с экспоненциальным распределением
+    const rand = Math.random();
     
-    // Trail line настройки
-    ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#EA204F';
-    ctx.shadowColor = 'rgba(234,32,79,0.45)';
-    ctx.shadowBlur = 8;
+    // Используем обратное экспоненциальное распределение для непредсказуемости
+    const lambda = 0.5; // Параметр распределения
+    const crash = 1.00 + (-Math.log(1 - rand) / lambda);
+    
+    // Ограничиваем максимум до 100x
+    return Math.min(crash, 100.00);
+  }
 
+  function generateFakePlayers() {
+    const count = 3 + Math.floor(Math.random() * 5); // 3-7 fake players
+    fakePlayers = [];
+    
+    for (let i = 0; i < count; i++) {
+      const name = FAKE_NAMES[Math.floor(Math.random() * FAKE_NAMES.length)];
+      const betAmount = [50, 100, 150, 200, 250, 300, 500][Math.floor(Math.random() * 7)];
+      const willCashout = Math.random() > 0.3; // 70% will cashout
+      let cashoutAt = 0;
+      
+      if (willCashout) {
+        const rand = Math.random();
+        if (rand < 0.4) cashoutAt = 1.20 + Math.random() * 0.80; // 1.20-2.00x
+        else if (rand < 0.7) cashoutAt = 2.00 + Math.random() * 1.00; // 2.00-3.00x
+        else cashoutAt = 3.00 + Math.random() * 2.00; // 3.00-5.00x
+      }
+      
+      fakePlayers.push({
+        name,
+        betAmount,
+        willCashout,
+        cashoutAt,
+        hasCashedOut: false
+      });
+    }
+  }
+
+  // ============ BET AMOUNT CONTROLS ============
+  function getBetAmount() {
+    return parseInt(elements.betInput.value) || 50;
+  }
+
+  function setBetAmount(amount) {
+    elements.betInput.value = Math.max(50, amount);
+    updateBetButtonSubtext();
+    saveGameState();
+  }
+  
+  // Handle input changes
+  elements.betInput.addEventListener('input', () => {
+    updateBetButtonSubtext();
+  });
+  
+  elements.betInput.addEventListener('blur', () => {
+    const value = parseInt(elements.betInput.value);
+    if (isNaN(value) || value < 50) {
+      elements.betInput.value = 50;
+    }
+  });
+
+  function updateBetButtonSubtext() {
+    const amount = getBetAmount();
+    if (buttonState === BUTTON_STATES.BET) {
+      elements.betButtonSubtext.textContent = `${amount} chips`;
+    } else if (buttonState === BUTTON_STATES.CANCEL) {
+      if (gameState === GAME_STATES.BETTING) {
+        elements.betButtonSubtext.textContent = 'Cancel bet';
+      } else {
+        elements.betButtonSubtext.textContent = 'Waiting to next round';
+      }
+    } else if (buttonState === BUTTON_STATES.CASHOUT) {
+      const potentialWin = Math.floor(playerBetAmount * currentMultiplier);
+      elements.betButtonSubtext.textContent = `${potentialWin} chips`;
+    }
+  }
+
+  elements.minusButton.addEventListener('click', () => {
+    if (buttonState !== BUTTON_STATES.BET) return;
+    const current = getBetAmount();
+    const newAmount = Math.max(50, current - 50);
+    setBetAmount(newAmount);
+  });
+
+  elements.plusButton.addEventListener('click', () => {
+    if (buttonState !== BUTTON_STATES.BET) return;
+    const current = getBetAmount();
+    const newAmount = current + 50;
+    setBetAmount(newAmount);
+  });
+
+  elements.multiplierButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (buttonState !== BUTTON_STATES.BET) return;
+      const multiplier = parseInt(btn.textContent);
+      const current = getBetAmount();
+      setBetAmount(current * multiplier);
+    });
+  });
+
+  // ============ BUTTON STATE MANAGEMENT ============
+  function setButtonState(state) {
+    buttonState = state;
+    const btn = elements.betButton;
+    
+    // Remove all state classes
+    btn.classList.remove('btn-bet', 'btn-cancel', 'btn-cashout');
+    
+    switch (state) {
+      case BUTTON_STATES.BET:
+        btn.classList.add('btn-bet');
+        elements.betButtonText.textContent = 'BET';
+        elements.betButtonSubtext.textContent = `${getBetAmount()} chips`;
+        break;
+      case BUTTON_STATES.CANCEL:
+        btn.classList.add('btn-cancel');
+        elements.betButtonText.textContent = 'CANCEL';
+        elements.betButtonSubtext.textContent = 'Waiting to next round';
+        break;
+      case BUTTON_STATES.CASHOUT:
+        btn.classList.add('btn-cashout');
+        elements.betButtonText.textContent = 'CASH OUT';
+        updateBetButtonSubtext();
+        break;
+    }
+  }
+
+  // ============ CASH OUT FUNCTION ============
+  async function performCashOut() {
+    if (!playerHasBet || playerCashedOut) return;
+    
+    const winAmount = Math.floor(playerBetAmount * currentMultiplier);
+    
+    // Начисляем выигрыш
+    if (window.GameBalanceAPI) {
+      window.GameBalanceAPI.payWinnings(winAmount, 'chips');
+    }
+    
+    playerCashedOut = true;
+    
+    // Update player bet in list
+    updatePlayerBetInList(currentMultiplier, winAmount);
+    
+    // Update stats
+    updateGameStats();
+    
+    playerBetAmount = 0;
+    playerHasBet = false;
+    
+    // Disable button until next round
+    elements.betButton.style.opacity = '0.5';
+    elements.betButton.style.pointerEvents = 'none';
+    
+    console.log(`💰 Cash Out: ${winAmount} chips (${currentMultiplier.toFixed(2)}x)`);
+  }
+
+  // ============ BET BUTTON HANDLER ============
+  elements.betButton.addEventListener('click', async () => {
+    if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.BETTING) {
+      // Place bet
+      const betAmount = getBetAmount();
+      
+      if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+        showNotification('Недостаточно фишек', 'error');
+        return;
+      }
+      
+      const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
+      if (success) {
+        playerBetAmount = betAmount;
+        playerHasBet = true;
+        playerCashedOut = false;
+        setButtonState(BUTTON_STATES.CANCEL);
+        
+        // Add player to bets list
+        addPlayerBetToList();
+        
+        // Update stats
+        updateGameStats();
+        
+        console.log(`🎲 Bet placed: ${betAmount} chips`);
+        
+        // Проверяем Auto Cash Out
+        if (window.BetAutoSwitcher && window.BetAutoSwitcher.isAutoCashOutEnabled()) {
+          const target = window.BetAutoSwitcher.getAutoCashOutMultiplier();
+          console.log(`🤖 Auto Cash Out enabled: ${target.toFixed(2)}x`);
+        }
+      }
+    } else if (buttonState === BUTTON_STATES.CANCEL && gameState === GAME_STATES.BETTING) {
+      // Cancel bet during betting phase
+      await window.GameBalanceAPI.payWinnings(playerBetAmount, 'chips');
+      playerBetAmount = 0;
+      playerHasBet = false;
+      setButtonState(BUTTON_STATES.BET);
+      
+      // Remove player from bets list
+      removePlayerBetFromList();
+      
+      // Update stats
+      updateGameStats();
+    } else if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.FLYING) {
+      // Place bet during flying phase - must wait for next round
+      const betAmount = getBetAmount();
+      
+      if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+        showNotification('Недостаточно фишек', 'error');
+        return;
+      }
+      
+      const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
+      if (success) {
+        playerBetAmount = betAmount;
+        playerHasBet = true;
+        playerCashedOut = false;
+        setButtonState(BUTTON_STATES.CANCEL);
+        
+        // Don't add to list yet - will be added next round
+      }
+    } else if (buttonState === BUTTON_STATES.CANCEL && gameState === GAME_STATES.FLYING) {
+      // Cancel bet placed during flying phase
+      await window.GameBalanceAPI.payWinnings(playerBetAmount, 'chips');
+      playerBetAmount = 0;
+      playerHasBet = false;
+      setButtonState(BUTTON_STATES.BET);
+    } else if (buttonState === BUTTON_STATES.CASHOUT && gameState === GAME_STATES.FLYING) {
+      // Manual cash out
+      await performCashOut();
+    }
+  });
+
+  // ============ BETS LIST MANAGEMENT ============
+  function addPlayerBetToList() {
+    const userName = window.TelegramUser ? window.TelegramUser.getDisplayName() : 'You';
+    const maskedName = maskName(userName);
+    
+    const betHtml = `
+      <div class="win player-bet" data-player="user">
+        <div class="acc-inf">
+          <div class="div-wrapper-2"><div class="avatar-2"></div></div>
+          <div class="div-wrapper-3"><div class="text-wrapper-22">${maskedName}</div></div>
+        </div>
+        <div class="div-wrapper-3"><div class="text-wrapper-23">${playerBetAmount}</div></div>
+        <div class="div-wrapper-3"><div class="text-wrapper-27">-</div></div>
+        <div class="div-wrapper-4"><div class="text-wrapper-28">-</div></div>
+      </div>
+    `;
+    
+    elements.userTemplates.insertAdjacentHTML('afterbegin', betHtml);
+    
+    // Set avatar if available
+    if (window.TelegramUser && window.TelegramUser.getPhotoUrl()) {
+      const avatar = elements.userTemplates.querySelector('.player-bet .avatar-2');
+      if (avatar) {
+        avatar.style.backgroundImage = `url(${window.TelegramUser.getPhotoUrl()})`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+      }
+    }
+  }
+
+  function removePlayerBetFromList() {
+    const playerBet = elements.userTemplates.querySelector('.player-bet[data-player="user"]');
+    if (playerBet) {
+      playerBet.remove();
+    }
+  }
+
+  function updatePlayerBetInList(multiplier, winAmount) {
+    const playerBet = elements.userTemplates.querySelector('.player-bet[data-player="user"]');
+    if (playerBet) {
+      playerBet.classList.remove('default');
+      playerBet.classList.add('win');
+      
+      const multiplierEl = playerBet.querySelector('.text-wrapper-27');
+      const winEl = playerBet.querySelector('.text-wrapper-28');
+      
+      if (multiplierEl) {
+        multiplierEl.className = 'text-wrapper-24';
+        multiplierEl.textContent = `${multiplier.toFixed(2)}x`;
+      }
+      if (winEl) {
+        winEl.className = 'text-wrapper-25';
+        winEl.textContent = winAmount;
+      }
+    }
+  }
+
+  function addSingleFakePlayer(player) {
+    const maskedName = maskName(player.name);
+    const betHtml = `
+      <div class="default bet-fade-in" data-player="${player.name}">
+        <div class="acc-inf-2">
+          <div class="avatar-wrapper"><div class="avatar-3"></div></div>
+          <div class="n-k"><div class="text-wrapper-26">${maskedName}</div></div>
+        </div>
+        <div class="div-wrapper-3"><div class="text-wrapper-27">${player.betAmount}</div></div>
+        <div class="div-wrapper-3"><div class="text-wrapper-27">-</div></div>
+        <div class="div-wrapper-4"><div class="text-wrapper-28">-</div></div>
+      </div>
+    `;
+    
+    elements.userTemplates.insertAdjacentHTML('beforeend', betHtml);
+    
+    // Update stats after adding player
+    updateGameStats();
+    
+    // Scroll to bottom to show new bet
+    setTimeout(() => {
+      elements.userTemplates.scrollTop = elements.userTemplates.scrollHeight;
+    }, 50);
+  }
+
+  function updateFakeBetsInList() {
+    fakePlayers.forEach(player => {
+      if (player.willCashout && !player.hasCashedOut && currentMultiplier >= player.cashoutAt) {
+        player.hasCashedOut = true;
+        const winAmount = Math.floor(player.betAmount * player.cashoutAt);
+        
+        const betEl = elements.userTemplates.querySelector(`[data-player="${player.name}"]`);
+        if (betEl) {
+          betEl.classList.remove('default');
+          betEl.classList.add('win');
+          betEl.innerHTML = `
+            <div class="acc-inf">
+              <div class="div-wrapper-2"><div class="avatar-2"></div></div>
+              <div class="div-wrapper-3"><div class="text-wrapper-22">${maskName(player.name)}</div></div>
+            </div>
+            <div class="div-wrapper-3"><div class="text-wrapper-23">${player.betAmount}</div></div>
+            <div class="div-wrapper-3"><div class="text-wrapper-24">${player.cashoutAt.toFixed(2)}x</div></div>
+            <div class="div-wrapper-4"><div class="text-wrapper-25">${winAmount}</div></div>
+          `;
+        }
+        
+        // Update stats when player cashes out
+        updateGameStats();
+      }
+    });
+  }
+
+  function finalizeFakeBetsAfterCrash() {
+    fakePlayers.forEach(player => {
+      if (!player.hasCashedOut) {
+        const betEl = elements.userTemplates.querySelector(`[data-player="${player.name}"]`);
+        if (betEl) {
+          // Show as lost (keep default style with dashes)
+          betEl.classList.add('default');
+          betEl.classList.add('lost');
+          betEl.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+          betEl.style.transition = 'background-color 0.3s ease';
+        }
+      }
+    });
+    
+    // Also mark player as lost if they didn't cash out
+    if (playerHasBet && !playerCashedOut) {
+      const playerBet = elements.userTemplates.querySelector('.player-bet[data-player="user"]');
+      if (playerBet) {
+        playerBet.classList.add('lost');
+        playerBet.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+        playerBet.style.transition = 'background-color 0.3s ease';
+      }
+    }
+  }
+
+  // ============ GAME STATISTICS ============
+  function updateGameStats() {
+    // Count only visible bets in the list
+    const visibleBets = elements.userTemplates.querySelectorAll('.default, .win');
+    let totalBets = visibleBets.length;
+    let totalChips = 0;
+    let totalWinChips = 0;
+    
+    visibleBets.forEach(betEl => {
+      const betAmountEl = betEl.querySelector('.text-wrapper-23, .text-wrapper-27');
+      if (betAmountEl) {
+        const amount = parseInt(betAmountEl.textContent) || 0;
+        totalChips += amount;
+      }
+      
+      const winAmountEl = betEl.querySelector('.text-wrapper-25');
+      if (winAmountEl && winAmountEl.textContent !== '-') {
+        const winAmount = parseInt(winAmountEl.textContent) || 0;
+        totalWinChips += winAmount;
+      }
+    });
+    
+    // Update UI
+    if (elements.totalBetsText) {
+      elements.totalBetsText.textContent = `${totalBets}/550`;
+    }
+    
+    if (elements.totalWinText) {
+      elements.totalWinText.textContent = totalWinChips.toLocaleString();
+    }
+    
+    // Update progress bar
+    if (elements.progressBar) {
+      const progress = Math.min((totalChips / 5000) * 100, 100); // Max 5000 chips = 100%
+      elements.progressBar.style.width = `${progress}%`;
+    }
+  }
+
+  // ============ CUSTOM NOTIFICATION ============
+  function showNotification(message, type = 'error') {
+    // Remove existing notification
+    const existing = document.querySelector('.custom-notification');
+    if (existing) existing.remove();
+    
+    const notification = document.createElement('div');
+    notification.className = `custom-notification ${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <div class="notification-message">${message}</div>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Auto remove after 2.5 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 2500);
+  }
+
+  // ============ CANVAS DRAWING ============
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  }
+
+  function drawTrail() {
+    if (trailPoints.length < 1) return;
+    
+    const lastPoint = trailPoints[trailPoints.length - 1];
+    
+    // Draw fill area under the curve
     ctx.beginPath();
+    ctx.moveTo(0, canvasHeight);
     
-    const centerX = canvas.width / 2;
-    let start, end;
-    
-    if (!centerLocked) {
-      start = 0;
-      end = virtualX;
+    if (trailPoints.length === 1) {
+      ctx.lineTo(lastPoint.x, lastPoint.y);
     } else {
-      start = Math.max(0, virtualX - centerX);
-      end = virtualX;
+      ctx.lineTo(trailPoints[0].x, trailPoints[0].y);
+      for (let i = 1; i < trailPoints.length; i++) {
+        ctx.lineTo(trailPoints[i].x, trailPoints[i].y);
+      }
     }
     
-    // Рисуем чистую гладкую кривую без дополнительных искажений
-    const step = 3;
-    let x = start;
-    let y = pathAtX(x) + vOffset;
-    y = Math.min(canvas.height - 5, Math.max(minTop, y));
-    let xs = !centerLocked ? (leftMargin + x) : (centerX + (x - virtualX));
-    ctx.moveTo(xs, y);
-    for (x = start + step; x <= end; x += step) {
-      y = pathAtX(x) + vOffset;
-      y = Math.min(canvas.height - 5, Math.max(minTop, y));
-      xs = !centerLocked ? (leftMargin + x) : (centerX + (x - virtualX));
-      if (xs < 0) continue;
-      if (xs > canvas.width) break;
-      ctx.lineTo(xs, y);
-    }
-    
-    ctx.stroke();
-
-    // Заливка под кривой
-    const lastScreenX = Math.min(
-      canvas.width,
-      Math.max(0, !centerLocked ? (leftMargin + end) : (centerX + (end - virtualX)))
-    );
-    ctx.lineTo(lastScreenX, canvas.height);
-    const firstScreenX = Math.max(0, !centerLocked ? (leftMargin + start) : (centerX + (start - virtualX)));
-    ctx.lineTo(firstScreenX, canvas.height);
+    ctx.lineTo(lastPoint.x, canvasHeight);
+    ctx.lineTo(0, canvasHeight);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(234,32,79,0.15)';
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  function updatePlanePosition(virtualX, seconds, vOffset = 0) {
-    // Самолет движется горизонтально как обычно
-    const centerX = canvas.width / 2;
-    let screenX = leftMargin + virtualX;
-    if (screenX >= centerX) { screenX = centerX; centerLocked = true; }
     
-    // Y позиция следует по кривой пути
-    let y = pathAtX(virtualX) + vOffset - planeAboveOffset;
-    // Gentle vertical oscillation (disabled in hovering, enabled in flying)
-    const osc = (state === 'hovering') ? 0 : (oscAmp * Math.sin(2 * Math.PI * oscFreq * seconds));
-    y = Math.max(minTop, Math.min(canvas.height - 45, y + osc));
-
-    // Translate plane to screen position
-    const tx = screenX - 10;
-    const ty = y - (canvas.height - baseYFromBottom);
-    planeWrapper.style.transform = `translate(${tx}px, ${ty}px)`;
-
-    // Самолет смотрит горизонтально с маленьким покачиванием
-    const angle = -6 + 1 * Math.sin(2 * Math.PI * (oscFreq / 2) * seconds);
-    planeImg.style.transform = `rotate(${angle}deg) scale(1)`;
-    currentAngleRad = (angle * Math.PI) / 180;
-  }
-
-  function updateMultiplier(seconds) {
-    // Slower exponential growth
-    const g = 0.12; // growth per second (slower)
-    const m = Math.max(1, Math.exp(g * seconds));
-
-    // Cap the multiplier at the crash value if crash is determined
-    const cappedMultiplier = crashAt ? Math.min(m, crashAt) : m;
-
-    // Do not update the displayed text after crash or while crashing
-    if (!crashed && state !== 'crashing') {
-      currentMultiplier.textContent = `${cappedMultiplier.toFixed(2)}x`;
-    }
-    return m;
-  }
-
-  function pickCrashMultiplier() {
-    // Aggressive crash distribution: frequent losses at 1.5x and 2x, rare wins above 3x
-    const r = Math.random();
-
-    // 1.10x to 1.50x: 15% (some 1.5x losses)
-    if (r < 0.15) {
-      const rr = Math.random();
-      const biased = Math.pow(rr, 1.5); // slight bias to lower values
-      const val = 1.10 + (1.50 - 1.10) * biased;
-      return +Math.min(1.50, Math.max(1.10, val)).toFixed(2);
-    }
-    // 1.50x to 2.00x: 70% (frequent 2x losses)
-    else if (r < 0.85) {
-      const rr = Math.random();
-      const biased = Math.pow(rr, 2.0); // strong bias towards 2.00x
-      const val = 1.50 + (2.00 - 1.50) * biased;
-      return +Math.min(2.00, Math.max(1.50, val)).toFixed(2);
-    }
-    // 2.00x to 3.00x: 10% (rare higher losses)
-    else if (r < 0.95) {
-      const rr = Math.random();
-      const biased = Math.pow(rr, 1.2); // slight bias to lower values
-      const val = 2.00 + (3.00 - 2.00) * biased;
-      return +Math.min(3.00, Math.max(2.00, val)).toFixed(2);
-    }
-    // 3.00x to 9.99x: 5% (very rare wins)
-    else {
-      const rr = Math.random();
-      const biased = Math.pow(rr, 0.8); // bias towards higher values for excitement
-      const val = 3.00 + (9.99 - 3.00) * biased;
-      return +Math.min(9.99, Math.max(3.00, val)).toFixed(2);
-    }
-  }
-
-  function tick(now) {
-    if (state === 'waiting') {
-      updateWaiting(now);
-    } else if (state === 'flying') {
-      const dt = (now - lastNow) / 1000;
-      lastNow = now;
-      t = (now - flightStart) / 1000;
+    const fillGradient = ctx.createLinearGradient(0, canvasHeight, 0, 0);
+    fillGradient.addColorStop(0, 'rgba(202, 57, 88, 0.08)');
+    fillGradient.addColorStop(0.5, 'rgba(202, 57, 88, 0.18)');
+    fillGradient.addColorStop(1, 'rgba(255, 155, 176, 0.3)');
+    ctx.fillStyle = fillGradient;
+    ctx.fill();
+    
+    // Draw the curve line
+    if (trailPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(trailPoints[0].x, trailPoints[0].y);
       
-      // Virtual world position - горизонтальное движение
-      const virtualX = speedX * t;
+      for (let i = 1; i < trailPoints.length; i++) {
+        ctx.lineTo(trailPoints[i].x, trailPoints[i].y);
+      }
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const lineGradient = ctx.createLinearGradient(0, canvasHeight, lastPoint.x, lastPoint.y);
+      lineGradient.addColorStop(0, 'rgba(202, 57, 88, 0.6)');
+      lineGradient.addColorStop(0.5, 'rgba(255, 100, 130, 0.9)');
+      lineGradient.addColorStop(1, 'rgba(255, 155, 176, 1)');
+      ctx.strokeStyle = lineGradient;
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       
-      const centerX = canvas.width / 2;
-      const headScreenX = centerLocked ? centerX : (leftMargin + virtualX);
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = 'rgba(202, 57, 88, 0.5)';
+      ctx.stroke();
       
-      drawCurvedTrail(virtualX, t, headScreenX);
-      updatePlanePosition(virtualX, t);
-      const m = updateMultiplier(t);
-
-      // Transition to hovering when reaching near top (stop extending curve)
-      const headY = pathAtX(virtualX);
-      if (hoverX === null && headY <= (minTop + 4)) {
-        hoverX = virtualX;
-        hoverStartEpoch = Date.now();
-        hoverStart = now;
-        state = 'hovering';
-        saveState();
-      }
-
-      // Crash check
-      if (!crashed && crashAt !== null && m >= crashAt) {
-        crashed = true;
-        currentMultiplier.classList.add('crashed');
-        crashValue = m;
-        crashStartEpoch = Date.now();
-        crashStart = now;
-        crashX = virtualX;
-        // Determine current screen position and look angle
-        const centerX2 = canvas.width / 2;
-        crashStartScreenX = centerLocked ? centerX2 : (leftMargin + crashX);
-        // Start from the plane's current visible Y (curve + osc - above offset)
-        {
-          const oscNow = oscAmp * Math.sin(2 * Math.PI * oscFreq * t);
-          const yVis = pathAtX(crashX) + 0 /* vOffset in flying */ + oscNow - planeAboveOffset;
-          crashStartYTop = Math.max(minTop, Math.min(canvas.height - 45, yVis));
-        }
-        // Aim to the top-right corner for a straight exit
-        {
-          const targetX = canvas.width + 80;
-          const targetY = -80;
-          crashAngleRad = Math.atan2(targetY - crashStartYTop, targetX - crashStartScreenX);
-        }
-        crashPrevScreenX = crashStartScreenX;
-        crashPrevY = crashStartYTop;
-        state = 'crashing';
-        if (crashOverlay) crashOverlay.classList.add('show');
-        // Freeze crash: keep plane visible and schedule reset
-        planeWrapper.style.opacity = '0'; // hide point image on crash
-        // Freeze multiplier at crash value
-        if (typeof crashValue === 'number') {
-          currentMultiplier.textContent = `${crashValue.toFixed(2)}x`;
-        }
-        // Do not persistently lock on crash; allow normal next rounds
-        if (crashTimeoutId === null) {
-          crashTimeoutId = setTimeout(() => {
-            crashTimeoutId = null;
-            resetCycle(performance.now());
-          }, 4000);
-        }
-        saveState();
-      }
-    } else if (state === 'hovering') {
-      // Freeze curve at hoverX; plane bobs up/down slightly but does not go higher
-      const dt = (now - lastNow) / 1000;
-      lastNow = now;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const centerX = canvas.width / 2;
-      const headScreenX = centerLocked ? centerX : (leftMargin + hoverX);
-      const hovSec = (hoverStart ? (now - hoverStart) / 1000 : 0);
-      const vOffset = hoverAmp * Math.sin(2 * Math.PI * hoverFreq * hovSec);
-      drawCurvedTrail(hoverX, hovSec, headScreenX, vOffset);
-      // Position plane at hoverX with whole-curve vertical offset
-      updatePlanePosition(hoverX, hovSec, vOffset);
-      const m = updateMultiplier((now - flightStart) / 1000);
-
-      // Crash check while hovering
-      if (!crashed && crashAt !== null && m >= crashAt) {
-        crashed = true;
-        currentMultiplier.classList.add('crashed');
-        crashValue = m;
-        crashStartEpoch = Date.now();
-        crashStart = now;
-        crashX = hoverX;
-        // Starting position and angle while hovering
-        const centerX2 = canvas.width / 2;
-        crashStartScreenX = centerLocked ? centerX2 : (leftMargin + crashX);
-        // Start from current visible Y in hovering (curve + hover bob - above offset)
-        {
-          const hovSec2 = (hoverStart ? (now - hoverStart) / 1000 : 0);
-          const vOffset2 = hoverAmp * Math.sin(2 * Math.PI * hoverFreq * hovSec2);
-          const yVis = pathAtX(crashX) + vOffset2 - planeAboveOffset;
-          crashStartYTop = Math.max(minTop, Math.min(canvas.height - 45, yVis));
-        }
-        // Aim to the top-right corner for a straight exit
-        {
-          const targetX = canvas.width + 80;
-          const targetY = -80;
-          crashAngleRad = Math.atan2(targetY - crashStartYTop, targetX - crashStartScreenX);
-        }
-        crashPrevScreenX = crashStartScreenX;
-        crashPrevY = crashStartYTop;
-        state = 'crashing';
-        if (crashOverlay) crashOverlay.classList.add('show');
-        // Freeze multiplier at crash value
-        if (typeof crashValue === 'number') {
-          currentMultiplier.textContent = `${crashValue.toFixed(2)}x`;
-        }
-        // Hide point image on crash
-        planeWrapper.style.opacity = '0';
-      }
-    } else if (state === 'crashing') {
-      // Freeze at crash position: keep background clean to avoid artifacts
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Keep plane at crash start position (hidden)
-      const screenX = crashStartScreenX;
-      const y = crashStartYTop;
-      const tx = screenX - 10;
-      const ty = y - (canvas.height - baseYFromBottom);
-      planeWrapper.style.transform = `translate(${tx}px, ${ty}px)`;
-      // Remove crash rotation and any swimming effect
-      planeImg.style.transform = `rotate(0deg) scale(1)`;
-      // Ensure point stays hidden during crashing
-      planeWrapper.style.opacity = '0';
-
-      // Safety: ensure reset after 4s even if timeout failed
-      if (crashStart && (now - crashStart) > 4000 && crashTimeoutId === null) {
-        resetCycle(now);
-      }
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
-    requestAnimationFrame(tick);
+    
+    // Draw plane image on canvas at the end of line
+    if (planeLoaded && trailPoints.length > 0) {
+      const planeX = lastPoint.x;
+      const planeY = lastPoint.y;
+      
+      // Calculate rotation
+      let angle = 0;
+      if (trailPoints.length >= 3) {
+        const current = trailPoints[trailPoints.length - 1];
+        const previous = trailPoints[trailPoints.length - 3];
+        const deltaX = current.x - previous.x;
+        const deltaY = current.y - previous.y;
+        angle = Math.atan2(-deltaY, deltaX);
+      }
+      
+      // Draw plane (proportional size)
+      const planeWidth = 35;
+      const planeHeight = 35;
+      ctx.save();
+      ctx.translate(planeX, planeY);
+      ctx.rotate(angle);
+      ctx.drawImage(planeImage, -planeWidth/2, -planeHeight/2, planeWidth, planeHeight);
+      ctx.restore();
+    }
   }
 
-  function resetCycle(now) {
-    // Reset to waiting for next round
-    state = 'waiting';
-    waitStartEpoch = Date.now();
-    waitStart = now;
-    // Reset UI
-    aviatorSplash.classList.remove('hidden');
-    waitingPanel.classList.remove('hidden');
-    waitingText.textContent = 'Waiting...';
-    waitingBar.style.transform = 'scaleX(1)';
-
-    // Reset plane position
-    planeWrapper.style.transform = 'translate(0px, 0px)';
-    planeImg.style.transform = 'rotate(0deg)';
-    // Keep plane hidden during waiting phase
-    planeWrapper.style.opacity = '0';
-    // Hide crash overlay on reset
-    if (crashOverlay) crashOverlay.classList.remove('show');
-
-    // Reset multiplier
-    currentMultiplier.textContent = '1.00x';
-    currentMultiplier.classList.remove('crashed');
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    saveState();
-  }
-
-  // Save the most recent snapshot on tab hide/refresh
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      snapshotAndSave();
+  // ============ GAME PHASES ============
+  function startBettingPhase() {
+    gameState = GAME_STATES.BETTING;
+    bettingTimeLeft = 10;
+    
+    // ВАЖНО: Если игрок поставил во время полета, НЕ сбрасываем его ставку
+    // Она должна остаться и участвовать в следующем раунде
+    const hadPendingBet = playerHasBet && buttonState === BUTTON_STATES.CANCEL;
+    
+    if (!hadPendingBet) {
+      // Только если не было ставки "в ожидании"
+      playerHasBet = false;
+      playerBetAmount = 0;
     }
-  });
-  window.addEventListener('beforeunload', () => {
-    snapshotAndSave();
-  });
-
-  // Restore state across reloads
-  (function restore() {
-    const s = loadState();
-    if (!s) return;
-    try {
-      // Basic fields
-      state = s.state || 'waiting';
-      crashed = !!s.crashed;
-      crashAt = s.crashAt ?? crashAt;
-      crashValue = s.crashValue ?? null;
-      crashX = s.crashX ?? 0;
-      hoverX = s.hoverX ?? null;
-      centerLocked = !!s.centerLocked;
-      // Epochs
-      waitStartEpoch = s.waitStartEpoch ?? Date.now();
-      flightStartEpoch = s.flightStartEpoch ?? 0;
-      hoverStartEpoch = s.hoverStartEpoch ?? 0;
-      crashStartEpoch = s.crashStartEpoch ?? 0;
-
-      // Align perf timers to epochs
-      const nowPerf = performance.now();
-      // If crashed flag is true, force crashing state to avoid multiplier drift
-      if (crashed) {
-        state = 'crashing';
+    
+    playerCashedOut = false;
+    currentMultiplier = 1.00;
+    crashPoint = generateCrashPoint();
+    
+    // Разблокировать Auto Cash Out
+    if (window.BetAutoSwitcher) {
+      window.BetAutoSwitcher.setGameActive(false);
+    }
+    
+    generateFakePlayers();
+    
+    // Clear existing bets first
+    const existingBets = elements.userTemplates.querySelectorAll('.default, .win:not(.player-bet)');
+    existingBets.forEach(el => el.remove());
+    
+    elements.waitingRoot.classList.remove('hidden');
+    elements.crashOverlay.classList.remove('show');
+    elements.currentMultiplier.textContent = '1.00x';
+    elements.currentMultiplier.classList.remove('crashed');
+    
+    // Hide multiplier during betting
+    elements.currentMultiplier.style.display = 'none';
+    
+    // Update stats
+    updateGameStats();
+    
+    clearCanvas();
+    trailPoints = [];
+    
+    // Reset button - если была отложенная ставка, показываем CANCEL
+    if (hadPendingBet) {
+      setButtonState(BUTTON_STATES.CANCEL);
+      console.log(`✅ Ставка ${playerBetAmount} chips перенесена на новый раунд`);
+    } else {
+      setButtonState(BUTTON_STATES.BET);
+    }
+    elements.betButton.style.opacity = '1';
+    elements.betButton.style.pointerEvents = 'auto';
+    
+    // Add fake players gradually during betting phase
+    let playerIndex = 0;
+    const addPlayerInterval = setInterval(() => {
+      if (playerIndex < fakePlayers.length && gameState === GAME_STATES.BETTING) {
+        addSingleFakePlayer(fakePlayers[playerIndex]);
+        playerIndex++;
+      } else {
+        clearInterval(addPlayerInterval);
       }
-      if (state === 'waiting') {
-        waitStart = nowPerf - Math.max(0, Date.now() - waitStartEpoch);
-        aviatorSplash.classList.remove('hidden');
-        waitingPanel.classList.remove('hidden');
-        multiplierLayer.classList.add('hidden');
-        planeWrapper.style.opacity = '0';
-        // Update waiting bar and text immediately based on remaining time
-        const elapsed = Math.max(0, (Date.now() - waitStartEpoch) / 1000);
-        const pct = Math.max(0, Math.min(1, 1 - elapsed / WAIT_SECONDS));
-        waitingBar.style.transformOrigin = 'left center';
-        waitingBar.style.transform = `scaleX(${pct})`;
-        const secondsLeft = Math.ceil(Math.max(0, WAIT_SECONDS - elapsed));
-        waitingText.textContent = secondsLeft > 0 ? `Waiting... ${secondsLeft}` : 'Starting...';
-      } else if (state === 'flying') {
-        console.log('Restoring flying state');
-        flightStart = nowPerf - Math.max(0, Date.now() - flightStartEpoch);
-        aviatorSplash.classList.add('hidden');
-        waitingPanel.classList.add('hidden');
-        multiplierLayer.classList.remove('hidden');
-        planeWrapper.style.opacity = '1';
-        if (crashOverlay) crashOverlay.classList.remove('show');
+    }, 800); // Add a player every 0.8 seconds
+    
+    // Start countdown
+    const countdownInterval = setInterval(() => {
+      bettingTimeLeft -= 0.1;
+      const progress = (bettingTimeLeft / 10) * 100;
+      elements.waitingBar.style.width = `${Math.max(0, progress)}%`;
+      elements.waitingText.textContent = `Waiting... ${Math.ceil(bettingTimeLeft)}s`;
+      
+      if (bettingTimeLeft <= 0) {
+        clearInterval(countdownInterval);
+        clearInterval(addPlayerInterval);
+        startFlyingPhase();
+      }
+    }, 100);
+  }
+  function startFlyingPhase() {
+    gameState = GAME_STATES.FLYING;
+    flyingStartTime = Date.now();
+    
+    // Заблокировать AutoCash Out во время игры
+    if (window.BetAutoSwitcher) {
+      window.BetAutoSwitcher.setGameActive(true);
+    }
+    
+    // Reset trail
+    trailPoints = [];
+    
+    elements.waitingRoot.classList.add('hidden');
+    
+    // Show multiplier during flying
+    elements.currentMultiplier.style.display = 'block';
+    
+    // Show button during flying
+    elements.betButton.style.display = 'flex';
+    
+    // If player has bet from betting phase, show cashout (disabled if auto)
+    // If player bet during previous flying phase, keep cancel (waiting)
+    if (playerHasBet && gameState === GAME_STATES.FLYING) {
+      const playerBet = elements.userTemplates.querySelector('.player-bet[data-player="user"]');
+      if (playerBet) {
+        // Player has active bet in list, can cash out
+        setButtonState(BUTTON_STATES.CASHOUT);
         
-        // Immediately reflect correct multiplier to avoid 1.00x flash
-        if (!crashed) {
-          const seconds = Math.max(0, (Date.now() - flightStartEpoch) / 1000);
-          const g = 0.12;
-          const mNow = Math.max(1, Math.exp(g * seconds));
-          const cappedMNow = crashAt ? Math.min(mNow, crashAt) : mNow;
-          currentMultiplier.classList.remove('crashed');
-          currentMultiplier.textContent = `${cappedMNow.toFixed(2)}x`;
-        }
-        
-      } else if (state === 'hovering') {
-        console.log('Restoring hovering state');
-        flightStart = nowPerf - Math.max(0, Date.now() - flightStartEpoch);
-        hoverStart = nowPerf - Math.max(0, Date.now() - hoverStartEpoch);
-        aviatorSplash.classList.add('hidden');
-        waitingPanel.classList.add('hidden');
-        multiplierLayer.classList.remove('hidden');
-        planeWrapper.style.opacity = '1';
-        if (crashOverlay) crashOverlay.classList.remove('show');
-        
-        // Immediately reflect correct multiplier to avoid 1.00x flash
-        if (!crashed) {
-          const seconds = Math.max(0, (Date.now() - flightStartEpoch) / 1000);
-          const g = 0.12;
-          const mNow = Math.max(1, Math.exp(g * seconds));
-          const cappedMNow = crashAt ? Math.min(mNow, crashAt) : mNow;
-          currentMultiplier.classList.remove('crashed');
-          currentMultiplier.textContent = `${cappedMNow.toFixed(2)}x`;
-        }
-        
-      } else if (state === 'crashing') {
-        // If crash timeout already should have passed, reset directly
-        const elapsedCrashMs = Math.max(0, Date.now() - crashStartEpoch);
-        if (elapsedCrashMs > 4000) {
-          resetCycle(nowPerf);
+        // Если Auto Cash Out включен, блокируем кнопку
+        if (window.BetAutoSwitcher && window.BetAutoSwitcher.isAutoCashOutEnabled()) {
+          elements.betButton.style.opacity = '0.5';
+          elements.betButton.style.pointerEvents = 'none';
         } else {
-          flightStart = nowPerf - Math.max(0, Date.now() - flightStartEpoch);
-          crashStart = nowPerf - elapsedCrashMs;
-          // Proper UI layering for crashing
-          aviatorSplash.classList.add('hidden');
-          waitingPanel.classList.add('hidden');
-          multiplierLayer.classList.remove('hidden');
-          if (crashOverlay) crashOverlay.classList.add('show');
-          planeWrapper.style.opacity = '0';
-          // Keep multiplier at crash value
-          if (typeof crashValue === 'number') {
-            currentMultiplier.classList.add('crashed');
-            currentMultiplier.textContent = `${(+crashValue).toFixed(2)}x`;
-          }
+          elements.betButton.style.opacity = '1';
+          elements.betButton.style.pointerEvents = 'auto';
+        }
+      } else {
+        // Player bet during flying OR carried over from previous round
+        // Добавляем в список, если еще не добавлен
+        if (buttonState === BUTTON_STATES.CANCEL) {
+          addPlayerBetToList();
+          console.log(`🎲 Отложенная ставка ${playerBetAmount} chips активирована`);
+        }
+        setButtonState(BUTTON_STATES.CASHOUT);
+        
+        // Проверяем Auto Cash Out
+        if (window.BetAutoSwitcher && window.BetAutoSwitcher.isAutoCashOutEnabled()) {
+          elements.betButton.style.opacity = '0.5';
+          elements.betButton.style.pointerEvents = 'none';
+        } else {
+          elements.betButton.style.opacity = '1';
+          elements.betButton.style.pointerEvents = 'auto';
         }
       }
-    } catch (e) {
-      // ignore restore errors
     }
-  })();
+    
+    animateFlying();
+  }
 
-  requestAnimationFrame(tick);
+  function animateFlying() {
+    if (gameState !== GAME_STATES.FLYING) return;
+    
+    const elapsed = (Date.now() - flyingStartTime) / 1000;
+    
+    // Calculate multiplier (very slow growth)
+    currentMultiplier = Math.pow(1.0012, elapsed * 100);
+    
+    if (currentMultiplier >= crashPoint) {
+      crash();
+      return;
+    }
+    
+    elements.currentMultiplier.textContent = `${currentMultiplier.toFixed(2)}x`;
+    
+    // Check auto cash out
+    if (window.BetAutoSwitcher && window.BetAutoSwitcher.isAutoCashOutEnabled()) {
+      const autoCashOutMultiplier = window.BetAutoSwitcher.getAutoCashOutMultiplier();
+      if (playerHasBet && !playerCashedOut && currentMultiplier >= autoCashOutMultiplier) {
+        // Auto cash out
+        console.log(`🤖 Auto Cash Out triggered at ${currentMultiplier.toFixed(2)}x (target: ${autoCashOutMultiplier.toFixed(2)}x)`);
+        performCashOut();
+      }
+    }
+    
+    // Update cashout button
+    if (buttonState === BUTTON_STATES.CASHOUT) {
+      updateBetButtonSubtext();
+    }
+    
+    // Update fake players cashouts
+    updateFakeBetsInList();
+    
+    // Линия движется МЕДЛЕННО по времени, независимо от краша
+    // Это делает невозможным предсказать когда будет краш
+    
+    // Прогресс по времени (очень медленно)
+    const timeProgress = Math.min(elapsed / 20, 1); // 20 секунд до конца экрана
+    const curveProgress = Math.pow(timeProgress, 0.85); // Плавная кривая
+    
+    // X position: медленно движется к правому краю
+    const marginX = 20;
+    const maxWidth = canvasWidth - marginX * 2;
+    const xPos = marginX + (curveProgress * maxWidth * 0.88);
+    
+    // Y position: медленно поднимается к верху
+    const marginY = 30;
+    const maxHeight = canvasHeight - marginY * 2;
+    const yProgress = Math.pow(curveProgress, 0.8); // Плавный подъем
+    const baseY = canvasHeight - marginY - (yProgress * maxHeight * 0.82);
+    
+    // Add subtle wave
+    const waveAmplitude = 6;
+    const waveFrequency = 1.2;
+    const wave = Math.sin(elapsed * waveFrequency) * waveAmplitude;
+    const graphY = baseY + wave;
+    
+    // Add trail point (сохраняем ВСЕ точки, не удаляем старые)
+    trailPoints.push({ x: xPos, y: graphY });
+    // НЕ удаляем старые точки - хвост должен быть на весь график!
+    
+    // Draw trail
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    drawTrail();
+    
+    animationFrameId = requestAnimationFrame(animateFlying);
+  }
+
+  function crash() {
+    gameState = GAME_STATES.CRASHED;
+    
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+    
+    elements.currentMultiplier.textContent = `${crashPoint.toFixed(2)}x`;
+    elements.currentMultiplier.classList.add('crashed');
+    elements.crashOverlay.classList.add('show');
+    
+    // Добавляем краш в историю
+    addCrashToHistory(crashPoint);
+    
+    // If player didn't cash out, they lost
+    if (playerHasBet && !playerCashedOut) {
+      const playerBet = elements.userTemplates.querySelector('.player-bet[data-player="user"]');
+      if (playerBet) {
+        playerBet.classList.remove('win');
+        playerBet.classList.add('default');
+        
+        const multiplierEl = playerBet.querySelector('.text-wrapper-27, .text-wrapper-24');
+        const winEl = playerBet.querySelector('.text-wrapper-28, .text-wrapper-25');
+        
+        if (multiplierEl) {
+          multiplierEl.className = 'text-wrapper-27';
+          multiplierEl.textContent = '-';
+        }
+        if (winEl) {
+          winEl.className = 'text-wrapper-28';
+          winEl.textContent = '-';
+        }
+      }
+    }
+    
+    finalizeFakeBetsAfterCrash();
+    
+    // Update final stats
+    updateGameStats();
+    
+    // Wait 3 seconds then start new round
+    setTimeout(() => {
+      startBettingPhase();
+    }, 3000);
+  }
+
+  // ============ CRASH HISTORY MANAGEMENT ============
+  function addCrashToHistory(crashValue) {
+    // Добавляем в начало массива
+    crashHistoryArray.unshift(crashValue);
+    
+    // Ограничиваем до 10 последних крашей
+    if (crashHistoryArray.length > 10) {
+      crashHistoryArray.pop();
+    }
+    
+    // Обновляем отображение
+    updateCrashHistoryDisplay();
+  }
+  
+  function updateCrashHistoryDisplay() {
+    if (!elements.crashHistory) return;
+    
+    // Очищаем
+    elements.crashHistory.innerHTML = '';
+    
+    // Добавляем каждый краш
+    crashHistoryArray.forEach((crash, index) => {
+      const crashDiv = document.createElement('div');
+      crashDiv.className = 'div-wrapper-2';
+      
+      // Определяем класс по значению
+      let textClass = 'text-wrapper-5'; // По умолчанию
+      if (crash >= 10) textClass = 'text-wrapper-10';
+      else if (crash >= 8) textClass = 'text-wrapper-9';
+      else if (crash >= 5) textClass = 'text-wrapper-8';
+      else if (crash >= 3) textClass = 'text-wrapper-7';
+      else if (crash >= 2) textClass = 'text-wrapper-6';
+      
+      crashDiv.innerHTML = `<div class="${textClass}">${crash.toFixed(2)}x</div>`;
+      elements.crashHistory.appendChild(crashDiv);
+    });
+  }
+
+  // ============ INITIALIZATION ============
+  function init() {
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Load saved state
+    loadGameState();
+    
+    // Wait for balance API to be ready
+    const checkReady = () => {
+      if (window.GameBalanceAPI && window.GameBalanceAPI.balance) {
+        startBettingPhase();
+      } else {
+        setTimeout(checkReady, 100);
+      }
+    };
+    
+    checkReady();
+  }
+
+  // Start game when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();

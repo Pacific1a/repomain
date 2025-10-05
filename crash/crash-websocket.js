@@ -108,6 +108,15 @@
   let graphTime = 0;
   let graphCrashed = false;
   
+  // Plane image for trail
+  const planeImage = new Image();
+  planeImage.src = 'https://raw.githubusercontent.com/Pacific1a/img/main/crash/Union.png';
+  let planeLoaded = false;
+  planeImage.onload = () => {
+    planeLoaded = true;
+    console.log('✈️ Plane image loaded');
+  };
+  
   // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
     elements.multiplierLayer.style.display = 'none';
@@ -626,7 +635,7 @@
     });
   }
 
-  // ============ ГРАФИК ============
+  // ============ ГРАФИК (КАК В GAME.JS) ============
   function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
@@ -637,44 +646,65 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    if (graphPoints.length < 2) return;
+    if (graphPoints.length < 1) return;
+    
+    const lastPoint = graphPoints[graphPoints.length - 1];
     
     // Цвет #FF1D50
-    const lineColor = graphCrashed ? '#FF1D50' : '#FF1D50';
-    const gradientColor = graphCrashed ? 'rgba(255, 29, 80, 0.3)' : 'rgba(255, 29, 80, 0.3)';
+    const lineColor = '#FF1D50';
     
-    // Градиент снизу
-    const gradient = ctx.createLinearGradient(0, height, 0, 0);
-    gradient.addColorStop(0, gradientColor);
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    
-    // Рисуем заливку
+    // Заливка под кривой
     ctx.beginPath();
-    ctx.moveTo(graphPoints[0].x, height);
-    for (let i = 0; i < graphPoints.length; i++) {
-      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    ctx.moveTo(0, height);
+    
+    if (graphPoints.length === 1) {
+      ctx.lineTo(lastPoint.x, lastPoint.y);
+    } else {
+      ctx.lineTo(graphPoints[0].x, graphPoints[0].y);
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
     }
-    ctx.lineTo(graphPoints[graphPoints.length - 1].x, height);
+    
+    ctx.lineTo(lastPoint.x, height);
+    ctx.lineTo(0, height);
     ctx.closePath();
-    ctx.fillStyle = gradient;
+    
+    const fillGradient = ctx.createLinearGradient(0, height, 0, 0);
+    fillGradient.addColorStop(0, 'rgba(255, 29, 80, 0.08)');
+    fillGradient.addColorStop(0.5, 'rgba(255, 29, 80, 0.18)');
+    fillGradient.addColorStop(1, 'rgba(255, 155, 176, 0.3)');
+    ctx.fillStyle = fillGradient;
     ctx.fill();
     
-    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo)
-    ctx.beginPath();
-    ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
-    for (let i = 1; i < graphPoints.length; i++) {
-      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo с шагом 3px)
+    if (graphPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+      
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
+      
+      const lineGradient = ctx.createLinearGradient(0, height, lastPoint.x, lastPoint.y);
+      lineGradient.addColorStop(0, 'rgba(255, 29, 80, 0.6)');
+      lineGradient.addColorStop(0.5, 'rgba(255, 100, 130, 0.9)');
+      lineGradient.addColorStop(1, 'rgba(255, 155, 176, 1)');
+      ctx.strokeStyle = lineGradient;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(255, 29, 80, 0.5)';
+      ctx.stroke();
+      
+      ctx.shadowBlur = 0;
+      ctx.stroke();
     }
-    ctx.strokeStyle = lineColor;
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.shadowColor = 'rgba(255, 29, 80, 0.45)';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
     
-    // Рисуем стрелку ➤ только если не краш
-    if (!graphCrashed && graphPoints.length > 1) {
+    // Рисуем стрелку ➤ на конце линии
+    if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
       const prevPoint = graphPoints[graphPoints.length - 2];
       
@@ -685,7 +715,7 @@
       const angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
       ctx.rotate(angle);
       
-      // Рисуем стрелку ➤ (треугольник)
+      // Рисуем стрелку ➤
       ctx.beginPath();
       ctx.moveTo(15, 0);        // Кончик
       ctx.lineTo(0, -8);        // Верх
