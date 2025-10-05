@@ -105,7 +105,8 @@
   
   // Данные графика
   let graphPoints = [];
-  let graphProgress = 0;
+  let graphTime = 0;
+  let graphCrashed = false;
   
   // Скрываем все блоки при загрузке
   if (elements.multiplierLayer) {
@@ -227,7 +228,8 @@
       
       // Сбрасываем график
       graphPoints = [];
-      graphProgress = 0;
+      graphTime = 0;
+      graphCrashed = false;
       
       // Показываем canvas
       if (elements.graphCanvas) {
@@ -317,10 +319,16 @@
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
       
-      // Скрываем график
-      if (elements.graphCanvas) {
-        elements.graphCanvas.style.display = 'none';
-      }
+      // Краш графика
+      graphCrashed = true;
+      drawGraph(); // Перерисовываем красным
+      
+      // Скрываем график через 3 секунды
+      setTimeout(() => {
+        if (elements.graphCanvas) {
+          elements.graphCanvas.style.display = 'none';
+        }
+      }, 3000);
       
       if (elements.currentMultiplier) {
         elements.currentMultiplier.textContent = `${data.crashPoint}x`;
@@ -631,14 +639,18 @@
     
     if (graphPoints.length < 2) return;
     
+    // Цвет в зависимости от состояния
+    const lineColor = graphCrashed ? '#CA3959' : '#39d811';
+    const gradientColor = graphCrashed ? 'rgba(202, 57, 89, 0.3)' : 'rgba(57, 216, 17, 0.3)';
+    
     // Градиент снизу
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
-    gradient.addColorStop(0, 'rgba(57, 216, 17, 0.3)');
-    gradient.addColorStop(1, 'rgba(57, 216, 17, 0)');
+    gradient.addColorStop(0, gradientColor);
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     
     // Рисуем заливку
     ctx.beginPath();
-    ctx.moveTo(0, height);
+    ctx.moveTo(graphPoints[0].x, height);
     for (let i = 0; i < graphPoints.length; i++) {
       ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
     }
@@ -647,53 +659,76 @@
     ctx.fillStyle = gradient;
     ctx.fill();
     
-    // Рисуем линию
+    // Рисуем линию с сглаживанием
     ctx.beginPath();
     ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
-    for (let i = 1; i < graphPoints.length; i++) {
-      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    
+    for (let i = 1; i < graphPoints.length - 1; i++) {
+      const xc = (graphPoints[i].x + graphPoints[i + 1].x) / 2;
+      const yc = (graphPoints[i].y + graphPoints[i + 1].y) / 2;
+      ctx.quadraticCurveTo(graphPoints[i].x, graphPoints[i].y, xc, yc);
     }
-    ctx.strokeStyle = '#39d811';
+    
+    if (graphPoints.length > 1) {
+      const lastPoint = graphPoints[graphPoints.length - 1];
+      ctx.lineTo(lastPoint.x, lastPoint.y);
+    }
+    
+    ctx.strokeStyle = lineColor;
     ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke();
     
-    // Рисуем стрелку/ракету на конце
-    const lastPoint = graphPoints[graphPoints.length - 1];
-    ctx.save();
-    ctx.translate(lastPoint.x, lastPoint.y);
-    
-    // Угол стрелки (всегда вверх-вправо)
-    const angle = -Math.PI / 4; // 45 градусов вверх
-    ctx.rotate(angle);
-    
-    // Рисуем стрелку
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-10, -5);
-    ctx.lineTo(-7, 0);
-    ctx.lineTo(-10, 5);
-    ctx.closePath();
-    ctx.fillStyle = '#39d811';
-    ctx.fill();
-    
-    ctx.restore();
+    // Рисуем стрелку только если не краш
+    if (!graphCrashed && graphPoints.length > 1) {
+      const lastPoint = graphPoints[graphPoints.length - 1];
+      const prevPoint = graphPoints[graphPoints.length - 2];
+      
+      ctx.save();
+      ctx.translate(lastPoint.x, lastPoint.y);
+      
+      // Угол по направлению линии
+      const angle = Math.atan2(lastPoint.y - prevPoint.y, lastPoint.x - prevPoint.x);
+      ctx.rotate(angle);
+      
+      // Рисуем стрелку
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-12, -6);
+      ctx.lineTo(-8, 0);
+      ctx.lineTo(-12, 6);
+      ctx.closePath();
+      ctx.fillStyle = lineColor;
+      ctx.fill();
+      
+      ctx.restore();
+    }
   }
   
   function updateGraph() {
-    if (gameState !== GAME_STATES.FLYING) return;
+    if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Добавляем точку (идет вверх-вправо)
-    graphProgress += 2;
-    const x = graphProgress;
-    const y = height - 50 - (graphProgress * 0.5); // Линейный рост вверх
+    // Увеличиваем время
+    graphTime += 0.1;
+    
+    // Расчет позиции (реалистичный рост)
+    const baseX = graphTime * 15; // Скорость по X
+    const baseY = height - 50 - Math.pow(graphTime, 1.3) * 8; // Экспоненциальный рост
+    
+    // Добавляем колебания (как у реального графика)
+    const noise = Math.sin(graphTime * 3) * 5 + Math.cos(graphTime * 7) * 3;
+    
+    const x = baseX;
+    const y = baseY + noise;
     
     graphPoints.push({ x, y });
     
     // Ограничиваем количество точек
-    if (graphPoints.length > 200) {
+    if (graphPoints.length > 150) {
       graphPoints.shift();
     }
     
