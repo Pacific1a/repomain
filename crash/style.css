@@ -1269,7 +1269,7 @@
 .aviator .rectangle-3 {
   position: relative;
   flex: 1;
-  width: 194px;
+  width: 0px;
   flex-grow: 1;
   border-radius: 3.5px;
   background: linear-gradient(

@@ -29,7 +29,7 @@
   const elements = {
     // Игра
     waitingRoot: document.getElementById('waitingRoot'),
-    waitingTimer: document.querySelector('#waitingRoot span'),
+    waitingTimer: null, // Создадим динамически
     multiplierLayer: document.getElementById('multiplierLayer'),
     currentMultiplier: document.getElementById('currentMultiplier'),
     gameEnded: document.querySelector('.game-ended'),
@@ -59,9 +59,36 @@
     playersList: document.querySelector('.user-templates')
   };
   
-  // Скрываем "Round ended" при загрузке
+  // Инициализация UI при загрузке
   if (elements.gameEnded) {
     elements.gameEnded.style.display = 'none';
+  }
+  
+  // Скрываем multiplier-layer при загрузке
+  if (elements.multiplierLayer) {
+    elements.multiplierLayer.style.display = 'none';
+  }
+  
+  // Показываем waiting при загрузке
+  if (elements.waitingRoot) {
+    elements.waitingRoot.style.display = 'flex';
+    
+    // Создаем таймер динамически
+    const timerSpan = document.createElement('span');
+    timerSpan.textContent = '0';
+    elements.waitingRoot.appendChild(timerSpan);
+    elements.waitingTimer = timerSpan;
+  }
+  
+  // Обнуляем статистику
+  if (elements.totalBetsCount) {
+    elements.totalBetsCount.textContent = '0/550';
+  }
+  if (elements.totalWinAmount) {
+    elements.totalWinAmount.textContent = '0';
+  }
+  if (elements.progressBar) {
+    elements.progressBar.style.width = '0%';
   }
 
   // ============ WEBSOCKET ============
