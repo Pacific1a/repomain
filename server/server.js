@@ -167,7 +167,7 @@ const globalGames = {
   roll: {
     status: 'waiting', // waiting, betting, spinning
     players: [],
-    timer: 60,
+    timer: 30, // 30 секунд
     startTime: null,
     timerInterval: null
   }
@@ -613,6 +613,22 @@ io.on('connection', (socket) => {
       bet: bet,
       color: playerColor // Цвет доступен в обоих случаях
     });
+    
+    // МОМЕНТАЛЬНО отправляем обновленное состояние всем игрокам
+    const updatedState = {
+      status: gameState.status,
+      players: gameState.players.map(p => ({
+        userId: p.userId,
+        nickname: p.nickname,
+        photoUrl: p.photoUrl,
+        bet: p.bet,
+        color: p.color
+      })),
+      timer: gameState.timer,
+      startTime: gameState.startTime ? gameState.startTime.toISOString() : null
+    };
+    io.to(`global_${game}`).emit('game_state_sync', updatedState);
+    
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
     // Запускаем таймер только если минимум 2 игрока
