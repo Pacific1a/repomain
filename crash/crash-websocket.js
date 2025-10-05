@@ -722,40 +722,35 @@
   
   // Сохраняем время старта графика
   let graphStartTime = 0;
+  let lastUpdateTime = 0;
   
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
+    // ОПТИМИЗАЦИЯ: Обновляем каждые 100ms вместо каждого кадра
+    const now = Date.now();
+    if (now - lastUpdateTime < 100) return;
+    lastUpdateTime = now;
+    
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ТОЧНАЯ ЛОГИКА ИЗ GAME.JS
-    const elapsed = (Date.now() - graphStartTime) / 1000;
+    // ОЧЕНЬ МЕДЛЕННО
+    const elapsed = (now - graphStartTime) / 1000;
+    const progress = Math.min(elapsed / 30, 0.75); // 30 секунд, макс 75% экрана
     
-    // Прогресс по времени (очень медленно)
-    const timeProgress = Math.min(elapsed / 20, 1); // 20 секунд до конца экрана
-    const curveProgress = Math.pow(timeProgress, 0.85); // Плавная кривая
+    // X: ИЗ САМОГО ЛЕВОГО НИЗА (0, height)
+    const x = (width - 30) * progress;
     
-    // X position: медленно движется к правому краю
-    const marginX = 20;
-    const maxWidth = width - marginX * 2;
-    const xPos = marginX + (curveProgress * maxWidth * 0.88);
+    // Y: плавный подъем ИЗ САМОГО НИЗА
+    const y = height - (height - 30) * progress;
     
-    // Y position: медленно поднимается к верху
-    const marginY = 30;
-    const maxHeight = height - marginY * 2;
-    const yProgress = Math.pow(curveProgress, 0.8); // Плавный подъем
-    const baseY = height - marginY - (yProgress * maxHeight * 0.82);
+    // Минимальная волна
+    const wave = Math.sin(elapsed * 1.2) * 5;
     
-    // Add subtle wave
-    const waveAmplitude = 6;
-    const waveFrequency = 1.2;
-    const wave = Math.sin(elapsed * waveFrequency) * waveAmplitude;
-    const graphY = baseY + wave;
+    graphPoints.push({ x, y: y + wave });
     
-    // Add trail point (сохраняем ВСЕ точки, не удаляем старые)
-    graphPoints.push({ x: xPos, y: graphY });
-    // НЕ удаляем старые точки - хвост должен быть на весь график!
+    // НЕ удаляем точки - линия растет плавно
     
     drawGraph();
   }
