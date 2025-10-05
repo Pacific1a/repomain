@@ -736,7 +736,13 @@ io.on('connection', (socket) => {
     // Очищаем старый таймер
     if (gameState.waitingTimer) {
       clearInterval(gameState.waitingTimer);
+      gameState.waitingTimer = null;
     }
+    
+    // Отправляем начальное значение
+    io.to('global_crash').emit('crash_waiting', {
+      timeLeft: 5
+    });
     
     // Таймер обратного отсчета
     gameState.waitingTimer = setInterval(() => {
@@ -748,6 +754,7 @@ io.on('connection', (socket) => {
       
       if (gameState.waitingTime <= 0) {
         clearInterval(gameState.waitingTimer);
+        gameState.waitingTimer = null;
         startCrashGame();
       }
     }, 1000);
