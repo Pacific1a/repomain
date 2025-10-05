@@ -111,6 +111,15 @@
     // Синхронизация состояния
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Crash состояние:', state);
+      
+      // Если игра уже идет - скрываем waiting
+      if (state.status === 'flying' && elements.waitingRoot) {
+        elements.waitingRoot.style.display = 'none';
+        if (elements.multiplierLayer) {
+          elements.multiplierLayer.style.display = 'flex';
+        }
+      }
+      
       players = state.players || [];
       updatePlayersUI();
       updateStats();
@@ -171,14 +180,17 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // Скрываем waiting, показываем множитель
-      if (elements.waitingRoot) elements.waitingRoot.style.display = 'none';
+      // Скрываем waiting, показываем множитель СРАЗУ
+      if (elements.waitingRoot) {
+        elements.waitingRoot.style.display = 'none';
+      }
       if (elements.multiplierLayer) {
         elements.multiplierLayer.style.display = 'flex';
         elements.multiplierLayer.style.visibility = 'visible';
       }
       if (elements.currentMultiplier) {
         elements.currentMultiplier.classList.remove('crashed');
+        // Не сбрасываем текст, ждем crash_multiplier
       }
       
       // Скрываем "Round ended"
