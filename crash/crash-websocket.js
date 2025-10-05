@@ -326,29 +326,16 @@
       
       // Краш графика
       graphCrashed = true;
+      currentMultiplier = data.crashPoint; // Сохраняем краш значение
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      drawGraph(); // Последняя перерисовка (красным)
       
-      // Показываем "Round ended"
+      // Рисуем красным
+      drawGraph();
+      
+      // Показываем "Round ended" ПОД canvas
       if (elements.gameEnded) {
         elements.gameEnded.style.display = 'block';
-      }
-      
-      // Скрываем график через 3 секунды
-      setTimeout(() => {
-        if (elements.graphCanvas) {
-          elements.graphCanvas.style.display = 'none';
-        }
-      }, 3000);
-      
-      if (elements.currentMultiplier) {
-        elements.currentMultiplier.textContent = `${data.crashPoint}x`;
-        elements.currentMultiplier.classList.add('crashed');
-      }
-      
-      // Показываем "Round ended"
-      if (elements.gameEnded) {
-        elements.gameEnded.style.display = 'block';
+        elements.gameEnded.textContent = 'Round ended';
       }
       
       // Сбрасываем только если НЕ забрали
@@ -648,8 +635,8 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // Рисуем множитель НА CANVAS (БЕЗ SHADOW - не лагает!)
-    if (gameState === GAME_STATES.FLYING && currentMultiplier > 0) {
+    // Рисуем множитель НА CANVAS
+    if ((gameState === GAME_STATES.FLYING || gameState === GAME_STATES.CRASHED) && currentMultiplier > 0) {
       ctx.save();
       ctx.font = 'bold 62px Montserrat, sans-serif';
       ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
