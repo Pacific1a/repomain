@@ -643,6 +643,14 @@ io.on('connection', (socket) => {
   // Запуск глобальной игры
   function startGlobalGame(game) {
     const gameState = globalGames[game];
+    
+    // ВАЖНО: Очищаем старый таймер если есть
+    if (gameState.timerInterval) {
+      clearTimeout(gameState.timerInterval);
+      gameState.timerInterval = null;
+      console.log(`⏹️ Очищен старый таймер для ${game}`);
+    }
+    
     gameState.status = 'betting';
     gameState.startTime = new Date();
     
@@ -654,7 +662,7 @@ io.on('connection', (socket) => {
 
     console.log(`🎮 Глобальная игра ${game} началась! Таймер: ${gameState.timer}с`);
 
-    // Таймер
+    // Новый таймер
     gameState.timerInterval = setTimeout(() => {
       spinGlobalGame(game);
     }, gameState.timer * 1000);
@@ -664,7 +672,10 @@ io.on('connection', (socket) => {
   function spinGlobalGame(game) {
     const gameState = globalGames[game];
     
+    console.log(`🎰 spinGlobalGame вызван для ${game}, игроков: ${gameState.players.length}`);
+    
     if (gameState.players.length === 0) {
+      console.log(`⚠️ Нет игроков, сброс игры`);
       gameState.status = 'waiting';
       return;
     }
@@ -683,9 +694,10 @@ io.on('connection', (socket) => {
       }
     }
 
-    console.log(`🎰 Победитель в ${game}: ${winner.nickname}`);
+    console.log(`🏆 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
 
     io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
+    console.log(`📤 Отправлено событие spin_wheel с winnerId: ${winner.userId}`);
 
     // Завершаем игру через 5 секунд
     setTimeout(() => {
