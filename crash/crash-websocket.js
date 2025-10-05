@@ -98,7 +98,7 @@
       console.log('✅ Crash WebSocket готов');
       initWebSocket();
     } else {
-      setTimeout(waitForWebSocket, 500);
+      setTimeout(waitForWebSocket, 100); // Уменьшил задержку 500ms → 100ms
     }
   }
 

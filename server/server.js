@@ -181,7 +181,8 @@ const globalGames = {
     startTime: null,
     gameInterval: null,
     waitingTimer: null,
-    waitingTime: 5 // 5 секунд ожидания
+    waitingTime: 5, // 5 секунд ожидания
+    isInitialized: false // Флаг инициализации
   }
 };
 
@@ -570,29 +571,28 @@ io.on('connection', (socket) => {
         startTime: gameState.startTime
       });
       
-      // Crash: отправляем текущее состояние
+      // Crash: отправляем текущее состояние БЕЗ ЗАДЕРЖКИ
       if (game === 'crash') {
-        if (gameState.status === 'waiting' && !gameState.waitingTimer && !gameState.gameInterval) {
-          // Первый запуск
-          console.log('🚀 Crash: Первый запуск...');
-          setTimeout(() => {
-            startCrashWaiting();
-          }, 2000);
+        if (!gameState.isInitialized) {
+          // Первый запуск - сразу стартуем
+          gameState.isInitialized = true;
+          console.log('🚀 Crash: Первая инициализация');
+          startCrashWaiting();
         } else if (gameState.status === 'waiting' && gameState.waitingTimer) {
-          // Отправляем текущее время таймера
-          console.log(`🔄 Crash: Отправляем таймер ${gameState.waitingTime}`);
+          // Отправляем текущее время таймера СРАЗУ
           socket.emit('crash_waiting', {
             timeLeft: gameState.waitingTime
           });
+          console.log(`⚡ Crash: Таймер ${gameState.waitingTime}`);
         } else if (gameState.status === 'flying' && gameState.gameInterval) {
-          // Отправляем текущий множитель
-          console.log(`🔄 Crash: Отправляем множитель ${gameState.multiplier.toFixed(2)}x`);
+          // Отправляем текущий множитель СРАЗУ
           socket.emit('crash_started', {
             startTime: gameState.startTime.toISOString()
           });
           socket.emit('crash_multiplier', {
             multiplier: parseFloat(gameState.multiplier.toFixed(2))
           });
+          console.log(`⚡ Crash: Множитель ${gameState.multiplier.toFixed(2)}x`);
         }
       }
     }
