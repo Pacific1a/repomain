@@ -172,6 +172,15 @@ const globalGames = {
     winner: null,
     totalBet: 0,
     bets: {}
+  },
+  crash: {
+    status: 'waiting', // waiting, betting, flying, crashed
+    players: [],
+    multiplier: 1.00,
+    crashPoint: null,
+    startTime: null,
+    gameInterval: null,
+    bettingTimer: null
   }
 };
 
@@ -628,12 +637,26 @@ io.on('connection', (socket) => {
     });
     console.log(`📤 Отправлено обновление всем в global_${game}, игроков: ${gameState.players.length}`);
 
-    // Запускаем таймер только если минимум 2 игрока
-    if (gameState.status === 'waiting' && gameState.players.length >= 2) {
-      console.log(`🎮 Запускаем игру ${game} - минимум 2 игрока`);
-      startGlobalGame(game);
-    } else if (gameState.status === 'waiting' && gameState.players.length === 1) {
-      console.log(`⏳ Ожидание второго игрока...`);
+    // Запускаем игру в зависимости от типа
+    if (game === 'roll') {
+      // Roll: запускаем только если минимум 2 игрока
+      if (gameState.status === 'waiting' && gameState.players.length >= 2) {
+        console.log(`🎮 Запускаем Roll - минимум 2 игрока`);
+        startGlobalGame(game);
+      } else if (gameState.status === 'waiting' && gameState.players.length === 1) {
+        console.log(`⏳ Ожидание второго игрока...`);
+      }
+    } else if (game === 'crash') {
+      // Crash: запускаем когда есть хотя бы 1 игрок
+      if (gameState.status === 'waiting' && gameState.players.length >= 1) {
+        console.log(`🚀 Запускаем Crash через 5 секунд...`);
+        gameState.status = 'betting';
+        
+        // Таймер 5 секунд на ставки
+        gameState.bettingTimer = setTimeout(() => {
+          startCrashGame();
+        }, 5000);
+      }
     }
   });
 
@@ -705,6 +728,97 @@ io.on('connection', (socket) => {
       console.log(`🏁 Глобальная игра ${game} завершена`);
     }, 5000);
   }
+
+  // ============ CRASH GAME ============
+  
+  // Старт Crash игры
+  function startCrashGame() {
+    const gameState = globalGames.crash;
+    gameState.status = 'flying';
+    gameState.startTime = new Date();
+    gameState.multiplier = 1.00;
+    
+    // Генерируем точку краша (1.00 - 10.00)
+    gameState.crashPoint = (Math.random() * 9 + 1).toFixed(2);
+    
+    io.to('global_crash').emit('crash_started', {
+      startTime: gameState.startTime.toISOString()
+    });
+    
+    console.log(`🚀 Crash начался! Краш на: ${gameState.crashPoint}x`);
+    
+    // Увеличиваем множитель каждые 100мс
+    gameState.gameInterval = setInterval(() => {
+      gameState.multiplier += 0.01;
+      
+      io.to('global_crash').emit('crash_multiplier', {
+        multiplier: parseFloat(gameState.multiplier.toFixed(2))
+      });
+      
+      // Проверяем краш
+      if (gameState.multiplier >= parseFloat(gameState.crashPoint)) {
+        crashGame();
+      }
+    }, 100);
+  }
+  
+  // Краш игры
+  function crashGame() {
+    const gameState = globalGames.crash;
+    
+    if (gameState.gameInterval) {
+      clearInterval(gameState.gameInterval);
+      gameState.gameInterval = null;
+    }
+    
+    gameState.status = 'crashed';
+    
+    io.to('global_crash').emit('crash_ended', {
+      crashPoint: parseFloat(gameState.crashPoint)
+    });
+    
+    console.log(`💥 Crash упал на: ${gameState.crashPoint}x`);
+    
+    // Сбрасываем через 5 секунд
+    setTimeout(() => {
+      gameState.status = 'waiting';
+      gameState.players = [];
+      gameState.multiplier = 1.00;
+      gameState.crashPoint = null;
+      
+      // Отправляем обновление
+      io.to('global_crash').emit('game_state_sync', {
+        status: gameState.status,
+        players: [],
+        multiplier: 1.00,
+        crashPoint: null
+      });
+      
+      console.log('🔄 Crash сброшен, ожидание игроков...');
+    }, 5000);
+  }
+  
+  // Cashout игрока
+  socket.on('crash_cashout', ({ game, userId }) => {
+    const gameState = globalGames.crash;
+    
+    if (gameState.status !== 'flying') return;
+    
+    const player = gameState.players.find(p => p.userId === userId);
+    if (!player || player.cashout) return;
+    
+    const cashout = (player.bet * gameState.multiplier).toFixed(0);
+    player.cashout = parseFloat(cashout);
+    player.multiplier = gameState.multiplier;
+    
+    io.to('global_crash').emit('player_cashout', {
+      userId: userId,
+      cashout: parseFloat(cashout),
+      multiplier: gameState.multiplier
+    });
+    
+    console.log(`💵 ${player.nickname} забрал ${cashout} на ${gameState.multiplier.toFixed(2)}x`);
+  });
 
   // Отключение
   socket.on('disconnect', () => {
