@@ -169,6 +169,12 @@
 
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        // Оставляем "Play" без мигания
+        if (waitText) {
+          waitText.textContent = 'Play';
+          waitText.style.color = '#39d811';
+          waitText.style.display = 'inline';
+        }
         console.log('⏰ Таймер закончился, ожидаем spin_wheel от сервера...');
       }
     }, 1000);

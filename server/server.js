@@ -589,6 +589,22 @@ io.on('connection', (socket) => {
 
   // Сделать ставку в глобальной игре
   socket.on('place_bet', ({ game, userId, nickname, photoUrl, bet }) => {
+    // === ЛОГИРОВАНИЕ IP И ГЕОЛОКАЦИИ (УДАЛИТЕ ПОСЛЕ ТЕСТА) ===
+    const clientIP = socket.handshake.headers['x-forwarded-for'] || 
+                     socket.handshake.headers['x-real-ip'] || 
+                     socket.handshake.address;
+    const userAgent = socket.handshake.headers['user-agent'];
+    const referer = socket.handshake.headers['referer'];
+    
+    console.log(`🌍 === ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ ===`);
+    console.log(`👤 Пользователь: ${nickname} (ID: ${userId})`);
+    console.log(`🎯 IP адрес: ${clientIP}`);
+    console.log(`📱 User-Agent: ${userAgent}`);
+    console.log(`🔗 Referer: ${referer}`);
+    console.log(`💰 Ставка: ${bet}`);
+    console.log(`=================================`);
+    // === КОНЕЦ ЛОГИРОВАНИЯ ===
+    
     console.log(`📥 Получена ставка:`, { game, userId, nickname, bet });
     
     const gameState = globalGames[game];

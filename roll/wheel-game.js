@@ -209,7 +209,7 @@
       avatar.style.position = 'absolute';
       avatar.style.left = '150px';
       avatar.style.top = '150px';
-      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`;
+      avatar.style.transform = `translate(-50%, -50%)`; // Без вращения для 1 игрока
       avatar.style.borderRadius = '50%';
       avatar.style.border = '3px solid rgba(255, 255, 255, 0.9)';
       avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.5)';
