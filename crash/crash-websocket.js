@@ -722,20 +722,16 @@
   
   // Сохраняем время старта графика
   let graphStartTime = 0;
-  let lastUpdateTime = 0;
   
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
-    // ОПТИМИЗАЦИЯ: Обновляем каждые 100ms вместо каждого кадра
     const now = Date.now();
-    if (now - lastUpdateTime < 100) return;
-    lastUpdateTime = now;
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ОЧЕНЬ МЕДЛЕННО
+    // ОЧЕНЬ МЕДЛЕННО (60 FPS)
     const elapsed = (now - graphStartTime) / 1000;
     const progress = Math.min(elapsed / 30, 0.75); // 30 секунд, макс 75% экрана
     
@@ -748,9 +744,15 @@
     // Минимальная волна
     const wave = Math.sin(elapsed * 1.2) * 5;
     
-    graphPoints.push({ x, y: y + wave });
+    // ОПТИМИЗАЦИЯ: Добавляем точку каждые 3 кадра
+    if (graphPoints.length === 0 || graphPoints.length % 3 === 0) {
+      graphPoints.push({ x, y: y + wave });
+    }
     
-    // НЕ удаляем точки - линия растет плавно
+    // Ограничиваем до 200 точек
+    if (graphPoints.length > 200) {
+      graphPoints.shift();
+    }
     
     drawGraph();
   }
