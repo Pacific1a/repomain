@@ -588,7 +588,7 @@ io.on('connection', (socket) => {
   });
 
   // Сделать ставку в глобальной игре
-  socket.on('place_bet', ({ game, userId, nickname, photoUrl, bet }) => {
+  socket.on('place_bet', async ({ game, userId, nickname, photoUrl, bet }) => {
     // === ЛОГИРОВАНИЕ IP И ГЕОЛОКАЦИИ (УДАЛИТЕ ПОСЛЕ ТЕСТА) ===
     const clientIP = socket.handshake.headers['x-forwarded-for'] || 
                      socket.handshake.headers['x-real-ip'] || 
@@ -596,9 +596,29 @@ io.on('connection', (socket) => {
     const userAgent = socket.handshake.headers['user-agent'];
     const referer = socket.handshake.headers['referer'];
     
+    // Получаем геолокацию по IP
+    let geoInfo = 'Не определено';
+    try {
+      // Используем бесплатный API ip-api.com
+      const cleanIP = clientIP.split(',')[0].trim(); // Берем первый IP если несколько
+      if (cleanIP && cleanIP !== '::1' && !cleanIP.startsWith('192.168') && !cleanIP.startsWith('10.')) {
+        const response = await fetch(`http://ip-api.com/json/${cleanIP}?fields=status,country,countryCode,region,city,lat,lon,timezone,isp`);
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          geoInfo = `${data.country} (${data.countryCode}), ${data.city}, ${data.region} | ISP: ${data.isp} | Время: ${data.timezone} | Координаты: ${data.lat}, ${data.lon}`;
+        }
+      } else {
+        geoInfo = 'Локальный IP (не может быть геолоцирован)';
+      }
+    } catch (error) {
+      geoInfo = `Ошибка получения геолокации: ${error.message}`;
+    }
+    
     console.log(`🌍 === ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ ===`);
     console.log(`👤 Пользователь: ${nickname} (ID: ${userId})`);
     console.log(`🎯 IP адрес: ${clientIP}`);
+    console.log(`🌎 Геолокация: ${geoInfo}`);
     console.log(`📱 User-Agent: ${userAgent}`);
     console.log(`🔗 Referer: ${referer}`);
     console.log(`💰 Ставка: ${bet}`);
