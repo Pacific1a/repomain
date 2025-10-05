@@ -171,6 +171,68 @@
       return;
     }
     
+    // Если 1 игрок - он занимает все колесо (360°)
+    if (players.length === 1 && players[0].color) {
+      const player = players[0];
+      
+      // Создаем полный круг одного цвета
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("width", "300");
+      svg.setAttribute("height", "300");
+      svg.setAttribute("viewBox", "0 0 300 300");
+      svg.style.position = "absolute";
+      svg.style.top = "0";
+      svg.style.left = "0";
+      
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("cx", "150");
+      circle.setAttribute("cy", "150");
+      circle.setAttribute("r", "150");
+      circle.setAttribute("fill", player.color);
+      svg.appendChild(circle);
+      
+      elements.wheel.innerHTML = '';
+      elements.wheel.appendChild(svg);
+      
+      // Аватарка в центре
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar dynamic-avatar';
+      avatar.setAttribute('data-player-id', player.id);
+      
+      const size = 45;
+      avatar.style.width = `${size}px`;
+      avatar.style.height = `${size}px`;
+      avatar.style.position = 'absolute';
+      avatar.style.left = '150px';
+      avatar.style.top = '150px';
+      avatar.style.transform = `translate(-50%, -50%) rotate(-${currentRotation}deg)`;
+      avatar.style.borderRadius = '50%';
+      avatar.style.border = '3px solid rgba(255, 255, 255, 0.9)';
+      avatar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.5)';
+      avatar.style.zIndex = '10';
+      avatar.style.display = 'flex';
+      avatar.style.alignItems = 'center';
+      avatar.style.justifyContent = 'center';
+      avatar.style.pointerEvents = 'none';
+      
+      const photoUrl = player.photo_url || player.photoUrl;
+      if (photoUrl && photoUrl.trim() !== '') {
+        avatar.style.backgroundImage = `url(${photoUrl})`;
+        avatar.style.backgroundSize = 'cover';
+        avatar.style.backgroundPosition = 'center';
+      } else {
+        avatar.style.backgroundColor = player.color;
+        avatar.style.color = 'white';
+        avatar.style.fontSize = '20px';
+        avatar.style.fontWeight = 'bold';
+        avatar.textContent = player.username ? player.username[0].toUpperCase() : '?';
+      }
+      
+      elements.wheel.appendChild(avatar);
+      return;
+    }
+    
     let currentAngle = 0;
     const segments = [];
 

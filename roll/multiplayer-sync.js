@@ -224,9 +224,9 @@
     console.log('✅ Событие place_bet отправлено');
   }
 
-  // Обновление UI (без мерцания)
+  // Обновление UI (оптимизировано - без задержек)
   function updateUI() {
-    // Обновляем колесо через wheel-game
+    // Обновляем колесо через wheel-game (МОМЕНТАЛЬНО)
     if (window.rollGame && window.rollGame.updateState) {
       window.rollGame.updateState(gameState);
     }
