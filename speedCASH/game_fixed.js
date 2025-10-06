@@ -682,11 +682,13 @@ class SpeedCashGame {
                 this.blueMultiplierStopped = true;
                 console.log(`🚔 Blue задержана на x${this.blueMultiplier.toFixed(2)}`);
             }
-        } else if (blueReachedTarget && this.delayedCar === 'orange' && !this.blueEscaped) {
+        } else if (blueReachedTarget && this.delayedCar === 'orange') {
             // Blue НЕ задержана - уезжает вверх
-            console.log(`🚀 Blue УЕЗЖАЕТ ВВЕРХ - position=${this.bluePosition.toFixed(0)}`);
-            this.bluePosition -= 8;
-            if (this.bluePosition < -500 && !this.blueEscaped) {
+            if (this.bluePosition > -500) {
+                console.log(`🚀 Blue УЕЗЖАЕТ ВВЕРХ - position=${this.bluePosition.toFixed(0)}`);
+                this.bluePosition -= 8;
+            }
+            if (this.bluePosition <= -500 && !this.blueEscaped) {
                 this.blueEscaped = true;
                 console.log(`✅ Blue уехала на x${this.blueMultiplier.toFixed(2)}!`);
                 this.showEscapeText('blue');
@@ -715,11 +717,13 @@ class SpeedCashGame {
                 this.orangeMultiplierStopped = true;
                 console.log(`🚔 Orange задержана на x${this.orangeMultiplier.toFixed(2)}`);
             }
-        } else if (orangeReachedTarget && this.delayedCar === 'blue' && !this.orangeEscaped) {
+        } else if (orangeReachedTarget && this.delayedCar === 'blue') {
             // Orange НЕ задержана - уезжает вверх
-            console.log(`🚀 Orange УЕЗЖАЕТ ВВЕРХ - position=${this.orangePosition.toFixed(0)}`);
-            this.orangePosition -= 8;
-            if (this.orangePosition < -500 && !this.orangeEscaped) {
+            if (this.orangePosition > -500) {
+                console.log(`🚀 Orange УЕЗЖАЕТ ВВЕРХ - position=${this.orangePosition.toFixed(0)}`);
+                this.orangePosition -= 8;
+            }
+            if (this.orangePosition <= -500 && !this.orangeEscaped) {
                 this.orangeEscaped = true;
                 console.log(`✅ Orange уехала на x${this.orangeMultiplier.toFixed(2)}!`);
                 this.showEscapeText('orange');
