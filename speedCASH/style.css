@@ -187,6 +187,25 @@
   align-self: stretch;
 }
 
+/* Loading overlay */
+.speed-cash .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgb(15, 15, 15) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .speed-cash .game::before {
   content: "";
   position: absolute;

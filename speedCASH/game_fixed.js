@@ -79,7 +79,10 @@ class SpeedCashGame {
     }
     
     createLoadingOverlay() {
-        if (!this.gameContainer) return;
+        if (!this.gameContainer) {
+            console.warn('⚠️ gameContainer не найден, пропускаем создание loading overlay');
+            return;
+        }
         
         const loadingOverlay = document.createElement('div');
         loadingOverlay.className = 'loading-overlay';
@@ -89,13 +92,14 @@ class SpeedCashGame {
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgb(15.3, 15.3, 15.3) 100%);
+            background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgb(15, 15, 15) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             opacity: 1;
             transition: opacity 0.5s;
+            border-radius: 20px;
         `;
         
         loadingOverlay.innerHTML = `
@@ -109,20 +113,9 @@ class SpeedCashGame {
             "></div>
         `;
         
-        // Добавляем CSS анимацию
-        if (!document.getElementById('loadingAnimation')) {
-            const style = document.createElement('style');
-            style.id = 'loadingAnimation';
-            style.textContent = `
-                @keyframes spin {
-                    to { transform: rotate(360deg); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
         this.gameContainer.appendChild(loadingOverlay);
         this.loadingOverlay = loadingOverlay;
+        console.log('✅ Loading overlay создан');
     }
     
     hideLoadingOverlay() {
@@ -653,21 +646,22 @@ class SpeedCashGame {
         
         // Blue car movement
         if (blueDelayedAfter && !this.blueEscaped) {
-            // Задержанная машина едет вниз полностью И ОСТАЕТСЯ
-            if (this.bluePosition < 200) {
+            // Задержанная машина едет вниз полностью И СКРЫВАЕТСЯ
+            if (this.bluePosition < 400) {
                 this.bluePosition += 4;
             }
             if (!this.blueDetained) {
-                this.showCrashIcon('blue', this.bluePosition);
+                this.showCrashIcon('blue');
                 this.blueDetained = true;
             }
         } else if (!this.racingPhase && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayedAfter && !this.blueEscaped) {
             // Победитель уезжает вверх когда достиг своего икса
             this.bluePosition -= 6;
-            if (this.bluePosition < -400 && !this.escapeTextShown) {
-                this.blueEscaped = true;
-                this.escapeTextShown = true;
-                this.showEscapeText('blue');
+            if (this.bluePosition < -400) {
+                if (!this.blueEscaped) {
+                    this.blueEscaped = true;
+                    this.showEscapeText('blue');
+                }
             }
         } else if (!blueDelayedAfter && !this.blueEscaped) {
             // Хаотичное плавание (только если не задержан и не уехал)
@@ -680,21 +674,22 @@ class SpeedCashGame {
         
         // Orange car movement (независимое от blue)
         if (orangeDelayedAfter && !this.orangeEscaped) {
-            // Задержанная машина едет вниз полностью И ОСТАЕТСЯ
-            if (this.orangePosition < 200) {
+            // Задержанная машина едет вниз полностью И СКРЫВАЕТСЯ
+            if (this.orangePosition < 400) {
                 this.orangePosition += 4;
             }
             if (!this.orangeDetained) {
-                this.showCrashIcon('orange', this.orangePosition);
+                this.showCrashIcon('orange');
                 this.orangeDetained = true;
             }
         } else if (!this.racingPhase && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayedAfter && !this.orangeEscaped) {
             // Победитель уезжает вверх когда достиг своего икса
             this.orangePosition -= 6;
-            if (this.orangePosition < -400 && !this.escapeTextShown) {
-                this.orangeEscaped = true;
-                this.escapeTextShown = true;
-                this.showEscapeText('orange');
+            if (this.orangePosition < -400) {
+                if (!this.orangeEscaped) {
+                    this.orangeEscaped = true;
+                    this.showEscapeText('orange');
+                }
             }
         } else if (!orangeDelayedAfter && !this.orangeEscaped) {
             // Хаотичное плавание (только если не задержан и не уехал)
@@ -727,7 +722,7 @@ class SpeedCashGame {
         });
     }
     
-    showCrashIcon(color, carPosition) {
+    showCrashIcon(color) {
         // Show crash icon only once per car
         const iconId = `crash-icon-${color}`;
         if (document.getElementById(iconId)) return;
@@ -739,10 +734,10 @@ class SpeedCashGame {
         // Фиксированная высота для всех иконок задержания
         icon.style.cssText = `
             position: absolute;
-            top: 60%;
+            top: 50%;
             left: ${leftPosition};
             transform: translate(-50%, -50%);
-            z-index: 50;
+            z-index: 150;
             text-align: center;
         `;
         
@@ -782,6 +777,13 @@ class SpeedCashGame {
             // Если обе задержаны - показываем специальный экран
             console.log('🚫 Обе машины задержаны - игра заканчивается');
             this.showBothDetainedScreen();
+            return;
+        }
+        
+        // Проверяем что машина ДЕЙСТВИТЕЛЬНО уехала
+        const carEscaped = (color === 'blue' && this.blueEscaped) || (color === 'orange' && this.orangeEscaped);
+        if (!carEscaped) {
+            console.log(`⚠️ ${color} еще не уехала полностью`);
             return;
         }
         
@@ -1309,12 +1311,39 @@ class SpeedCashGame {
         const streak = document.querySelector('.streak');
         if (!streak) return;
         
+        // Определяем победителя
+        let blueStatus = '';
+        let orangeStatus = '';
+        
+        if (this.blueEscaped) {
+            blueStatus = '✓'; // Уехал
+        } else if (this.blueDetained) {
+            blueStatus = '✗'; // Задержан
+        }
+        
+        if (this.orangeEscaped) {
+            orangeStatus = '✓'; // Уехал
+        } else if (this.orangeDetained) {
+            orangeStatus = '✗'; // Задержан
+        }
+        
         // Создаем новый элемент истории
         const historyItem = document.createElement('div');
-        historyItem.className = 'div-5';
+        historyItem.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-family: 'Montserrat', Helvetica;
+            font-size: 12px;
+            min-width: 60px;
+        `;
+        
         historyItem.innerHTML = `
-            <div class="text-wrapper-15" style="color: #244eb6;">x${blueMultiplier.toFixed(2)}</div>
-            <div class="text-wrapper-16" style="color: #c44c14;">x${orangeMultiplier.toFixed(2)}</div>
+            <div style="color: #244eb6; font-weight: 600;">${blueStatus} x${blueMultiplier.toFixed(2)}</div>
+            <div style="color: #c44c14; font-weight: 600;">${orangeStatus} x${orangeMultiplier.toFixed(2)}</div>
         `;
         
         // Добавляем в начало
