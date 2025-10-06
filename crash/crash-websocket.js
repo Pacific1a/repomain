@@ -661,19 +661,15 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // СЕТКА ДВИГАЕТСЯ (КАМЕРА СЛЕДИТ ЗА ЛИНИЕЙ)
-    const cameraX = graphPoints.length > 0 ? graphPoints[graphPoints.length - 1].x - width / 2 : 0;
-    
+    // СЕТКА ФИКСИРОВАННАЯ (КАК КУРС ВАЛЮТ)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     
-    // Вертикальные линии (двигаются)
-    const startX = Math.floor(cameraX / 50) * 50;
-    for (let x = startX; x < cameraX + width; x += 50) {
-      const screenX = x - cameraX;
+    // Вертикальные линии (не двигаются)
+    for (let x = 0; x < width; x += 50) {
       ctx.beginPath();
-      ctx.moveTo(screenX, 0);
-      ctx.lineTo(screenX, height);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
       ctx.stroke();
     }
     
@@ -694,16 +690,16 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ЗАЛИВКА С КАМЕРОЙ
+    // ЗАЛИВКА (КАК КУРС ВАЛЮТ)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
-      ctx.moveTo(0 - cameraX, height);
+      ctx.moveTo(0, height);
       
       for (let i = 0; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x - cameraX, graphPoints[i].y);
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
-      ctx.lineTo(lastPoint.x - cameraX, height);
+      ctx.lineTo(lastPoint.x, height);
       ctx.closePath();
       
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
@@ -713,29 +709,27 @@
       ctx.fill();
     }
     
-    // ЛИНИЯ С КАМЕРОЙ
+    // ЛИНИЯ (КАК КУРС ВАЛЮТ)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      for (let i = 0; i < graphPoints.length; i++) {
-        const screenX = graphPoints[i].x - cameraX;
-        if (i === 0) ctx.moveTo(screenX, graphPoints[i].y);
-        else ctx.lineTo(screenX, graphPoints[i].y);
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    // КРУГЛАЯ СТРЕЛКА С КАМЕРОЙ
+    // КРУГЛАЯ СТРЕЛКА
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
-      const screenX = lastPoint.x - cameraX;
       
       ctx.beginPath();
-      ctx.arc(screenX, lastPoint.y, 8, 0, Math.PI * 2);
+      ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
       ctx.fillStyle = lineColor;
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
@@ -767,22 +761,33 @@
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
+    const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // X: постоянно растет
-    const x = graphPoints.length * 5; // 5px между точками
+    // X: слева направо (КАК КУРС ВАЛЮТ)
+    const x = graphPoints.length * 3;
     
-    // Y: СНИЗУ ВВЕРХ (по множителю)
-    // Начинаем с самого низа (height - 30)
-    const multiplierGrowth = (currentMultiplier - 1.0) * 80; // Медленнее рост
-    const y = (height - 30) - multiplierGrowth; // СНИЗУ ВВЕРХ!
+    // Y: ПЛАВНО ВВЕРХ С КОЛЕБАНИЯМИ
+    const centerY = height / 2;
+    const multiplierGrowth = (currentMultiplier - 1.0) * 60;
+    
+    // Минимальные колебания (как курс валют)
+    const wave = Math.sin(graphPoints.length * 0.1) * 3;
+    
+    const y = centerY - multiplierGrowth + wave;
     
     graphPoints.push({ x, y: Math.max(30, Math.min(height - 30, y)) });
     
-    // Удаляем старые точки
-    const cameraX = x - elements.graphCanvas.width / 2;
-    while (graphPoints.length > 0 && graphPoints[0].x < cameraX - 100) {
+    // Удаляем старые точки (за экраном)
+    while (graphPoints.length > 0 && graphPoints[0].x < -50) {
       graphPoints.shift();
+    }
+    
+    // Сдвигаем все точки влево (как курс валют)
+    if (x > width - 50) {
+      for (let i = 0; i < graphPoints.length; i++) {
+        graphPoints[i].x -= 3;
+      }
     }
   }
 
