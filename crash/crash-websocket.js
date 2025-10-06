@@ -236,23 +236,19 @@
       gameState = GAME_STATES.FLYING;
       
       // Сбрасываем график
-      points.length = 0;
-      virtualX = 0;
+      graphPoints = [];
+      graphTime = 0;
       graphCrashed = false;
+      graphStartTime = Date.now(); // Инициализируем время старта
+      
+      // Запускаем анимацию
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animateGraph();
       
       // Показываем canvas
       if (elements.graphCanvas) {
         elements.graphCanvas.style.display = 'block';
       }
-      
-      // Скрываем HTML множитель
-      if (elements.multiplierLayer) {
-        elements.multiplierLayer.style.display = 'none';
-      }
-      
-      // Запускаем анимацию
-      if (animationId) cancelAnimationFrame(animationId);
-      drawAviatorGraph();
       
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
       if (!dataReceived && elements.loadingOverlay) {
@@ -269,9 +265,12 @@
       if (elements.waitingRoot) {
         elements.waitingRoot.style.display = 'none';
       }
-      // Скрываем HTML множитель - рисуем на canvas
+      // Показываем HTML множитель
       if (elements.multiplierLayer) {
-        elements.multiplierLayer.style.display = 'none';
+        elements.multiplierLayer.style.display = 'flex';
+      }
+      if (elements.currentMultiplier) {
+        elements.currentMultiplier.classList.remove('crashed');
       }
       
       // Скрываем "Round ended"
@@ -288,29 +287,20 @@
       }
     });
 
-    // Обновление множителя (ДОБАВЛЯЕМ ТОЧКУ НА ГРАФИК)
+    // Обновление множителя
+    let lastMultiplierUpdate = 0;
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
-      // Добавляем точку на график (ЛИНИЯ РАСТЕТ ПО ЦЕНТРУ)
-      if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-        const height = elements.graphCanvas.height;
-        
-        // X: виртуальная позиция растет
-        virtualX += 5;
-        
-        // Y: растет вверх по множителю
-        const y = height - (currentMultiplier - 1) * 50;
-        
-        points.push({ x: virtualX, y });
-        
-        // Удаляем старые точки (за кадром слева)
-        const centerX = elements.graphCanvas.width / 2;
-        const offset = virtualX - centerX;
-        while (points.length > 0 && points[0].x - offset < -50) {
-          points.shift();
-        }
+      // Обновляем HTML цифры (throttle 100ms)
+      const now = Date.now();
+      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 100)) {
+        elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
+        lastMultiplierUpdate = now;
       }
+      
+      // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
+      updateGraph();
       
       // Обновляем live выигрыш в Auto Cash Out
       if (autoCashOutEnabled && playerHasBet && !playerCashedOut && elements.betButtonChips) {
@@ -346,17 +336,29 @@
       
       // Краш графика
       graphCrashed = true;
-      currentMultiplier = data.crashPoint;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      drawGraph(); // Последняя перерисовка (красным)
       
-      if (animationId) cancelAnimationFrame(animationId);
-      
-      // Последняя отрисовка красным
-      drawAviatorGraph();
-      
-      // Показываем "Round ended" ПОД canvas
+      // Показываем "Round ended"
       if (elements.gameEnded) {
         elements.gameEnded.style.display = 'block';
-        elements.gameEnded.textContent = 'Round ended';
+      }
+      
+      // Скрываем график через 3 секунды
+      setTimeout(() => {
+        if (elements.graphCanvas) {
+          elements.graphCanvas.style.display = 'none';
+        }
+      }, 3000);
+      
+      if (elements.currentMultiplier) {
+        elements.currentMultiplier.textContent = `${data.crashPoint.toFixed(2)}x`;
+        elements.currentMultiplier.classList.add('crashed');
+      }
+      
+      // Показываем "Round ended"
+      if (elements.gameEnded) {
+        elements.gameEnded.style.display = 'block';
       }
       
       // Сбрасываем только если НЕ забрали
@@ -645,57 +647,130 @@
     });
   }
 
-  // ============ ГРАФИК КАК В AVIATOR (ЛИНИЯ ПО ЦЕНТРУ) ============
-  const points = [];
-  let animationId = null;
-  let virtualX = 0; // Виртуальная позиция
-  
-  function drawAviatorGraph() {
+  // ============ ГРАФИК (КАК В GAME.JS) ============
+  function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
     const ctx = elements.graphCtx;
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
-    const centerX = width / 2;
     
-    // Очистка
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, width, height);
+    // Очищаем
+    ctx.clearRect(0, 0, width, height);
     
-    // Линия графика (КАМЕРА СЛЕДИТ ЗА ЛИНИЕЙ)
-    if (points.length > 1) {
-      ctx.beginPath();
-      ctx.strokeStyle = '#FF1D50';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      // Сдвиг камеры - линия всегда по центру
-      const offset = virtualX - centerX;
-      
-      for (let i = 0; i < points.length; i++) {
-        const p = points[i];
-        const screenX = p.x - offset; // Сдвигаем все точки
-        
-        if (i === 0) ctx.moveTo(screenX, p.y);
-        else ctx.lineTo(screenX, p.y);
-      }
-      ctx.stroke();
-    }
-    
-    // Текст множителя (ВСЕГДА ПО ЦЕНТРУ)
-    if (gameState === GAME_STATES.FLYING || gameState === GAME_STATES.CRASHED) {
+    // Рисуем множитель НА CANVAS (БЕЗ SHADOW - не лагает!)
+    if (gameState === GAME_STATES.FLYING && currentMultiplier > 0) {
+      ctx.save();
+      ctx.font = 'bold 62px Montserrat, sans-serif';
       ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
-      ctx.font = 'bold 48px Montserrat, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, centerX, height / 2);
+      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
+      ctx.restore();
     }
     
-    // Продолжаем анимацию
-    if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-      animationId = requestAnimationFrame(drawAviatorGraph);
+    if (graphPoints.length < 1) return;
+    
+    const lastPoint = graphPoints[graphPoints.length - 1];
+    
+    // Цвет #FF1D50
+    const lineColor = '#FF1D50';
+    
+    // Заливка под кривой
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    
+    if (graphPoints.length === 1) {
+      ctx.lineTo(lastPoint.x, lastPoint.y);
+    } else {
+      ctx.lineTo(graphPoints[0].x, graphPoints[0].y);
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
     }
+    
+    ctx.lineTo(lastPoint.x, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    
+    const fillGradient = ctx.createLinearGradient(0, height, 0, 0);
+    fillGradient.addColorStop(0, 'rgba(255, 29, 80, 0.08)');
+    fillGradient.addColorStop(0.5, 'rgba(255, 29, 80, 0.18)');
+    fillGradient.addColorStop(1, 'rgba(255, 155, 176, 0.3)');
+    ctx.fillStyle = fillGradient;
+    ctx.fill();
+    
+    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo БЕЗ эффектов)
+    if (graphPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+      
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
+      
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+    // Стрелка на конце (УПРОЩЕННАЯ)
+    if (!graphCrashed && graphPoints.length >= 2) {
+      const lastPoint = graphPoints[graphPoints.length - 1];
+      
+      ctx.save();
+      ctx.translate(lastPoint.x, lastPoint.y);
+      ctx.rotate(-Math.PI / 4); // 45° вверх-вправо
+      
+      // Простой треугольник
+      ctx.beginPath();
+      ctx.moveTo(12, 0);
+      ctx.lineTo(0, -6);
+      ctx.lineTo(0, 6);
+      ctx.closePath();
+      ctx.fillStyle = lineColor;
+      ctx.fill();
+      
+      ctx.restore();
+    }
+  }
+  
+  // Сохраняем время старта графика
+  let graphStartTime = 0;
+  let animationFrameId = null;
+  
+  // Цикл рисования (КАК В GAME.JS)
+  function animateGraph() {
+    if (gameState === GAME_STATES.FLYING && !graphCrashed) {
+      drawGraph();
+      animationFrameId = requestAnimationFrame(animateGraph);
+    }
+  }
+  
+  function updateGraph() {
+    if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
+    
+    const now = Date.now();
+    
+    const width = elements.graphCanvas.width;
+    const height = elements.graphCanvas.height;
+    
+    // ОЧЕНЬ МЕДЛЕННО (60 FPS)
+    const elapsed = (now - graphStartTime) / 1000;
+    const progress = Math.min(elapsed / 30, 0.75); // 30 секунд, макс 75% экрана
+    
+    // X: ИЗ САМОГО ЛЕВОГО НИЗА (0, height)
+    const x = (width - 30) * progress;
+    
+    // Y: плавный подъем ИЗ САМОГО НИЗА
+    const y = height - (height - 30) * progress;
+    
+    // Минимальная волна
+    const wave = Math.sin(elapsed * 1.2) * 5;
+    
+    graphPoints.push({ x, y: y + wave });
+    // НЕ рисуем здесь - рисует requestAnimationFrame!
   }
 
   // ============ ЗАПУСК ============
