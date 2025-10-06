@@ -758,22 +758,17 @@
     const now = Date.now();
     const elapsed = (now - graphStartTime) / 1000;
     
-    // ПЛАВНАЯ ВОЛНИСТАЯ ЛИНИЯ
+    // ПРОСТАЯ КРИВАЯ БЕЗ ВОЛН
     const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
     
     // X: от левого края к правому
     const x = 20 + (width - 40) * multiplierProgress;
     
-    // Y: плавная кривая вверх
-    const curve = Math.pow(multiplierProgress, 0.7); // Плавнее
+    // Y: плавная кривая вверх (БЕЗ ВОЛН)
+    const curve = Math.pow(multiplierProgress, 0.7);
     const y = height - 20 - (height - 40) * curve;
     
-    // ПЛАВНЫЕ волны (не бугристые)
-    const wave1 = Math.sin(elapsed * 1.5) * 3;
-    const wave2 = Math.sin(elapsed * 2.5) * 1.5;
-    const smoothWave = wave1 + wave2;
-    
-    graphPoints.push({ x, y: y + smoothWave });
+    graphPoints.push({ x, y });
   }
 
   // ============ ЗАПУСК ============
