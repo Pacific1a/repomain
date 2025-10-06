@@ -661,21 +661,15 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // СЕТКА С ДВИЖЕНИЕМ (КАМЕРА СЛЕДИТ)
-    const gridOffset = graphPoints.length > 0 ? graphPoints[graphPoints.length - 1].x : 0;
-    const centerX = width / 2;
-    const cameraX = gridOffset - centerX; // Сдвиг камеры
-    
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    // ПРОСТАЯ СЕТКА (БЕЗ ДВИЖЕНИЯ - БЫСТРО)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     
-    // Вертикальные линии (двигаются)
-    const startX = Math.floor(cameraX / 50) * 50;
-    for (let x = startX; x < cameraX + width; x += 50) {
-      const screenX = x - cameraX;
+    // Вертикальные линии
+    for (let x = 0; x < width; x += 50) {
       ctx.beginPath();
-      ctx.moveTo(screenX, 0);
-      ctx.lineTo(screenX, height);
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
       ctx.stroke();
     }
     
@@ -696,74 +690,53 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // Заливка под кривой
-    ctx.beginPath();
-    ctx.moveTo(0, height);
+    // ЗАЛИВКА ПОД ЛИНИЕЙ (КАК НА РИСУНКЕ)
+    if (graphPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, height);
+      
+      for (let i = 0; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
+      
+      ctx.lineTo(lastPoint.x, height);
+      ctx.closePath();
+      
+      // Градиент красный
+      const gradient = ctx.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, 'rgba(255, 29, 80, 0.4)');
+      gradient.addColorStop(1, 'rgba(255, 29, 80, 0.05)');
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    }
     
-    if (graphPoints.length === 1) {
-      ctx.lineTo(lastPoint.x, lastPoint.y);
-    } else {
-      ctx.lineTo(graphPoints[0].x, graphPoints[0].y);
+    // ЛИНИЯ
+    if (graphPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+      
       for (let i = 1; i < graphPoints.length; i++) {
         ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
-    }
-    
-    ctx.lineTo(lastPoint.x, height);
-    ctx.lineTo(0, height);
-    ctx.closePath();
-    
-    const fillGradient = ctx.createLinearGradient(0, height, 0, 0);
-    fillGradient.addColorStop(0, 'rgba(255, 29, 80, 0.08)');
-    fillGradient.addColorStop(0.5, 'rgba(255, 29, 80, 0.18)');
-    fillGradient.addColorStop(1, 'rgba(255, 155, 176, 0.3)');
-    ctx.fillStyle = fillGradient;
-    ctx.fill();
-    
-    // Рисуем линию (С СДВИГОМ КАМЕРЫ)
-    if (graphPoints.length >= 2) {
-      ctx.beginPath();
-      
-      for (let i = 0; i < graphPoints.length; i++) {
-        const screenX = graphPoints[i].x - cameraX;
-        const screenY = graphPoints[i].y;
-        
-        if (i === 0) ctx.moveTo(screenX, screenY);
-        else ctx.lineTo(screenX, screenY);
-      }
       
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    // СТРЕЛКА КРИВОЙ ЛИНИЕЙ (КАК НА РИСУНКЕ)
+    // СТРЕЛКА КРУГЛАЯ (КАК НА РИСУНКЕ)
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
-      const screenX = lastPoint.x - cameraX;
-      const screenY = lastPoint.y;
       
-      ctx.save();
-      ctx.translate(screenX, screenY);
-      
-      // Кривая стрелка (как на рисунке)
+      // Круг с обводкой
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(10, -10, 15, -20); // Кривая вверх-вправо
-      
-      // Наконечник стрелки
-      ctx.lineTo(12, -25);
-      ctx.lineTo(18, -20);
-      ctx.lineTo(15, -20);
-      
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = lineColor;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
       ctx.stroke();
-      
-      ctx.restore();
     }
   }
   
@@ -791,28 +764,25 @@
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
     const now = Date.now();
-    
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ОЧЕНЬ МЕДЛЕННО (60 FPS)
+    // КРИВАЯ ЛИНИЯ (КАК НА РИСУНКЕ)
     const elapsed = (now - graphStartTime) / 1000;
-    const progress = Math.min(elapsed / 30, 0.75); // 30 секунд, макс 75% экрана
+    const progress = Math.min(elapsed / 20, 1); // 20 секунд
     
-    // X: ИЗ САМОГО ЛЕВОГО НИЗА (0, height)
-    const x = (width - 30) * progress;
+    // X: слева направо
+    const x = 30 + (width - 60) * progress;
     
-    // Y: плавный подъем ИЗ САМОГО НИЗА
-    const y = height - (height - 30) * progress;
+    // Y: кривая вверх (экспоненциальная)
+    const curve = Math.pow(progress, 0.7); // Плавная кривая
+    const y = height - 30 - (height - 60) * curve;
     
-    // Минимальная волна
-    const wave = Math.sin(elapsed * 1.2) * 5;
+    graphPoints.push({ x, y });
     
-    graphPoints.push({ x, y: y + wave });
-    
-    // ОПТИМИЗАЦИЯ: Ограничиваем количество точек
-    if (graphPoints.length > 300) {
-      graphPoints.shift(); // Удаляем старые точки
+    // Ограничиваем до 200 точек
+    if (graphPoints.length > 200) {
+      graphPoints.shift();
     }
   }
 
