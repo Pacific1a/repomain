@@ -230,6 +230,7 @@
       frameCounter = 0;
       
       // Очищаем SVG
+      lastPathData = ''; // Сбрасываем кеш
       if (elements.graphLine) {
         elements.graphLine.setAttribute('d', '');
       }
@@ -367,6 +368,7 @@
       // ПОЛНАЯ ОЧИСТКА через 1 секунду
       setTimeout(() => {
         graphPoints = [];
+        lastPathData = ''; // Сбрасываем кеш
         if (elements.graphLine) {
           elements.graphLine.setAttribute('d', '');
         }
@@ -680,23 +682,28 @@
     });
   }
 
-  // ============ SVG ГРАФИК (БЫСТРО!) ============
+  // ============ SVG ГРАФИК (ОПТИМИЗИРОВАНО!) ============
+  let lastPathData = ''; // Кеш для оптимизации
+  
   function drawGraph() {
     if (!elements.graphLine || graphPoints.length < 2) return;
     
-    // Строим SVG path из точек
-    let pathData = `M ${graphPoints[0].x} ${graphPoints[0].y}`;
+    // ДОБАВЛЯЕМ только новые точки (не перерисовываем все!)
+    const lastPoint = graphPoints[graphPoints.length - 1];
     
-    for (let i = 1; i < graphPoints.length; i++) {
-      pathData += ` L ${graphPoints[i].x} ${graphPoints[i].y}`;
+    // Если это первая точка - создаем новый path
+    if (graphPoints.length === 2) {
+      lastPathData = `M ${graphPoints[0].x} ${graphPoints[0].y} L ${lastPoint.x} ${lastPoint.y}`;
+    } else {
+      // ДОБАВЛЯЕМ только новую точку (БЫСТРО!)
+      lastPathData += ` L ${lastPoint.x} ${lastPoint.y}`;
     }
     
-    // Обновляем линию (SVG сам оптимизирует рендеринг!)
-    elements.graphLine.setAttribute('d', pathData);
+    // Обновляем линию
+    elements.graphLine.setAttribute('d', lastPathData);
     
     // Обновляем точку на конце
-    if (!graphCrashed && elements.graphDot && graphPoints.length > 0) {
-      const lastPoint = graphPoints[graphPoints.length - 1];
+    if (!graphCrashed && elements.graphDot) {
       elements.graphDot.setAttribute('cx', lastPoint.x);
       elements.graphDot.setAttribute('cy', lastPoint.y);
       elements.graphDot.style.display = 'block';
@@ -713,8 +720,8 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 2 кадра (30 точек/сек - оптимально)
-      if (frameCounter % 2 === 0) {
+      // Добавляем точку каждые 3 кадра (20 точек/сек - оптимально без лагов)
+      if (frameCounter % 3 === 0) {
         updateGraph();
         drawGraph(); // SVG рисует мгновенно!
       }
@@ -742,8 +749,8 @@
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек (не больше 300 для плавности)
-    if (graphPoints.length > 300) {
+    // Ограничиваем количество точек (не больше 150 для производительности)
+    if (graphPoints.length > 150) {
       graphPoints.shift();
     }
   }
