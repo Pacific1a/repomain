@@ -347,11 +347,13 @@
         elements.gameEnded.style.display = 'block';
       }
       
-      // Скрываем график через 3 секунды
+      // Скрываем и ОЧИЩАЕМ график через 3 секунды
       setTimeout(() => {
         if (elements.graphCanvas) {
           elements.graphCanvas.style.display = 'none';
         }
+        // ОЧИЩАЕМ график
+        graphPoints = [];
       }, 3000);
       
       if (elements.currentMultiplier) {
@@ -690,17 +692,26 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ТОЛЬКО ЛИНИЯ (БЕЗ ЗАЛИВКИ)
+    // ПЛАВНАЯ ТОЛСТАЯ ЛИНИЯ
     if (graphPoints.length >= 2) {
       ctx.beginPath();
       ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      // Плавная кривая через все точки
+      for (let i = 1; i < graphPoints.length - 1; i++) {
+        const xc = (graphPoints[i].x + graphPoints[i + 1].x) / 2;
+        const yc = (graphPoints[i].y + graphPoints[i + 1].y) / 2;
+        ctx.quadraticCurveTo(graphPoints[i].x, graphPoints[i].y, xc, yc);
+      }
+      
+      // Последняя точка
+      if (graphPoints.length > 1) {
+        const last = graphPoints[graphPoints.length - 1];
+        ctx.lineTo(last.x, last.y);
       }
       
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 4; // Толще
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
