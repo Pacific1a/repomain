@@ -920,23 +920,31 @@ io.on('connection', (socket) => {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // Генерируем случайные точки остановки
-    gameState.blueStopMultiplier = 2 + Math.random() * 6; // 2-8x
-    gameState.orangeStopMultiplier = 2 + Math.random() * 6; // 2-8x
-    
-    // Определяем задержанную машину
+    // СТРОГАЯ ЛОГИКА: одна ОБЯЗАТЕЛЬНО задержана, другая ОБЯЗАТЕЛЬНО уезжает (или обе задержаны - краш)
     const rand = Math.random();
+    
     if (rand < 0.15) {
+      // 15% - ОБЕ ЗАДЕРЖАНЫ (краш)
       gameState.delayedCar = 'both';
-    } else if (rand < 0.5) {
+      const crashMultiplier = 2 + Math.random() * 6; // 2x - 8x
+      gameState.blueStopMultiplier = crashMultiplier;
+      gameState.orangeStopMultiplier = crashMultiplier;
+      console.log(`💥 CRASH: Обе задержаны на x${crashMultiplier.toFixed(2)}`);
+    } else if (rand < 0.575) {
+      // 42.5% - BLUE задержана, ORANGE уезжает
       gameState.delayedCar = 'blue';
-    } else if (rand < 0.85) {
-      gameState.delayedCar = 'orange';
+      gameState.blueStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
+      gameState.orangeStopMultiplier = gameState.blueStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+      console.log(`🚔 Blue задержана на x${gameState.blueStopMultiplier.toFixed(2)}, Orange уедет на x${gameState.orangeStopMultiplier.toFixed(2)}`);
     } else {
-      gameState.delayedCar = null;
+      // 42.5% - ORANGE задержана, BLUE уезжает
+      gameState.delayedCar = 'orange';
+      gameState.orangeStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
+      gameState.blueStopMultiplier = gameState.orangeStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+      console.log(`🚔 Orange задержана на x${gameState.orangeStopMultiplier.toFixed(2)}, Blue уедет на x${gameState.blueStopMultiplier.toFixed(2)}`);
     }
     
-    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar || 'none'}`);
+    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar}`);
     
     io.to('global_speedcash').emit('speedcash_betting_start', {
       bettingTime: 5,

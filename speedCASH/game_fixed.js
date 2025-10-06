@@ -742,10 +742,11 @@ class SpeedCashGame {
     }
     
     showCrashIcon(color) {
-        // СНАЧАЛА удаляем старую иконку если есть
+        // СНАЧАЛА удаляем старую иконку если есть (предотвращаем накладывание)
         const oldIcon = document.getElementById(`crash-icon-${color}`);
         if (oldIcon && oldIcon.parentNode) {
             oldIcon.parentNode.removeChild(oldIcon);
+            console.log(`🗑️ Удалена старая иконка ${color}`);
         }
         
         const icon = document.createElement('div');
