@@ -920,27 +920,20 @@ io.on('connection', (socket) => {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // СТРОГАЯ ЛОГИКА: одна ОБЯЗАТЕЛЬНО задержана, другая ОБЯЗАТЕЛЬНО уезжает (или обе задержаны - краш)
+    // ПРОСТАЯ ЛОГИКА: кто первым достиг X - тот задержан, кто позже - тот уезжает
     const rand = Math.random();
     
-    if (rand < 0.15) {
-      // 15% - ОБЕ ЗАДЕРЖАНЫ (краш)
-      gameState.delayedCar = 'both';
-      const crashMultiplier = 2 + Math.random() * 6; // 2x - 8x
-      gameState.blueStopMultiplier = crashMultiplier;
-      gameState.orangeStopMultiplier = crashMultiplier;
-      console.log(`💥 CRASH: Обе задержаны на x${crashMultiplier.toFixed(2)}`);
-    } else if (rand < 0.575) {
-      // 42.5% - BLUE задержана, ORANGE уезжает
-      gameState.delayedCar = 'blue';
+    if (rand < 0.5) {
+      // 50% - BLUE задержана (меньший X), ORANGE уезжает (больший X)
       gameState.blueStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
       gameState.orangeStopMultiplier = gameState.blueStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+      gameState.delayedCar = 'blue';
       console.log(`🚔 Blue задержана на x${gameState.blueStopMultiplier.toFixed(2)}, Orange уедет на x${gameState.orangeStopMultiplier.toFixed(2)}`);
     } else {
-      // 42.5% - ORANGE задержана, BLUE уезжает
-      gameState.delayedCar = 'orange';
+      // 50% - ORANGE задержана (меньший X), BLUE уезжает (больший X)
       gameState.orangeStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
       gameState.blueStopMultiplier = gameState.orangeStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+      gameState.delayedCar = 'orange';
       console.log(`🚔 Orange задержана на x${gameState.orangeStopMultiplier.toFixed(2)}, Blue уедет на x${gameState.blueStopMultiplier.toFixed(2)}`);
     }
     

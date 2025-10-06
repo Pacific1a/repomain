@@ -662,7 +662,7 @@ class SpeedCashGame {
         }
         
         // Blue car movement
-        if (blueReachedTarget && (this.delayedCar === 'blue' || this.delayedCar === 'both') && !this.blueEscaped) {
+        if (blueReachedTarget && this.delayedCar === 'blue' && !this.blueEscaped) {
             // Blue задержана - едет вниз
             if (this.bluePosition < 500) {
                 this.bluePosition += 5;
@@ -673,7 +673,7 @@ class SpeedCashGame {
                 this.blueMultiplierStopped = true;
                 console.log(`🚔 Blue задержана на x${this.blueMultiplier.toFixed(2)}`);
             }
-        } else if (blueReachedTarget && this.delayedCar !== 'blue' && this.delayedCar !== 'both' && !this.blueEscaped) {
+        } else if (blueReachedTarget && this.delayedCar === 'orange' && !this.blueEscaped) {
             // Blue НЕ задержана - уезжает вверх
             this.bluePosition -= 8;
             if (this.bluePosition < -500 && !this.blueEscaped) {
@@ -691,7 +691,7 @@ class SpeedCashGame {
         }
         
         // Orange car movement (независимое от blue)
-        if (orangeReachedTarget && (this.delayedCar === 'orange' || this.delayedCar === 'both') && !this.orangeEscaped) {
+        if (orangeReachedTarget && this.delayedCar === 'orange' && !this.orangeEscaped) {
             // Orange задержана - едет вниз
             if (this.orangePosition < 500) {
                 this.orangePosition += 5;
@@ -702,7 +702,7 @@ class SpeedCashGame {
                 this.orangeMultiplierStopped = true;
                 console.log(`🚔 Orange задержана на x${this.orangeMultiplier.toFixed(2)}`);
             }
-        } else if (orangeReachedTarget && this.delayedCar !== 'orange' && this.delayedCar !== 'both' && !this.orangeEscaped) {
+        } else if (orangeReachedTarget && this.delayedCar === 'blue' && !this.orangeEscaped) {
             // Orange НЕ задержана - уезжает вверх
             this.orangePosition -= 8;
             if (this.orangePosition < -500 && !this.orangeEscaped) {
