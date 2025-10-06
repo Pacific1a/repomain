@@ -764,30 +764,29 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // X: слева направо (КАК КУРС ВАЛЮТ)
-    const x = graphPoints.length * 3;
+    // ЛИНИЯ ИЗ НИЖНЕГО ЛЕВОГО УГЛА К ВЕРХНЕМУ ПРАВОМУ
+    const now = Date.now();
+    const elapsed = (now - graphStartTime) / 1000;
     
-    // Y: ПЛАВНО ВВЕРХ С КОЛЕБАНИЯМИ
-    const centerY = height / 2;
-    const multiplierGrowth = (currentMultiplier - 1.0) * 60;
+    // X: от 0 до width (остается внутри)
+    const progress = Math.min(elapsed / 30, 1); // 30 секунд на весь экран
+    const x = 30 + (width - 60) * progress;
     
-    // Минимальные колебания (как курс валют)
-    const wave = Math.sin(graphPoints.length * 0.1) * 3;
+    // Y: от низа к верху (по множителю)
+    const multiplierGrowth = (currentMultiplier - 1.0) * 80;
+    const y = (height - 30) - multiplierGrowth;
     
-    const y = centerY - multiplierGrowth + wave;
+    // Минимальные колебания
+    const wave = Math.sin(elapsed * 2) * 3;
     
-    graphPoints.push({ x, y: Math.max(30, Math.min(height - 30, y)) });
+    graphPoints.push({ 
+      x, 
+      y: Math.max(30, Math.min(height - 30, y + wave)) 
+    });
     
-    // Удаляем старые точки (за экраном)
-    while (graphPoints.length > 0 && graphPoints[0].x < -50) {
+    // Ограничиваем количество точек
+    if (graphPoints.length > 200) {
       graphPoints.shift();
-    }
-    
-    // Сдвигаем все точки влево (как курс валют)
-    if (x > width - 50) {
-      for (let i = 0; i < graphPoints.length; i++) {
-        graphPoints[i].x -= 3;
-      }
     }
   }
 
