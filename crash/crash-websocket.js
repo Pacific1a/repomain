@@ -661,15 +661,21 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // СЕТКА (КАК НА КАРТИНКЕ)
+    // СЕТКА С ДВИЖЕНИЕМ (КАМЕРА СЛЕДИТ)
+    const gridOffset = graphPoints.length > 0 ? graphPoints[graphPoints.length - 1].x : 0;
+    const centerX = width / 2;
+    const cameraX = gridOffset - centerX; // Сдвиг камеры
+    
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.lineWidth = 1;
     
-    // Вертикальные линии
-    for (let x = 0; x < width; x += 50) {
+    // Вертикальные линии (двигаются)
+    const startX = Math.floor(cameraX / 50) * 50;
+    for (let x = startX; x < cameraX + width; x += 50) {
+      const screenX = x - cameraX;
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.moveTo(screenX, 0);
+      ctx.lineTo(screenX, height);
       ctx.stroke();
     }
     
@@ -714,13 +720,16 @@
     ctx.fillStyle = fillGradient;
     ctx.fill();
     
-    // Рисуем линию (ОПТИМИЗИРОВАННО: простые lineTo БЕЗ эффектов)
+    // Рисуем линию (С СДВИГОМ КАМЕРЫ)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      for (let i = 0; i < graphPoints.length; i++) {
+        const screenX = graphPoints[i].x - cameraX;
+        const screenY = graphPoints[i].y;
+        
+        if (i === 0) ctx.moveTo(screenX, screenY);
+        else ctx.lineTo(screenX, screenY);
       }
       
       ctx.strokeStyle = lineColor;
@@ -729,22 +738,30 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    // Стрелка на конце (ВСЕГДА ВВЕРХ)
+    // СТРЕЛКА КРИВОЙ ЛИНИЕЙ (КАК НА РИСУНКЕ)
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
+      const screenX = lastPoint.x - cameraX;
+      const screenY = lastPoint.y;
       
       ctx.save();
-      ctx.translate(lastPoint.x, lastPoint.y);
-      // Стрелка всегда смотрит вверх
+      ctx.translate(screenX, screenY);
       
-      // Треугольник вверх
+      // Кривая стрелка (как на рисунке)
       ctx.beginPath();
-      ctx.moveTo(0, -12);  // Верх
-      ctx.lineTo(-6, 0);   // Лево
-      ctx.lineTo(6, 0);    // Право
-      ctx.closePath();
-      ctx.fillStyle = lineColor;
-      ctx.fill();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(10, -10, 15, -20); // Кривая вверх-вправо
+      
+      // Наконечник стрелки
+      ctx.lineTo(12, -25);
+      ctx.lineTo(18, -20);
+      ctx.lineTo(15, -20);
+      
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
       
       ctx.restore();
     }
