@@ -754,8 +754,8 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 2 кадра (30 точек/сек)
-      if (frameCounter % 2 === 0) {
+      // Добавляем точку каждые 3 кадра (20 точек/сек - медленнее)
+      if (frameCounter % 3 === 0) {
         updateGraph();
       }
       
@@ -767,22 +767,19 @@
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
-    const now = Date.now();
     const height = elements.graphCanvas.height;
     
-    // ЛИНИЯ С НИЖНЕГО ЛЕВОГО УГЛА
-    const elapsed = (now - graphStartTime) / 1000;
-    
     // X: постоянно растет
-    const x = graphPoints.length * 3; // 3px между точками
+    const x = graphPoints.length * 5; // 5px между точками
     
-    // Y: плавный рост по множителю
-    const multiplierGrowth = (currentMultiplier - 1) * 100; // Рост от 1.00x
-    const y = height - 20 - multiplierGrowth;
+    // Y: СНИЗУ ВВЕРХ (по множителю)
+    // Начинаем с самого низа (height - 30)
+    const multiplierGrowth = (currentMultiplier - 1.0) * 80; // Медленнее рост
+    const y = (height - 30) - multiplierGrowth; // СНИЗУ ВВЕРХ!
     
-    graphPoints.push({ x, y: Math.max(20, y) });
+    graphPoints.push({ x, y: Math.max(30, Math.min(height - 30, y)) });
     
-    // Удаляем старые точки (за кадром)
+    // Удаляем старые точки
     const cameraX = x - elements.graphCanvas.width / 2;
     while (graphPoints.length > 0 && graphPoints[0].x < cameraX - 100) {
       graphPoints.shift();
