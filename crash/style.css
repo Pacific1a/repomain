@@ -601,6 +601,10 @@
   font-family: "Montserrat", Helvetica;
   font-weight: 800;
   font-size: 62px;
+  /* ОПТИМИЗАЦИЯ LCP: GPU ускорение */
+  will-change: transform;
+  transform: translateZ(0);
+  contain: layout style paint;
   letter-spacing: -1.2px;
   color: #ffffff;
   filter: drop-shadow(0 0 40px rgba(255,255,255,0.9));
