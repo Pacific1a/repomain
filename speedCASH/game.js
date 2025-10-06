@@ -44,11 +44,18 @@ class SpeedCashGame {
     }
     
     connectWebSocket() {
-        const serverUrl = window.CONFIG?.SERVER_URL || 'https://repomain.onrender.com';
-        this.socket = io(serverUrl);
+        // Используем тот же socket что и players-system
+        if (window.playersSocket) {
+            this.socket = window.playersSocket;
+            console.log('✅ Используем существующий WebSocket');
+            this.socket.emit('join_speedcash');
+        } else {
+            console.error('❌ playersSocket не найден!');
+            return;
+        }
         
         this.socket.on('connect', () => {
-            console.log('✅ WebSocket connected');
+            console.log('✅ SpeedCASH WebSocket connected');
             this.socket.emit('join_speedcash');
         });
         
@@ -213,7 +220,17 @@ class SpeedCashGame {
     }
 }
 
-// Initialize game when DOM is ready
+// Initialize game when DOM is ready and WebSocket is available
 document.addEventListener('DOMContentLoaded', () => {
-    window.speedCashGame = new SpeedCashGame();
+    // Ждем пока playersSocket будет готов
+    const initGame = () => {
+        if (window.playersSocket) {
+            window.speedCashGame = new SpeedCashGame();
+        } else {
+            console.log('⏳ Ожидание playersSocket...');
+            setTimeout(initGame, 100);
+        }
+    };
+    
+    initGame();
 });
