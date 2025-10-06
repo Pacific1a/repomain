@@ -303,8 +303,7 @@
         lastMultiplierUpdate = now;
       }
       
-      // Обновляем график (ТОЛЬКО ДОБАВЛЯЕМ ТОЧКУ, НЕ РИСУЕМ!)
-      updateGraph();
+      // График рисуется автоматически через requestAnimationFrame (60 FPS)
       
       // Обновляем live выигрыш в Auto Cash Out
       if (autoCashOutEnabled && playerHasBet && !playerCashedOut && elements.betButtonChips) {
@@ -735,10 +734,11 @@
   let graphStartTime = 0;
   let animationFrameId = null;
   
-  // Цикл рисования (КАК В GAME.JS)
+  // Цикл рисования (60 FPS - ПЛАВНО!)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-      drawGraph();
+      updateGraph(); // Добавляем точку каждый кадр
+      drawGraph();   // Рисуем
       animationFrameId = requestAnimationFrame(animateGraph);
     }
   }
