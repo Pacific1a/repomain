@@ -743,25 +743,19 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ЛИНИЯ ИЗ ПРАВОГО НИЖНЕГО УГЛА К ЛЕВОМУ ВЕРХНЕМУ
-    const now = Date.now();
-    const elapsed = (now - graphStartTime) / 1000;
+    // ЛИНИЯ ИЗ ЛЕВОГО НИЖНЕГО УГЛА К ПРАВОМУ ВЕРХНЕМУ
+    // ПО МНОЖИТЕЛЮ (1.00x -> 10.00x)
     
-    // Прогресс от 0 до 1
-    const progress = Math.min(elapsed / 30, 1); // 30 секунд
+    // X: от левого края к правому (по множителю)
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 9.0, 1); // 1x -> 10x
+    const x = 20 + (width - 40) * multiplierProgress;
     
-    // X: от правого края (width) к левому (0)
-    const x = width - 20 - (width - 40) * progress;
-    
-    // Y: от нижнего края (height) к верхнему (0)
-    const y = height - 20 - (height - 40) * progress;
+    // Y: от нижнего края к верхнему (по множителю)
+    const y = height - 20 - (height - 40) * multiplierProgress;
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек
-    if (graphPoints.length > 200) {
-      graphPoints.shift();
-    }
+    // НЕ удаляем точки - линия остается на месте
   }
 
   // ============ ЗАПУСК ============
