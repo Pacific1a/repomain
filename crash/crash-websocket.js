@@ -739,15 +739,14 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ОПТИМИЗИРОВАННАЯ ЛИНИЯ (рисуем только последние 100 точек)
+    // МАКСИМАЛЬНО БЫСТРАЯ ЛИНИЯ (рисуем ВСЕ точки за раз)
     if (graphPoints.length >= 2) {
-      const startIdx = Math.max(0, graphPoints.length - 100);
-      
       ctx.beginPath();
-      ctx.moveTo(graphPoints[startIdx].x, graphPoints[startIdx].y);
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      // Рисуем линию (оптимизировано)
-      for (let i = startIdx + 1; i < graphPoints.length; i++) {
+      // Рисуем ВСЕ точки (быстрее чем slice)
+      const len = graphPoints.length;
+      for (let i = 1; i < len; i++) {
         ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
@@ -756,7 +755,6 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
-      ctx.closePath(); // Закрываем путь
     }
     // КРУГЛАЯ СТРЕЛКА
     if (!graphCrashed && graphPoints.length >= 2) {
@@ -778,20 +776,16 @@
   let animationFrameId = null;
   let frameCounter = 0; // Счетчик кадров
   
-  // Цикл рисования (ОПТИМИЗИРОВАНО - 30 FPS)
+  // Цикл рисования (МАКСИМАЛЬНАЯ СКОРОСТЬ - 60 FPS)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 2 кадра (15 точек/сек)
-      if (frameCounter % 2 === 0) {
-        updateGraph();
-      }
+      // Добавляем точку КАЖДЫЙ кадр (60 точек/сек - БЫСТРО!)
+      updateGraph();
       
-      // Рисуем каждый второй кадр (30 FPS вместо 60)
-      if (frameCounter % 2 === 0) {
-        drawGraph();
-      }
+      // Рисуем КАЖДЫЙ кадр (60 FPS - плавно)
+      drawGraph();
       
       animationFrameId = requestAnimationFrame(animateGraph);
     }
@@ -802,24 +796,25 @@
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
-    const now = Date.now();
-    const elapsed = (now - graphStartTime) / 1000;
     
-    // КРИВАЯ КАК НА РИСУНКЕ (сначала полого, потом резко вверх)
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
+    // БЫСТРАЯ ФОРМУЛА (без Date.now() - экономим время)
+    // Линия растет БЫСТРЕЕ - от времени, а не от множителя
+    const elapsed = (Date.now() - graphStartTime) / 1000;
     
-    // X: от левого края к правому
-    const x = 20 + (width - 40) * multiplierProgress;
+    // X: ЛИНЕЙНЫЙ РОСТ ПО ВРЕМЕНИ (быстро!)
+    const timeProgress = Math.min(elapsed / 10.0, 1); // 10 секунд до конца
+    const x = 20 + (width - 40) * timeProgress;
     
-    // Y: ЭКСПОНЕНЦИАЛЬНАЯ кривая (сначала полого, потом резко)
-    const curve = Math.pow(multiplierProgress, 3); // Резкая кривая!
+    // Y: от множителя (экспоненциальная кривая)
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1);
+    const curve = Math.pow(multiplierProgress, 2.5); // Более плавная кривая
     const y = height - 20 - (height - 40) * curve;
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек (не больше 150)
-    if (graphPoints.length > 150) {
-      graphPoints.shift(); // Удаляем старые точки
+    // Ограничиваем количество точек (не больше 200)
+    if (graphPoints.length > 200) {
+      graphPoints.shift();
     }
   }
 
