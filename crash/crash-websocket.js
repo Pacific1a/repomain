@@ -690,26 +690,7 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ЗАЛИВКА (КАК КУРС ВАЛЮТ)
-    if (graphPoints.length >= 2) {
-      ctx.beginPath();
-      ctx.moveTo(0, height);
-      
-      for (let i = 0; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
-      }
-      
-      ctx.lineTo(lastPoint.x, height);
-      ctx.closePath();
-      
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, 'rgba(255, 29, 80, 0.3)');
-      gradient.addColorStop(1, 'rgba(255, 29, 80, 0.05)');
-      ctx.fillStyle = gradient;
-      ctx.fill();
-    }
-    
-    // ЛИНИЯ (КАК КУРС ВАЛЮТ)
+    // ТОЛЬКО ЛИНИЯ (БЕЗ ЗАЛИВКИ)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
       ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
@@ -748,10 +729,8 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 3 кадра (20 точек/сек - медленнее)
-      if (frameCounter % 3 === 0) {
-        updateGraph();
-      }
+      // Добавляем точку каждый кадр (60 точек/сек - непрерывная линия)
+      updateGraph();
       
       drawGraph();   // Рисуем каждый кадр
       animationFrameId = requestAnimationFrame(animateGraph);
@@ -764,28 +743,27 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ЛИНИЯ ИЗ НИЖНЕГО ЛЕВОГО УГЛА К ВЕРХНЕМУ ПРАВОМУ
+    // ЛИНИЯ МЕДЛЕННО ПОДНИМАЕТСЯ
     const now = Date.now();
     const elapsed = (now - graphStartTime) / 1000;
     
-    // X: от 0 до width (остается внутри)
-    const progress = Math.min(elapsed / 30, 1); // 30 секунд на весь экран
-    const x = 30 + (width - 60) * progress;
+    // X: постоянно растет (не прилегает к краю)
+    const x = graphPoints.length * 2; // 2px между точками
     
-    // Y: от низа к верху (по множителю)
-    const multiplierGrowth = (currentMultiplier - 1.0) * 80;
-    const y = (height - 30) - multiplierGrowth;
+    // Y: МЕДЛЕННО ВВЕРХ (по множителю)
+    const multiplierGrowth = (currentMultiplier - 1.0) * 50; // Медленнее
+    const y = (height - 40) - multiplierGrowth;
     
     // Минимальные колебания
-    const wave = Math.sin(elapsed * 2) * 3;
+    const wave = Math.sin(elapsed * 2) * 2;
     
     graphPoints.push({ 
       x, 
-      y: Math.max(30, Math.min(height - 30, y + wave)) 
+      y: Math.max(40, Math.min(height - 40, y + wave)) 
     });
     
     // Ограничиваем количество точек
-    if (graphPoints.length > 200) {
+    if (graphPoints.length > 300) {
       graphPoints.shift();
     }
   }
