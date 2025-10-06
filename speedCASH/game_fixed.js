@@ -554,20 +554,24 @@ class SpeedCashGame {
     }
     
     updateMultipliers(blueMultiplier, orangeMultiplier) {
+        console.log(`🔄 Update: Blue ${blueMultiplier.toFixed(2)} (target: ${this.blueTargetMultiplier?.toFixed(2)}), Orange ${orangeMultiplier.toFixed(2)} (target: ${this.orangeTargetMultiplier?.toFixed(2)})`);
+        
         // ВСЕГДА обновляем от сервера, но проверяем флаги остановки
         if (!this.blueMultiplierStopped) {
             this.blueMultiplier = blueMultiplier;
             // Проверяем достижение цели
-            if (this.blueMultiplier >= this.blueTargetMultiplier) {
+            if (this.blueTargetMultiplier && this.blueMultiplier >= this.blueTargetMultiplier) {
                 this.blueMultiplier = this.blueTargetMultiplier;
+                console.log(`🎯 Blue достиг цели: ${this.blueMultiplier.toFixed(2)}`);
             }
         }
         
         if (!this.orangeMultiplierStopped) {
             this.orangeMultiplier = orangeMultiplier;
             // Проверяем достижение цели
-            if (this.orangeMultiplier >= this.orangeTargetMultiplier) {
+            if (this.orangeTargetMultiplier && this.orangeMultiplier >= this.orangeTargetMultiplier) {
                 this.orangeMultiplier = this.orangeTargetMultiplier;
+                console.log(`🎯 Orange достиг цели: ${this.orangeMultiplier.toFixed(2)}`);
             }
         }
         
@@ -671,10 +675,11 @@ class SpeedCashGame {
                 this.showCrashIcon('blue');
                 this.blueDetained = true;
                 this.blueMultiplierStopped = true;
-                console.log(`🚔 Blue задержана на x${this.blueMultiplier.toFixed(2)}`);
+                console.log(`🚔 Blue задержана на x${this.blueMultiplier.toFixed(2)} (delayed: ${blueDelayed}, racingPhase: ${this.racingPhase})`);
             }
-        } else if (!this.racingPhase && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayed && !this.blueEscaped) {
+        } else if (!this.racingPhase && this.blueTargetMultiplier && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayed && !this.blueEscaped) {
             // Победитель уезжает вверх ПЛАВНО когда достиг своего икса
+            console.log(`🚗 Blue уезжает вверх! Position: ${this.bluePosition.toFixed(0)}`);
             this.bluePosition -= 8; // Увеличена скорость
             if (this.bluePosition < -500) {
                 if (!this.blueEscaped) {
@@ -702,10 +707,11 @@ class SpeedCashGame {
                 this.showCrashIcon('orange');
                 this.orangeDetained = true;
                 this.orangeMultiplierStopped = true;
-                console.log(`🚔 Orange задержана на x${this.orangeMultiplier.toFixed(2)}`);
+                console.log(`🚔 Orange задержана на x${this.orangeMultiplier.toFixed(2)} (delayed: ${orangeDelayed}, racingPhase: ${this.racingPhase})`);
             }
-        } else if (!this.racingPhase && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayed && !this.orangeEscaped) {
+        } else if (!this.racingPhase && this.orangeTargetMultiplier && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayed && !this.orangeEscaped) {
             // Победитель уезжает вверх ПЛАВНО когда достиг своего икса
+            console.log(`🚗 Orange уезжает вверх! Position: ${this.orangePosition.toFixed(0)}`);
             this.orangePosition -= 8; // Увеличена скорость
             if (this.orangePosition < -500) {
                 if (!this.orangeEscaped) {
