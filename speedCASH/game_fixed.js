@@ -213,6 +213,9 @@ class SpeedCashGame {
         this.gameState = 'betting';
         this.bettingTimeLeft = 5;
         
+        // УДАЛЯЕМ ВСЕ ИКОНКИ ЗАДЕРЖАНИЯ при переходе в betting
+        this.clearCrashIcons();
+        
         // ПОКАЗЫВАЕМ LOADING при старте betting (ждем данных от сервера)
         if (blueTarget === undefined) {
             this.createLoadingOverlay();
@@ -659,6 +662,8 @@ class SpeedCashGame {
         if (Math.floor(elapsed / 1000) !== this.lastLogSecond) {
             this.lastLogSecond = Math.floor(elapsed / 1000);
             console.log(`📊 Blue: ${this.blueMultiplier.toFixed(2)}/${this.blueTargetMultiplier?.toFixed(2)} (${blueReachedTarget ? 'REACHED' : 'growing'}), Orange: ${this.orangeMultiplier.toFixed(2)}/${this.orangeTargetMultiplier?.toFixed(2)} (${orangeReachedTarget ? 'REACHED' : 'growing'}), Delayed: ${this.delayedCar || 'none'}`);
+            console.log(`🚗 Blue: detained=${this.blueDetained}, escaped=${this.blueEscaped}, pos=${this.bluePosition.toFixed(0)}`);
+            console.log(`🚗 Orange: detained=${this.orangeDetained}, escaped=${this.orangeEscaped}, pos=${this.orangePosition.toFixed(0)}`);
         }
         
         // Blue car movement
@@ -675,6 +680,10 @@ class SpeedCashGame {
             }
         } else if (blueReachedTarget && this.delayedCar === 'orange' && !this.blueEscaped) {
             // Blue НЕ задержана - уезжает вверх
+            if (!this.blueEscapeStarted) {
+                this.blueEscapeStarted = true;
+                console.log(`🚀 Blue начинает уезжать! (delayedCar=${this.delayedCar})`);
+            }
             this.bluePosition -= 8;
             if (this.bluePosition < -500 && !this.blueEscaped) {
                 this.blueEscaped = true;
@@ -719,12 +728,12 @@ class SpeedCashGame {
             this.orangePosition += (orangeTarget - this.orangePosition) * 0.04;
         }
         
-        // Apply movement to cars
+        // Apply movement to cars (оптимизация для мобильных)
         if (this.blueCar) {
-            this.blueCar.style.transform = `translateY(${this.bluePosition}px)`;
+            this.blueCar.style.transform = `translate3d(0, ${this.bluePosition}px, 0)`;
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = `translateY(${this.orangePosition}px)`;
+            this.orangeCar.style.transform = `translate3d(0, ${this.orangePosition}px, 0)`;
         }
         
         // Continue animation
@@ -1007,17 +1016,22 @@ class SpeedCashGame {
         this.blueMultiplier = 1.00;
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
+    }
         
-        // Reset car positions СРАЗУ
+    startTransition() {
+        // СНАЧАЛА удаляем все иконки задержания
+        this.clearCrashIcons();
+        
+        // Сбрасываем позиции машин
+        this.bluePosition = 0;
+        this.orangePosition = 0;
+        
         if (this.blueCar) {
-            this.blueCar.style.transform = 'translateY(0px)';
+            this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = 'translateY(0px)';
+            this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
         }
-        
-        // Clear any crash icons СРАЗУ
-        this.clearCrashIcons();
         
         // GLASS EFFECT перед переходом на таймер
         const glassOverlay = document.createElement('div');

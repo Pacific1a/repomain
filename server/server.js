@@ -900,14 +900,27 @@ io.on('connection', (socket) => {
       gameState.isInitialized = true;
       startSpeedCashBetting();
     } else {
-      // Отправляем текущее состояние
-      socket.emit('speedcash_state', {
-        status: gameState.status,
-        bettingTime: gameState.bettingTime,
-        blueMultiplier: gameState.blueMultiplier,
-        orangeMultiplier: gameState.orangeMultiplier,
-        delayedCar: gameState.delayedCar
-      });
+      // Отправляем текущее состояние В ЗАВИСИМОСТИ ОТ ФАЗЫ
+      if (gameState.status === 'betting') {
+        // Если betting - отправляем betting_start с targets
+        socket.emit('speedcash_betting_start', {
+          bettingTime: gameState.bettingTime,
+          blueTarget: gameState.blueStopMultiplier,
+          orangeTarget: gameState.orangeStopMultiplier,
+          delayedCar: gameState.delayedCar
+        });
+      } else if (gameState.status === 'racing') {
+        // Если racing - отправляем race_start + текущие множители
+        socket.emit('speedcash_race_start', {
+          blueTarget: gameState.blueStopMultiplier,
+          orangeTarget: gameState.orangeStopMultiplier,
+          delayedCar: gameState.delayedCar
+        });
+        socket.emit('speedcash_multiplier_update', {
+          blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
+          orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
+        });
+      }
     }
   });
   
