@@ -1,35 +1,3 @@
-/* ВОЛНА КРАША - заливка снизу вверх */
-.crash-wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  background: linear-gradient(180deg, rgba(255, 29, 80, 0.3) 0%, rgba(255, 29, 80, 0.6) 100%);
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  transition: none;
-}
-
-.crash-wave.active {
-  animation: waveUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes waveUp {
-  0% {
-    height: 0;
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  100% {
-    height: 100%;
-    opacity: 0.8;
-  }
-}
-
 /* Lost Bet Styles */
 .lost {
   background-color: rgba(255, 0, 0, 0.1) !important;

@@ -199,6 +199,18 @@
       console.log('⏳ Ожидание:', data.timeLeft);
       gameState = GAME_STATES.WAITING;
       
+      // ОЧИЩАЕМ ГРАФИК при ожидании
+      graphPoints = [];
+      graphCrashed = true; // Останавливаем анимацию
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      if (elements.graphCtx && elements.graphCanvas) {
+        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
+        elements.graphCanvas.style.display = 'none';
+      }
+      
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
       if (!dataReceived && elements.loadingOverlay) {
         dataReceived = true;
@@ -234,12 +246,6 @@
     ws.socket.on('crash_started', (data) => {
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
-      
-      // Убираем волну при старте
-      const crashWave = document.getElementById('crashWave');
-      if (crashWave) {
-        crashWave.classList.remove('active');
-      }
       
       // ОЧИЩАЕМ ГРАФИК
       graphPoints = [];
@@ -361,20 +367,6 @@
     ws.socket.on('crash_ended', (data) => {
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
-      
-      // ЗАПУСКАЕМ ВОЛНУ КРАША!
-      const crashWave = document.getElementById('crashWave');
-      if (crashWave) {
-        crashWave.classList.remove('active');
-        // Перезапуск анимации
-        void crashWave.offsetWidth;
-        crashWave.classList.add('active');
-        
-        // Убираем волну через 3 секунды
-        setTimeout(() => {
-          crashWave.classList.remove('active');
-        }, 3000);
-      }
       
       // Краш графика
       graphCrashed = true;
@@ -769,13 +761,13 @@
   let animationFrameId = null;
   let frameCounter = 0; // Счетчик кадров
   
-  // Цикл рисования (60 FPS - ПЛАВНО!)
+  // Цикл рисования (60 FPS - ПЛАВНО БЕЗ ПРЕРЫВАНИЙ!)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 4 кадра (15 точек/сек - быстрее)
-      if (frameCounter % 5 === 0) {
+      // Добавляем точку каждые 2 кадра (30 точек/сек - БЕЗ ПРЕРЫВАНИЙ!)
+      if (frameCounter % 2 === 0) {
         updateGraph();
       }
       
@@ -792,15 +784,16 @@
     const now = Date.now();
     const elapsed = (now - graphStartTime) / 1000;
     
-    // КРИВАЯ КАК НА РИСУНКЕ (сначала полого, потом резко вверх)
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
+    // БЫСТРЫЙ СТАРТ! Линия растет быстрее в начале
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 15.0, 1); // 1x -> 16x (быстрее!)
     
-    // X: от левого края к правому
-    const x = 20 + (width - 40) * multiplierProgress;
+    // X: БЫСТРЫЙ РОСТ В НАЧАЛЕ (степень 0.5 = корень квадратный)
+    const xCurve = Math.pow(multiplierProgress, 0.5); // Быстрый старт!
+    const x = 20 + (width - 40) * xCurve;
     
     // Y: ЭКСПОНЕНЦИАЛЬНАЯ кривая (сначала полого, потом резко)
-    const curve = Math.pow(multiplierProgress, 3); // Резкая кривая!
-    const y = height - 20 - (height - 40) * curve;
+    const yCurve = Math.pow(multiplierProgress, 2.5); // Плавная кривая
+    const y = height - 20 - (height - 40) * yCurve;
     
     graphPoints.push({ x, y });
   }
