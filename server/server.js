@@ -900,27 +900,14 @@ io.on('connection', (socket) => {
       gameState.isInitialized = true;
       startSpeedCashBetting();
     } else {
-      // Отправляем текущее состояние В ЗАВИСИМОСТИ ОТ ФАЗЫ
-      if (gameState.status === 'betting') {
-        // Если betting - отправляем betting_start с targets
-        socket.emit('speedcash_betting_start', {
-          bettingTime: gameState.bettingTime,
-          blueTarget: gameState.blueStopMultiplier,
-          orangeTarget: gameState.orangeStopMultiplier,
-          delayedCar: gameState.delayedCar
-        });
-      } else if (gameState.status === 'racing') {
-        // Если racing - отправляем race_start + текущие множители
-        socket.emit('speedcash_race_start', {
-          blueTarget: gameState.blueStopMultiplier,
-          orangeTarget: gameState.orangeStopMultiplier,
-          delayedCar: gameState.delayedCar
-        });
-        socket.emit('speedcash_multiplier_update', {
-          blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
-          orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
-        });
-      }
+      // Отправляем текущее состояние
+      socket.emit('speedcash_state', {
+        status: gameState.status,
+        bettingTime: gameState.bettingTime,
+        blueMultiplier: gameState.blueMultiplier,
+        orangeMultiplier: gameState.orangeMultiplier,
+        delayedCar: gameState.delayedCar
+      });
     }
   });
   
@@ -933,24 +920,23 @@ io.on('connection', (socket) => {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // ПРОСТАЯ ЛОГИКА: кто первым достиг X - тот задержан, кто позже - тот уезжает
-    const rand = Math.random();
+    // Генерируем случайные точки остановки
+    gameState.blueStopMultiplier = 2 + Math.random() * 6; // 2-8x
+    gameState.orangeStopMultiplier = 2 + Math.random() * 6; // 2-8x
     
-    if (rand < 0.5) {
-      // 50% - BLUE задержана (меньший X), ORANGE уезжает (больший X)
-      gameState.blueStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
-      gameState.orangeStopMultiplier = gameState.blueStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+    // Определяем задержанную машину
+    const rand = Math.random();
+    if (rand < 0.15) {
+      gameState.delayedCar = 'both';
+    } else if (rand < 0.5) {
       gameState.delayedCar = 'blue';
-      console.log(`🚔 Blue задержана на x${gameState.blueStopMultiplier.toFixed(2)}, Orange уедет на x${gameState.orangeStopMultiplier.toFixed(2)}`);
-    } else {
-      // 50% - ORANGE задержана (меньший X), BLUE уезжает (больший X)
-      gameState.orangeStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
-      gameState.blueStopMultiplier = gameState.orangeStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+    } else if (rand < 0.85) {
       gameState.delayedCar = 'orange';
-      console.log(`🚔 Orange задержана на x${gameState.orangeStopMultiplier.toFixed(2)}, Blue уедет на x${gameState.blueStopMultiplier.toFixed(2)}`);
+    } else {
+      gameState.delayedCar = null;
     }
     
-    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar}`);
+    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar || 'none'}`);
     
     io.to('global_speedcash').emit('speedcash_betting_start', {
       bettingTime: 5,
@@ -1001,20 +987,8 @@ io.on('connection', (socket) => {
       const timeMultiplier = 1 + (elapsed / 10); // Ускорение
       const increment = baseIncrement * timeMultiplier;
       
-      // КАЖДАЯ МАШИНА РАСТЕТ НЕЗАВИСИМО до своего target
-      if (gameState.blueMultiplier < gameState.blueStopMultiplier) {
-        gameState.blueMultiplier += increment;
-        if (gameState.blueMultiplier > gameState.blueStopMultiplier) {
-          gameState.blueMultiplier = gameState.blueStopMultiplier;
-        }
-      }
-      
-      if (gameState.orangeMultiplier < gameState.orangeStopMultiplier) {
-        gameState.orangeMultiplier += increment;
-        if (gameState.orangeMultiplier > gameState.orangeStopMultiplier) {
-          gameState.orangeMultiplier = gameState.orangeStopMultiplier;
-        }
-      }
+      gameState.blueMultiplier += increment;
+      gameState.orangeMultiplier += increment;
       
       io.to('global_speedcash').emit('speedcash_multiplier_update', {
         blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
@@ -1022,18 +996,17 @@ io.on('connection', (socket) => {
       });
       
       // Проверяем остановку машин
-      let blueReached = gameState.blueMultiplier >= gameState.blueStopMultiplier;
-      let orangeReached = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
+      let blueEscaped = gameState.blueMultiplier >= gameState.blueStopMultiplier;
+      let orangeEscaped = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
       
-      // Игра заканчивается когда ОБЕ машины достигли своих целей
-      if (blueReached && orangeReached) {
-        endSpeedCashRace(blueReached, orangeReached);
+      if (blueEscaped || orangeEscaped) {
+        endSpeedCashRace(blueEscaped, orangeEscaped);
       }
     }, 50);
   }
   
   // Завершение гонки
-  function endSpeedCashRace(blueReached, orangeReached) {
+  function endSpeedCashRace(blueEscaped, orangeEscaped) {
     const gameState = globalGames.speedcash;
     
     if (gameState.raceInterval) {
@@ -1042,30 +1015,13 @@ io.on('connection', (socket) => {
     
     gameState.status = 'finished';
     
-    // Определяем кто задержан (delayed) и кто уехал (escaped)
-    let blueEscaped = false;
-    let orangeEscaped = false;
-    
-    if (gameState.delayedCar === 'blue') {
-      // Blue задержана, Orange уехала
-      blueEscaped = false;
-      orangeEscaped = true;
-      gameState.winner = 'orange';
-    } else if (gameState.delayedCar === 'orange') {
-      // Orange задержана, Blue уехала
-      blueEscaped = true;
-      orangeEscaped = false;
-      gameState.winner = 'blue';
-    } else if (gameState.delayedCar === 'both') {
-      // Обе задержаны
-      blueEscaped = false;
-      orangeEscaped = false;
-      gameState.winner = 'none';
-    } else {
-      // Обе уехали
-      blueEscaped = true;
-      orangeEscaped = true;
-      gameState.winner = 'both';
+    // Определяем победителя
+    if (blueEscaped && !orangeEscaped) {
+      gameState.winner = 'orange'; // Orange caught
+    } else if (!blueEscaped && orangeEscaped) {
+      gameState.winner = 'blue'; // Blue caught
+    } else if (blueEscaped && orangeEscaped) {
+      gameState.winner = 'both'; // Both escaped
     }
     
     io.to('global_speedcash').emit('speedcash_race_end', {
@@ -1076,7 +1032,7 @@ io.on('connection', (socket) => {
       orangeEscaped
     });
     
-    console.log(`🏁 SpeedCASH: Race ended! Winner: ${gameState.winner}, Blue: ${gameState.blueMultiplier.toFixed(2)}x (${blueEscaped ? 'escaped' : 'detained'}), Orange: ${gameState.orangeMultiplier.toFixed(2)}x (${orangeEscaped ? 'escaped' : 'detained'})`);
+    console.log(`🏁 SpeedCASH: Race ended! Winner: ${gameState.winner}, Blue: ${gameState.blueMultiplier.toFixed(2)}x, Orange: ${gameState.orangeMultiplier.toFixed(2)}x`);
     
     // Перезапуск через 3 секунды
     setTimeout(() => {

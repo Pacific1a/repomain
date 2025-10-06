@@ -218,6 +218,12 @@
   to { transform: rotate(360deg); }
 }
 
+/* Скрываем race area по умолчанию */
+.speed-cash .race {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
 .speed-cash .game::before {
   content: "";
   position: absolute;
@@ -411,20 +417,15 @@
   line-height: normal;
 }
 
-.speed-cash .race {
+.speed-cash .auto-blue {
   display: flex;
-  width: 100%;
-  height: 100%;
+  width: 180.5px;
+  top: -19px;
   align-items: center;
   justify-content: center;
   gap: 10px;
   position: relative;
-  flex: 1;
-  flex-grow: 1;
-  /* Оптимизация для мобильных */
-  will-change: transform;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  flex: 0 0 auto;
 }
 
 .speed-cash .auto-blue-2 {
