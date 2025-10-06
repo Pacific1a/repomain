@@ -235,19 +235,32 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // ОЧИЩАЕМ ГРАФИК
+      // ПОЛНАЯ ОЧИСТКА ГРАФИКА
       graphPoints = [];
       graphTime = 0;
       graphCrashed = false;
       graphStartTime = Date.now();
+      frameCounter = 0;
       
-      // ОЧИЩАЕМ CANVAS
+      // ПОЛНАЯ ОЧИСТКА CANVAS (дважды для надежности)
       if (elements.graphCtx && elements.graphCanvas) {
-        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
+        const ctx = elements.graphCtx;
+        const canvas = elements.graphCanvas;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath(); // Сбрасываем путь
+        // Перезаписываем весь canvas белым и снова очищаем
+        ctx.fillStyle = 'rgba(0,0,0,0)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
       
-      // Запускаем анимацию
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      // Останавливаем старую анимацию
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      
+      // Запускаем новую анимацию
       animateGraph();
       
       // Показываем canvas
@@ -356,15 +369,26 @@
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
       
-      // Краш графика
+      // Останавливаем анимацию
       graphCrashed = true;
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      
-      // ОЧИЩАЕМ СРАЗУ ПОСЛЕ КРАША
-      graphPoints = [];
-      if (elements.graphCtx && elements.graphCanvas) {
-        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
+      
+      // ПОЛНАЯ ОЧИСТКА через 1 секунду
+      setTimeout(() => {
+        graphPoints = [];
+        if (elements.graphCtx && elements.graphCanvas) {
+          const ctx = elements.graphCtx;
+          const canvas = elements.graphCanvas;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.beginPath();
+          ctx.fillStyle = 'rgba(0,0,0,0)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }, 1000);
       
       // Показываем "Round ended"
       if (elements.gameEnded) {
@@ -682,8 +706,9 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Очищаем
+    // ПОЛНАЯ ОЧИСТКА перед рисованием
     ctx.clearRect(0, 0, width, height);
+    ctx.beginPath(); // Сбрасываем путь
     
     // СЕТКА ФИКСИРОВАННАЯ (КАК КУРС ВАЛЮТ)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -714,13 +739,15 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // БЫСТРАЯ ЛИНИЯ (упрощенная)
+    // ОПТИМИЗИРОВАННАЯ ЛИНИЯ (рисуем только последние 100 точек)
     if (graphPoints.length >= 2) {
-      ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+      const startIdx = Math.max(0, graphPoints.length - 100);
       
-      // Простая линия (быстрее чем quadraticCurveTo)
-      for (let i = 1; i < graphPoints.length; i++) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[startIdx].x, graphPoints[startIdx].y);
+      
+      // Рисуем линию (оптимизировано)
+      for (let i = startIdx + 1; i < graphPoints.length; i++) {
         ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
@@ -729,6 +756,7 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
+      ctx.closePath(); // Закрываем путь
     }
     // КРУГЛАЯ СТРЕЛКА
     if (!graphCrashed && graphPoints.length >= 2) {
@@ -741,6 +769,7 @@
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
       ctx.stroke();
+      ctx.closePath(); // Закрываем путь
     }
   }
   
@@ -749,17 +778,21 @@
   let animationFrameId = null;
   let frameCounter = 0; // Счетчик кадров
   
-  // Цикл рисования (60 FPS - ПЛАВНО!)
+  // Цикл рисования (ОПТИМИЗИРОВАНО - 30 FPS)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 4 кадра (15 точек/сек - быстрее)
-      if (frameCounter % 5 === 0) {
+      // Добавляем точку каждые 2 кадра (15 точек/сек)
+      if (frameCounter % 2 === 0) {
         updateGraph();
       }
       
-      drawGraph();   // Рисуем каждый кадр
+      // Рисуем каждый второй кадр (30 FPS вместо 60)
+      if (frameCounter % 2 === 0) {
+        drawGraph();
+      }
+      
       animationFrameId = requestAnimationFrame(animateGraph);
     }
   }
@@ -783,6 +816,11 @@
     const y = height - 20 - (height - 40) * curve;
     
     graphPoints.push({ x, y });
+    
+    // Ограничиваем количество точек (не больше 150)
+    if (graphPoints.length > 150) {
+      graphPoints.shift(); // Удаляем старые точки
+    }
   }
 
   // ============ ЗАПУСК ============
