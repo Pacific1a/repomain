@@ -1,3 +1,14 @@
+/* ОПТИМИЗАЦИЯ: GPU ускорение для анимаций */
+* {
+  will-change: auto;
+}
+
+.game, .multiplier-layer, .waiting {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
 /* Lost Bet Styles */
 .lost {
   background-color: rgba(255, 0, 0, 0.1) !important;

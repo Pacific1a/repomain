@@ -797,23 +797,21 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // БЫСТРАЯ ФОРМУЛА (без Date.now() - экономим время)
-    // Линия растет БЫСТРЕЕ - от времени, а не от множителя
-    const elapsed = (Date.now() - graphStartTime) / 1000;
+    // ПРАВИЛЬНАЯ ФОРМУЛА: X и Y от множителя (как в оригинале Crash)
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 9.0, 1); // 1x -> 10x = весь экран
     
-    // X: ЛИНЕЙНЫЙ РОСТ ПО ВРЕМЕНИ (быстро!)
-    const timeProgress = Math.min(elapsed / 10.0, 1); // 10 секунд до конца
-    const x = 20 + (width - 40) * timeProgress;
+    // X: растет с множителем (быстро в начале, медленнее потом)
+    const xCurve = Math.pow(multiplierProgress, 0.7); // Быстрый старт
+    const x = 20 + (width - 40) * xCurve;
     
-    // Y: от множителя (экспоненциальная кривая)
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1);
-    const curve = Math.pow(multiplierProgress, 2.5); // Более плавная кривая
-    const y = height - 20 - (height - 40) * curve;
+    // Y: экспоненциальный рост (медленно в начале, быстро потом)
+    const yCurve = Math.pow(multiplierProgress, 2.2); // Резкий подъем
+    const y = height - 20 - (height - 40) * yCurve;
     
     graphPoints.push({ x, y });
     
-    // Ограничиваем количество точек (не больше 200)
-    if (graphPoints.length > 200) {
+    // Ограничиваем количество точек (не больше 300 для плавности)
+    if (graphPoints.length > 300) {
       graphPoints.shift();
     }
   }

@@ -3,6 +3,17 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
+    
+    <!-- PRELOAD критичных ресурсов для LCP -->
+    <link rel="preload" href="style.css" as="style" />
+    <link rel="preload" href="crash-websocket.js" as="script" />
+    
+    <!-- PRECONNECT к GitHub для быстрой загрузки изображений -->
+    <link rel="preconnect" href="https://raw.githubusercontent.com" />
+    <link rel="preconnect" href="https://github.com" />
+    <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
+    <link rel="dns-prefetch" href="https://github.com" />
+    
     <link rel="stylesheet" href="globals.css" />
     <link rel="stylesheet" href="styleguide.css" />
     <link rel="stylesheet" href="style.css" />
@@ -38,9 +49,9 @@
       </header>
       <div class="fixed-block">
         <div class="game">
-          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" />
+          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" loading="lazy" />
           <div class="waiting" id="waitingRoot">
-            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="">
+            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="" loading="lazy">
           </div>
           <div class="multiplier-layer" id="multiplierLayer">
             <div class="multiplier-label" id="currentMultiplier">1.00x</div>
@@ -145,13 +156,14 @@
         </a>
       </div>
     </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="../global-balance.js"></script>
-    <script src="../game-balance-api.js"></script>
-    <script src="../telegram-user-data.js"></script>
-    <script src="../players-system.js"></script>
-    <script src="crash-websocket.js"></script>
+    <!-- ОПТИМИЗАЦИЯ: async для не критичных скриптов -->
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" defer></script>
+    <script src="../global-balance.js" defer></script>
+    <script src="../game-balance-api.js" defer></script>
+    <script src="../telegram-user-data.js" defer></script>
+    <script src="../players-system.js" defer></script>
+    <script src="crash-websocket.js" defer></script>
 
   </body>
 </html>
