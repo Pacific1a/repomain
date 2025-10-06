@@ -235,11 +235,11 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // Сбрасываем график
+      // ОЧИЩАЕМ ГРАФИК
       graphPoints = [];
       graphTime = 0;
       graphCrashed = false;
-      graphStartTime = Date.now(); // Инициализируем время старта
+      graphStartTime = Date.now();
       
       // Запускаем анимацию
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -729,8 +729,10 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждый кадр (60 точек/сек - непрерывная линия)
-      updateGraph();
+      // Добавляем точку каждые 2 кадра (30 точек/сек)
+      if (frameCounter % 2 === 0) {
+        updateGraph();
+      }
       
       drawGraph();   // Рисуем каждый кадр
       animationFrameId = requestAnimationFrame(animateGraph);
@@ -742,20 +744,23 @@
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
+    const now = Date.now();
+    const elapsed = (now - graphStartTime) / 1000;
     
-    // ЛИНИЯ ИЗ ЛЕВОГО НИЖНЕГО УГЛА К ПРАВОМУ ВЕРХНЕМУ
-    // ПО МНОЖИТЕЛЮ (1.00x -> 10.00x)
+    // КРИВАЯ ЛИНИЯ (по множителю)
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
     
-    // X: от левого края к правому (по множителю)
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 9.0, 1); // 1x -> 10x
+    // X: от левого края к правому
     const x = 20 + (width - 40) * multiplierProgress;
     
-    // Y: от нижнего края к верхнему (по множителю)
-    const y = height - 20 - (height - 40) * multiplierProgress;
+    // Y: кривая вверх (экспоненциальная)
+    const curve = Math.pow(multiplierProgress, 0.6);
+    const y = height - 20 - (height - 40) * curve;
     
-    graphPoints.push({ x, y });
+    // Минимальные колебания
+    const wave = Math.sin(elapsed * 3) * 2;
     
-    // НЕ удаляем точки - линия остается на месте
+    graphPoints.push({ x, y: y + wave });
   }
 
   // ============ ЗАПУСК ============
