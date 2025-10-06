@@ -650,7 +650,7 @@
     });
   }
 
-  // ============ ГРАФИК (КАК В GAME.JS) ============
+  // ============ ГРАФИК С СЕТКОЙ ============
   function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
@@ -660,6 +660,26 @@
     
     // Очищаем
     ctx.clearRect(0, 0, width, height);
+    
+    // СЕТКА (КАК НА КАРТИНКЕ)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    
+    // Вертикальные линии
+    for (let x = 0; x < width; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    
+    // Горизонтальные линии
+    for (let y = 0; y < height; y += 50) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
     
     // ЦИФРЫ В HTML - НЕ РИСУЕМ НА CANVAS!
     
@@ -709,19 +729,19 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    // Стрелка на конце (УПРОЩЕННАЯ)
+    // Стрелка на конце (ВСЕГДА ВВЕРХ)
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
       
       ctx.save();
       ctx.translate(lastPoint.x, lastPoint.y);
-      ctx.rotate(-Math.PI / 4); // 45° вверх-вправо
+      // Стрелка всегда смотрит вверх
       
-      // Простой треугольник
+      // Треугольник вверх
       ctx.beginPath();
-      ctx.moveTo(12, 0);
-      ctx.lineTo(0, -6);
-      ctx.lineTo(0, 6);
+      ctx.moveTo(0, -12);  // Верх
+      ctx.lineTo(-6, 0);   // Лево
+      ctx.lineTo(6, 0);    // Право
       ctx.closePath();
       ctx.fillStyle = lineColor;
       ctx.fill();
