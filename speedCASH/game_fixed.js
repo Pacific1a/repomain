@@ -41,8 +41,13 @@ class SpeedCashGame {
         this.blueAutoCashOutMultiplier = 2.00;
         this.orangeAutoCashOutMultiplier = 2.00;
         
+        // Флаги для остановки множителей
+        this.blueMultiplierStopped = false;
+        this.orangeMultiplierStopped = false;
+        
         this.initializeElements();
         this.createRoadLines();
+        this.createLoadingOverlay();
         // Balance update removed - using static HTML value
         this.startBettingPhase();
     }
@@ -64,10 +69,72 @@ class SpeedCashGame {
         this.blueCar = document.querySelector('.auto-blue-2');
         this.orangeCar = document.querySelector('.auto-orange');
         
+        // Game container
+        this.gameContainer = document.querySelector('.game');
+        
         // Balance display removed - using static HTML value
         
         // Add event listeners
         this.setupEventListeners();
+    }
+    
+    createLoadingOverlay() {
+        if (!this.gameContainer) return;
+        
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'loading-overlay';
+        loadingOverlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgb(15.3, 15.3, 15.3) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s;
+        `;
+        
+        loadingOverlay.innerHTML = `
+            <div class="glass-loader" style="
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                border: 3px solid rgba(255, 255, 255, 0.1);
+                border-top-color: #fff;
+                animation: spin 1s linear infinite;
+            "></div>
+        `;
+        
+        // Добавляем CSS анимацию
+        if (!document.getElementById('loadingAnimation')) {
+            const style = document.createElement('style');
+            style.id = 'loadingAnimation';
+            style.textContent = `
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        this.gameContainer.appendChild(loadingOverlay);
+        this.loadingOverlay = loadingOverlay;
+    }
+    
+    hideLoadingOverlay() {
+        if (this.loadingOverlay) {
+            this.loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+                    this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
+                    this.loadingOverlay = null;
+                }
+            }, 500);
+        }
     }
 
     setupEventListeners() {
@@ -137,6 +204,9 @@ class SpeedCashGame {
             this.blueStopMultiplier = blueTarget;
             this.orangeStopMultiplier = orangeTarget;
             this.delayedCar = delayedCar;
+            
+            // Убираем загрузку при получении данных
+            this.hideLoadingOverlay();
         }
         
         // Обрабатываем ставки из очереди
@@ -161,6 +231,11 @@ class SpeedCashGame {
     updateBettingTimer(timeLeft) {
         this.bettingTimeLeft = timeLeft;
         this.updateCountdown();
+        
+        // Убираем загрузку при получении таймера
+        if (timeLeft === 5) {
+            this.hideLoadingOverlay();
+        }
         
         if (timeLeft <= 0) {
             this.hideCountdown();
@@ -387,6 +462,11 @@ class SpeedCashGame {
         this.escapeTextShown = false;
         this.blueDetained = false;
         this.orangeDetained = false;
+        this.blueMultiplierStopped = false;
+        this.orangeMultiplierStopped = false;
+        
+        // УДАЛЯЕМ ВСЕ СТАРЫЕ ИКОНКИ ЗАДЕРЖАНИЯ
+        this.clearCrashIcons();
         
         // Используем данные от сервера
         if (blueTarget !== undefined) {
@@ -437,6 +517,9 @@ class SpeedCashGame {
         this.orangeMultiplier = orangeMultiplier;
         this.updateMultiplierDisplays();
         this.updateLiveWinnings();
+        
+        // Убираем загрузку при получении множителей
+        this.hideLoadingOverlay();
     }
     
     endRace(winner, blueMultiplier, orangeMultiplier, blueEscaped, orangeEscaped) {
@@ -512,19 +595,29 @@ class SpeedCashGame {
         if (!this.gameEnded) {
             const baseIncrease = 0.0003 + Math.random() * 0.0005;
 
-            // Blue множитель
-            if (!blueDelayed && !this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
-                this.blueMultiplier += baseIncrease;
-                if (this.blueMultiplier >= this.blueTargetMultiplier) {
-                    this.blueMultiplier = this.blueTargetMultiplier;
+            // Blue множитель - ОСТАНАВЛИВАЕМ если задержан
+            if (!this.blueMultiplierStopped && !this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
+                if (blueDelayed) {
+                    // Задержан - останавливаем множитель
+                    this.blueMultiplierStopped = true;
+                } else {
+                    this.blueMultiplier += baseIncrease;
+                    if (this.blueMultiplier >= this.blueTargetMultiplier) {
+                        this.blueMultiplier = this.blueTargetMultiplier;
+                    }
                 }
             }
 
-            // Orange множитель
-            if (!orangeDelayed && !this.orangeEscaped && this.orangeMultiplier < this.orangeTargetMultiplier) {
-                this.orangeMultiplier += baseIncrease;
-                if (this.orangeMultiplier >= this.orangeTargetMultiplier) {
-                    this.orangeMultiplier = this.orangeTargetMultiplier;
+            // Orange множитель - ОСТАНАВЛИВАЕМ если задержан
+            if (!this.orangeMultiplierStopped && !this.orangeEscaped && this.orangeMultiplier < this.orangeTargetMultiplier) {
+                if (orangeDelayed) {
+                    // Задержан - останавливаем множитель
+                    this.orangeMultiplierStopped = true;
+                } else {
+                    this.orangeMultiplier += baseIncrease;
+                    if (this.orangeMultiplier >= this.orangeTargetMultiplier) {
+                        this.orangeMultiplier = this.orangeTargetMultiplier;
+                    }
                 }
             }
         }
@@ -610,6 +703,16 @@ class SpeedCashGame {
         this.animationId = requestAnimationFrame(() => this.animateRace());
     }
 
+    clearCrashIcons() {
+        // Удаляем все иконки задержания
+        const icons = document.querySelectorAll('.crash-icon');
+        icons.forEach(icon => {
+            if (icon.parentNode) {
+                icon.parentNode.removeChild(icon);
+            }
+        });
+    }
+    
     showCrashIcon(color, carPosition) {
         // Show crash icon only once per car
         const iconId = `crash-icon-${color}`;
@@ -875,8 +978,7 @@ class SpeedCashGame {
         }
         
         // Clear any crash icons СРАЗУ
-        const existingIcons = document.querySelectorAll('.crash-icon');
-        existingIcons.forEach(icon => icon.remove());
+        this.clearCrashIcons();
         
         // СРАЗУ скрываем игровые элементы и показываем countdown
         const raceArea = document.querySelector('.race');
