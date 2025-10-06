@@ -85,10 +85,23 @@
   // Флаг что данные получены
   let dataReceived = false;
   
-  // SVG элементы для графика
-  elements.graphSVG = document.getElementById('crashGraphSVG');
-  elements.graphLine = document.getElementById('crashLine');
-  elements.graphDot = document.getElementById('crashDot');
+  // Создаем Canvas для графика
+  if (gameContainer) {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'crashGraph';
+    canvas.width = 400;
+    canvas.height = 256;
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.display = 'none';
+    gameContainer.appendChild(canvas);
+    elements.graphCanvas = canvas;
+    elements.graphCtx = canvas.getContext('2d');
+  }
   
   // Данные графика
   let graphPoints = [];
@@ -222,34 +235,30 @@
       console.log('🚀 Crash начался!');
       gameState = GAME_STATES.FLYING;
       
-      // ПОЛНАЯ ОЧИСТКА ГРАФИКА
+      // Убираем волну при старте
+      const crashWave = document.getElementById('crashWave');
+      if (crashWave) {
+        crashWave.classList.remove('active');
+      }
+      
+      // ОЧИЩАЕМ ГРАФИК
       graphPoints = [];
       graphTime = 0;
       graphCrashed = false;
       graphStartTime = Date.now();
-      frameCounter = 0;
       
-      // Очищаем SVG
-      lastPathData = ''; // Сбрасываем кеш
-      if (elements.graphLine) {
-        elements.graphLine.setAttribute('d', '');
-      }
-      if (elements.graphDot) {
-        elements.graphDot.style.display = 'none';
+      // ОЧИЩАЕМ CANVAS
+      if (elements.graphCtx && elements.graphCanvas) {
+        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
       }
       
-      // Останавливаем старую анимацию
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
-      
-      // Запускаем новую анимацию
+      // Запускаем анимацию
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       animateGraph();
       
-      // Показываем SVG
-      if (elements.graphSVG) {
-        elements.graphSVG.style.display = 'block';
+      // Показываем canvas
+      if (elements.graphCanvas) {
+        elements.graphCanvas.style.display = 'block';
       }
       
       // Убираем загрузку ТОЛЬКО КОГДА ПОЛУЧЕНЫ ДАННЫЕ
@@ -353,36 +362,39 @@
       console.log('💥 Краш на:', data.crashPoint);
       gameState = GAME_STATES.CRASHED;
       
-      // Останавливаем анимацию
+      // ЗАПУСКАЕМ ВОЛНУ КРАША!
+      const crashWave = document.getElementById('crashWave');
+      if (crashWave) {
+        crashWave.classList.remove('active');
+        // Перезапуск анимации
+        void crashWave.offsetWidth;
+        crashWave.classList.add('active');
+        
+        // Убираем волну через 3 секунды
+        setTimeout(() => {
+          crashWave.classList.remove('active');
+        }, 3000);
+      }
+      
+      // Краш графика
       graphCrashed = true;
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-      }
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       
-      // Скрываем точку
-      if (elements.graphDot) {
-        elements.graphDot.style.display = 'none';
+      // ОЧИЩАЕМ СРАЗУ ПОСЛЕ КРАША
+      graphPoints = [];
+      if (elements.graphCtx && elements.graphCanvas) {
+        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
       }
-      
-      // ПОЛНАЯ ОЧИСТКА через 1 секунду
-      setTimeout(() => {
-        graphPoints = [];
-        lastPathData = ''; // Сбрасываем кеш
-        if (elements.graphLine) {
-          elements.graphLine.setAttribute('d', '');
-        }
-      }, 1000);
       
       // Показываем "Round ended"
       if (elements.gameEnded) {
         elements.gameEnded.style.display = 'block';
       }
       
-      // Скрываем SVG через 3 секунды
+      // Скрываем canvas через 3 секунды
       setTimeout(() => {
-        if (elements.graphSVG) {
-          elements.graphSVG.style.display = 'none';
+        if (elements.graphCanvas) {
+          elements.graphCanvas.style.display = 'none';
         }
       }, 3000);
       
@@ -682,31 +694,73 @@
     });
   }
 
-  // ============ SVG ГРАФИК (ОПТИМИЗИРОВАНО!) ============
-  let lastPathData = ''; // Кеш для оптимизации
-  
+  // ============ ГРАФИК С СЕТКОЙ ============
   function drawGraph() {
-    if (!elements.graphLine || graphPoints.length < 2) return;
+    if (!elements.graphCtx || !elements.graphCanvas) return;
     
-    // ДОБАВЛЯЕМ только новые точки (не перерисовываем все!)
-    const lastPoint = graphPoints[graphPoints.length - 1];
+    const ctx = elements.graphCtx;
+    const width = elements.graphCanvas.width;
+    const height = elements.graphCanvas.height;
     
-    // Если это первая точка - создаем новый path
-    if (graphPoints.length === 2) {
-      lastPathData = `M ${graphPoints[0].x} ${graphPoints[0].y} L ${lastPoint.x} ${lastPoint.y}`;
-    } else {
-      // ДОБАВЛЯЕМ только новую точку (БЫСТРО!)
-      lastPathData += ` L ${lastPoint.x} ${lastPoint.y}`;
+    // Очищаем
+    ctx.clearRect(0, 0, width, height);
+    
+    // СЕТКА ФИКСИРОВАННАЯ (КАК КУРС ВАЛЮТ)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    
+    // Вертикальные линии (не двигаются)
+    for (let x = 0; x < width; x += 50) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
     }
     
-    // Обновляем линию
-    elements.graphLine.setAttribute('d', lastPathData);
+    // Горизонтальные линии
+    for (let y = 0; y < height; y += 50) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
     
-    // Обновляем точку на конце
-    if (!graphCrashed && elements.graphDot) {
-      elements.graphDot.setAttribute('cx', lastPoint.x);
-      elements.graphDot.setAttribute('cy', lastPoint.y);
-      elements.graphDot.style.display = 'block';
+    // ЦИФРЫ В HTML - НЕ РИСУЕМ НА CANVAS!
+    
+    if (graphPoints.length < 1) return;
+    
+    const lastPoint = graphPoints[graphPoints.length - 1];
+    
+    // Цвет #FF1D50
+    const lineColor = '#FF1D50';
+    
+    // БЫСТРАЯ ЛИНИЯ (упрощенная)
+    if (graphPoints.length >= 2) {
+      ctx.beginPath();
+      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
+      
+      // Простая линия (быстрее чем quadraticCurveTo)
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      }
+      
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    }
+    // КРУГЛАЯ СТРЕЛКА
+    if (!graphCrashed && graphPoints.length >= 2) {
+      const lastPoint = graphPoints[graphPoints.length - 1];
+      
+      ctx.beginPath();
+      ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = lineColor;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     }
   }
   
@@ -715,17 +769,17 @@
   let animationFrameId = null;
   let frameCounter = 0; // Счетчик кадров
   
-  // Цикл рисования (SVG - СУПЕР БЫСТРО!)
+  // Цикл рисования (60 FPS - ПЛАВНО!)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 3 кадра (20 точек/сек - оптимально без лагов)
-      if (frameCounter % 3 === 0) {
+      // Добавляем точку каждые 4 кадра (15 точек/сек - быстрее)
+      if (frameCounter % 5 === 0) {
         updateGraph();
-        drawGraph(); // SVG рисует мгновенно!
       }
       
+      drawGraph();   // Рисуем каждый кадр
       animationFrameId = requestAnimationFrame(animateGraph);
     }
   }
@@ -733,26 +787,22 @@
   function updateGraph() {
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
-    const width = 400;
-    const height = 256;
+    const width = elements.graphCanvas.width;
+    const height = elements.graphCanvas.height;
+    const now = Date.now();
+    const elapsed = (now - graphStartTime) / 1000;
     
-    // ПРАВИЛЬНАЯ ФОРМУЛА: X и Y от множителя (как в оригинале Crash)
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 9.0, 1); // 1x -> 10x = весь экран
+    // КРИВАЯ КАК НА РИСУНКЕ (сначала полого, потом резко вверх)
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
     
-    // X: растет с множителем (быстро в начале, медленнее потом)
-    const xCurve = Math.pow(multiplierProgress, 0.7); // Быстрый старт
-    const x = 20 + (width - 40) * xCurve;
+    // X: от левого края к правому
+    const x = 20 + (width - 40) * multiplierProgress;
     
-    // Y: экспоненциальный рост (медленно в начале, быстро потом)
-    const yCurve = Math.pow(multiplierProgress, 2.2); // Резкий подъем
-    const y = height - 20 - (height - 40) * yCurve;
+    // Y: ЭКСПОНЕНЦИАЛЬНАЯ кривая (сначала полого, потом резко)
+    const curve = Math.pow(multiplierProgress, 3); // Резкая кривая!
+    const y = height - 20 - (height - 40) * curve;
     
     graphPoints.push({ x, y });
-    
-    // Ограничиваем количество точек (не больше 150 для производительности)
-    if (graphPoints.length > 150) {
-      graphPoints.shift();
-    }
   }
 
   // ============ ЗАПУСК ============

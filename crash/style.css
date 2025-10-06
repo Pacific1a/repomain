@@ -1,12 +1,33 @@
-/* ОПТИМИЗАЦИЯ: GPU ускорение для анимаций */
-* {
-  will-change: auto;
+/* ВОЛНА КРАША - заливка снизу вверх */
+.crash-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background: linear-gradient(180deg, rgba(255, 29, 80, 0.3) 0%, rgba(255, 29, 80, 0.6) 100%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
 }
 
-.game, .multiplier-layer, .waiting {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
+.crash-wave.active {
+  animation: waveUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes waveUp {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    height: 100%;
+    opacity: 0.8;
+  }
 }
 
 /* Lost Bet Styles */
@@ -598,9 +619,18 @@
   text-align: center;
 }
 .multiplier-label {
-  /* Основные стили в HTML инлайн для LCP */
+  font-family: "Montserrat", Helvetica;
+  font-weight: 800;
+  font-size: 62px;
   letter-spacing: -1.2px;
+  color: #ffffff;
+  filter: drop-shadow(0 0 40px rgba(255,255,255,0.9));
   display: block;
+  
+  /* ОПТИМИЗАЦИЯ - убираем лаги */
+  will-change: contents;
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 /* Crash visual state */

@@ -4,30 +4,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
     
-    <!-- PRELOAD критичных ресурсов для LCP -->
-    <link rel="preload" href="style.css" as="style" />
-    <link rel="preload" href="crash-websocket.js" as="script" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
-    <!-- PRECONNECT к GitHub для быстрой загрузки изображений -->
-    <link rel="preconnect" href="https://raw.githubusercontent.com" />
-    <link rel="preconnect" href="https://github.com" />
-    <link rel="dns-prefetch" href="https://raw.githubusercontent.com" />
-    <link rel="dns-prefetch" href="https://github.com" />
-    
     <!-- КРИТИЧНЫЙ CSS для LCP (инлайн) -->
     <style>
       body { margin: 0; background: #151414; font-family: Montserrat, Helvetica, sans-serif; }
       .multiplier-label { 
+        font-family: "Montserrat", Helvetica;
         font-weight: 800; 
         font-size: 62px; 
         color: #fff; 
         filter: drop-shadow(0 0 40px rgba(255,255,255,0.9));
         transform: translateZ(0);
         will-change: contents;
+        letter-spacing: -1.2px;
       }
     </style>
+    
+    <!-- PRECONNECT для быстрой загрузки -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v26/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://raw.githubusercontent.com" />
+    <link rel="preconnect" href="https://github.com" />
     
     <link rel="stylesheet" href="globals.css" />
     <link rel="stylesheet" href="styleguide.css" />
@@ -64,30 +61,15 @@
       </header>
       <div class="fixed-block">
         <div class="game">
-          <!-- SVG ГРАФИК (быстро + плавно) -->
-          <svg id="crashGraphSVG" viewBox="0 0 400 256" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none;">
-            <!-- Сетка -->
-            <defs>
-              <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-            
-            <!-- Линия графика -->
-            <path id="crashLine" d="" fill="none" stroke="#FF1D50" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-            
-            <!-- Точка на конце -->
-            <circle id="crashDot" cx="0" cy="0" r="8" fill="#FF1D50" stroke="#ffffff" stroke-width="2" style="display: none;" />
-          </svg>
+          <!-- ВОЛНА КРАША (заливка) -->
+          <div class="crash-wave" id="crashWave"></div>
           
-          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" loading="lazy" />
+          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" />
           <div class="waiting" id="waitingRoot">
-            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="" loading="lazy">
+            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="">
           </div>
           <div class="multiplier-layer" id="multiplierLayer">
-            <!-- КРИТИЧНО ДЛЯ LCP: инлайн стили для мгновенной загрузки -->
-            <div class="multiplier-label" id="currentMultiplier" style="font-family: Montserrat, Helvetica; font-weight: 800; font-size: 62px; color: #fff; filter: drop-shadow(0 0 40px rgba(255,255,255,0.9)); transform: translateZ(0); will-change: contents;">1.00x</div>
+            <div class="multiplier-label" id="currentMultiplier">1.00x</div>
             <div class="game-ended">Round ended</div>
           </div>
         </div>
@@ -189,8 +171,8 @@
         </a>
       </div>
     </div>
-    <!-- ОПТИМИЗАЦИЯ: async для не критичных скриптов -->
-    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+    <!-- ОПТИМИЗАЦИЯ: defer для не блокирующей загрузки -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" defer></script>
     <script src="../global-balance.js" defer></script>
     <script src="../game-balance-api.js" defer></script>
