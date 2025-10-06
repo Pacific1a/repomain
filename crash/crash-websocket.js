@@ -733,12 +733,19 @@
   // Сохраняем время старта графика
   let graphStartTime = 0;
   let animationFrameId = null;
+  let frameCounter = 0; // Счетчик кадров
   
   // Цикл рисования (60 FPS - ПЛАВНО!)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
-      updateGraph(); // Добавляем точку каждый кадр
-      drawGraph();   // Рисуем
+      frameCounter++;
+      
+      // Добавляем точку каждые 2 кадра (30 точек/сек)
+      if (frameCounter % 2 === 0) {
+        updateGraph();
+      }
+      
+      drawGraph();   // Рисуем каждый кадр
       animationFrameId = requestAnimationFrame(animateGraph);
     }
   }
@@ -765,7 +772,11 @@
     const wave = Math.sin(elapsed * 1.2) * 5;
     
     graphPoints.push({ x, y: y + wave });
-    // НЕ рисуем здесь - рисует requestAnimationFrame!
+    
+    // ОПТИМИЗАЦИЯ: Ограничиваем количество точек
+    if (graphPoints.length > 300) {
+      graphPoints.shift(); // Удаляем старые точки
+    }
   }
 
   // ============ ЗАПУСК ============
