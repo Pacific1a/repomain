@@ -51,11 +51,6 @@ class SpeedCashGame {
         this.initializeElements();
         this.createRoadLines();
         
-        // Создаем loading overlay СРАЗУ
-        setTimeout(() => {
-            this.createLoadingOverlay();
-        }, 100);
-        
         // Balance update removed - using static HTML value
         this.startBettingPhase();
     }
@@ -92,10 +87,9 @@ class SpeedCashGame {
             return;
         }
         
-        // Скрываем ВСЕ игровые элементы
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            raceArea.style.opacity = '0';
+        // Удаляем старый overlay если есть
+        if (this.loadingOverlay && this.loadingOverlay.parentNode) {
+            this.loadingOverlay.parentNode.removeChild(this.loadingOverlay);
         }
         
         const loadingOverlay = document.createElement('div');
@@ -145,13 +139,6 @@ class SpeedCashGame {
     
     hideLoadingOverlay() {
         if (this.loadingOverlay) {
-            // Показываем игровые элементы
-            const raceArea = document.querySelector('.race');
-            if (raceArea) {
-                raceArea.style.opacity = '1';
-                raceArea.style.transition = 'opacity 0.5s';
-            }
-            
             // Скрываем overlay
             this.loadingOverlay.style.opacity = '0';
             setTimeout(() => {
@@ -226,6 +213,11 @@ class SpeedCashGame {
         this.gameState = 'betting';
         this.bettingTimeLeft = 5;
         
+        // ПОКАЗЫВАЕМ LOADING при старте betting (ждем данных от сервера)
+        if (blueTarget === undefined) {
+            this.createLoadingOverlay();
+        }
+        
         // Сохраняем данные от сервера
         if (blueTarget !== undefined) {
             this.blueStopMultiplier = blueTarget;
@@ -239,20 +231,22 @@ class SpeedCashGame {
         // Обрабатываем ставки из очереди
         this.processQueuedBets();
         
-        // Hide game elements and show countdown mode
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            raceArea.classList.add('countdown-mode');
-            raceArea.classList.remove('game-active');
+        // Hide game elements and show countdown mode ТОЛЬКО если получены данные
+        if (blueTarget !== undefined) {
+            const raceArea = document.querySelector('.race');
+            if (raceArea) {
+                raceArea.classList.add('countdown-mode');
+                raceArea.classList.remove('game-active');
+            }
+            
+            const roadLines = document.getElementById('roadLines');
+            if (roadLines) {
+                roadLines.classList.remove('visible');
+            }
+            
+            // Show countdown
+            this.showCountdown();
         }
-        
-        const roadLines = document.getElementById('roadLines');
-        if (roadLines) {
-            roadLines.classList.remove('visible');
-        }
-        
-        // Show countdown
-        this.showCountdown();
     }
     
     updateBettingTimer(timeLeft) {

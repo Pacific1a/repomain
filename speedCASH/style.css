@@ -218,12 +218,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Скрываем race area по умолчанию */
-.speed-cash .race {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
 .speed-cash .game::before {
   content: "";
   position: absolute;
