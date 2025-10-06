@@ -593,9 +593,12 @@
   letter-spacing: -1.2px;
   color: #ffffff;
   filter: drop-shadow(0 0 40px rgba(255,255,255,0.9));
-
-
-  display: block; /* Hidden by default, shown during flying */
+  display: block;
+  
+  /* ОПТИМИЗАЦИЯ - убираем лаги */
+  will-change: contents;
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 /* Crash visual state */

@@ -287,15 +287,19 @@
       }
     });
 
-    // Обновление множителя
+    // Обновление множителя (ОПТИМИЗИРОВАНО)
     let lastMultiplierUpdate = 0;
+    let lastMultiplierValue = '1.00x';
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
-      // Обновляем HTML цифры (throttle 100ms)
+      // Обновляем HTML цифры (throttle 200ms + проверка изменения)
       const now = Date.now();
-      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 100)) {
-        elements.currentMultiplier.textContent = `${data.multiplier.toFixed(2)}x`;
+      const newValue = `${data.multiplier.toFixed(2)}x`;
+      
+      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 200) && newValue !== lastMultiplierValue) {
+        elements.currentMultiplier.textContent = newValue;
+        lastMultiplierValue = newValue;
         lastMultiplierUpdate = now;
       }
       
