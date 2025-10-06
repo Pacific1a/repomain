@@ -686,7 +686,7 @@
     });
   }
 
-  // ============ БЫСТРАЯ АНИМАЦИЯ ГРАФИКА ============
+  // ============ АНИМАЦИЯ КАК В AVIATOR ============
   function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
@@ -715,18 +715,28 @@
     
     if (graphPoints.length < 2) return;
     
-    // ПУЛЬСАЦИЯ (вверх-вниз)
-    const pulse = Math.sin(Date.now() / 200) * 10; // Плавает ±10px
+    // ПУЛЬСАЦИЯ ТОЛЬКО КОНЧИКА (как в Aviator!)
+    const pulse = Math.sin(Date.now() / 300) * 8; // Плавная пульсация ±8px
     
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // РИСУЕМ КРИВУЮ С ПУЛЬСАЦИЕЙ
+    // РИСУЕМ КРИВУЮ (БЕЗ пульсации на основной линии)
     ctx.beginPath();
-    ctx.moveTo(graphPoints[0].x, graphPoints[0].y + pulse);
+    ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
     
-    for (let i = 1; i < graphPoints.length; i++) {
-      ctx.lineTo(graphPoints[i].x, graphPoints[i].y + pulse);
+    // Основная линия (без пульсации)
+    const pulseStartIdx = Math.max(0, graphPoints.length - 10); // Последние 10 точек пульсируют
+    
+    for (let i = 1; i < pulseStartIdx; i++) {
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+    }
+    
+    // КОНЧИК С ПУЛЬСАЦИЕЙ (последние 10 точек)
+    for (let i = pulseStartIdx; i < graphPoints.length; i++) {
+      const progress = (i - pulseStartIdx) / 10; // 0 -> 1
+      const localPulse = pulse * progress; // Пульсация усиливается к концу
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y + localPulse);
     }
     
     ctx.strokeStyle = lineColor;
@@ -735,7 +745,7 @@
     ctx.lineJoin = 'round';
     ctx.stroke();
     
-    // ТОЧКА НА КОНЦЕ
+    // ТОЧКА НА КОНЦЕ (с пульсацией)
     if (!graphCrashed) {
       const lastPoint = graphPoints[graphPoints.length - 1];
       ctx.beginPath();
@@ -777,8 +787,8 @@
     // БЫСТРОЕ СОЗДАНИЕ КРИВОЙ
     const multiplierProgress = Math.min((currentMultiplier - 1.0) / 10.0, 1); // 1x -> 11x
     
-    // X: НАЧИНАЕТСЯ НА 40px ЛЕВЕЕ + быстрый рост
-    const xStart = -20; // Начало левее на 40px
+    // X: НАЧИНАЕТСЯ НА 25px ЛЕВЕЕ + быстрый рост
+    const xStart = -5; // Начало левее на 25px
     const xCurve = Math.pow(multiplierProgress, 0.6); // Быстрый старт
     const x = xStart + (width - xStart - 20) * xCurve;
     
