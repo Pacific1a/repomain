@@ -658,16 +658,7 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // Рисуем множитель НА CANVAS (БЕЗ SHADOW - не лагает!)
-    if (gameState === GAME_STATES.FLYING && currentMultiplier > 0) {
-      ctx.save();
-      ctx.font = 'bold 62px Montserrat, sans-serif';
-      ctx.fillStyle = graphCrashed ? '#ff2b52' : '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${currentMultiplier.toFixed(2)}x`, width / 2, height / 2);
-      ctx.restore();
-    }
+    // ЦИФРЫ В HTML - НЕ РИСУЕМ НА CANVAS!
     
     if (graphPoints.length < 1) return;
     
