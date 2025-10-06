@@ -298,14 +298,28 @@
     ws.socket.on('crash_multiplier', (data) => {
       currentMultiplier = data.multiplier;
       
-      // Обновляем HTML цифры (throttle 200ms + проверка изменения)
+      // ПЛАВНЫЙ НАБОР ЦИФР (по 0.01 в начале, по 0.02 выше)
       const now = Date.now();
-      const newValue = `${data.multiplier.toFixed(2)}x`;
       
-      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 200) && newValue !== lastMultiplierValue) {
-        elements.currentMultiplier.textContent = newValue;
-        lastMultiplierValue = newValue;
-        lastMultiplierUpdate = now;
+      if (elements.currentMultiplier && (now - lastMultiplierUpdate > 100)) {
+        // Шаг обновления: 0.01 до 2x, 0.02 выше
+        const step = data.multiplier < 2.0 ? 0.01 : 0.02;
+        const currentDisplayed = parseFloat(lastMultiplierValue) || 1.0;
+        
+        // Плавно догоняем до реального значения
+        let newDisplayed = currentDisplayed;
+        if (Math.abs(data.multiplier - currentDisplayed) > step) {
+          newDisplayed = currentDisplayed + (data.multiplier > currentDisplayed ? step : -step);
+        } else {
+          newDisplayed = data.multiplier;
+        }
+        
+        const newValue = `${newDisplayed.toFixed(2)}x`;
+        if (newValue !== lastMultiplierValue) {
+          elements.currentMultiplier.textContent = newValue;
+          lastMultiplierValue = newValue;
+          lastMultiplierUpdate = now;
+        }
       }
       
       // График рисуется автоматически через requestAnimationFrame (60 FPS)
@@ -345,20 +359,23 @@
       // Краш графика
       graphCrashed = true;
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      drawGraph(); // Последняя перерисовка (красным)
+      
+      // ОЧИЩАЕМ СРАЗУ ПОСЛЕ КРАША
+      graphPoints = [];
+      if (elements.graphCtx && elements.graphCanvas) {
+        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
+      }
       
       // Показываем "Round ended"
       if (elements.gameEnded) {
         elements.gameEnded.style.display = 'block';
       }
       
-      // Скрываем и ОЧИЩАЕМ график через 3 секунды
+      // Скрываем canvas через 3 секунды
       setTimeout(() => {
         if (elements.graphCanvas) {
           elements.graphCanvas.style.display = 'none';
         }
-        // ОЧИЩАЕМ график
-        graphPoints = [];
       }, 3000);
       
       if (elements.currentMultiplier) {
@@ -737,8 +754,8 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 3 кадра (20 точек/сек - быстрее)
-      if (frameCounter % 3 === 0) {
+      // Добавляем точку каждые 4 кадра (15 точек/сек - быстрее)
+      if (frameCounter % 5 === 0) {
         updateGraph();
       }
       
