@@ -758,14 +758,14 @@
     const now = Date.now();
     const elapsed = (now - graphStartTime) / 1000;
     
-    // ПРОСТАЯ КРИВАЯ БЕЗ ВОЛН
+    // КРИВАЯ КАК НА РИСУНКЕ (сначала полого, потом резко вверх)
     const multiplierProgress = Math.min((currentMultiplier - 1.0) / 20.0, 1); // 1x -> 21x
     
     // X: от левого края к правому
     const x = 20 + (width - 40) * multiplierProgress;
     
-    // Y: плавная кривая вверх (БЕЗ ВОЛН)
-    const curve = Math.pow(multiplierProgress, 0.7);
+    // Y: ЭКСПОНЕНЦИАЛЬНАЯ кривая (сначала полого, потом резко)
+    const curve = Math.pow(multiplierProgress, 3); // Резкая кривая!
     const y = height - 20 - (height - 40) * curve;
     
     graphPoints.push({ x, y });
