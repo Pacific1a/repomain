@@ -241,6 +241,11 @@
       graphCrashed = false;
       graphStartTime = Date.now();
       
+      // ОЧИЩАЕМ CANVAS
+      if (elements.graphCtx && elements.graphCanvas) {
+        elements.graphCtx.clearRect(0, 0, elements.graphCanvas.width, elements.graphCanvas.height);
+      }
+      
       // Запускаем анимацию
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       animateGraph();
@@ -692,26 +697,18 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ПЛАВНАЯ ТОЛСТАЯ ЛИНИЯ
+    // БЫСТРАЯ ЛИНИЯ (упрощенная)
     if (graphPoints.length >= 2) {
       ctx.beginPath();
       ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      // Плавная кривая через все точки
-      for (let i = 1; i < graphPoints.length - 1; i++) {
-        const xc = (graphPoints[i].x + graphPoints[i + 1].x) / 2;
-        const yc = (graphPoints[i].y + graphPoints[i + 1].y) / 2;
-        ctx.quadraticCurveTo(graphPoints[i].x, graphPoints[i].y, xc, yc);
-      }
-      
-      // Последняя точка
-      if (graphPoints.length > 1) {
-        const last = graphPoints[graphPoints.length - 1];
-        ctx.lineTo(last.x, last.y);
+      // Простая линия (быстрее чем quadraticCurveTo)
+      for (let i = 1; i < graphPoints.length; i++) {
+        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
       }
       
       ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 4; // Толще
+      ctx.lineWidth = 4;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
@@ -740,8 +737,8 @@
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 2 кадра (30 точек/сек)
-      if (frameCounter % 2 === 0) {
+      // Добавляем точку каждые 3 кадра (20 точек/сек - быстрее)
+      if (frameCounter % 3 === 0) {
         updateGraph();
       }
       
