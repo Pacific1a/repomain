@@ -661,15 +661,19 @@
     // Очищаем
     ctx.clearRect(0, 0, width, height);
     
-    // ПРОСТАЯ СЕТКА (БЕЗ ДВИЖЕНИЯ - БЫСТРО)
+    // СЕТКА ДВИГАЕТСЯ (КАМЕРА СЛЕДИТ ЗА ЛИНИЕЙ)
+    const cameraX = graphPoints.length > 0 ? graphPoints[graphPoints.length - 1].x - width / 2 : 0;
+    
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     
-    // Вертикальные линии
-    for (let x = 0; x < width; x += 50) {
+    // Вертикальные линии (двигаются)
+    const startX = Math.floor(cameraX / 50) * 50;
+    for (let x = startX; x < cameraX + width; x += 50) {
+      const screenX = x - cameraX;
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.moveTo(screenX, 0);
+      ctx.lineTo(screenX, height);
       ctx.stroke();
     }
     
@@ -690,33 +694,33 @@
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // ЗАЛИВКА ПОД ЛИНИЕЙ (КАК НА РИСУНКЕ)
+    // ЗАЛИВКА С КАМЕРОЙ
     if (graphPoints.length >= 2) {
       ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, height);
+      ctx.moveTo(0 - cameraX, height);
       
       for (let i = 0; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+        ctx.lineTo(graphPoints[i].x - cameraX, graphPoints[i].y);
       }
       
-      ctx.lineTo(lastPoint.x, height);
+      ctx.lineTo(lastPoint.x - cameraX, height);
       ctx.closePath();
       
-      // Градиент красный
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, 'rgba(255, 29, 80, 0.4)');
+      gradient.addColorStop(0, 'rgba(255, 29, 80, 0.3)');
       gradient.addColorStop(1, 'rgba(255, 29, 80, 0.05)');
       ctx.fillStyle = gradient;
       ctx.fill();
     }
     
-    // ЛИНИЯ
+    // ЛИНИЯ С КАМЕРОЙ
     if (graphPoints.length >= 2) {
       ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
       
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
+      for (let i = 0; i < graphPoints.length; i++) {
+        const screenX = graphPoints[i].x - cameraX;
+        if (i === 0) ctx.moveTo(screenX, graphPoints[i].y);
+        else ctx.lineTo(screenX, graphPoints[i].y);
       }
       
       ctx.strokeStyle = lineColor;
@@ -725,13 +729,13 @@
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
-    // СТРЕЛКА КРУГЛАЯ (КАК НА РИСУНКЕ)
+    // КРУГЛАЯ СТРЕЛКА С КАМЕРОЙ
     if (!graphCrashed && graphPoints.length >= 2) {
       const lastPoint = graphPoints[graphPoints.length - 1];
+      const screenX = lastPoint.x - cameraX;
       
-      // Круг с обводкой
       ctx.beginPath();
-      ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
+      ctx.arc(screenX, lastPoint.y, 8, 0, Math.PI * 2);
       ctx.fillStyle = lineColor;
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
@@ -764,24 +768,23 @@
     if (gameState !== GAME_STATES.FLYING || graphCrashed) return;
     
     const now = Date.now();
-    const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // КРИВАЯ ЛИНИЯ (КАК НА РИСУНКЕ)
+    // ЛИНИЯ С НИЖНЕГО ЛЕВОГО УГЛА
     const elapsed = (now - graphStartTime) / 1000;
-    const progress = Math.min(elapsed / 20, 1); // 20 секунд
     
-    // X: слева направо
-    const x = 30 + (width - 60) * progress;
+    // X: постоянно растет
+    const x = graphPoints.length * 3; // 3px между точками
     
-    // Y: кривая вверх (экспоненциальная)
-    const curve = Math.pow(progress, 0.7); // Плавная кривая
-    const y = height - 30 - (height - 60) * curve;
+    // Y: плавный рост по множителю
+    const multiplierGrowth = (currentMultiplier - 1) * 100; // Рост от 1.00x
+    const y = height - 20 - multiplierGrowth;
     
-    graphPoints.push({ x, y });
+    graphPoints.push({ x, y: Math.max(20, y) });
     
-    // Ограничиваем до 200 точек
-    if (graphPoints.length > 200) {
+    // Удаляем старые точки (за кадром)
+    const cameraX = x - elements.graphCanvas.width / 2;
+    while (graphPoints.length > 0 && graphPoints[0].x < cameraX - 100) {
       graphPoints.shift();
     }
   }
