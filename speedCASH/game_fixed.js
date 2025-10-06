@@ -128,9 +128,16 @@ class SpeedCashGame {
         animateLines();
     }
 
-    startBettingPhase() {
+    startBettingPhase(blueTarget, orangeTarget, delayedCar) {
         this.gameState = 'betting';
         this.bettingTimeLeft = 5;
+        
+        // Сохраняем данные от сервера
+        if (blueTarget !== undefined) {
+            this.blueStopMultiplier = blueTarget;
+            this.orangeStopMultiplier = orangeTarget;
+            this.delayedCar = delayedCar;
+        }
         
         // Обрабатываем ставки из очереди
         this.processQueuedBets();
@@ -149,18 +156,15 @@ class SpeedCashGame {
         
         // Show countdown
         this.showCountdown();
-        const countdown = () => {
-            if (this.bettingTimeLeft > 0) {
-                this.bettingTimeLeft--;
-                this.updateCountdown();
-                this.bettingTimer = setTimeout(countdown, 1000);
-            } else {
-                this.hideCountdown();
-                this.startRace();
-            }
-        };
+    }
+    
+    updateBettingTimer(timeLeft) {
+        this.bettingTimeLeft = timeLeft;
+        this.updateCountdown();
         
-        countdown();
+        if (timeLeft <= 0) {
+            this.hideCountdown();
+        }
     }
 
     processQueuedBets() {
@@ -372,7 +376,7 @@ class SpeedCashGame {
             : document.querySelector('.div-4:last-child .div-wrapper-3');
     }
 
-    startRace() {
+    startRace(blueTarget, orangeTarget, delayedCar) {
         this.gameState = 'racing';
         this.raceStartTime = Date.now();
         this.startTime = this.raceStartTime;
@@ -383,6 +387,15 @@ class SpeedCashGame {
         this.escapeTextShown = false;
         this.blueDetained = false;
         this.orangeDetained = false;
+        
+        // Используем данные от сервера
+        if (blueTarget !== undefined) {
+            this.blueTargetMultiplier = blueTarget;
+            this.orangeTargetMultiplier = orangeTarget;
+            this.delayedCar = delayedCar;
+            console.log(`🎲 Blue target: x${blueTarget.toFixed(2)}, Orange target: x${orangeTarget.toFixed(2)}`);
+            console.log(`🚔 Delayed car: ${delayedCar || 'none'}`);
+        }
         
         // Show game elements
         const raceArea = document.querySelector('.race');
@@ -403,30 +416,6 @@ class SpeedCashGame {
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
         
-        // Рандомные иксы для обеих машин (2.0 - 8.0)
-        this.blueTargetMultiplier = 2.0 + Math.random() * 6.0;
-        this.orangeTargetMultiplier = 2.0 + Math.random() * 6.0;
-        
-        // Убедимся что иксы разные (минимум 0.3 разницы)
-        while (Math.abs(this.blueTargetMultiplier - this.orangeTargetMultiplier) < 0.3) {
-            this.orangeTargetMultiplier = 2.0 + Math.random() * 6.0;
-        }
-        
-        // Определяем кто будет задержан
-        // 98.5% - одна машина, 1.5% - обе машины
-        const bothDetained = Math.random() < 0.015;
-        
-        if (bothDetained) {
-            this.delayedCar = 'both';
-            console.log('🚔🚔 Обе машины будут задержаны!');
-        } else {
-            // Задерживаем ту, у которой меньше множитель
-            this.delayedCar = this.blueTargetMultiplier < this.orangeTargetMultiplier ? 'blue' : 'orange';
-        }
-        
-        console.log(`🎲 Blue target: x${this.blueTargetMultiplier.toFixed(2)}, Orange target: x${this.orangeTargetMultiplier.toFixed(2)}`);
-        console.log(`🚔 Delayed car: ${this.delayedCar}`);
-        
         // Обновляем кнопки на Cash Out если ставки размещены
         if (this.currentBlueBet) {
             this.updateBetButton('blue', 'cashout', this.currentBlueBet);
@@ -441,6 +430,69 @@ class SpeedCashGame {
         // Start animations
         this.animateRace();
         this.animateRoadLines();
+    }
+    
+    updateMultipliers(blueMultiplier, orangeMultiplier) {
+        this.blueMultiplier = blueMultiplier;
+        this.orangeMultiplier = orangeMultiplier;
+        this.updateMultiplierDisplays();
+        this.updateLiveWinnings();
+    }
+    
+    endRace(winner, blueMultiplier, orangeMultiplier, blueEscaped, orangeEscaped) {
+        this.gameEnded = true;
+        this.blueEscaped = blueEscaped;
+        this.orangeEscaped = orangeEscaped;
+        this.blueMultiplier = blueMultiplier;
+        this.orangeMultiplier = orangeMultiplier;
+        
+        console.log(`🏁 Race ended! Winner: ${winner}`);
+        
+        // Выплачиваем выигрыши
+        this.processWinnings(blueEscaped, orangeEscaped);
+        
+        // Сбрасываем ставки
+        this.currentBlueBet = null;
+        this.currentOrangeBet = null;
+        this.currentSingleBet = null;
+        
+        // Обновляем кнопки
+        this.updateBetButton('blue', 'bet', this.blueBet);
+        this.updateBetButton('orange', 'bet', this.orangeBet);
+        this.updateSingleButton('bet', this.singleBet);
+    }
+    
+    processWinnings(blueEscaped, orangeEscaped) {
+        // Blue winnings
+        if (this.currentBlueBet && !blueEscaped) {
+            const winnings = Math.floor(this.currentBlueBet * this.blueMultiplier);
+            if (window.GameBalanceAPI) {
+                window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+                console.log(`💰 Blue выигрыш: ${winnings} chips`);
+            }
+        }
+        
+        // Orange winnings
+        if (this.currentOrangeBet && !orangeEscaped) {
+            const winnings = Math.floor(this.currentOrangeBet * this.orangeMultiplier);
+            if (window.GameBalanceAPI) {
+                window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+                console.log(`💰 Orange выигрыш: ${winnings} chips`);
+            }
+        }
+        
+        // Single winnings
+        if (this.currentSingleBet) {
+            const selectedCarEscaped = this.singleSelectedCar === 'blue' ? blueEscaped : orangeEscaped;
+            if (!selectedCarEscaped) {
+                const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
+                const winnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
+                if (window.GameBalanceAPI) {
+                    window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+                    console.log(`🎯 Single выигрыш: ${winnings} chips`);
+                }
+            }
+        }
     }
 
     animateRace() {
@@ -1131,6 +1183,9 @@ let gameInstance = null;
 document.addEventListener('DOMContentLoaded', () => {
     gameInstance = new SpeedCashGame();
     
+    // Expose game instance globally for WebSocket
+    window.speedCashGame = gameInstance;
+    
     // Expose game methods globally
     window.game = {
         adjustBetAmount: (color, action) => gameInstance.adjustBetAmount(color, action),
@@ -1276,4 +1331,3 @@ function setupAutoCashOutForColor(color) {
         }
     });
 }
-

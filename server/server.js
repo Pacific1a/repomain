@@ -163,6 +163,20 @@ function getPlayerColor(userId) {
 
 // Глобальные игры (одна игра для всех пользователей)
 const globalGames = {
+  speedcash: {
+    status: 'betting', // betting, racing, finished
+    bettingTime: 5,
+    blueMultiplier: 1.00,
+    orangeMultiplier: 1.00,
+    blueStopMultiplier: null,
+    orangeStopMultiplier: null,
+    delayedCar: null, // 'blue', 'orange', 'both', null
+    winner: null,
+    raceStartTime: null,
+    bettingTimer: null,
+    raceInterval: null,
+    isInitialized: false
+  },
   roll: {
     status: 'waiting', // waiting, betting, spinning
     players: [],
@@ -872,6 +886,159 @@ io.on('connection', (socket) => {
     
     console.log(`💵 ${player.nickname} забрал ${cashout} на ${gameState.multiplier.toFixed(2)}x`);
   });
+
+  // ============ SPEEDCASH ЛОГИКА ============
+  
+  // Подключение к SpeedCASH
+  socket.on('join_speedcash', () => {
+    socket.join('global_speedcash');
+    console.log(`🚗 Подключение к SpeedCASH`);
+    
+    const gameState = globalGames.speedcash;
+    
+    if (!gameState.isInitialized) {
+      gameState.isInitialized = true;
+      startSpeedCashBetting();
+    } else {
+      // Отправляем текущее состояние
+      socket.emit('speedcash_state', {
+        status: gameState.status,
+        bettingTime: gameState.bettingTime,
+        blueMultiplier: gameState.blueMultiplier,
+        orangeMultiplier: gameState.orangeMultiplier,
+        delayedCar: gameState.delayedCar
+      });
+    }
+  });
+  
+  // Запуск фазы ставок
+  function startSpeedCashBetting() {
+    const gameState = globalGames.speedcash;
+    gameState.status = 'betting';
+    gameState.bettingTime = 5;
+    gameState.blueMultiplier = 1.00;
+    gameState.orangeMultiplier = 1.00;
+    gameState.winner = null;
+    
+    // Генерируем случайные точки остановки
+    gameState.blueStopMultiplier = 2 + Math.random() * 6; // 2-8x
+    gameState.orangeStopMultiplier = 2 + Math.random() * 6; // 2-8x
+    
+    // Определяем задержанную машину
+    const rand = Math.random();
+    if (rand < 0.15) {
+      gameState.delayedCar = 'both';
+    } else if (rand < 0.5) {
+      gameState.delayedCar = 'blue';
+    } else if (rand < 0.85) {
+      gameState.delayedCar = 'orange';
+    } else {
+      gameState.delayedCar = null;
+    }
+    
+    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar || 'none'}`);
+    
+    io.to('global_speedcash').emit('speedcash_betting_start', {
+      bettingTime: 5,
+      blueTarget: gameState.blueStopMultiplier,
+      orangeTarget: gameState.orangeStopMultiplier,
+      delayedCar: gameState.delayedCar
+    });
+    
+    // Таймер ставок
+    if (gameState.bettingTimer) clearInterval(gameState.bettingTimer);
+    
+    gameState.bettingTimer = setInterval(() => {
+      gameState.bettingTime--;
+      
+      io.to('global_speedcash').emit('speedcash_betting_timer', {
+        timeLeft: gameState.bettingTime
+      });
+      
+      if (gameState.bettingTime <= 0) {
+        clearInterval(gameState.bettingTimer);
+        startSpeedCashRace();
+      }
+    }, 1000);
+  }
+  
+  // Запуск гонки
+  function startSpeedCashRace() {
+    const gameState = globalGames.speedcash;
+    gameState.status = 'racing';
+    gameState.raceStartTime = Date.now();
+    
+    io.to('global_speedcash').emit('speedcash_race_start', {
+      blueTarget: gameState.blueStopMultiplier,
+      orangeTarget: gameState.orangeStopMultiplier,
+      delayedCar: gameState.delayedCar
+    });
+    
+    console.log(`🏁 SpeedCASH: Race started!`);
+    
+    // Обновляем множители каждые 50мс
+    if (gameState.raceInterval) clearInterval(gameState.raceInterval);
+    
+    gameState.raceInterval = setInterval(() => {
+      const elapsed = (Date.now() - gameState.raceStartTime) / 1000;
+      
+      // Увеличиваем множители (ускоряется со временем)
+      const baseIncrement = 0.01;
+      const timeMultiplier = 1 + (elapsed / 10); // Ускорение
+      const increment = baseIncrement * timeMultiplier;
+      
+      gameState.blueMultiplier += increment;
+      gameState.orangeMultiplier += increment;
+      
+      io.to('global_speedcash').emit('speedcash_multiplier_update', {
+        blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
+        orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
+      });
+      
+      // Проверяем остановку машин
+      let blueEscaped = gameState.blueMultiplier >= gameState.blueStopMultiplier;
+      let orangeEscaped = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
+      
+      if (blueEscaped || orangeEscaped) {
+        endSpeedCashRace(blueEscaped, orangeEscaped);
+      }
+    }, 50);
+  }
+  
+  // Завершение гонки
+  function endSpeedCashRace(blueEscaped, orangeEscaped) {
+    const gameState = globalGames.speedcash;
+    
+    if (gameState.raceInterval) {
+      clearInterval(gameState.raceInterval);
+    }
+    
+    gameState.status = 'finished';
+    
+    // Определяем победителя
+    if (blueEscaped && !orangeEscaped) {
+      gameState.winner = 'orange'; // Orange caught
+    } else if (!blueEscaped && orangeEscaped) {
+      gameState.winner = 'blue'; // Blue caught
+    } else if (blueEscaped && orangeEscaped) {
+      gameState.winner = 'both'; // Both escaped
+    }
+    
+    io.to('global_speedcash').emit('speedcash_race_end', {
+      winner: gameState.winner,
+      blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
+      orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
+      blueEscaped,
+      orangeEscaped
+    });
+    
+    console.log(`🏁 SpeedCASH: Race ended! Winner: ${gameState.winner}, Blue: ${gameState.blueMultiplier.toFixed(2)}x, Orange: ${gameState.orangeMultiplier.toFixed(2)}x`);
+    
+    // Перезапуск через 3 секунды
+    setTimeout(() => {
+      startSpeedCashBetting();
+    }, 3000);
+  }
 
   // Отключение
   socket.on('disconnect', () => {
