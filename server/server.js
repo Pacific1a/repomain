@@ -1017,11 +1017,13 @@ io.on('connection', (socket) => {
     
     // Определяем победителя
     if (blueEscaped && !orangeEscaped) {
-      gameState.winner = 'orange'; // Orange caught
+      gameState.winner = 'blue'; // Blue уехала - победила
     } else if (!blueEscaped && orangeEscaped) {
-      gameState.winner = 'blue'; // Blue caught
+      gameState.winner = 'orange'; // Orange уехала - победила
     } else if (blueEscaped && orangeEscaped) {
-      gameState.winner = 'both'; // Both escaped
+      gameState.winner = 'both'; // Обе уехали
+    } else {
+      gameState.winner = 'none'; // Обе задержаны
     }
     
     io.to('global_speedcash').emit('speedcash_race_end', {
