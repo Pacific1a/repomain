@@ -44,15 +44,17 @@ class SpeedCashGame {
     }
     
     connectWebSocket() {
-        // Используем тот же socket что и players-system
-        if (window.playersSocket) {
-            this.socket = window.playersSocket;
-            console.log('✅ Используем существующий WebSocket');
-            this.socket.emit('join_speedcash');
-        } else {
-            console.error('❌ playersSocket не найден!');
-            return;
-        }
+        // Получаем URL сервера из CONFIG
+        const serverUrl = window.CONFIG?.SERVER_URL || 'https://telegram-games-plkj.onrender.com';
+        
+        console.log('🔌 Подключение к:', serverUrl);
+        
+        this.socket = io(serverUrl, {
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionAttempts: 5
+        });
         
         this.socket.on('connect', () => {
             console.log('✅ SpeedCASH WebSocket connected');
@@ -220,17 +222,8 @@ class SpeedCashGame {
     }
 }
 
-// Initialize game when DOM is ready and WebSocket is available
+// Initialize game when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Ждем пока playersSocket будет готов
-    const initGame = () => {
-        if (window.playersSocket) {
-            window.speedCashGame = new SpeedCashGame();
-        } else {
-            console.log('⏳ Ожидание playersSocket...');
-            setTimeout(initGame, 100);
-        }
-    };
-    
-    initGame();
+    console.log('🎮 Инициализация SpeedCASH...');
+    window.speedCashGame = new SpeedCashGame();
 });
