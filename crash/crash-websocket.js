@@ -686,7 +686,7 @@
     });
   }
 
-  // ============ ГРАФИК С СЕТКОЙ ============
+  // ============ БЫСТРАЯ АНИМАЦИЯ ГРАФИКА ============
   function drawGraph() {
     if (!elements.graphCtx || !elements.graphCanvas) return;
     
@@ -694,22 +694,18 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // Очищаем
+    // ПОЛНАЯ ОЧИСТКА
     ctx.clearRect(0, 0, width, height);
     
-    // СЕТКА ФИКСИРОВАННАЯ (КАК КУРС ВАЛЮТ)
+    // СЕТКА
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
-    
-    // Вертикальные линии (не двигаются)
     for (let x = 0; x < width; x += 50) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, height);
       ctx.stroke();
     }
-    
-    // Горизонтальные линии
     for (let y = 0; y < height; y += 50) {
       ctx.beginPath();
       ctx.moveTo(0, y);
@@ -717,37 +713,33 @@
       ctx.stroke();
     }
     
-    // ЦИФРЫ В HTML - НЕ РИСУЕМ НА CANVAS!
+    if (graphPoints.length < 2) return;
     
-    if (graphPoints.length < 1) return;
-    
-    const lastPoint = graphPoints[graphPoints.length - 1];
+    // ПУЛЬСАЦИЯ (вверх-вниз)
+    const pulse = Math.sin(Date.now() / 200) * 10; // Плавает ±10px
     
     // Цвет #FF1D50
     const lineColor = '#FF1D50';
     
-    // БЫСТРАЯ ЛИНИЯ (упрощенная)
-    if (graphPoints.length >= 2) {
-      ctx.beginPath();
-      ctx.moveTo(graphPoints[0].x, graphPoints[0].y);
-      
-      // Простая линия (быстрее чем quadraticCurveTo)
-      for (let i = 1; i < graphPoints.length; i++) {
-        ctx.lineTo(graphPoints[i].x, graphPoints[i].y);
-      }
-      
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
+    // РИСУЕМ КРИВУЮ С ПУЛЬСАЦИЕЙ
+    ctx.beginPath();
+    ctx.moveTo(graphPoints[0].x, graphPoints[0].y + pulse);
+    
+    for (let i = 1; i < graphPoints.length; i++) {
+      ctx.lineTo(graphPoints[i].x, graphPoints[i].y + pulse);
     }
-    // КРУГЛАЯ СТРЕЛКА
-    if (!graphCrashed && graphPoints.length >= 2) {
+    
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    
+    // ТОЧКА НА КОНЦЕ
+    if (!graphCrashed) {
       const lastPoint = graphPoints[graphPoints.length - 1];
-      
       ctx.beginPath();
-      ctx.arc(lastPoint.x, lastPoint.y, 8, 0, Math.PI * 2);
+      ctx.arc(lastPoint.x, lastPoint.y + pulse, 8, 0, Math.PI * 2);
       ctx.fillStyle = lineColor;
       ctx.fill();
       ctx.strokeStyle = '#ffffff';
@@ -761,17 +753,17 @@
   let animationFrameId = null;
   let frameCounter = 0; // Счетчик кадров
   
-  // Цикл рисования (60 FPS - ПЛАВНО БЕЗ ПРЕРЫВАНИЙ!)
+  // Цикл рисования (БЫСТРАЯ АНИМАЦИЯ + ПУЛЬСАЦИЯ)
   function animateGraph() {
     if (gameState === GAME_STATES.FLYING && !graphCrashed) {
       frameCounter++;
       
-      // Добавляем точку каждые 2 кадра (30 точек/сек - БЕЗ ПРЕРЫВАНИЙ!)
-      if (frameCounter % 2 === 0) {
+      // Добавляем точку каждые 3 кадра (20 точек/сек)
+      if (frameCounter % 3 === 0) {
         updateGraph();
       }
       
-      drawGraph();   // Рисуем каждый кадр
+      drawGraph();   // Рисуем каждый кадр (пульсация работает!)
       animationFrameId = requestAnimationFrame(animateGraph);
     }
   }
@@ -781,21 +773,25 @@
     
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
-    const now = Date.now();
-    const elapsed = (now - graphStartTime) / 1000;
     
-    // БЫСТРЫЙ СТАРТ! Линия растет быстрее в начале
-    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 15.0, 1); // 1x -> 16x (быстрее!)
+    // БЫСТРОЕ СОЗДАНИЕ КРИВОЙ
+    const multiplierProgress = Math.min((currentMultiplier - 1.0) / 10.0, 1); // 1x -> 11x
     
-    // X: БЫСТРЫЙ РОСТ В НАЧАЛЕ (степень 0.5 = корень квадратный)
-    const xCurve = Math.pow(multiplierProgress, 0.5); // Быстрый старт!
-    const x = 20 + (width - 40) * xCurve;
+    // X: НАЧИНАЕТСЯ НА 40px ЛЕВЕЕ + быстрый рост
+    const xStart = -20; // Начало левее на 40px
+    const xCurve = Math.pow(multiplierProgress, 0.6); // Быстрый старт
+    const x = xStart + (width - xStart - 20) * xCurve;
     
-    // Y: ЭКСПОНЕНЦИАЛЬНАЯ кривая (сначала полого, потом резко)
-    const yCurve = Math.pow(multiplierProgress, 2.5); // Плавная кривая
+    // Y: Экспоненциальная кривая
+    const yCurve = Math.pow(multiplierProgress, 2.3);
     const y = height - 20 - (height - 40) * yCurve;
     
     graphPoints.push({ x, y });
+    
+    // Ограничиваем количество точек
+    if (graphPoints.length > 200) {
+      graphPoints.shift();
+    }
   }
 
   // ============ ЗАПУСК ============
