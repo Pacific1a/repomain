@@ -743,27 +743,23 @@
     const width = elements.graphCanvas.width;
     const height = elements.graphCanvas.height;
     
-    // ЛИНИЯ МЕДЛЕННО ПОДНИМАЕТСЯ
+    // ЛИНИЯ ИЗ ПРАВОГО НИЖНЕГО УГЛА К ЛЕВОМУ ВЕРХНЕМУ
     const now = Date.now();
     const elapsed = (now - graphStartTime) / 1000;
     
-    // X: постоянно растет (не прилегает к краю)
-    const x = graphPoints.length * 2; // 2px между точками
+    // Прогресс от 0 до 1
+    const progress = Math.min(elapsed / 30, 1); // 30 секунд
     
-    // Y: МЕДЛЕННО ВВЕРХ (по множителю)
-    const multiplierGrowth = (currentMultiplier - 1.0) * 50; // Медленнее
-    const y = (height - 40) - multiplierGrowth;
+    // X: от правого края (width) к левому (0)
+    const x = width - 20 - (width - 40) * progress;
     
-    // Минимальные колебания
-    const wave = Math.sin(elapsed * 2) * 2;
+    // Y: от нижнего края (height) к верхнему (0)
+    const y = height - 20 - (height - 40) * progress;
     
-    graphPoints.push({ 
-      x, 
-      y: Math.max(40, Math.min(height - 40, y + wave)) 
-    });
+    graphPoints.push({ x, y });
     
     // Ограничиваем количество точек
-    if (graphPoints.length > 300) {
+    if (graphPoints.length > 200) {
       graphPoints.shift();
     }
   }
