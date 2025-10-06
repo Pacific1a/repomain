@@ -522,8 +522,22 @@ class SpeedCashGame {
     }
     
     updateMultipliers(blueMultiplier, orangeMultiplier) {
-        this.blueMultiplier = blueMultiplier;
-        this.orangeMultiplier = orangeMultiplier;
+        // ПРОВЕРЯЕМ: если машина задержана - НЕ обновляем её множитель
+        if (!this.blueMultiplierStopped) {
+            this.blueMultiplier = blueMultiplier;
+        }
+        if (!this.orangeMultiplierStopped) {
+            this.orangeMultiplier = orangeMultiplier;
+        }
+        
+        // Проверяем достижение целевых множителей
+        if (this.blueMultiplier >= this.blueTargetMultiplier && !this.blueMultiplierStopped) {
+            this.blueMultiplier = this.blueTargetMultiplier;
+        }
+        if (this.orangeMultiplier >= this.orangeTargetMultiplier && !this.orangeMultiplierStopped) {
+            this.orangeMultiplier = this.orangeTargetMultiplier;
+        }
+        
         this.updateMultiplierDisplays();
         this.updateLiveWinnings();
         
@@ -600,36 +614,8 @@ class SpeedCashGame {
         const blueDelayed = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
         const orangeDelayed = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
 
-        // Increment multipliers
-        if (!this.gameEnded) {
-            const baseIncrease = 0.0003 + Math.random() * 0.0005;
-
-            // Blue множитель - ОСТАНАВЛИВАЕМ если задержан
-            if (!this.blueMultiplierStopped && !this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
-                if (blueDelayed) {
-                    // Задержан - останавливаем множитель
-                    this.blueMultiplierStopped = true;
-                } else {
-                    this.blueMultiplier += baseIncrease;
-                    if (this.blueMultiplier >= this.blueTargetMultiplier) {
-                        this.blueMultiplier = this.blueTargetMultiplier;
-                    }
-                }
-            }
-
-            // Orange множитель - ОСТАНАВЛИВАЕМ если задержан
-            if (!this.orangeMultiplierStopped && !this.orangeEscaped && this.orangeMultiplier < this.orangeTargetMultiplier) {
-                if (orangeDelayed) {
-                    // Задержан - останавливаем множитель
-                    this.orangeMultiplierStopped = true;
-                } else {
-                    this.orangeMultiplier += baseIncrease;
-                    if (this.orangeMultiplier >= this.orangeTargetMultiplier) {
-                        this.orangeMultiplier = this.orangeTargetMultiplier;
-                    }
-                }
-            }
-        }
+        // НЕ ОБНОВЛЯЕМ МНОЖИТЕЛИ ЛОКАЛЬНО - ТОЛЬКО ОТ СЕРВЕРА!
+        // Множители обновляются через updateMultipliers() от сервера
         
         // Update displays
         this.updateMultiplierDisplays();
@@ -645,7 +631,7 @@ class SpeedCashGame {
         const orangeDelayedAfter = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
         
         // Blue car movement
-        if (blueDelayedAfter && !this.blueEscaped) {
+        if (blueDelayed && !this.blueEscaped) {
             // Задержанная машина едет вниз полностью И СКРЫВАЕТСЯ
             if (this.bluePosition < 400) {
                 this.bluePosition += 4;
@@ -653,17 +639,20 @@ class SpeedCashGame {
             if (!this.blueDetained) {
                 this.showCrashIcon('blue');
                 this.blueDetained = true;
+                this.blueMultiplierStopped = true; // ОСТАНАВЛИВАЕМ МНОЖИТЕЛЬ
+                console.log('🚔 Blue задержана!');
             }
-        } else if (!this.racingPhase && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayedAfter && !this.blueEscaped) {
+        } else if (!this.racingPhase && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayed && !this.blueEscaped) {
             // Победитель уезжает вверх когда достиг своего икса
             this.bluePosition -= 6;
             if (this.bluePosition < -400) {
                 if (!this.blueEscaped) {
                     this.blueEscaped = true;
+                    console.log('✅ Blue уехала!');
                     this.showEscapeText('blue');
                 }
             }
-        } else if (!blueDelayedAfter && !this.blueEscaped) {
+        } else if (!blueDelayed && !this.blueEscaped) {
             // Хаотичное плавание (только если не задержан и не уехал)
             const blueWave1 = Math.sin(elapsed * 0.0008) * 25;
             const blueWave2 = Math.cos(elapsed * 0.0013) * 15;
@@ -673,7 +662,7 @@ class SpeedCashGame {
         }
         
         // Orange car movement (независимое от blue)
-        if (orangeDelayedAfter && !this.orangeEscaped) {
+        if (orangeDelayed && !this.orangeEscaped) {
             // Задержанная машина едет вниз полностью И СКРЫВАЕТСЯ
             if (this.orangePosition < 400) {
                 this.orangePosition += 4;
@@ -681,17 +670,20 @@ class SpeedCashGame {
             if (!this.orangeDetained) {
                 this.showCrashIcon('orange');
                 this.orangeDetained = true;
+                this.orangeMultiplierStopped = true; // ОСТАНАВЛИВАЕМ МНОЖИТЕЛЬ
+                console.log('🚔 Orange задержана!');
             }
-        } else if (!this.racingPhase && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayedAfter && !this.orangeEscaped) {
+        } else if (!this.racingPhase && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayed && !this.orangeEscaped) {
             // Победитель уезжает вверх когда достиг своего икса
             this.orangePosition -= 6;
             if (this.orangePosition < -400) {
                 if (!this.orangeEscaped) {
                     this.orangeEscaped = true;
+                    console.log('✅ Orange уехала!');
                     this.showEscapeText('orange');
                 }
             }
-        } else if (!orangeDelayedAfter && !this.orangeEscaped) {
+        } else if (!orangeDelayed && !this.orangeEscaped) {
             // Хаотичное плавание (только если не задержан и не уехал)
             const orangeWave1 = Math.sin(elapsed * 0.0011) * 20;
             const orangeWave2 = Math.cos(elapsed * 0.0017) * 18;
