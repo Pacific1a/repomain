@@ -87,8 +87,8 @@ class SpeedCashGame {
             
             // Обновления множителей от сервера
             this.socket.on('speedcash_multiplier_update', (data) => {
-                this.blueMultiplier = data.blue;
-                this.orangeMultiplier = data.orange;
+                this.blueMultiplier = data.blueMultiplier;
+                this.orangeMultiplier = data.orangeMultiplier;
                 this.updateMultiplierDisplays();
             });
             
@@ -97,6 +97,16 @@ class SpeedCashGame {
                 console.log('🏁 Гонка закончилась:', data);
                 this.blueEscaped = data.blueEscaped;
                 this.orangeEscaped = data.orangeEscaped;
+                
+                // Устанавливаем флаги задержания и показываем иконки
+                if (!data.blueEscaped) {
+                    this.blueDetained = true;
+                    this.showCrashIcon('blue', this.bluePosition);
+                }
+                if (!data.orangeEscaped) {
+                    this.orangeDetained = true;
+                    this.showCrashIcon('orange', this.orangePosition);
+                }
                 
                 // Показываем текст "УЕХАЛ" и заканчиваем игру
                 if (!this.escapeTextShown) {
@@ -877,31 +887,16 @@ class SpeedCashGame {
         // Проверка автокешаута
         this.checkAutoCashOut();
         
-        // Хаотичное плавное движение машин
-        const blueDelayedAfter = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
-        const orangeDelayedAfter = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
-        
+        // Движение машин - ТОЛЬКО по команде сервера!
         // Blue car movement
-        if (blueDelayedAfter && !this.blueEscaped) {
-            // Задержанная машина едет вниз полностью
+        if (this.blueEscaped) {
+            // Уезжает вверх (установлено сервером)
+            this.bluePosition -= 6;
+        } else if (this.blueDetained) {
+            // Задержан - едет вниз
             this.bluePosition += 4;
-            if (!this.blueDetained) {
-                this.showCrashIcon('blue', this.bluePosition);
-                this.blueDetained = true;
-            }
-        } else if (this.blueEscaped) {
-            // Уже уехал - продолжаем движение вверх
-            this.bluePosition -= 6;
-        } else if (!this.racingPhase && this.blueMultiplier >= this.blueTargetMultiplier && !blueDelayedAfter) {
-            // Победитель уезжает вверх когда достиг своего икса
-            this.bluePosition -= 6;
-            if (this.bluePosition < -400 && !this.escapeTextShown) {
-                this.blueEscaped = true;
-                this.escapeTextShown = true;
-                this.showEscapeText('blue');
-            }
-        } else if (!blueDelayedAfter) {
-            // Хаотичное плавание (только если не задержан)
+        } else {
+            // Хаотичное плавание
             const blueWave1 = Math.sin(elapsed * 0.0008) * 25;
             const blueWave2 = Math.cos(elapsed * 0.0013) * 15;
             const blueWave3 = Math.sin(elapsed * 0.0019) * 10;
@@ -910,26 +905,14 @@ class SpeedCashGame {
         }
         
         // Orange car movement (независимое от blue)
-        if (orangeDelayedAfter && !this.orangeEscaped) {
-            // Задержанная машина едет вниз полностью
+        if (this.orangeEscaped) {
+            // Уезжает вверх (установлено сервером)
+            this.orangePosition -= 6;
+        } else if (this.orangeDetained) {
+            // Задержан - едет вниз
             this.orangePosition += 4;
-            if (!this.orangeDetained) {
-                this.showCrashIcon('orange', this.orangePosition);
-                this.orangeDetained = true;
-            }
-        } else if (this.orangeEscaped) {
-            // Уже уехал - продолжаем движение вверх
-            this.orangePosition -= 6;
-        } else if (!this.racingPhase && this.orangeMultiplier >= this.orangeTargetMultiplier && !orangeDelayedAfter) {
-            // Победитель уезжает вверх когда достиг своего икса
-            this.orangePosition -= 6;
-            if (this.orangePosition < -400 && !this.escapeTextShown) {
-                this.orangeEscaped = true;
-                this.escapeTextShown = true;
-                this.showEscapeText('orange');
-            }
-        } else if (!orangeDelayedAfter) {
-            // Хаотичное плавание (только если не задержан)
+        } else {
+            // Хаотичное плавание
             const orangeWave1 = Math.sin(elapsed * 0.0011) * 20;
             const orangeWave2 = Math.cos(elapsed * 0.0017) * 18;
             const orangeWave3 = Math.sin(elapsed * 0.0023) * 12;
