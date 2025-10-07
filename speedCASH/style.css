@@ -1375,6 +1375,12 @@
   animation: carMoveOrange 7s ease-in-out infinite;
 }
 
+/* Остановка анимации */
+.auto-blue-2.stopped,
+.auto-orange.stopped {
+  animation: none !important;
+}
+
 @keyframes carMoveBlue {
   0%, 100% { transform: translateY(0); }
   33% { transform: translateY(-15px); }

@@ -220,13 +220,13 @@ class SpeedCashGame {
         // Восстанавливаем анимацию машин
         if (blueCar) {
             blueCar.style.opacity = '1';
-            blueCar.style.animation = 'carMoveBlue 6s ease-in-out infinite';
+            blueCar.classList.remove('stopped');
             blueCar.style.transform = 'translateY(0)';
             blueCar.style.transition = '';
         }
         if (orangeCar) {
             orangeCar.style.opacity = '1';
-            orangeCar.style.animation = 'carMoveOrange 7s ease-in-out infinite';
+            orangeCar.classList.remove('stopped');
             orangeCar.style.transform = 'translateY(0)';
             orangeCar.style.transition = '';
         }
@@ -276,8 +276,8 @@ class SpeedCashGame {
     stopCarAnimation(car) {
         const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
         if (carElement) {
-            // Останавливаем анимацию
-            carElement.style.animation = 'none';
+            // Добавляем класс для остановки анимации
+            carElement.classList.add('stopped');
             // Уезжаем вниз за пределы экрана
             carElement.style.transition = 'transform 1.5s ease-in';
             carElement.style.transform = 'translateY(500px)';
