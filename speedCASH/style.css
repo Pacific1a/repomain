@@ -1367,33 +1367,25 @@
 
 /* Анимация машин - хаотичная гонка */
 .auto-blue-2 {
-  animation: carRaceBlue 8s linear infinite;
+  animation: carRaceBlue 3s ease-in-out infinite;
 }
 
 .auto-orange {
-  animation: carRaceOrange 9s linear infinite;
+  animation: carRaceOrange 3.5s ease-in-out infinite;
 }
 
 @keyframes carRaceBlue {
-  0% { transform: translateY(-20px); }
-  15% { transform: translateY(-35px); }
-  30% { transform: translateY(-15px); }
-  45% { transform: translateY(25px); }
-  60% { transform: translateY(40px); }
-  75% { transform: translateY(10px); }
-  90% { transform: translateY(-30px); }
-  100% { transform: translateY(-20px); }
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-25px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(30px); }
 }
 
 @keyframes carRaceOrange {
-  0% { transform: translateY(15px); }
-  15% { transform: translateY(-10px); }
-  30% { transform: translateY(-40px); }
-  45% { transform: translateY(-25px); }
-  60% { transform: translateY(20px); }
-  75% { transform: translateY(45px); }
-  90% { transform: translateY(30px); }
-  100% { transform: translateY(15px); }
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(30px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-25px); }
 }
 .group-ico-1 {
   display: flex
