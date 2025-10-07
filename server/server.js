@@ -935,9 +935,8 @@ io.on('connection', (socket) => {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // Генерируем случайные точки остановки
-    gameState.blueStopMultiplier = 2 + Math.random() * 6; // 2-8x
-    gameState.orangeStopMultiplier = 2 + Math.random() * 6; // 2-8x
+    // Генерируем случайную длительность гонки (5-15 секунд)
+    gameState.raceDuration = 5000 + Math.random() * 10000; // 5-15 секунд
     
     // Определяем задержанную машину (ВСЕГДА хотя бы одна задержана)
     const rand = Math.random();
@@ -952,12 +951,10 @@ io.on('connection', (socket) => {
       gameState.delayedCar = 'orange';
     }
     
-    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar || 'none'}`);
+    console.log(`🚗 SpeedCASH: Betting started. Race duration: ${(gameState.raceDuration/1000).toFixed(1)}s, Delayed: ${gameState.delayedCar}`);
     
     io.to('global_speedcash').emit('speedcash_betting_start', {
       bettingTime: 5,
-      blueTarget: gameState.blueStopMultiplier,
-      orangeTarget: gameState.orangeStopMultiplier,
       delayedCar: gameState.delayedCar
     });
     
@@ -985,57 +982,20 @@ io.on('connection', (socket) => {
     gameState.raceStartTime = Date.now();
     
     io.to('global_speedcash').emit('speedcash_race_start', {
-      blueTarget: gameState.blueStopMultiplier,
-      orangeTarget: gameState.orangeStopMultiplier,
       delayedCar: gameState.delayedCar
     });
     
-    console.log(`🏁 SpeedCASH: Race started!`);
+    console.log(`🏁 SpeedCASH: Race started! Duration: ${(gameState.raceDuration/1000).toFixed(1)}s`);
     
     // Обновляем множители каждые 50мс
     if (gameState.raceInterval) clearInterval(gameState.raceInterval);
     
     gameState.raceInterval = setInterval(() => {
-      const elapsed = (Date.now() - gameState.raceStartTime) / 1000;
+      const elapsed = Date.now() - gameState.raceStartTime;
       
-      // Каждая машина растет независимо до своего target
-      const baseIncrement = 0.01;
-      const timeMultiplier = 1 + (elapsed / 10); // Ускорение
-      
-      // Blue растет только если не достигла target
-      if (gameState.blueMultiplier < gameState.blueStopMultiplier) {
-        const blueIncrement = baseIncrement * timeMultiplier;
-        gameState.blueMultiplier += blueIncrement;
-        
-        // Не превышаем target
-        if (gameState.blueMultiplier > gameState.blueStopMultiplier) {
-          gameState.blueMultiplier = gameState.blueStopMultiplier;
-        }
-      }
-      
-      // Orange растет только если не достигла target
-      if (gameState.orangeMultiplier < gameState.orangeStopMultiplier) {
-        const orangeIncrement = baseIncrement * timeMultiplier;
-        gameState.orangeMultiplier += orangeIncrement;
-        
-        // Не превышаем target
-        if (gameState.orangeMultiplier > gameState.orangeStopMultiplier) {
-          gameState.orangeMultiplier = gameState.orangeStopMultiplier;
-        }
-      }
-      
-      io.to('global_speedcash').emit('speedcash_multiplier_update', {
-        blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
-        orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
-      });
-      
-      // Проверяем остановку машин
-      let blueReached = gameState.blueMultiplier >= gameState.blueStopMultiplier;
-      let orangeReached = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
-      
-      // Игра заканчивается когда ОБЕ машины достигли своих targets
-      if (blueReached && orangeReached) {
-        // Определяем кто уехал на основе delayedCar
+      // Проверяем не истекло ли время
+      if (elapsed >= gameState.raceDuration) {
+        // Время истекло - заканчиваем гонку
         let blueEscaped = false; // По умолчанию задержаны
         let orangeEscaped = false;
         
@@ -1049,10 +1009,28 @@ io.on('connection', (socket) => {
           blueEscaped = false; // Обе задержаны
           orangeEscaped = false;
         }
-        // Если delayedCar не установлен - обе задержаны (безопасность)
         
         endSpeedCashRace(blueEscaped, orangeEscaped);
+        return;
       }
+      
+      // ОБЕ машины растут постоянно
+      const elapsedSeconds = elapsed / 1000;
+      const baseIncrement = 0.01;
+      const timeMultiplier = 1 + (elapsedSeconds / 10); // Ускорение
+      
+      // Blue растет постоянно
+      const blueIncrement = baseIncrement * timeMultiplier;
+      gameState.blueMultiplier += blueIncrement;
+      
+      // Orange растет постоянно
+      const orangeIncrement = baseIncrement * timeMultiplier;
+      gameState.orangeMultiplier += orangeIncrement;
+      
+      io.to('global_speedcash').emit('speedcash_multiplier_update', {
+        blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
+        orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
+      });
     }, 50);
   }
   

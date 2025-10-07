@@ -136,8 +136,6 @@ class SpeedCashGame {
                 // Инициализируем множители
                 this.blueMultiplier = 1.00;
                 this.orangeMultiplier = 1.00;
-                this.blueTargetMultiplier = data.blueTarget;
-                this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
                 this.updateMultiplierDisplays();
                 
@@ -207,8 +205,6 @@ class SpeedCashGame {
                 // Инициализируем множители
                 this.blueMultiplier = 1.00;
                 this.orangeMultiplier = 1.00;
-                this.blueTargetMultiplier = data.blueTarget;
-                this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
                 this.updateMultiplierDisplays();
                 
