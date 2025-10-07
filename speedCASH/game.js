@@ -221,14 +221,16 @@ class SpeedCashGame {
         if (blueCar) {
             blueCar.style.opacity = '1';
             blueCar.classList.remove('stopped');
-            blueCar.style.transform = 'translateY(0)';
-            blueCar.style.transition = '';
+            blueCar.style.removeProperty('animation');
+            blueCar.style.removeProperty('transition');
+            blueCar.style.removeProperty('transform');
         }
         if (orangeCar) {
             orangeCar.style.opacity = '1';
             orangeCar.classList.remove('stopped');
-            orangeCar.style.transform = 'translateY(0)';
-            orangeCar.style.transition = '';
+            orangeCar.style.removeProperty('animation');
+            orangeCar.style.removeProperty('transition');
+            orangeCar.style.removeProperty('transform');
         }
         if (blueMultiplier) blueMultiplier.style.opacity = '1';
         if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
@@ -276,13 +278,14 @@ class SpeedCashGame {
     stopCarAnimation(car) {
         const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
         if (carElement) {
-            // Добавляем класс для остановки анимации
-            carElement.classList.add('stopped');
+            // Принудительно останавливаем анимацию
+            carElement.style.setProperty('animation', 'none', 'important');
             
-            // Небольшая задержка чтобы класс применился
+            // Небольшая задержка
             setTimeout(() => {
-                // Уезжаем вниз за пределы экрана
-                carElement.style.transform = 'translateY(500px)';
+                // Применяем transition и transform
+                carElement.style.setProperty('transition', 'transform 1.5s ease-in', 'important');
+                carElement.style.setProperty('transform', 'translateY(500px)', 'important');
             }, 50);
         }
     }
