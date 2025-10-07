@@ -1365,62 +1365,82 @@
   opacity: 1;
 }
 
-/* Анимация машин - догонка и обгон */
+/* Анимация машин - плавное плавание */
 .auto-blue-2 {
-  animation: carRaceBlue 5s ease-in-out infinite;
+  animation: carFloatBlue 8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 .auto-orange {
-  animation: carRaceOrange 6s ease-in-out infinite;
+  animation: carFloatOrange 7s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
-@keyframes carRaceBlue {
+@keyframes carFloatBlue {
   0% {
     transform: translateY(0);
   }
-  /* Blue едет впереди */
+  10% {
+    transform: translateY(-15px);
+  }
   20% {
+    transform: translateY(-28px);
+  }
+  30% {
     transform: translateY(-35px);
   }
-  /* Orange догоняет, Blue держится */
   40% {
-    transform: translateY(-30px);
+    transform: translateY(-32px);
   }
-  /* Orange обгоняет, Blue отстает */
+  50% {
+    transform: translateY(-10px);
+  }
   60% {
-    transform: translateY(40px);
-  }
-  /* Blue пытается догнать */
-  80% {
     transform: translateY(20px);
   }
-  /* Возврат */
+  70% {
+    transform: translateY(35px);
+  }
+  80% {
+    transform: translateY(25px);
+  }
+  90% {
+    transform: translateY(10px);
+  }
   100% {
     transform: translateY(0);
   }
 }
 
-@keyframes carRaceOrange {
+@keyframes carFloatOrange {
   0% {
     transform: translateY(0);
   }
-  /* Orange отстает */
+  10% {
+    transform: translateY(18px);
+  }
   20% {
-    transform: translateY(45px);
+    transform: translateY(35px);
   }
-  /* Orange догоняет */
+  30% {
+    transform: translateY(42px);
+  }
   40% {
-    transform: translateY(10px);
+    transform: translateY(25px);
   }
-  /* Orange обгоняет */
+  50% {
+    transform: translateY(5px);
+  }
   60% {
-    transform: translateY(-50px);
+    transform: translateY(-25px);
   }
-  /* Orange впереди */
+  70% {
+    transform: translateY(-45px);
+  }
   80% {
-    transform: translateY(-40px);
+    transform: translateY(-38px);
   }
-  /* Возврат */
+  90% {
+    transform: translateY(-15px);
+  }
   100% {
     transform: translateY(0);
   }
