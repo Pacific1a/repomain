@@ -1147,23 +1147,23 @@ class SpeedCashGame {
     }
 
     updateMultiplierDisplays() {
-        if (this.blueMultiplierDisplay) {
+        if (this.blueMultiplierDisplay && this.blueMultiplier !== undefined) {
             this.blueMultiplierDisplay.textContent = `x${this.blueMultiplier.toFixed(2)}`;
         }
-        if (this.orangeMultiplierDisplay) {
+        if (this.orangeMultiplierDisplay && this.orangeMultiplier !== undefined) {
             this.orangeMultiplierDisplay.textContent = `x${this.orangeMultiplier.toFixed(2)}`;
         }
     }
 
     updateLiveWinnings() {
         // Blue live winnings
-        if (this.currentBlueBet && this.gameState === 'racing') {
+        if (this.currentBlueBet && this.gameState === 'racing' && this.blueMultiplier !== undefined) {
             const blueWinnings = Math.floor(this.currentBlueBet * this.blueMultiplier);
             this.updateBetButton('blue', 'cashout', blueWinnings);
         }
         
         // Orange live winnings
-        if (this.currentOrangeBet && this.gameState === 'racing') {
+        if (this.currentOrangeBet && this.gameState === 'racing' && this.orangeMultiplier !== undefined) {
             const orangeWinnings = Math.floor(this.currentOrangeBet * this.orangeMultiplier);
             this.updateBetButton('orange', 'cashout', orangeWinnings);
         }
@@ -1171,14 +1171,16 @@ class SpeedCashGame {
         // Single live winnings
         if (this.currentSingleBet && this.gameState === 'racing') {
             const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
-            const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
-            this.updateSingleButton('cashout', singleWinnings);
+            if (multiplier !== undefined) {
+                const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
+                this.updateSingleButton('cashout', singleWinnings);
+            }
         }
     }
 
     checkAutoCashOut() {
         // Blue auto cash out
-        if (this.currentBlueBet && this.blueAutoCashOutEnabled) {
+        if (this.currentBlueBet && this.blueAutoCashOutEnabled && this.blueMultiplier !== undefined) {
             if (this.blueMultiplier >= this.blueAutoCashOutMultiplier) {
                 this.cashOut('blue');
                 console.log(`🤖 Blue Auto Cash Out at x${this.blueMultiplier.toFixed(2)}`);
@@ -1186,7 +1188,7 @@ class SpeedCashGame {
         }
         
         // Orange auto cash out
-        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled) {
+        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled && this.orangeMultiplier !== undefined) {
             if (this.orangeMultiplier >= this.orangeAutoCashOutMultiplier) {
                 this.cashOut('orange');
                 console.log(`🤖 Orange Auto Cash Out at x${this.orangeMultiplier.toFixed(2)}`);
