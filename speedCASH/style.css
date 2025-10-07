@@ -1376,9 +1376,10 @@
 }
 
 /* Остановка анимации */
-.auto-blue-2.stopped,
-.auto-orange.stopped {
+.speed-cash .auto-blue-2.stopped,
+.speed-cash .auto-orange.stopped {
   animation: none !important;
+  transition: transform 1.5s ease-in !important;
 }
 
 @keyframes carMoveBlue {

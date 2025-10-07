@@ -278,9 +278,12 @@ class SpeedCashGame {
         if (carElement) {
             // Добавляем класс для остановки анимации
             carElement.classList.add('stopped');
-            // Уезжаем вниз за пределы экрана
-            carElement.style.transition = 'transform 1.5s ease-in';
-            carElement.style.transform = 'translateY(500px)';
+            
+            // Небольшая задержка чтобы класс применился
+            setTimeout(() => {
+                // Уезжаем вниз за пределы экрана
+                carElement.style.transform = 'translateY(500px)';
+            }, 50);
         }
     }
     
