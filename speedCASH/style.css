@@ -1366,42 +1366,25 @@
   opacity: 1;
 }
 
-/* Анимация машин - старт с нижнего уровня и мягкая гонка */
+/* Анимация машин - 3 позиции */
 .auto-blue-2 {
-  animation: carRaceBlue 9s ease-in-out infinite;
+  animation: carMoveBlue 6s ease-in-out infinite;
 }
 
 .auto-orange {
-  animation: carRaceOrange 10.5s ease-in-out infinite;
+  animation: carMoveOrange 7s ease-in-out infinite;
 }
 
-@keyframes carRaceBlue {
-  0% { transform: translateY(120px); }
-  8% { transform: translateY(10px); }
-  12% { transform: translateY(0); }
-  20% { transform: translateY(-8px); }
-  30% { transform: translateY(-15px); }
-  40% { transform: translateY(-6px); }
-  50% { transform: translateY(-18px); }
-  60% { transform: translateY(-5px); }
-  70% { transform: translateY(-16px); }
-  82% { transform: translateY(-9px); }
-  92% { transform: translateY(4px); }
-  100% { transform: translateY(120px); }
+@keyframes carMoveBlue {
+  0%, 100% { transform: translateY(0); }
+  33% { transform: translateY(-15px); }
+  66% { transform: translateY(20px); }
 }
 
-@keyframes carRaceOrange {
-  0% { transform: translateY(120px); }
-  8% { transform: translateY(10px); }
-  12% { transform: translateY(0); }
-  22% { transform: translateY(-6px); }
-  34% { transform: translateY(-14px); }
-  46% { transform: translateY(-7px); }
-  58% { transform: translateY(-19px); }
-  70% { transform: translateY(-4px); }
-  82% { transform: translateY(-17px); }
-  92% { transform: translateY(6px); }
-  100% { transform: translateY(120px); }
+@keyframes carMoveOrange {
+  0%, 100% { transform: translateY(0); }
+  33% { transform: translateY(18px); }
+  66% { transform: translateY(-17px); }
 }
 .group-ico-1 {
   display: flex
