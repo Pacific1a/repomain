@@ -133,18 +133,30 @@ class SpeedCashGame {
     }
     
     startBettingPhase(data) {
-        this.gameState = 'waiting';
+        this.gamePhase = 'waiting';
         this.hideGlassLoader();
         
-        // Show waiting screen
-        this.waitingScreen.style.display = 'flex';
+        // Show waiting screen (countdown)
+        if (this.waitingScreen) {
+            this.waitingScreen.style.display = 'flex';
+        }
+        
+        // Hide game elements (cars, road)
+        const raceArea = document.querySelector('.race');
+        if (raceArea) {
+            const cars = raceArea.querySelectorAll('.div-2');
+            const roadLines = document.getElementById('roadLines');
+            
+            cars.forEach(car => car.style.display = 'none');
+            if (roadLines) roadLines.style.display = 'none';
+        }
         
         // Reset multipliers
         this.blueMultiplier = 1.00;
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
         
-        console.log('⏳ Betting phase started');
+        console.log('⏳ Betting phase started - showing countdown');
     }
     
     updateCountdown(timeLeft) {
@@ -156,8 +168,20 @@ class SpeedCashGame {
     startRace(data) {
         this.gamePhase = 'playing';
         
-        // Hide waiting screen
-        this.waitingScreen.style.display = 'none';
+        // Hide waiting screen (countdown)
+        if (this.waitingScreen) {
+            this.waitingScreen.style.display = 'none';
+        }
+        
+        // Show game elements (cars, road)
+        const raceArea = document.querySelector('.race');
+        if (raceArea) {
+            const cars = raceArea.querySelectorAll('.div-2');
+            const roadLines = document.getElementById('roadLines');
+            
+            cars.forEach(car => car.style.display = 'flex');
+            if (roadLines) roadLines.style.display = 'block';
+        }
         
         // Convert placed bets to playing
         if (this.blueBetStatus === 'placed') {
@@ -169,7 +193,7 @@ class SpeedCashGame {
             this.updateBetButton('orange');
         }
         
-        console.log('🏁 Race started');
+        console.log('🏁 Race started - showing game');
     }
     
     updateMultipliers(blue, orange) {
@@ -218,6 +242,9 @@ class SpeedCashGame {
         if (this.blueHistory.length > 10) this.blueHistory.pop();
         if (this.orangeHistory.length > 10) this.orangeHistory.pop();
         
+        // Show glass effect (затемнение)
+        this.showTransitionEffect();
+        
         // Reset bet statuses
         if (this.blueBetStatus === 'playing') {
             this.blueBetStatus = 'none';
@@ -238,7 +265,40 @@ class SpeedCashGame {
             this.updateBetButton('orange');
         }
         
-        console.log('🏁 Race finished');
+        console.log('🏁 Race finished - showing transition');
+    }
+    
+    showTransitionEffect() {
+        // Create glass overlay for transition
+        const overlay = document.createElement('div');
+        overlay.className = 'transition-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        `;
+        
+        document.querySelector('.game').appendChild(overlay);
+        
+        // Fade in
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+        }, 10);
+        
+        // Remove after 1 second
+        setTimeout(() => {
+            if (overlay && overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        }, 1000);
     }
     
     setupEventListeners() {
