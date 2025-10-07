@@ -55,11 +55,19 @@ class SpeedCashGame {
             this.socket = io();
             console.log('🔌 WebSocket подключен');
             
+            // Таймаут 3 секунды - если сервер не ответил, запускаем локально
+            const timeout = setTimeout(() => {
+                console.log('⚠️ Сервер не ответил - запуск локально');
+                this.hideGlassLoader();
+                this.startBettingPhase();
+            }, 3000);
+            
             // Запрашиваем текущее состояние игры
             this.socket.emit('speedcash_get_state');
             
             // Получаем текущее состояние от сервера
             this.socket.on('speedcash_current_state', (data) => {
+                clearTimeout(timeout); // Отменяем таймаут
                 console.log('📊 Текущее состояние:', data);
                 this.syncWithServer(data);
             });
@@ -103,13 +111,33 @@ class SpeedCashGame {
             // Фаза ставок
             this.gameState = 'betting';
             this.bettingTimeLeft = data.timeLeft || 5;
-            this.startBettingPhase();
             
-            // Обновляем countdown
+            // Очищаем старый таймер
+            if (this.bettingTimer) {
+                clearTimeout(this.bettingTimer);
+            }
+            
+            // Показываем countdown
+            this.showCountdown();
+            
+            // Обновляем countdown с правильным временем
             const countdownText = document.querySelector('.countdown-text');
             if (countdownText) {
                 countdownText.textContent = this.bettingTimeLeft;
             }
+            
+            // Запускаем таймер с правильной позиции
+            const countdown = () => {
+                if (this.bettingTimeLeft > 0) {
+                    this.bettingTimeLeft--;
+                    this.updateCountdown();
+                    this.bettingTimer = setTimeout(countdown, 1000);
+                } else {
+                    this.hideCountdown();
+                    this.startRace();
+                }
+            };
+            countdown();
         } else if (data.status === 'racing' || data.status === 'playing') {
             // Гонка идет
             this.gameState = 'racing';
@@ -141,10 +169,13 @@ class SpeedCashGame {
     }
     
     showGlassLoader() {
+        const gameElement = document.querySelector('.game');
+        if (!gameElement) return;
+        
         const loader = document.createElement('div');
         loader.className = 'glass-loader';
         loader.style.cssText = `
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
@@ -155,7 +186,8 @@ class SpeedCashGame {
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            z-index: 100;
+            border-radius: 20px;
         `;
         
         const spinner = document.createElement('div');
@@ -182,7 +214,7 @@ class SpeedCashGame {
         }
         
         loader.appendChild(spinner);
-        document.body.appendChild(loader);
+        gameElement.appendChild(loader);
         this.glassLoader = loader;
     }
     
