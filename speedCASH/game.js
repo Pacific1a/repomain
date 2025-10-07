@@ -276,6 +276,10 @@ class SpeedCashGame {
         console.log(`🛑 stopCarAnimation called for ${car}`, carElement);
         
         if (carElement) {
+            // Удаляем inline анимацию
+            carElement.style.animation = 'none';
+            console.log(`✅ Inline animation removed for ${car}`);
+            
             // Добавляем класс для выезда вниз
             carElement.classList.add('car-exit');
             console.log(`✅ Class 'car-exit' added for ${car}`);
