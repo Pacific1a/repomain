@@ -1348,7 +1348,7 @@
     transparent 28px,
     transparent 36px
   );
-  animation: roadMove 0.2s linear infinite;
+  animation: roadMove 0.1s linear infinite;
   will-change: transform;
 }
 
@@ -1365,27 +1365,37 @@
   opacity: 1;
 }
 
-/* Анимация машин - хаотичная гонка */
+/* Анимация машин - выезд и хаотичная гонка */
 .auto-blue-2 {
-  animation: carRaceBlue 3s ease-in-out infinite;
+  animation: carRaceBlue 6s ease-in-out infinite;
 }
 
 .auto-orange {
-  animation: carRaceOrange 3.5s ease-in-out infinite;
+  animation: carRaceOrange 7s ease-in-out infinite;
 }
 
 @keyframes carRaceBlue {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(-25px); }
-  50% { transform: translateY(0); }
-  75% { transform: translateY(30px); }
+  0% { transform: translateY(0); }
+  10% { transform: translateY(-30px); }
+  20% { transform: translateY(-30px); }
+  35% { transform: translateY(-15px); }
+  50% { transform: translateY(-35px); }
+  65% { transform: translateY(-20px); }
+  80% { transform: translateY(-40px); }
+  95% { transform: translateY(-25px); }
+  100% { transform: translateY(0); }
 }
 
 @keyframes carRaceOrange {
-  0%, 100% { transform: translateY(0); }
-  25% { transform: translateY(30px); }
-  50% { transform: translateY(0); }
-  75% { transform: translateY(-25px); }
+  0% { transform: translateY(0); }
+  10% { transform: translateY(-30px); }
+  20% { transform: translateY(-30px); }
+  30% { transform: translateY(-40px); }
+  45% { transform: translateY(-20px); }
+  60% { transform: translateY(-35px); }
+  75% { transform: translateY(-15px); }
+  90% { transform: translateY(-38px); }
+  100% { transform: translateY(0); }
 }
 .group-ico-1 {
   display: flex
