@@ -1366,15 +1366,6 @@
   opacity: 1;
 }
 
-/* Анимация машин - 3 позиции */
-.auto-blue-2 {
-  animation: carMoveBlue 6s ease-in-out infinite;
-}
-
-.auto-orange {
-  animation: carMoveOrange 7s ease-in-out infinite;
-}
-
 /* Класс для остановки анимации и выезда вниз */
 .auto-blue-2.car-exit,
 .auto-orange.car-exit {

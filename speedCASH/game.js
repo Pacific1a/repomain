@@ -217,14 +217,16 @@ class SpeedCashGame {
         const orangeMultiplier = document.querySelector('.div-3');
         const roadLines = document.getElementById('roadLines');
         
-        // Удаляем класс car-exit и показываем машины
+        // Удаляем класс car-exit и добавляем анимацию
         if (blueCar) {
             blueCar.style.opacity = '1';
             blueCar.classList.remove('car-exit');
+            blueCar.style.animation = 'carMoveBlue 6s ease-in-out infinite';
         }
         if (orangeCar) {
             orangeCar.style.opacity = '1';
             orangeCar.classList.remove('car-exit');
+            orangeCar.style.animation = 'carMoveOrange 7s ease-in-out infinite';
         }
         if (blueMultiplier) blueMultiplier.style.opacity = '1';
         if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
