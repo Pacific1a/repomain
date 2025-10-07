@@ -104,13 +104,54 @@ class SpeedCashGame {
                 console.log('🎮 Начало фазы ставок:', data);
                 this.gameState = 'betting';
                 this.bettingTimeLeft = data.bettingTime || 5;
+                
+                // Инициализируем множители
+                this.blueMultiplier = 1.00;
+                this.orangeMultiplier = 1.00;
                 this.blueTargetMultiplier = data.blueTarget;
                 this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
+                this.updateMultiplierDisplays();
+                
+                // Сбрасываем состояние игры
+                this.gameEnded = false;
+                this.blueEscaped = false;
+                this.orangeEscaped = false;
+                this.blueDetained = false;
+                this.orangeDetained = false;
+                
+                // Сбрасываем позиции машин
+                this.bluePosition = 0;
+                this.orangePosition = 0;
+                if (this.blueCar) {
+                    this.blueCar.style.transform = 'translateY(0px)';
+                }
+                if (this.orangeCar) {
+                    this.orangeCar.style.transform = 'translateY(0px)';
+                }
+                
+                // Удаляем иконки задержания
+                const crashIcons = document.querySelectorAll('.crash-icon');
+                crashIcons.forEach(icon => icon.remove());
+                
+                // Обрабатываем ставки из очереди
+                this.processQueuedBets();
                 
                 // Очищаем старый таймер
                 if (this.bettingTimer) {
                     clearTimeout(this.bettingTimer);
+                }
+                
+                // Переходим в countdown mode
+                const raceArea = document.querySelector('.race');
+                if (raceArea) {
+                    raceArea.classList.add('countdown-mode');
+                    raceArea.classList.remove('game-active');
+                }
+                
+                const roadLines = document.getElementById('roadLines');
+                if (roadLines) {
+                    roadLines.classList.remove('visible');
                 }
                 
                 // Показываем countdown
@@ -134,9 +175,22 @@ class SpeedCashGame {
             this.socket.on('speedcash_race_start', (data) => {
                 console.log('🏁 Начало гонки:', data);
                 this.gameState = 'racing';
+                
+                // Инициализируем множители
+                this.blueMultiplier = 1.00;
+                this.orangeMultiplier = 1.00;
                 this.blueTargetMultiplier = data.blueTarget;
                 this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
+                this.updateMultiplierDisplays();
+                
+                // Сбрасываем состояние игры
+                this.gameEnded = false;
+                this.blueEscaped = false;
+                this.orangeEscaped = false;
+                this.blueDetained = false;
+                this.orangeDetained = false;
+                this.escapeTextShown = false;
                 
                 // Скрываем countdown
                 this.hideCountdown();
@@ -154,12 +208,22 @@ class SpeedCashGame {
                 }
                 
                 // Запускаем анимацию
-                if (!this.animationId) {
-                    this.startTime = Date.now();
-                    this.racePhaseEndTime = this.startTime + 8000;
-                    this.animateRace();
-                    this.animateRoadLines();
+                this.startTime = Date.now();
+                this.racePhaseEndTime = this.startTime + 8000;
+                
+                // Останавливаем старые анимации
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
                 }
+                if (this.roadAnimationId) {
+                    cancelAnimationFrame(this.roadAnimationId);
+                    this.roadAnimationId = null;
+                }
+                
+                // Запускаем новые анимации
+                this.animateRace();
+                this.animateRoadLines();
             });
         } else {
             console.log('⚠️ WebSocket не доступен - локальный режим');
@@ -177,6 +241,11 @@ class SpeedCashGame {
             // Фаза ставок
             this.gameState = 'betting';
             this.bettingTimeLeft = data.timeLeft || 5;
+            
+            // Инициализируем множители
+            this.blueMultiplier = 1.00;
+            this.orangeMultiplier = 1.00;
+            this.updateMultiplierDisplays();
             
             // Очищаем старый таймер
             if (this.bettingTimer) {
