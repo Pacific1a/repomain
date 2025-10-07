@@ -279,8 +279,8 @@ class SpeedCashGame {
             // Останавливаем анимацию
             carElement.style.animation = 'none';
             // Уезжаем вниз за пределы экрана
-            carElement.style.transition = 'transform 1s ease-in';
-            carElement.style.transform = 'translateY(200px)';
+            carElement.style.transition = 'transform 1.5s ease-in';
+            carElement.style.transform = 'translateY(500px)';
         }
     }
     
@@ -315,7 +315,7 @@ class SpeedCashGame {
         // Show glass effect (затемнение) после анимации
         setTimeout(() => {
             this.showTransitionEffect();
-        }, 1000);
+        }, 1500);
         
         // Reset bet statuses
         if (this.blueBetStatus === 'playing') {
