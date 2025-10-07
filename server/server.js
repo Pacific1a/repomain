@@ -906,6 +906,12 @@ io.on('connection', (socket) => {
   socket.on('get_speedcash_state', () => {
     const gameState = globalGames.speedcash;
     
+    // Рассчитываем elapsed время для racing
+    let elapsed = 0;
+    if (gameState.status === 'racing' && gameState.raceStartTime) {
+      elapsed = Date.now() - gameState.raceStartTime;
+    }
+    
     socket.emit('speedcash_current_state', {
       status: gameState.status,
       timeLeft: gameState.bettingTime,
@@ -913,10 +919,11 @@ io.on('connection', (socket) => {
       orangeMultiplier: gameState.orangeMultiplier,
       blueTarget: gameState.blueStopMultiplier,
       orangeTarget: gameState.orangeStopMultiplier,
-      delayedCar: gameState.delayedCar
+      delayedCar: gameState.delayedCar,
+      elapsed: elapsed
     });
     
-    console.log(`📊 Отправлено текущее состояние: ${gameState.status}`);
+    console.log(`📊 Отправлено текущее состояние: ${gameState.status}, elapsed: ${elapsed}ms`);
   });
   
   // Запуск фазы ставок

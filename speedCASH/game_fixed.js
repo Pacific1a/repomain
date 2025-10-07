@@ -62,8 +62,11 @@ class SpeedCashGame {
                 this.startBettingPhase();
             }, 3000);
             
+            // Подключаемся к игре
+            this.socket.emit('join_speedcash');
+            
             // Запрашиваем текущее состояние игры
-            this.socket.emit('speedcash_get_state');
+            this.socket.emit('get_speedcash_state');
             
             // Получаем текущее состояние от сервера
             this.socket.on('speedcash_current_state', (data) => {
@@ -94,6 +97,69 @@ class SpeedCashGame {
                 console.log('🏁 Гонка закончилась:', data);
                 this.blueEscaped = data.blueEscaped;
                 this.orangeEscaped = data.orangeEscaped;
+            });
+            
+            // Начало фазы ставок
+            this.socket.on('speedcash_betting_start', (data) => {
+                console.log('🎮 Начало фазы ставок:', data);
+                this.gameState = 'betting';
+                this.bettingTimeLeft = data.bettingTime || 5;
+                this.blueTargetMultiplier = data.blueTarget;
+                this.orangeTargetMultiplier = data.orangeTarget;
+                this.delayedCar = data.delayedCar;
+                
+                // Очищаем старый таймер
+                if (this.bettingTimer) {
+                    clearTimeout(this.bettingTimer);
+                }
+                
+                // Показываем countdown
+                this.showCountdown();
+                const countdownText = document.querySelector('.countdown-text');
+                if (countdownText) {
+                    countdownText.textContent = this.bettingTimeLeft;
+                }
+            });
+            
+            // Обновление таймера
+            this.socket.on('speedcash_betting_timer', (data) => {
+                this.bettingTimeLeft = data.timeLeft;
+                const countdownText = document.querySelector('.countdown-text');
+                if (countdownText) {
+                    countdownText.textContent = this.bettingTimeLeft;
+                }
+            });
+            
+            // Начало гонки
+            this.socket.on('speedcash_race_start', (data) => {
+                console.log('🏁 Начало гонки:', data);
+                this.gameState = 'racing';
+                this.blueTargetMultiplier = data.blueTarget;
+                this.orangeTargetMultiplier = data.orangeTarget;
+                this.delayedCar = data.delayedCar;
+                
+                // Скрываем countdown
+                this.hideCountdown();
+                
+                // Показываем игру
+                const raceArea = document.querySelector('.race');
+                if (raceArea) {
+                    raceArea.classList.remove('countdown-mode');
+                    raceArea.classList.add('game-active');
+                }
+                
+                const roadLines = document.getElementById('roadLines');
+                if (roadLines) {
+                    roadLines.classList.add('visible');
+                }
+                
+                // Запускаем анимацию
+                if (!this.animationId) {
+                    this.startTime = Date.now();
+                    this.racePhaseEndTime = this.startTime + 8000;
+                    this.animateRace();
+                    this.animateRoadLines();
+                }
             });
         } else {
             console.log('⚠️ WebSocket не доступен - локальный режим');
