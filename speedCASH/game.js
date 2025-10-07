@@ -66,14 +66,14 @@ class SpeedCashGame {
         // Show glass loader
         this.showGlassLoader();
         
-        // Use existing socket from players-system
-        if (window.playersSocket) {
-            this.socket = window.playersSocket;
+        // Use existing socket from GameWebSocket
+        if (window.GameWebSocket && window.GameWebSocket.socket) {
+            this.socket = window.GameWebSocket.socket;
             console.log('✅ Using existing WebSocket connection');
             this.socket.emit('join_speedcash');
             this.setupSocketListeners();
         } else {
-            console.error('❌ playersSocket not found');
+            console.error('❌ GameWebSocket not found');
         }
     }
     
@@ -422,12 +422,12 @@ class SpeedCashGame {
 
 // Initialize game when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for playersSocket
+    // Wait for GameWebSocket
     const initGame = () => {
-        if (window.playersSocket) {
+        if (window.GameWebSocket && window.GameWebSocket.socket) {
             window.game = new SpeedCashGame();
         } else {
-            console.log('⏳ Waiting for playersSocket...');
+            console.log('⏳ Waiting for GameWebSocket...');
             setTimeout(initGame, 100);
         }
     };
