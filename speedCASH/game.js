@@ -109,15 +109,18 @@ class SpeedCashGame {
     
     showGlassLoader() {
         const loader = document.createElement('div');
-        loader.className = 'glass-loader';
+        loader.className = 'glass-loader-overlay';
         loader.innerHTML = `
-            <div class="loader-content">
-                <div class="spinner"></div>
-                <div class="loader-text">Загрузка игры...</div>
+            <div class="glass-block">
+                <div class="glass-shine"></div>
             </div>
         `;
-        document.querySelector('.game').appendChild(loader);
-        this.glassLoader = loader;
+        
+        const gameContainer = document.querySelector('.game');
+        if (gameContainer) {
+            gameContainer.appendChild(loader);
+            this.glassLoader = loader;
+        }
     }
     
     hideGlassLoader() {
