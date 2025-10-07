@@ -138,18 +138,23 @@ class SpeedCashGame {
         
         // Show waiting screen (countdown)
         if (this.waitingScreen) {
+            this.waitingScreen.style.opacity = '1';
+            this.waitingScreen.style.pointerEvents = 'auto';
             this.waitingScreen.style.display = 'flex';
         }
         
-        // Hide game elements (cars, road)
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            const cars = raceArea.querySelectorAll('.div-2');
-            const roadLines = document.getElementById('roadLines');
-            
-            cars.forEach(car => car.style.display = 'none');
-            if (roadLines) roadLines.style.display = 'none';
-        }
+        // Hide game elements (cars, multipliers, road)
+        const blueCar = document.querySelector('.auto-blue-2');
+        const orangeCar = document.querySelector('.auto-orange');
+        const blueMultiplier = document.querySelector('.multiplier');
+        const orangeMultiplier = document.querySelector('.div-3');
+        const roadLines = document.getElementById('roadLines');
+        
+        if (blueCar) blueCar.style.opacity = '0';
+        if (orangeCar) orangeCar.style.opacity = '0';
+        if (blueMultiplier) blueMultiplier.style.opacity = '0';
+        if (orangeMultiplier) orangeMultiplier.style.opacity = '0';
+        if (roadLines) roadLines.style.opacity = '0';
         
         // Reset multipliers
         this.blueMultiplier = 1.00;
@@ -170,18 +175,27 @@ class SpeedCashGame {
         
         // Hide waiting screen (countdown)
         if (this.waitingScreen) {
-            this.waitingScreen.style.display = 'none';
+            this.waitingScreen.style.opacity = '0';
+            this.waitingScreen.style.pointerEvents = 'none';
+            setTimeout(() => {
+                if (this.waitingScreen) {
+                    this.waitingScreen.style.display = 'none';
+                }
+            }, 300);
         }
         
-        // Show game elements (cars, road)
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            const cars = raceArea.querySelectorAll('.div-2');
-            const roadLines = document.getElementById('roadLines');
-            
-            cars.forEach(car => car.style.display = 'flex');
-            if (roadLines) roadLines.style.display = 'block';
-        }
+        // Show game elements (cars, multipliers, road)
+        const blueCar = document.querySelector('.auto-blue-2');
+        const orangeCar = document.querySelector('.auto-orange');
+        const blueMultiplier = document.querySelector('.multiplier');
+        const orangeMultiplier = document.querySelector('.div-3');
+        const roadLines = document.getElementById('roadLines');
+        
+        if (blueCar) blueCar.style.opacity = '1';
+        if (orangeCar) orangeCar.style.opacity = '1';
+        if (blueMultiplier) blueMultiplier.style.opacity = '1';
+        if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
+        if (roadLines) roadLines.style.opacity = '1';
         
         // Convert placed bets to playing
         if (this.blueBetStatus === 'placed') {
@@ -269,6 +283,19 @@ class SpeedCashGame {
     }
     
     showTransitionEffect() {
+        // Hide game elements first
+        const blueCar = document.querySelector('.auto-blue-2');
+        const orangeCar = document.querySelector('.auto-orange');
+        const blueMultiplier = document.querySelector('.multiplier');
+        const orangeMultiplier = document.querySelector('.div-3');
+        const roadLines = document.getElementById('roadLines');
+        
+        if (blueCar) blueCar.style.opacity = '0';
+        if (orangeCar) orangeCar.style.opacity = '0';
+        if (blueMultiplier) blueMultiplier.style.opacity = '0';
+        if (orangeMultiplier) orangeMultiplier.style.opacity = '0';
+        if (roadLines) roadLines.style.opacity = '0';
+        
         // Create glass overlay for transition
         const overlay = document.createElement('div');
         overlay.className = 'transition-overlay';
@@ -286,14 +313,17 @@ class SpeedCashGame {
             transition: opacity 0.5s ease;
         `;
         
-        document.querySelector('.game').appendChild(overlay);
+        const gameContainer = document.querySelector('.game');
+        if (gameContainer) {
+            gameContainer.appendChild(overlay);
+        }
         
         // Fade in
         setTimeout(() => {
             overlay.style.opacity = '1';
         }, 10);
         
-        // Remove after 1 second
+        // Remove after 1 second and prepare for next round
         setTimeout(() => {
             if (overlay && overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
