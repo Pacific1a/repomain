@@ -97,6 +97,24 @@ class SpeedCashGame {
                 console.log('🏁 Гонка закончилась:', data);
                 this.blueEscaped = data.blueEscaped;
                 this.orangeEscaped = data.orangeEscaped;
+                
+                // Показываем текст "УЕХАЛ" и заканчиваем игру
+                if (!this.escapeTextShown) {
+                    this.escapeTextShown = true;
+                    
+                    // Определяем кто уехал
+                    if (data.blueEscaped && data.orangeEscaped) {
+                        // Обе уехали (winner: 'both')
+                        this.showEscapeText('blue'); // Показываем надпись
+                    } else if (data.blueEscaped) {
+                        this.showEscapeText('blue');
+                    } else if (data.orangeEscaped) {
+                        this.showEscapeText('orange');
+                    } else {
+                        // Никто не уехал (обе задержаны)
+                        this.showBothDetainedScreen();
+                    }
+                }
             });
             
             // Начало фазы ставок
@@ -829,8 +847,8 @@ class SpeedCashGame {
         const blueDelayed = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
         const orangeDelayed = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
 
-        // Increment multipliers
-        if (!this.gameEnded) {
+        // Increment multipliers ONLY in local mode (no server)
+        if (!this.gameEnded && !this.socket) {
             const baseIncrease = 0.0003 + Math.random() * 0.0005;
 
             // Blue множитель
