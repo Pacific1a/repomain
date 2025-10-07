@@ -1037,18 +1037,24 @@ io.on('connection', (socket) => {
         }, 2000);
       }
       
-      // ОБЕ машины растут постоянно
+      // ОБЕ машины растут постоянно, НО после окончания гонки задержанные останавливаются
       const elapsedSeconds = elapsed / 1000;
       const baseIncrement = 0.01;
       const timeMultiplier = 1 + (elapsedSeconds / 10); // Ускорение
       
-      // Blue растет постоянно
+      // Blue растет если не задержана ИЛИ гонка еще не закончилась
       const blueIncrement = baseIncrement * timeMultiplier;
-      gameState.blueMultiplier += blueIncrement;
+      const blueDetained = gameState.raceEnding && gameState.delayedCar === 'blue' || gameState.delayedCar === 'both';
+      if (!blueDetained) {
+        gameState.blueMultiplier += blueIncrement;
+      }
       
-      // Orange растет постоянно
+      // Orange растет если не задержана ИЛИ гонка еще не закончилась
       const orangeIncrement = baseIncrement * timeMultiplier;
-      gameState.orangeMultiplier += orangeIncrement;
+      const orangeDetained = gameState.raceEnding && gameState.delayedCar === 'orange' || gameState.delayedCar === 'both';
+      if (!orangeDetained) {
+        gameState.orangeMultiplier += orangeIncrement;
+      }
       
       io.to('global_speedcash').emit('speedcash_multiplier_update', {
         blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),

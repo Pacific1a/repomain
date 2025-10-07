@@ -891,10 +891,10 @@ class SpeedCashGame {
         // Blue car movement
         if (this.blueEscaped) {
             // Уезжает вверх (установлено сервером)
-            this.bluePosition -= 6;
+            this.bluePosition -= 8;
         } else if (this.blueDetained) {
             // Задержан - едет вниз
-            this.bluePosition += 4;
+            this.bluePosition += 5;
         } else {
             // Хаотичное плавание
             const blueWave1 = Math.sin(elapsed * 0.0008) * 25;
@@ -907,10 +907,10 @@ class SpeedCashGame {
         // Orange car movement (независимое от blue)
         if (this.orangeEscaped) {
             // Уезжает вверх (установлено сервером)
-            this.orangePosition -= 6;
+            this.orangePosition -= 8;
         } else if (this.orangeDetained) {
             // Задержан - едет вниз
-            this.orangePosition += 4;
+            this.orangePosition += 5;
         } else {
             // Хаотичное плавание
             const orangeWave1 = Math.sin(elapsed * 0.0011) * 20;
