@@ -243,6 +243,37 @@
   to { transform: rotate(360deg); }
 }
 
+/* Bet button states */
+.bet-button {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.bet-button:hover {
+  transform: scale(1.02);
+}
+
+.bet-button.state-bet {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+}
+
+.bet-button.state-cancel {
+  background: linear-gradient(180deg, #77C074 0%, #407B3D 100%);
+  border-color: #77C074;
+}
+
+.bet-button.state-cashout {
+  background: linear-gradient(180deg, #BAA657 0%, #877440 100%);
+  border-color: #BAA657;
+}
+
+.bet-button.state-next-round {
+  background: linear-gradient(180deg, #77C074 0%, #407B3D 100%);
+  border-color: #77C074;
+}
+
 /* Скрываем race area по умолчанию */
 .speed-cash .race {
   opacity: 0;

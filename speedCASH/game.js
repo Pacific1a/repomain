@@ -7,24 +7,34 @@ class SpeedCashGame {
         this.socket = null;
         
         // Game state
-        this.gameState = 'initial'; // initial, waiting, playing, finished
+        this.gamePhase = 'initial'; // initial, waiting, playing, finished
+        this.gameMode = 'two-cars'; // two-cars, one-car
+        
+        // Multipliers
         this.blueMultiplier = 1.00;
         this.orangeMultiplier = 1.00;
         
-        // Betting
+        // Blue car state
         this.blueBetAmount = 50;
-        this.orangeBetAmount = 50;
-        this.blueBetPlaced = false;
-        this.orangeBetPlaced = false;
-        
-        // Auto cashout
+        this.blueBetStatus = 'none'; // none, placed, playing, cashed, next-round
         this.blueAutoCashout = false;
-        this.orangeAutoCashout = false;
         this.blueAutoCashoutValue = 2.00;
+        
+        // Orange car state
+        this.orangeBetAmount = 50;
+        this.orangeBetStatus = 'none';
+        this.orangeAutoCashout = false;
         this.orangeAutoCashoutValue = 2.00;
+        
+        // History
+        this.blueHistory = [];
+        this.orangeHistory = [];
         
         // DOM elements
         this.initElements();
+        
+        // Setup event listeners
+        this.setupEventListeners();
         
         // Connect to WebSocket
         this.connectWebSocket();
@@ -144,10 +154,20 @@ class SpeedCashGame {
     }
     
     startRace(data) {
-        this.gameState = 'playing';
+        this.gamePhase = 'playing';
         
         // Hide waiting screen
         this.waitingScreen.style.display = 'none';
+        
+        // Convert placed bets to playing
+        if (this.blueBetStatus === 'placed') {
+            this.blueBetStatus = 'playing';
+            this.updateBetButton('blue');
+        }
+        if (this.orangeBetStatus === 'placed') {
+            this.orangeBetStatus = 'playing';
+            this.updateBetButton('orange');
+        }
         
         console.log('🏁 Race started');
     }
@@ -156,6 +176,26 @@ class SpeedCashGame {
         this.blueMultiplier = blue;
         this.orangeMultiplier = orange;
         this.updateMultiplierDisplays();
+        
+        // Update bet buttons to show current winnings
+        if (this.blueBetStatus === 'playing') {
+            this.updateBetButton('blue');
+        }
+        if (this.orangeBetStatus === 'playing') {
+            this.updateBetButton('orange');
+        }
+        
+        // Check auto-cashout
+        if (this.blueAutoCashout && this.blueBetStatus === 'playing' && 
+            this.blueMultiplier >= this.blueAutoCashoutValue) {
+            console.log(`🤖 Auto cash out: blue at x${this.blueMultiplier.toFixed(2)}`);
+            this.cashOut('blue');
+        }
+        if (this.orangeAutoCashout && this.orangeBetStatus === 'playing' && 
+            this.orangeMultiplier >= this.orangeAutoCashoutValue) {
+            console.log(`🤖 Auto cash out: orange at x${this.orangeMultiplier.toFixed(2)}`);
+            this.cashOut('orange');
+        }
     }
     
     updateMultiplierDisplays() {
@@ -168,8 +208,42 @@ class SpeedCashGame {
     }
     
     endRace(data) {
-        this.gameState = 'finished';
+        this.gamePhase = 'finished';
+        
+        // Add to history
+        this.blueHistory.unshift(this.blueMultiplier);
+        this.orangeHistory.unshift(this.orangeMultiplier);
+        
+        // Limit history to 10 items
+        if (this.blueHistory.length > 10) this.blueHistory.pop();
+        if (this.orangeHistory.length > 10) this.orangeHistory.pop();
+        
+        // Reset bet statuses
+        if (this.blueBetStatus === 'playing') {
+            this.blueBetStatus = 'none';
+            this.updateBetButton('blue');
+        }
+        if (this.orangeBetStatus === 'playing') {
+            this.orangeBetStatus = 'none';
+            this.updateBetButton('orange');
+        }
+        
+        // Process next-round bets
+        if (this.blueBetStatus === 'next-round') {
+            this.blueBetStatus = 'placed';
+            this.updateBetButton('blue');
+        }
+        if (this.orangeBetStatus === 'next-round') {
+            this.orangeBetStatus = 'placed';
+            this.updateBetButton('orange');
+        }
+        
         console.log('🏁 Race finished');
+    }
+    
+    setupEventListeners() {
+        // Mode switcher будет добавлен позже
+        console.log('✅ Event listeners setup');
     }
     
     // Bet amount adjustment
@@ -191,10 +265,157 @@ class SpeedCashGame {
         
         if (car === 'blue') {
             this.blueBetAmount = newAmount;
-            this.blueBetAmountDisplay.textContent = newAmount;
+            if (this.blueBetAmountDisplay) {
+                this.blueBetAmountDisplay.textContent = newAmount;
+            }
         } else {
             this.orangeBetAmount = newAmount;
-            this.orangeBetAmountDisplay.textContent = newAmount;
+            if (this.orangeBetAmountDisplay) {
+                this.orangeBetAmountDisplay.textContent = newAmount;
+            }
+        }
+    }
+    
+    // Place bet
+    placeBet(car) {
+        const betAmount = car === 'blue' ? this.blueBetAmount : this.orangeBetAmount;
+        
+        // Check balance
+        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+            console.log('❌ Insufficient balance');
+            return;
+        }
+        
+        // Place bet
+        const success = window.GameBalanceAPI.placeBet(betAmount, 'chips');
+        if (!success) return;
+        
+        if (this.gamePhase === 'waiting') {
+            // Bet during waiting phase
+            if (car === 'blue') {
+                this.blueBetStatus = 'placed';
+            } else {
+                this.orangeBetStatus = 'placed';
+            }
+        } else if (this.gamePhase === 'playing') {
+            // Bet during playing phase - queue for next round
+            if (car === 'blue') {
+                this.blueBetStatus = 'next-round';
+            } else {
+                this.orangeBetStatus = 'next-round';
+            }
+        }
+        
+        this.updateBetButton(car);
+        console.log(`✅ Bet placed: ${car} - ${betAmount} chips`);
+    }
+    
+    // Cancel bet
+    cancelBet(car) {
+        const betAmount = car === 'blue' ? this.blueBetAmount : this.orangeBetAmount;
+        
+        // Return chips
+        if (window.GameBalanceAPI) {
+            window.GameBalanceAPI.payWinningsAndUpdate(betAmount, 'chips');
+        }
+        
+        if (car === 'blue') {
+            this.blueBetStatus = 'none';
+        } else {
+            this.orangeBetStatus = 'none';
+        }
+        
+        this.updateBetButton(car);
+        console.log(`❌ Bet cancelled: ${car}`);
+    }
+    
+    // Cash out
+    cashOut(car) {
+        const betAmount = car === 'blue' ? this.blueBetAmount : this.orangeBetAmount;
+        const multiplier = car === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
+        const winAmount = Math.floor(betAmount * multiplier);
+        
+        // Pay winnings
+        if (window.GameBalanceAPI) {
+            window.GameBalanceAPI.payWinningsAndUpdate(winAmount, 'chips');
+        }
+        
+        if (car === 'blue') {
+            this.blueBetStatus = 'cashed';
+        } else {
+            this.orangeBetStatus = 'cashed';
+        }
+        
+        this.updateBetButton(car);
+        console.log(`💰 Cash out: ${car} - ${winAmount} chips (x${multiplier.toFixed(2)})`);
+    }
+    
+    // Update bet button state
+    updateBetButton(car) {
+        const button = car === 'blue' ? this.blueBetButton : this.orangeBetButton;
+        if (!button) return;
+        
+        const betStatus = car === 'blue' ? this.blueBetStatus : this.orangeBetStatus;
+        const betAmount = car === 'blue' ? this.blueBetAmount : this.orangeBetAmount;
+        const multiplier = car === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
+        
+        const textElement = button.querySelector('.text-wrapper-9');
+        const amountElement = button.querySelector('.text-wrapper-14');
+        
+        // Remove all state classes
+        button.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'state-next-round');
+        
+        switch (betStatus) {
+            case 'none':
+                // BET state
+                button.classList.add('state-bet');
+                button.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                button.style.borderColor = '#667eea';
+                if (textElement) textElement.textContent = 'Bet';
+                if (amountElement) amountElement.textContent = `${betAmount} Chips`;
+                button.onclick = () => this.placeBet(car);
+                break;
+                
+            case 'placed':
+                // CANCEL state (placed during waiting)
+                button.classList.add('state-cancel');
+                button.style.background = 'linear-gradient(180deg, #77C074 0%, #407B3D 100%)';
+                button.style.borderColor = '#77C074';
+                if (textElement) textElement.textContent = 'Cancel';
+                if (amountElement) amountElement.textContent = '';
+                button.onclick = () => this.cancelBet(car);
+                break;
+                
+            case 'playing':
+                // CASH OUT state
+                button.classList.add('state-cashout');
+                button.style.background = 'linear-gradient(180deg, #BAA657 0%, #877440 100%)';
+                button.style.borderColor = '#BAA657';
+                const winAmount = Math.floor(betAmount * multiplier);
+                if (textElement) textElement.textContent = 'Cash Out';
+                if (amountElement) amountElement.textContent = `${winAmount} Chips`;
+                button.onclick = () => this.cashOut(car);
+                break;
+                
+            case 'next-round':
+                // CANCEL WAIT TO NEXT ROUND state
+                button.classList.add('state-next-round');
+                button.style.background = 'linear-gradient(180deg, #77C074 0%, #407B3D 100%)';
+                button.style.borderColor = '#77C074';
+                if (textElement) textElement.textContent = 'Cancel';
+                if (amountElement) amountElement.textContent = 'Wait to next round';
+                button.onclick = () => this.cancelBet(car);
+                break;
+                
+            case 'cashed':
+                // After cash out - reset to BET
+                if (car === 'blue') {
+                    this.blueBetStatus = 'none';
+                } else {
+                    this.orangeBetStatus = 'none';
+                }
+                this.updateBetButton(car);
+                break;
         }
     }
 }
