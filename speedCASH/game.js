@@ -217,16 +217,14 @@ class SpeedCashGame {
         const orangeMultiplier = document.querySelector('.div-3');
         const roadLines = document.getElementById('roadLines');
         
-        // Запускаем анимацию машин через JS
+        // Удаляем класс car-exit и показываем машины
         if (blueCar) {
             blueCar.style.opacity = '1';
-            blueCar.style.transform = 'translateY(0)';
-            this.startCarAnimation('blue');
+            blueCar.classList.remove('car-exit');
         }
         if (orangeCar) {
             orangeCar.style.opacity = '1';
-            orangeCar.style.transform = 'translateY(0)';
-            this.startCarAnimation('orange');
+            orangeCar.classList.remove('car-exit');
         }
         if (blueMultiplier) blueMultiplier.style.opacity = '1';
         if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
@@ -271,48 +269,14 @@ class SpeedCashGame {
         }
     }
     
-    startCarAnimation(car) {
-        const positions = car === 'blue' 
-            ? [0, -15, 20, 0] 
-            : [0, 18, -17, 0];
-        let currentIndex = 0;
-        const duration = car === 'blue' ? 2000 : 2300; // Разная скорость
-        
-        const intervalKey = `${car}AnimationInterval`;
-        
-        // Очищаем старый интервал если есть
-        if (this[intervalKey]) {
-            clearInterval(this[intervalKey]);
-        }
-        
-        // Запускаем анимацию
-        this[intervalKey] = setInterval(() => {
-            const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
-            if (carElement && this.gamePhase === 'playing') {
-                currentIndex = (currentIndex + 1) % positions.length;
-                carElement.style.transition = 'transform 0.5s ease-in-out';
-                carElement.style.transform = `translateY(${positions[currentIndex]}px)`;
-            }
-        }, duration / positions.length);
-    }
-    
     stopCarAnimation(car) {
         const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
         console.log(`🛑 stopCarAnimation called for ${car}`, carElement);
         
-        // Останавливаем интервал анимации
-        const intervalKey = `${car}AnimationInterval`;
-        if (this[intervalKey]) {
-            clearInterval(this[intervalKey]);
-            this[intervalKey] = null;
-            console.log(`✅ Animation interval cleared for ${car}`);
-        }
-        
         if (carElement) {
-            // Добавляем анимацию выезда вниз
-            carElement.style.transition = 'transform 1.5s ease-in';
-            carElement.style.transform = 'translateY(500px)';
-            console.log(`✅ Transform applied for ${car}: translateY(500px)`);
+            // Добавляем класс для выезда вниз
+            carElement.classList.add('car-exit');
+            console.log(`✅ Class 'car-exit' added for ${car}`);
         } else {
             console.error(`❌ Car element not found for ${car}`);
         }
