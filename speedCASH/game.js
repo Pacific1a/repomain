@@ -275,13 +275,19 @@ class SpeedCashGame {
     
     stopCarAnimation(car) {
         const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
+        console.log(`🛑 stopCarAnimation called for ${car}`, carElement);
+        
         if (carElement) {
             // Убираем анимацию гонки
             carElement.style.animation = 'none';
+            console.log(`✅ Animation removed for ${car}`);
             
             // Добавляем анимацию выезда вниз
             carElement.style.transition = 'transform 1.5s ease-in';
             carElement.style.transform = 'translateY(500px)';
+            console.log(`✅ Transform applied for ${car}: translateY(500px)`);
+        } else {
+            console.error(`❌ Car element not found for ${car}`);
         }
     }
     
@@ -297,11 +303,16 @@ class SpeedCashGame {
     endRace(data) {
         this.gamePhase = 'finished';
         
-        // Останавливаем машины которые достигли target
+        console.log('🏁 endRace data:', data);
+        console.log('blueEscaped:', data.blueEscaped, 'orangeEscaped:', data.orangeEscaped);
+        
+        // Останавливаем машины которые достигли target (проиграли)
         if (data.blueEscaped === false) {
+            console.log('🚗 Blue car STOPPED - reached target');
             this.stopCarAnimation('blue');
         }
         if (data.orangeEscaped === false) {
+            console.log('🚗 Orange car STOPPED - reached target');
             this.stopCarAnimation('orange');
         }
         
