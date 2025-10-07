@@ -1380,19 +1380,19 @@
   }
   /* Blue едет впереди */
   20% {
-    transform: translateY(-6px);
+    transform: translateY(-35px);
   }
   /* Orange догоняет, Blue держится */
   40% {
-    transform: translateY(-5px);
+    transform: translateY(-30px);
   }
   /* Orange обгоняет, Blue отстает */
   60% {
-    transform: translateY(3px);
+    transform: translateY(40px);
   }
   /* Blue пытается догнать */
   80% {
-    transform: translateY(2px);
+    transform: translateY(20px);
   }
   /* Возврат */
   100% {
@@ -1406,19 +1406,19 @@
   }
   /* Orange отстает */
   20% {
-    transform: translateY(4px);
+    transform: translateY(45px);
   }
   /* Orange догоняет */
   40% {
-    transform: translateY(-2px);
+    transform: translateY(10px);
   }
   /* Orange обгоняет */
   60% {
-    transform: translateY(-7px);
+    transform: translateY(-50px);
   }
   /* Orange впереди */
   80% {
-    transform: translateY(-6px);
+    transform: translateY(-40px);
   }
   /* Возврат */
   100% {
