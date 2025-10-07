@@ -86,12 +86,14 @@ class SpeedCashGame {
             console.log('📊 Current state:', data);
             this.hideGlassLoader();
             
-            if (data.status === 'waiting') {
+            if (data.status === 'betting' || data.status === 'waiting') {
+                // Show countdown
                 this.startBettingPhase(data);
                 if (data.timeLeft) {
                     this.updateCountdown(data.timeLeft);
                 }
-            } else if (data.status === 'playing') {
+            } else if (data.status === 'racing' || data.status === 'playing') {
+                // Show game
                 this.startRace(data);
                 if (data.blueMultiplier && data.orangeMultiplier) {
                     this.updateMultipliers(data.blueMultiplier, data.orangeMultiplier);
