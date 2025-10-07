@@ -81,22 +81,26 @@ class SpeedCashGame {
         // Betting phase started
         this.socket.on('speedcash_betting_start', (data) => {
             console.log('🎲 Betting started:', data);
+            this.hideGlassLoader(); // Hide loader when data received
             this.startBettingPhase(data);
         });
         
         // Betting timer
         this.socket.on('speedcash_betting_timer', (data) => {
+            this.hideGlassLoader(); // Hide loader when data received
             this.updateCountdown(data.timeLeft);
         });
         
         // Race started
         this.socket.on('speedcash_race_start', (data) => {
             console.log('🏁 Race started:', data);
+            this.hideGlassLoader(); // Hide loader when data received
             this.startRace(data);
         });
         
         // Multiplier update
         this.socket.on('speedcash_multiplier_update', (data) => {
+            this.hideGlassLoader(); // Hide loader when data received
             this.updateMultipliers(data.blueMultiplier, data.orangeMultiplier);
         });
         
@@ -124,7 +128,7 @@ class SpeedCashGame {
     }
     
     hideGlassLoader() {
-        if (this.glassLoader) {
+        if (this.glassLoader && this.glassLoader.parentNode) {
             this.glassLoader.style.opacity = '0';
             setTimeout(() => {
                 if (this.glassLoader && this.glassLoader.parentNode) {
@@ -137,7 +141,6 @@ class SpeedCashGame {
     
     startBettingPhase(data) {
         this.gamePhase = 'waiting';
-        this.hideGlassLoader();
         
         // Show waiting screen (countdown)
         if (this.waitingScreen) {
