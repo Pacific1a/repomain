@@ -994,8 +994,10 @@ io.on('connection', (socket) => {
       const elapsed = Date.now() - gameState.raceStartTime;
       
       // Проверяем не истекло ли время
-      if (elapsed >= gameState.raceDuration) {
-        // Время истекло - заканчиваем гонку
+      if (elapsed >= gameState.raceDuration && !gameState.raceEnding) {
+        // Время истекло - отправляем race_end, но продолжаем рост 2 секунды
+        gameState.raceEnding = true;
+        
         let blueEscaped = false; // По умолчанию задержаны
         let orangeEscaped = false;
         
@@ -1010,7 +1012,34 @@ io.on('connection', (socket) => {
           orangeEscaped = false;
         }
         
-        endSpeedCashRace(blueEscaped, orangeEscaped);
+        // Отправляем race_end сразу
+        io.to('global_speedcash').emit('speedcash_race_end', {
+          winner: blueEscaped && !orangeEscaped ? 'blue' : (!blueEscaped && orangeEscaped ? 'orange' : (blueEscaped && orangeEscaped ? 'both' : 'none')),
+          blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
+          orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
+          blueEscaped,
+          orangeEscaped
+        });
+        
+        // Продолжаем рост еще 2 секунды, потом заканчиваем
+        setTimeout(() => {
+          if (gameState.raceInterval) {
+            clearInterval(gameState.raceInterval);
+          }
+          gameState.status = 'finished';
+          gameState.raceEnding = false;
+          
+          // Перезапуск через 3 секунды
+          setTimeout(() => {
+            startSpeedCashBetting();
+          }, 3000);
+        }, 2000);
+        
+        return;
+      }
+      
+      // Если уже заканчиваем и прошло более 2 секунд после окончания - не отправляем обновления
+      if (gameState.raceEnding && elapsed >= gameState.raceDuration + 2000) {
         return;
       }
       
@@ -1032,43 +1061,6 @@ io.on('connection', (socket) => {
         orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
       });
     }, 50);
-  }
-  
-  // Завершение гонки
-  function endSpeedCashRace(blueEscaped, orangeEscaped) {
-    const gameState = globalGames.speedcash;
-    
-    if (gameState.raceInterval) {
-      clearInterval(gameState.raceInterval);
-    }
-    
-    gameState.status = 'finished';
-    
-    // Определяем победителя
-    if (blueEscaped && !orangeEscaped) {
-      gameState.winner = 'blue'; // Blue уехала - победила
-    } else if (!blueEscaped && orangeEscaped) {
-      gameState.winner = 'orange'; // Orange уехала - победила
-    } else if (blueEscaped && orangeEscaped) {
-      gameState.winner = 'both'; // Обе уехали
-    } else {
-      gameState.winner = 'none'; // Обе задержаны
-    }
-    
-    io.to('global_speedcash').emit('speedcash_race_end', {
-      winner: gameState.winner,
-      blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
-      orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
-      blueEscaped,
-      orangeEscaped
-    });
-    
-    console.log(`🏁 SpeedCASH: Race ended! Winner: ${gameState.winner}, Blue: ${gameState.blueMultiplier.toFixed(2)}x, Orange: ${gameState.orangeMultiplier.toFixed(2)}x`);
-    
-    // Перезапуск через 3 секунды
-    setTimeout(() => {
-      startSpeedCashBetting();
-    }, 3000);
   }
 
   // Отключение

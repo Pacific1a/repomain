@@ -95,10 +95,8 @@ class SpeedCashGame {
             // Конец гонки
             this.socket.on('speedcash_race_end', (data) => {
                 console.log('🏁 Гонка закончилась:', data);
-                this.blueEscaped = data.blueEscaped;
-                this.orangeEscaped = data.orangeEscaped;
                 
-                // Устанавливаем флаги задержания и показываем иконки
+                // СРАЗУ устанавливаем флаги задержания и показываем иконки
                 if (!data.blueEscaped) {
                     this.blueDetained = true;
                     this.showCrashIcon('blue', this.bluePosition);
@@ -108,23 +106,29 @@ class SpeedCashGame {
                     this.showCrashIcon('orange', this.orangePosition);
                 }
                 
-                // Показываем текст "УЕХАЛ" и заканчиваем игру
-                if (!this.escapeTextShown) {
-                    this.escapeTextShown = true;
+                // Победитель уезжает ЧЕРЕЗ 2 секунды (набирает еще коэфф)
+                setTimeout(() => {
+                    this.blueEscaped = data.blueEscaped;
+                    this.orangeEscaped = data.orangeEscaped;
                     
-                    // Определяем кто уехал
-                    if (data.blueEscaped && data.orangeEscaped) {
-                        // Обе уехали (winner: 'both')
-                        this.showEscapeText('blue'); // Показываем надпись
-                    } else if (data.blueEscaped) {
-                        this.showEscapeText('blue');
-                    } else if (data.orangeEscaped) {
-                        this.showEscapeText('orange');
-                    } else {
-                        // Никто не уехал (обе задержаны)
-                        this.showBothDetainedScreen();
+                    // Показываем текст "УЕХАЛ" КОГДА машина начинает уезжать
+                    if (!this.escapeTextShown) {
+                        this.escapeTextShown = true;
+                        
+                        // Определяем кто уехал
+                        if (data.blueEscaped && data.orangeEscaped) {
+                            // Обе уехали (winner: 'both')
+                            this.showEscapeText('blue'); // Показываем надпись
+                        } else if (data.blueEscaped) {
+                            this.showEscapeText('blue');
+                        } else if (data.orangeEscaped) {
+                            this.showEscapeText('orange');
+                        } else {
+                            // Никто не уехал (обе задержаны)
+                            this.showBothDetainedScreen();
+                        }
                     }
-                }
+                }, 2000);
             });
             
             // Начало фазы ставок
