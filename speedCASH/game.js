@@ -72,12 +72,33 @@ class SpeedCashGame {
             console.log('✅ Using existing WebSocket connection');
             this.socket.emit('join_speedcash');
             this.setupSocketListeners();
+            
+            // Request current game state
+            this.socket.emit('get_speedcash_state');
         } else {
             console.error('❌ GameWebSocket not found');
         }
     }
     
     setupSocketListeners() {
+        // Current game state (when joining)
+        this.socket.on('speedcash_current_state', (data) => {
+            console.log('📊 Current state:', data);
+            this.hideGlassLoader();
+            
+            if (data.status === 'waiting') {
+                this.startBettingPhase(data);
+                if (data.timeLeft) {
+                    this.updateCountdown(data.timeLeft);
+                }
+            } else if (data.status === 'playing') {
+                this.startRace(data);
+                if (data.blueMultiplier && data.orangeMultiplier) {
+                    this.updateMultipliers(data.blueMultiplier, data.orangeMultiplier);
+                }
+            }
+        });
+        
         // Betting phase started
         this.socket.on('speedcash_betting_start', (data) => {
             console.log('🎲 Betting started:', data);
@@ -87,20 +108,17 @@ class SpeedCashGame {
         
         // Betting timer
         this.socket.on('speedcash_betting_timer', (data) => {
-            this.hideGlassLoader(); // Hide loader when data received
             this.updateCountdown(data.timeLeft);
         });
         
         // Race started
         this.socket.on('speedcash_race_start', (data) => {
             console.log('🏁 Race started:', data);
-            this.hideGlassLoader(); // Hide loader when data received
             this.startRace(data);
         });
         
         // Multiplier update
         this.socket.on('speedcash_multiplier_update', (data) => {
-            this.hideGlassLoader(); // Hide loader when data received
             this.updateMultipliers(data.blueMultiplier, data.orangeMultiplier);
         });
         

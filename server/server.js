@@ -899,16 +899,24 @@ io.on('connection', (socket) => {
     if (!gameState.isInitialized) {
       gameState.isInitialized = true;
       startSpeedCashBetting();
-    } else {
-      // Отправляем текущее состояние
-      socket.emit('speedcash_state', {
-        status: gameState.status,
-        bettingTime: gameState.bettingTime,
-        blueMultiplier: gameState.blueMultiplier,
-        orangeMultiplier: gameState.orangeMultiplier,
-        delayedCar: gameState.delayedCar
-      });
     }
+  });
+  
+  // Запрос текущего состояния игры
+  socket.on('get_speedcash_state', () => {
+    const gameState = globalGames.speedcash;
+    
+    socket.emit('speedcash_current_state', {
+      status: gameState.status,
+      timeLeft: gameState.bettingTime,
+      blueMultiplier: gameState.blueMultiplier,
+      orangeMultiplier: gameState.orangeMultiplier,
+      blueTarget: gameState.blueStopMultiplier,
+      orangeTarget: gameState.orangeStopMultiplier,
+      delayedCar: gameState.delayedCar
+    });
+    
+    console.log(`📊 Отправлено текущее состояние: ${gameState.status}`);
   });
   
   // Запуск фазы ставок
