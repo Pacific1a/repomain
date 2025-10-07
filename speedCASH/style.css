@@ -1364,6 +1364,69 @@
 .road-lines.visible {
   opacity: 1;
 }
+
+/* Хаотичная анимация машин */
+.auto-blue-2 {
+  animation: carFloatBlue 2.3s ease-in-out infinite;
+}
+
+.auto-orange {
+  animation: carFloatOrange 2.7s ease-in-out infinite;
+}
+
+@keyframes carFloatBlue {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  15% {
+    transform: translateY(-3px) translateX(2px);
+  }
+  30% {
+    transform: translateY(2px) translateX(-1px);
+  }
+  45% {
+    transform: translateY(-2px) translateX(3px);
+  }
+  60% {
+    transform: translateY(3px) translateX(-2px);
+  }
+  75% {
+    transform: translateY(-1px) translateX(1px);
+  }
+  90% {
+    transform: translateY(2px) translateX(-3px);
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@keyframes carFloatOrange {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  12% {
+    transform: translateY(2px) translateX(-2px);
+  }
+  28% {
+    transform: translateY(-3px) translateX(3px);
+  }
+  42% {
+    transform: translateY(3px) translateX(1px);
+  }
+  58% {
+    transform: translateY(-2px) translateX(-3px);
+  }
+  72% {
+    transform: translateY(1px) translateX(2px);
+  }
+  88% {
+    transform: translateY(-1px) translateX(-1px);
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+}
 .group-ico-1 {
   display: flex
 ;

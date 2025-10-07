@@ -191,7 +191,7 @@ class SpeedCashGame {
     }
     
     updateCountdown(timeLeft) {
-        if (this.countdownDisplay) {
+        if (this.countdownDisplay && timeLeft > 0) {
             this.countdownDisplay.textContent = timeLeft;
         }
     }
