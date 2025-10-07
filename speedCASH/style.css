@@ -1348,7 +1348,7 @@
     transparent 28px,
     transparent 36px
   );
-  animation: roadMove 0.6s linear infinite;
+  animation: roadMove 0.15s linear infinite;
   will-change: transform;
 }
 
