@@ -990,13 +990,31 @@ io.on('connection', (socket) => {
     gameState.raceInterval = setInterval(() => {
       const elapsed = (Date.now() - gameState.raceStartTime) / 1000;
       
-      // Увеличиваем множители (ускоряется со временем)
+      // Каждая машина растет независимо до своего target
       const baseIncrement = 0.01;
       const timeMultiplier = 1 + (elapsed / 10); // Ускорение
-      const increment = baseIncrement * timeMultiplier;
       
-      gameState.blueMultiplier += increment;
-      gameState.orangeMultiplier += increment;
+      // Blue растет только если не достигла target
+      if (gameState.blueMultiplier < gameState.blueStopMultiplier) {
+        const blueIncrement = baseIncrement * timeMultiplier;
+        gameState.blueMultiplier += blueIncrement;
+        
+        // Не превышаем target
+        if (gameState.blueMultiplier > gameState.blueStopMultiplier) {
+          gameState.blueMultiplier = gameState.blueStopMultiplier;
+        }
+      }
+      
+      // Orange растет только если не достигла target
+      if (gameState.orangeMultiplier < gameState.orangeStopMultiplier) {
+        const orangeIncrement = baseIncrement * timeMultiplier;
+        gameState.orangeMultiplier += orangeIncrement;
+        
+        // Не превышаем target
+        if (gameState.orangeMultiplier > gameState.orangeStopMultiplier) {
+          gameState.orangeMultiplier = gameState.orangeStopMultiplier;
+        }
+      }
       
       io.to('global_speedcash').emit('speedcash_multiplier_update', {
         blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
@@ -1004,11 +1022,12 @@ io.on('connection', (socket) => {
       });
       
       // Проверяем остановку машин
-      let blueEscaped = gameState.blueMultiplier >= gameState.blueStopMultiplier;
-      let orangeEscaped = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
+      let blueReached = gameState.blueMultiplier >= gameState.blueStopMultiplier;
+      let orangeReached = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
       
-      if (blueEscaped || orangeEscaped) {
-        endSpeedCashRace(blueEscaped, orangeEscaped);
+      // Игра заканчивается когда ОБЕ машины достигли своих targets
+      if (blueReached && orangeReached) {
+        endSpeedCashRace(blueReached, orangeReached);
       }
     }, 50);
   }
