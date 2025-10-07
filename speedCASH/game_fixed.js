@@ -96,6 +96,10 @@ class SpeedCashGame {
             this.socket.on('speedcash_race_end', (data) => {
                 console.log('🏁 Гонка закончилась:', data);
                 
+                // Сохраняем финальные множители для истории
+                this.finalBlueMultiplier = data.blueMultiplier;
+                this.finalOrangeMultiplier = data.orangeMultiplier;
+                
                 // СРАЗУ устанавливаем флаги задержания и показываем иконки
                 if (!data.blueEscaped) {
                     this.blueDetained = true;
@@ -1176,16 +1180,16 @@ class SpeedCashGame {
     }
     
     startTransition() {
-        // Добавляем результат в историю
-        this.addToHistory(this.blueMultiplier, this.orangeMultiplier);
+        // Добавляем результат в историю (используем сохраненные финальные значения)
+        this.addToHistory(this.finalBlueMultiplier || this.blueMultiplier, this.finalOrangeMultiplier || this.orangeMultiplier);
         
-        // Calculate winnings
+        // Calculate winnings (используем финальные множители)
         let winnings = 0;
         if (this.currentBlueBet && this.blueEscaped) {
-            winnings += this.currentBlueBet * this.blueMultiplier;
+            winnings += this.currentBlueBet * (this.finalBlueMultiplier || this.blueMultiplier);
         }
         if (this.currentOrangeBet && this.orangeEscaped) {
-            winnings += this.currentOrangeBet * this.orangeMultiplier;
+            winnings += this.currentOrangeBet * (this.finalOrangeMultiplier || this.orangeMultiplier);
         }
         
         // Выплачиваем выигрыш через глобальный баланс
@@ -1194,13 +1198,15 @@ class SpeedCashGame {
             console.log(`Выплачен выигрыш: ${winnings} чипов`);
         }
         
-        // Проверяем Single mode выигрыш
+        // Проверяем Single mode выигрыш (используем финальные множители)
         if (this.currentSingleBet) {
             const selectedCarEscaped = (this.singleSelectedCar === 'blue' && this.blueEscaped) || 
                                        (this.singleSelectedCar === 'orange' && this.orangeEscaped);
             
             if (selectedCarEscaped) {
-                const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
+                const multiplier = this.singleSelectedCar === 'blue' ? 
+                    (this.finalBlueMultiplier || this.blueMultiplier) : 
+                    (this.finalOrangeMultiplier || this.orangeMultiplier);
                 const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
                 if (window.GameBalanceAPI) {
                     window.GameBalanceAPI.payWinningsAndUpdate(singleWinnings, 'chips');
