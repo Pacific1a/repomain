@@ -87,8 +87,12 @@ class SpeedCashGame {
             
             // Обновления множителей от сервера
             this.socket.on('speedcash_multiplier_update', (data) => {
-                this.blueMultiplier = data.blue;
-                this.orangeMultiplier = data.orange;
+                if (data.blueMultiplier !== undefined) {
+                    this.blueMultiplier = data.blueMultiplier;
+                }
+                if (data.orangeMultiplier !== undefined) {
+                    this.orangeMultiplier = data.orangeMultiplier;
+                }
                 this.updateMultiplierDisplays();
             });
             
@@ -104,16 +108,54 @@ class SpeedCashGame {
                 console.log('🎮 Начало фазы ставок:', data);
                 this.gameState = 'betting';
                 this.bettingTimeLeft = data.bettingTime || 5;
+                this.blueMultiplier = 1.00;
+                this.orangeMultiplier = 1.00;
                 this.blueTargetMultiplier = data.blueTarget;
                 this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
+                this.updateMultiplierDisplays();
+                
+                // Сбрасываем состояние игры
+                this.blueEscaped = false;
+                this.orangeEscaped = false;
+                this.blueDetained = false;
+                this.orangeDetained = false;
+                this.gameEnded = false;
+                
+                // Сбрасываем позиции машин
+                this.bluePosition = 0;
+                this.orangePosition = 0;
+                if (this.blueCar) {
+                    this.blueCar.style.transform = 'translateY(0px)';
+                }
+                if (this.orangeCar) {
+                    this.orangeCar.style.transform = 'translateY(0px)';
+                }
+                
+                // Удаляем иконки задержания
+                const crashIcons = document.querySelectorAll('.crash-icon');
+                crashIcons.forEach(icon => icon.remove());
+                
+                // Обрабатываем ставки из очереди
+                this.processQueuedBets();
                 
                 // Очищаем старый таймер
                 if (this.bettingTimer) {
                     clearTimeout(this.bettingTimer);
                 }
                 
-                // Показываем countdown
+                // Показываем countdown mode
+                const raceArea = document.querySelector('.race');
+                if (raceArea) {
+                    raceArea.classList.add('countdown-mode');
+                    raceArea.classList.remove('game-active');
+                }
+                
+                const roadLines = document.getElementById('roadLines');
+                if (roadLines) {
+                    roadLines.classList.remove('visible');
+                }
+                
                 this.showCountdown();
                 const countdownText = document.querySelector('.countdown-text');
                 if (countdownText) {
@@ -134,9 +176,12 @@ class SpeedCashGame {
             this.socket.on('speedcash_race_start', (data) => {
                 console.log('🏁 Начало гонки:', data);
                 this.gameState = 'racing';
+                this.blueMultiplier = 1.00;
+                this.orangeMultiplier = 1.00;
                 this.blueTargetMultiplier = data.blueTarget;
                 this.orangeTargetMultiplier = data.orangeTarget;
                 this.delayedCar = data.delayedCar;
+                this.updateMultiplierDisplays();
                 
                 // Скрываем countdown
                 this.hideCountdown();
@@ -177,6 +222,9 @@ class SpeedCashGame {
             // Фаза ставок
             this.gameState = 'betting';
             this.bettingTimeLeft = data.timeLeft || 5;
+            this.blueMultiplier = 1.00;
+            this.orangeMultiplier = 1.00;
+            this.updateMultiplierDisplays();
             
             // Очищаем старый таймер
             if (this.bettingTimer) {
@@ -718,8 +766,8 @@ class SpeedCashGame {
         const blueDelayed = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
         const orangeDelayed = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
 
-        // Increment multipliers
-        if (!this.gameEnded) {
+        // Increment multipliers ONLY if no server connection (local mode)
+        if (!this.gameEnded && !this.socket) {
             const baseIncrease = 0.0003 + Math.random() * 0.0005;
 
             // Blue множитель
@@ -1105,23 +1153,23 @@ class SpeedCashGame {
     }
 
     updateMultiplierDisplays() {
-        if (this.blueMultiplierDisplay) {
+        if (this.blueMultiplierDisplay && this.blueMultiplier !== undefined) {
             this.blueMultiplierDisplay.textContent = `x${this.blueMultiplier.toFixed(2)}`;
         }
-        if (this.orangeMultiplierDisplay) {
+        if (this.orangeMultiplierDisplay && this.orangeMultiplier !== undefined) {
             this.orangeMultiplierDisplay.textContent = `x${this.orangeMultiplier.toFixed(2)}`;
         }
     }
 
     updateLiveWinnings() {
         // Blue live winnings
-        if (this.currentBlueBet && this.gameState === 'racing') {
+        if (this.currentBlueBet && this.gameState === 'racing' && this.blueMultiplier !== undefined) {
             const blueWinnings = Math.floor(this.currentBlueBet * this.blueMultiplier);
             this.updateBetButton('blue', 'cashout', blueWinnings);
         }
         
         // Orange live winnings
-        if (this.currentOrangeBet && this.gameState === 'racing') {
+        if (this.currentOrangeBet && this.gameState === 'racing' && this.orangeMultiplier !== undefined) {
             const orangeWinnings = Math.floor(this.currentOrangeBet * this.orangeMultiplier);
             this.updateBetButton('orange', 'cashout', orangeWinnings);
         }
@@ -1129,14 +1177,16 @@ class SpeedCashGame {
         // Single live winnings
         if (this.currentSingleBet && this.gameState === 'racing') {
             const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
-            const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
-            this.updateSingleButton('cashout', singleWinnings);
+            if (multiplier !== undefined) {
+                const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
+                this.updateSingleButton('cashout', singleWinnings);
+            }
         }
     }
 
     checkAutoCashOut() {
         // Blue auto cash out
-        if (this.currentBlueBet && this.blueAutoCashOutEnabled) {
+        if (this.currentBlueBet && this.blueAutoCashOutEnabled && this.blueMultiplier !== undefined) {
             if (this.blueMultiplier >= this.blueAutoCashOutMultiplier) {
                 this.cashOut('blue');
                 console.log(`🤖 Blue Auto Cash Out at x${this.blueMultiplier.toFixed(2)}`);
@@ -1144,7 +1194,7 @@ class SpeedCashGame {
         }
         
         // Orange auto cash out
-        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled) {
+        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled && this.orangeMultiplier !== undefined) {
             if (this.orangeMultiplier >= this.orangeAutoCashOutMultiplier) {
                 this.cashOut('orange');
                 console.log(`🤖 Orange Auto Cash Out at x${this.orangeMultiplier.toFixed(2)}`);
