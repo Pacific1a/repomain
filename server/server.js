@@ -1034,7 +1034,20 @@ io.on('connection', (socket) => {
       
       // Игра заканчивается когда ОБЕ машины достигли своих targets
       if (blueReached && orangeReached) {
-        endSpeedCashRace(blueReached, orangeReached);
+        // Определяем кто уехал на основе delayedCar
+        let blueEscaped = true;
+        let orangeEscaped = true;
+        
+        if (gameState.delayedCar === 'blue') {
+          blueEscaped = false; // Blue задержана
+        } else if (gameState.delayedCar === 'orange') {
+          orangeEscaped = false; // Orange задержана
+        } else if (gameState.delayedCar === 'both') {
+          blueEscaped = false; // Обе задержаны
+          orangeEscaped = false;
+        }
+        
+        endSpeedCashRace(blueEscaped, orangeEscaped);
       }
     }, 50);
   }
