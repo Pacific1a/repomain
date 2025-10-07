@@ -1365,37 +1365,35 @@
   opacity: 1;
 }
 
-/* Анимация машин - плавное плавание */
+/* Анимация машин - хаотичная гонка */
 .auto-blue-2 {
-  animation: carFloatBlue 6s linear infinite;
+  animation: carRaceBlue 8s linear infinite;
 }
 
 .auto-orange {
-  animation: carFloatOrange 7s linear infinite;
+  animation: carRaceOrange 9s linear infinite;
 }
 
-@keyframes carFloatBlue {
-  0% { transform: translateY(0); }
-  12.5% { transform: translateY(-10px); }
-  25% { transform: translateY(-18px); }
-  37.5% { transform: translateY(-25px); }
-  50% { transform: translateY(-30px); }
-  62.5% { transform: translateY(-25px); }
-  75% { transform: translateY(-18px); }
-  87.5% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
+@keyframes carRaceBlue {
+  0% { transform: translateY(-20px); }
+  15% { transform: translateY(-35px); }
+  30% { transform: translateY(-15px); }
+  45% { transform: translateY(25px); }
+  60% { transform: translateY(40px); }
+  75% { transform: translateY(10px); }
+  90% { transform: translateY(-30px); }
+  100% { transform: translateY(-20px); }
 }
 
-@keyframes carFloatOrange {
-  0% { transform: translateY(0); }
-  12.5% { transform: translateY(12px); }
-  25% { transform: translateY(22px); }
-  37.5% { transform: translateY(30px); }
-  50% { transform: translateY(35px); }
-  62.5% { transform: translateY(30px); }
-  75% { transform: translateY(22px); }
-  87.5% { transform: translateY(12px); }
-  100% { transform: translateY(0); }
+@keyframes carRaceOrange {
+  0% { transform: translateY(15px); }
+  15% { transform: translateY(-10px); }
+  30% { transform: translateY(-40px); }
+  45% { transform: translateY(-25px); }
+  60% { transform: translateY(20px); }
+  75% { transform: translateY(45px); }
+  90% { transform: translateY(30px); }
+  100% { transform: translateY(15px); }
 }
 .group-ico-1 {
   display: flex
