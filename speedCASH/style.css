@@ -1366,22 +1366,7 @@
   opacity: 1;
 }
 
-/* Анимация машин - 3 позиции */
-.auto-blue-2 {
-  animation: carMoveBlue 6s ease-in-out infinite;
-}
-
-.auto-orange {
-  animation: carMoveOrange 7s ease-in-out infinite;
-}
-
-/* Остановка анимации */
-.speed-cash .auto-blue-2.stopped,
-.speed-cash .auto-orange.stopped {
-  animation: none !important;
-  transition: transform 1.5s ease-in !important;
-}
-
+/* Keyframes для анимации машин */
 @keyframes carMoveBlue {
   0%, 100% { transform: translateY(0); }
   33% { transform: translateY(-15px); }

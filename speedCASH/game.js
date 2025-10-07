@@ -217,20 +217,18 @@ class SpeedCashGame {
         const orangeMultiplier = document.querySelector('.div-3');
         const roadLines = document.getElementById('roadLines');
         
-        // Восстанавливаем анимацию машин
+        // Добавляем анимацию машинам
         if (blueCar) {
             blueCar.style.opacity = '1';
-            blueCar.classList.remove('stopped');
-            blueCar.style.removeProperty('animation');
-            blueCar.style.removeProperty('transition');
-            blueCar.style.removeProperty('transform');
+            blueCar.style.animation = 'carMoveBlue 6s ease-in-out infinite';
+            blueCar.style.transform = '';
+            blueCar.style.transition = '';
         }
         if (orangeCar) {
             orangeCar.style.opacity = '1';
-            orangeCar.classList.remove('stopped');
-            orangeCar.style.removeProperty('animation');
-            orangeCar.style.removeProperty('transition');
-            orangeCar.style.removeProperty('transform');
+            orangeCar.style.animation = 'carMoveOrange 7s ease-in-out infinite';
+            orangeCar.style.transform = '';
+            orangeCar.style.transition = '';
         }
         if (blueMultiplier) blueMultiplier.style.opacity = '1';
         if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
@@ -278,15 +276,12 @@ class SpeedCashGame {
     stopCarAnimation(car) {
         const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
         if (carElement) {
-            // Принудительно останавливаем анимацию
-            carElement.style.setProperty('animation', 'none', 'important');
+            // Убираем анимацию гонки
+            carElement.style.animation = 'none';
             
-            // Небольшая задержка
-            setTimeout(() => {
-                // Применяем transition и transform
-                carElement.style.setProperty('transition', 'transform 1.5s ease-in', 'important');
-                carElement.style.setProperty('transform', 'translateY(500px)', 'important');
-            }, 50);
+            // Добавляем анимацию выезда вниз
+            carElement.style.transition = 'transform 1.5s ease-in';
+            carElement.style.transform = 'translateY(500px)';
         }
     }
     
