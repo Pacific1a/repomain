@@ -302,6 +302,9 @@ class SpeedCashGame {
         // Create glass overlay for transition
         const overlay = document.createElement('div');
         overlay.className = 'transition-overlay';
+        overlay.innerHTML = `
+            <div class="drove-away-text">Drove Away</div>
+        `;
         overlay.style.cssText = `
             position: absolute;
             top: 0;
@@ -314,6 +317,9 @@ class SpeedCashGame {
             z-index: 999;
             opacity: 0;
             transition: opacity 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         `;
         
         const gameContainer = document.querySelector('.game');
