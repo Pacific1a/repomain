@@ -1365,37 +1365,43 @@
   opacity: 1;
 }
 
-/* Анимация машин - выезд и хаотичная гонка */
+/* Анимация машин - плавный старт и гонка */
 .auto-blue-2 {
-  animation: carRaceBlue 6s ease-in-out infinite;
+  animation: carRaceBlue 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .auto-orange {
-  animation: carRaceOrange 7s ease-in-out infinite;
+  animation: carRaceOrange 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 @keyframes carRaceBlue {
-  0% { transform: translateY(0); }
-  10% { transform: translateY(-30px); }
-  20% { transform: translateY(-30px); }
-  35% { transform: translateY(-15px); }
-  50% { transform: translateY(-35px); }
-  65% { transform: translateY(-20px); }
-  80% { transform: translateY(-40px); }
-  95% { transform: translateY(-25px); }
-  100% { transform: translateY(0); }
+  0% { transform: translateY(50px); }
+  10% { transform: translateY(0); }
+  15% { transform: translateY(0); }
+  25% { transform: translateY(-8px); }
+  35% { transform: translateY(-5px); }
+  45% { transform: translateY(-12px); }
+  55% { transform: translateY(-7px); }
+  65% { transform: translateY(-15px); }
+  75% { transform: translateY(-10px); }
+  85% { transform: translateY(-6px); }
+  95% { transform: translateY(0); }
+  100% { transform: translateY(50px); }
 }
 
 @keyframes carRaceOrange {
-  0% { transform: translateY(0); }
-  10% { transform: translateY(-30px); }
-  20% { transform: translateY(-30px); }
-  30% { transform: translateY(-40px); }
-  45% { transform: translateY(-20px); }
-  60% { transform: translateY(-35px); }
-  75% { transform: translateY(-15px); }
-  90% { transform: translateY(-38px); }
-  100% { transform: translateY(0); }
+  0% { transform: translateY(50px); }
+  10% { transform: translateY(0); }
+  15% { transform: translateY(0); }
+  23% { transform: translateY(-6px); }
+  33% { transform: translateY(-10px); }
+  43% { transform: translateY(-7px); }
+  53% { transform: translateY(-14px); }
+  63% { transform: translateY(-9px); }
+  73% { transform: translateY(-12px); }
+  83% { transform: translateY(-8px); }
+  95% { transform: translateY(0); }
+  100% { transform: translateY(50px); }
 }
 .group-ico-1 {
   display: flex
