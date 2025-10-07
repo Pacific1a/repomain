@@ -1025,6 +1025,7 @@ io.on('connection', (socket) => {
         setTimeout(() => {
           if (gameState.raceInterval) {
             clearInterval(gameState.raceInterval);
+            gameState.raceInterval = null;
           }
           gameState.status = 'finished';
           gameState.raceEnding = false;
@@ -1034,13 +1035,6 @@ io.on('connection', (socket) => {
             startSpeedCashBetting();
           }, 3000);
         }, 2000);
-        
-        return;
-      }
-      
-      // Если уже заканчиваем и прошло более 2 секунд после окончания - не отправляем обновления
-      if (gameState.raceEnding && elapsed >= gameState.raceDuration + 2000) {
-        return;
       }
       
       // ОБЕ машины растут постоянно
