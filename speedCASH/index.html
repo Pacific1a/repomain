@@ -67,7 +67,7 @@
               </div>
             </div>
             <div class="bets">
-              <div class="div-4 blue">
+              <div class="div-4">
                 <div class="text-wrapper-7" style="color: #244eb6;">Blue</div>
                 <div class="auto-cashout">
                   <div class="div-5">
@@ -79,13 +79,13 @@
                 </div>
                 <div class="bet-amount">
                   <div class="element">
-                    <div class="button"><div class="rectangle"></div></div>
+                    <div class="button" onclick="game.adjustBetAmount('blue', -10)"><div class="rectangle"></div></div>
                     <div class="div-7"><div class="text-wrapper-13">50</div></div>
-                    <div class="union-wrapper"><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
+                    <div class="union-wrapper" onclick="game.adjustBetAmount('blue', 10)"><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
                   </div>
                   <div class="buttons">
-                    <button class="button-2"><div class="text-wrapper-8">/2</div></button>
-                    <button class="button-2"><div class="text-wrapper-8">x2</div></button>
+                    <button class="button-2" onclick="game.adjustBetAmount('blue', 'half')"><div class="text-wrapper-8">/2</div></button>
+                    <button class="button-2" onclick="game.adjustBetAmount('blue', 'double')"><div class="text-wrapper-8">x2</div></button>
                   </div>
                 </div>
                 <div class="div-wrapper-3">
@@ -95,7 +95,7 @@
                   </div>
                 </div>
               </div>
-              <div class="div-4 orange">
+              <div class="div-4">
                 <div class="text-wrapper-11" style="color: #c44c13;">Orange</div>
                 <div class="auto-cashout">
                   <div class="div-5">
@@ -107,17 +107,17 @@
                 </div>
                 <div class="bet-amount">
                   <div class="element">
-                    <div class="button" ><div class="rectangle"></div></div>
+                    <div class="button" onclick="game.adjustBetAmount('orange', -10)"><div class="rectangle"></div></div>
                     <div class="div-7"><div class="text-wrapper-13">50</div></div>
-                    <div class="union-wrapper" ><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
+                    <div class="union-wrapper" onclick="game.adjustBetAmount('orange', 10)"><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
                   </div>
                   <div class="buttons">
-                    <button class="button-2" ><div class="text-wrapper-8">/2</div></button>
-                    <button class="button-2""><div class="text-wrapper-8">x2</div></button>
+                    <button class="button-2" onclick="game.adjustBetAmount('orange', 'half')"><div class="text-wrapper-8">/2</div></button>
+                    <button class="button-2" onclick="game.adjustBetAmount('orange', 'double')"><div class="text-wrapper-8">x2</div></button>
                   </div>
                 </div>
                 <div class="div-wrapper-3">
-                  <div class="bet-button">
+                  <div class="cash-out-button">
                     <div class="text-wrapper-9">Bet</div>
                     <div class="text-wrapper-14">50 Сhips</div>
                   </div>
@@ -127,23 +127,23 @@
             <div class="who-is-win" style="display: none;">
               <div class="menu-win">
                 <div class="crash-section-2 plays">
-                  <div class="div-wrapper-2" >
+                  <div class="div-wrapper-2" onclick="game.selectSingleCar('blue')">
                     <div class="selected"><div class="text-wrapper-6">Blue</div></div>
                   </div>
-                  <div class="div-wrapper-2" >
+                  <div class="div-wrapper-2" onclick="game.selectSingleCar('orange')">
                     <div class="not-selected"><div class="text-wrapper-6">Orange</div></div>
                   </div>
                 </div>
               </div>
               <div class="bet-amount">
                 <div class="element">
-                  <div class="button" ><div class="rectangle"></div></div>
+                  <div class="button" onclick="game.adjustBetAmount('single', -10)"><div class="rectangle"></div></div>
                   <div class="div-7"><div class="text-wrapper-13">50</div></div>
-                  <div class="union-wrapper" ><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
+                  <div class="union-wrapper" onclick="game.adjustBetAmount('single', 10)"><img class="union" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/speedcash/union-1.svg"></div>
                 </div>
                 <div class="buttons">
-                  <button class="button-2" ><div class="text-wrapper-8">/2</div></button>
-                  <button class="button-2"><div class="text-wrapper-8">x2</div></button>
+                  <button class="button-2" onclick="game.adjustBetAmount('single', 'half')"><div class="text-wrapper-8">/2</div></button>
+                  <button class="button-2" onclick="game.adjustBetAmount('single', 'double')"><div class="text-wrapper-8">x2</div></button>
                 </div>
               </div>
               <div class="bet-button">
@@ -186,11 +186,10 @@
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="../config.js"></script>
     <script src="../global-balance.js"></script>
     <script src="../game-balance-api.js"></script>
     <script src="../players-system.js"></script>
     <script src="../telegram-user-data.js"></script>
-    <script src="game.js"></script>
+    <script src="game_fixed.js"></script>
   </body>
 </html>

@@ -18,7 +18,6 @@
   flex: 1;
   align-self: stretch;
   width: 100%;
-  gap: 15px;
   flex-grow: 1;
 }
 
@@ -188,139 +187,6 @@
   align-self: stretch;
 }
 
-/* Glass Loader Overlay */
-.glass-loader-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.95);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  border-radius: 20px;
-  transition: opacity 0.3s ease;
-  overflow: hidden;
-}
-
-/* Animated Glass Block */
-.glass-block {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  box-shadow: 
-    0 8px 32px 0 rgba(255, 255, 255, 0.1),
-    inset 0 0 20px rgba(255, 255, 255, 0.05);
-}
-
-/* Shine effect inside glass block */
-.glass-shine {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.3) 50%,
-    transparent 70%
-  );
-  animation: glassShine 2s linear infinite;
-}
-
-
-@keyframes glassShine {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
-}
-
-/* Drove Away Text */
-.drove-away-text {
-  color: #ffffff;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: 48px;
-  text-align: center;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-  animation: fadeInScale 0.5s ease-out;
-}
-
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.speed-cash .glass-loader {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #fff;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Bet button states */
-.bet-button {
-  transition: all 0.3s ease;
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.bet-button:hover {
-  transform: scale(1.02);
-}
-
-.bet-button.state-bet {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-}
-
-.bet-button.state-cancel {
-  background: linear-gradient(180deg, #77C074 0%, #407B3D 100%);
-  border-color: #77C074;
-}
-
-.bet-button.state-cashout {
-  background: linear-gradient(180deg, #BAA657 0%, #877440 100%);
-  border-color: #BAA657;
-}
-
-.bet-button.state-next-round {
-  background: linear-gradient(180deg, #77C074 0%, #407B3D 100%);
-  border-color: #77C074;
-}
-
-/* Race area visible by default */
-.speed-cash .race {
-  opacity: 1;
-  transition: opacity 0.5s ease;
-}
-
 .speed-cash .game::before {
   content: "";
   position: absolute;
@@ -409,8 +275,12 @@
 }
 
 .speed-cash .race .div-2 {
-  opacity: 1;
+  opacity: 0;
   transition: opacity 0.3s ease;
+}
+
+.speed-cash .race.game-active .div-2 {
+  opacity: 1;
 }
 
 .speed-cash .race.fade-to-waiting {
@@ -444,16 +314,21 @@
   transform: translate(-50%, -50%);
   width: 310px;
   height: 200px;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
   background-image: url('https://github.com/Pacific1a/img/blob/main/speedcash/Loading%20bar.png?raw=true');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.speed-cash .race.game-active .waiting-screen {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .speed-cash .waiting-screen .countdown-text {
@@ -1334,56 +1209,26 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 1px;
-  height: 200%;
+  width: 4px;
+  height: 100%;
   pointer-events: none;
   z-index: 1;
-  opacity: 1;
-  transition: opacity 0.5s ease;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 8px,
-    rgba(160, 160, 160, 0.6) 8px,
-    rgba(160, 160, 160, 0.6) 28px,
-    transparent 28px,
-    transparent 36px
-  );
-  animation: roadMove 0.1s linear infinite;
-  will-change: transform;
-}
-
-@keyframes roadMove {
-  0% {
-    transform: translateX(-50%) translateY(0);
-  }
-  100% {
-    transform: translateX(-50%) translateY(36px);
-  }
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .road-lines.visible {
   opacity: 1;
 }
 
-/* Класс для остановки анимации и выезда вниз */
-.auto-blue-2.car-exit,
-.auto-orange.car-exit {
-  animation: none !important;
-  transition: transform 1s ease-in !important;
-  transform: translateY(500px) !important;
-}
-
-@keyframes carMoveBlue {
-  0%, 100% { transform: translateY(0); }
-  33% { transform: translateY(-15px); }
-  66% { transform: translateY(20px); }
-}
-
-@keyframes carMoveOrange {
-  0%, 100% { transform: translateY(0); }
-  33% { transform: translateY(18px); }
-  66% { transform: translateY(-17px); }
+.road-line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 25px;
+  background: rgba(160, 160, 160, 0.6);
+  border-radius: 1.5px;
 }
 .group-ico-1 {
   display: flex
