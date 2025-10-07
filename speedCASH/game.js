@@ -217,8 +217,19 @@ class SpeedCashGame {
         const orangeMultiplier = document.querySelector('.div-3');
         const roadLines = document.getElementById('roadLines');
         
-        if (blueCar) blueCar.style.opacity = '1';
-        if (orangeCar) orangeCar.style.opacity = '1';
+        // Восстанавливаем анимацию машин
+        if (blueCar) {
+            blueCar.style.opacity = '1';
+            blueCar.style.animation = 'carMoveBlue 6s ease-in-out infinite';
+            blueCar.style.transform = 'translateY(0)';
+            blueCar.style.transition = '';
+        }
+        if (orangeCar) {
+            orangeCar.style.opacity = '1';
+            orangeCar.style.animation = 'carMoveOrange 7s ease-in-out infinite';
+            orangeCar.style.transform = 'translateY(0)';
+            orangeCar.style.transition = '';
+        }
         if (blueMultiplier) blueMultiplier.style.opacity = '1';
         if (orangeMultiplier) orangeMultiplier.style.opacity = '1';
         if (roadLines) roadLines.style.opacity = '1';
@@ -262,6 +273,17 @@ class SpeedCashGame {
         }
     }
     
+    stopCarAnimation(car) {
+        const carElement = document.querySelector(car === 'blue' ? '.auto-blue-2' : '.auto-orange');
+        if (carElement) {
+            // Останавливаем анимацию
+            carElement.style.animation = 'none';
+            // Уезжаем вниз за пределы экрана
+            carElement.style.transition = 'transform 1s ease-in';
+            carElement.style.transform = 'translateY(200px)';
+        }
+    }
+    
     updateMultiplierDisplays() {
         if (this.blueMultiplierDisplay) {
             this.blueMultiplierDisplay.textContent = `x${this.blueMultiplier.toFixed(2)}`;
@@ -274,6 +296,14 @@ class SpeedCashGame {
     endRace(data) {
         this.gamePhase = 'finished';
         
+        // Останавливаем машины которые достигли target
+        if (data.blueEscaped === false) {
+            this.stopCarAnimation('blue');
+        }
+        if (data.orangeEscaped === false) {
+            this.stopCarAnimation('orange');
+        }
+        
         // Add to history
         this.blueHistory.unshift(this.blueMultiplier);
         this.orangeHistory.unshift(this.orangeMultiplier);
@@ -282,8 +312,10 @@ class SpeedCashGame {
         if (this.blueHistory.length > 10) this.blueHistory.pop();
         if (this.orangeHistory.length > 10) this.orangeHistory.pop();
         
-        // Show glass effect (затемнение)
-        this.showTransitionEffect();
+        // Show glass effect (затемнение) после анимации
+        setTimeout(() => {
+            this.showTransitionEffect();
+        }, 1000);
         
         // Reset bet statuses
         if (this.blueBetStatus === 'playing') {
