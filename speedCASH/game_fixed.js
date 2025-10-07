@@ -43,8 +43,30 @@ class SpeedCashGame {
         
         this.initializeElements();
         this.createRoadLines();
+        this.initializeWebSocket();
         // Balance update removed - using static HTML value
         this.startBettingPhase();
+    }
+
+    initializeWebSocket() {
+        // Подключение к серверу (если есть)
+        if (typeof io !== 'undefined') {
+            this.socket = io();
+            console.log('🔌 WebSocket подключен');
+            
+            // Слушаем события от сервера (для синхронизации)
+            this.socket.on('speedcash_player_bet', (data) => {
+                console.log('🎮 Ставка игрока:', data);
+                // Можно показать уведомление о ставке другого игрока
+            });
+            
+            this.socket.on('speedcash_player_cashout', (data) => {
+                console.log('💰 Игрок сделал Cash Out:', data);
+            });
+        } else {
+            console.log('⚠️ WebSocket не доступен - локальный режим');
+            this.socket = null;
+        }
     }
 
     initializeElements() {
@@ -242,6 +264,15 @@ class SpeedCashGame {
                         }
                         this.updateBetButton(color, 'cancel', betAmount);
                         console.log(`✅ Ставка ${betAmount} чипов на ${color} принята`);
+                        
+                        // Отправляем на сервер
+                        if (this.socket) {
+                            this.socket.emit('speedcash_place_bet', {
+                                color: color,
+                                amount: betAmount,
+                                multiplier: color === 'blue' ? this.blueMultiplier : this.orangeMultiplier
+                            });
+                        }
                     }
                 } else {
                     console.log('❌ Недостаточно средств для ставки');
@@ -320,6 +351,15 @@ class SpeedCashGame {
         const amount = color === 'blue' ? this.blueBet : this.orangeBet;
         this.updateBetButton(color, 'bet', amount);
         console.log(`💰 ${color} Cash Out: ${winnings} chips (x${multiplier.toFixed(2)})`);
+        
+        // Отправляем на сервер
+        if (this.socket) {
+            this.socket.emit('speedcash_cashout', {
+                color: color,
+                multiplier: multiplier,
+                winnings: winnings
+            });
+        }
     }
 
     updateBetButton(color, state, amount) {
@@ -1000,6 +1040,16 @@ class SpeedCashGame {
                         this.currentSingleBet = this.singleBet;
                         this.updateSingleButton('cancel', this.singleBet);
                         console.log(`✅ Single ставка ${this.singleBet} чипов на ${this.singleSelectedCar} принята`);
+                        
+                        // Отправляем на сервер
+                        if (this.socket) {
+                            this.socket.emit('speedcash_place_bet', {
+                                color: this.singleSelectedCar,
+                                amount: this.singleBet,
+                                mode: 'single',
+                                multiplier: this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier
+                            });
+                        }
                     }
                 } else {
                     console.log('❌ Недостаточно средств для ставки');
@@ -1041,6 +1091,16 @@ class SpeedCashGame {
         this.currentSingleBet = null;
         this.updateSingleButton('bet', this.singleBet);
         console.log(`💰 Single Cash Out: ${winnings} chips (x${multiplier.toFixed(2)} × 1.5)`);
+        
+        // Отправляем на сервер
+        if (this.socket) {
+            this.socket.emit('speedcash_cashout', {
+                color: this.singleSelectedCar,
+                multiplier: multiplier,
+                winnings: winnings,
+                mode: 'single'
+            });
+        }
     }
 
     cancelSingleBet() {
