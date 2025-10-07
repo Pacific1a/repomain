@@ -1366,18 +1366,6 @@
   opacity: 1;
 }
 
-/* Keyframes для анимации машин */
-@keyframes carMoveBlue {
-  0%, 100% { transform: translateY(0); }
-  33% { transform: translateY(-15px); }
-  66% { transform: translateY(20px); }
-}
-
-@keyframes carMoveOrange {
-  0%, 100% { transform: translateY(0); }
-  33% { transform: translateY(18px); }
-  66% { transform: translateY(-17px); }
-}
 .group-ico-1 {
   display: flex
 ;
