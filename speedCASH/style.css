@@ -1365,64 +1365,62 @@
   opacity: 1;
 }
 
-/* Хаотичная анимация машин */
+/* Анимация машин - догонка и обгон */
 .auto-blue-2 {
-  animation: carFloatBlue 2.3s ease-in-out infinite;
+  animation: carRaceBlue 5s ease-in-out infinite;
 }
 
 .auto-orange {
-  animation: carFloatOrange 2.7s ease-in-out infinite;
+  animation: carRaceOrange 6s ease-in-out infinite;
 }
 
-@keyframes carFloatBlue {
+@keyframes carRaceBlue {
   0% {
     transform: translateY(0);
   }
-  15% {
-    transform: translateY(-4px);
+  /* Blue едет впереди */
+  20% {
+    transform: translateY(-6px);
   }
-  30% {
-    transform: translateY(2px);
+  /* Orange догоняет, Blue держится */
+  40% {
+    transform: translateY(-5px);
   }
-  45% {
-    transform: translateY(-3px);
-  }
+  /* Orange обгоняет, Blue отстает */
   60% {
-    transform: translateY(4px);
-  }
-  75% {
-    transform: translateY(-2px);
-  }
-  90% {
     transform: translateY(3px);
   }
+  /* Blue пытается догнать */
+  80% {
+    transform: translateY(2px);
+  }
+  /* Возврат */
   100% {
     transform: translateY(0);
   }
 }
 
-@keyframes carFloatOrange {
+@keyframes carRaceOrange {
   0% {
     transform: translateY(0);
   }
-  18% {
-    transform: translateY(3px);
-  }
-  35% {
-    transform: translateY(-4px);
-  }
-  50% {
-    transform: translateY(2px);
-  }
-  65% {
-    transform: translateY(-3px);
-  }
-  80% {
+  /* Orange отстает */
+  20% {
     transform: translateY(4px);
   }
-  95% {
+  /* Orange догоняет */
+  40% {
     transform: translateY(-2px);
   }
+  /* Orange обгоняет */
+  60% {
+    transform: translateY(-7px);
+  }
+  /* Orange впереди */
+  80% {
+    transform: translateY(-6px);
+  }
+  /* Возврат */
   100% {
     transform: translateY(0);
   }
