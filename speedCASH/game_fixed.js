@@ -43,9 +43,10 @@ class SpeedCashGame {
         
         this.initializeElements();
         this.createRoadLines();
+        this.showGlassLoader();
         this.initializeWebSocket();
         // Balance update removed - using static HTML value
-        this.startBettingPhase();
+        // startBettingPhase будет вызван после получения состояния от сервера
     }
 
     initializeWebSocket() {
@@ -53,6 +54,15 @@ class SpeedCashGame {
         if (typeof io !== 'undefined') {
             this.socket = io();
             console.log('🔌 WebSocket подключен');
+            
+            // Запрашиваем текущее состояние игры
+            this.socket.emit('speedcash_get_state');
+            
+            // Получаем текущее состояние от сервера
+            this.socket.on('speedcash_current_state', (data) => {
+                console.log('📊 Текущее состояние:', data);
+                this.syncWithServer(data);
+            });
             
             // Слушаем события от сервера (для синхронизации)
             this.socket.on('speedcash_player_bet', (data) => {
@@ -63,9 +73,123 @@ class SpeedCashGame {
             this.socket.on('speedcash_player_cashout', (data) => {
                 console.log('💰 Игрок сделал Cash Out:', data);
             });
+            
+            // Обновления множителей от сервера
+            this.socket.on('speedcash_multiplier_update', (data) => {
+                this.blueMultiplier = data.blue;
+                this.orangeMultiplier = data.orange;
+                this.updateMultiplierDisplays();
+            });
+            
+            // Конец гонки
+            this.socket.on('speedcash_race_end', (data) => {
+                console.log('🏁 Гонка закончилась:', data);
+                this.blueEscaped = data.blueEscaped;
+                this.orangeEscaped = data.orangeEscaped;
+            });
         } else {
             console.log('⚠️ WebSocket не доступен - локальный режим');
             this.socket = null;
+            // В локальном режиме запускаем сразу
+            this.hideGlassLoader();
+            this.startBettingPhase();
+        }
+    }
+    
+    syncWithServer(data) {
+        this.hideGlassLoader();
+        
+        if (data.status === 'betting' || data.status === 'waiting') {
+            // Фаза ставок
+            this.gameState = 'betting';
+            this.bettingTimeLeft = data.timeLeft || 5;
+            this.startBettingPhase();
+            
+            // Обновляем countdown
+            const countdownText = document.querySelector('.countdown-text');
+            if (countdownText) {
+                countdownText.textContent = this.bettingTimeLeft;
+            }
+        } else if (data.status === 'racing' || data.status === 'playing') {
+            // Гонка идет
+            this.gameState = 'racing';
+            this.blueMultiplier = data.blueMultiplier || 1.00;
+            this.orangeMultiplier = data.orangeMultiplier || 1.00;
+            this.updateMultiplierDisplays();
+            
+            // Скрываем countdown, показываем игру
+            this.hideCountdown();
+            const raceArea = document.querySelector('.race');
+            if (raceArea) {
+                raceArea.classList.remove('countdown-mode');
+                raceArea.classList.add('game-active');
+            }
+            
+            const roadLines = document.getElementById('roadLines');
+            if (roadLines) {
+                roadLines.classList.add('visible');
+            }
+            
+            // Запускаем анимацию
+            if (!this.animationId) {
+                this.startTime = Date.now() - (data.elapsed || 0);
+                this.racePhaseEndTime = this.startTime + 8000;
+                this.animateRace();
+                this.animateRoadLines();
+            }
+        }
+    }
+    
+    showGlassLoader() {
+        const loader = document.createElement('div');
+        loader.className = 'glass-loader';
+        loader.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        `;
+        
+        const spinner = document.createElement('div');
+        spinner.style.cssText = `
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        `;
+        
+        // Добавляем CSS анимацию
+        if (!document.getElementById('spinnerAnimation')) {
+            const style = document.createElement('style');
+            style.id = 'spinnerAnimation';
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        loader.appendChild(spinner);
+        document.body.appendChild(loader);
+        this.glassLoader = loader;
+    }
+    
+    hideGlassLoader() {
+        if (this.glassLoader && this.glassLoader.parentNode) {
+            this.glassLoader.parentNode.removeChild(this.glassLoader);
+            this.glassLoader = null;
         }
     }
 
