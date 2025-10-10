@@ -217,7 +217,7 @@ class CrashChart {
   drawGrid() {
     this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     this.ctx.lineWidth = 1;
-    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    this.ctx.fillStyle = 'rgb(191, 49, 144)';
     this.ctx.font = '10px Montserrat';
     this.ctx.textAlign = 'right';
     
