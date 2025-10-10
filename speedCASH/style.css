@@ -379,6 +379,7 @@
   text-align: center;
   letter-spacing: 0;
   line-height: normal;
+  will-change: contents;
 }
 
 .speed-cash .auto-blue {
@@ -397,6 +398,8 @@
   flex: 1;
   flex-grow: 1;
   height: 245px;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .speed-cash .div-3 {
@@ -425,6 +428,7 @@
   text-align: center;
   letter-spacing: 0;
   line-height: normal;
+  will-change: contents;
 }
 
 .speed-cash .auto-orange {
@@ -433,6 +437,8 @@
   height: 247px;
   top: -40px;
   object-fit: cover;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .speed-cash .bet {
@@ -1045,6 +1051,57 @@
   -webkit-backdrop-filter: blur(9px) brightness(100%);
 }
 
+/* Mobile optimizations - disable heavy effects */
+@media (max-width: 768px) {
+  .speed-cash .menu {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: rgba(150, 150, 150, 0.85);
+  }
+  
+  /* Simplify blur effects */
+  .speed-cash .ellipse,
+  .speed-cash .ellipse-2 {
+    filter: blur(30px);
+  }
+  
+  /* Reduce shadows */
+  .speed-cash .game {
+    box-shadow: 0px 5px 5px #171616;
+  }
+  
+  .speed-cash .crash-section {
+    box-shadow: 0px 5px 5px #171616;
+  }
+  
+  .speed-cash .bet-amount {
+    box-shadow: 0px 2px 4px #16141438;
+  }
+  
+  /* Disable complex text shadows */
+  .speed-cash .text-wrapper,
+  .speed-cash .div {
+    text-shadow: none;
+  }
+  
+  /* Simplify multiplier text shadows on mobile */
+  .speed-cash .text-wrapper-4,
+  .speed-cash .text-wrapper-5 {
+    text-shadow: 0px 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Reduce inset shadow on playing area */
+  .speed-cash .playing {
+    box-shadow: inset 0px 0px 33px 11px #141212;
+  }
+  
+  /* Optimize button transitions */
+  .speed-cash .bet-button,
+  .speed-cash .cash-out-button {
+    transition: all 0.2s ease;
+  }
+}
+
 .speed-cash .select {
   position: absolute;
   top: 0;
@@ -1230,6 +1287,8 @@
   height: 25px;
   background: rgba(160, 160, 160, 0.6);
   border-radius: 1.5px;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 .group-ico-1 {
   display: flex

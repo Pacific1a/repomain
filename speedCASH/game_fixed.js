@@ -393,25 +393,34 @@ class SpeedCashGame {
     }
 
     initializeElements() {
-        // Bet buttons
+        // Cache all DOM elements for better performance
         this.blueBetButton = document.querySelector('.div-4:first-child .bet-button');
         this.orangeBetButton = document.querySelector('.div-4:last-child .cash-out-button');
-        
-        // Amount displays
         this.blueBetAmount = document.querySelector('.div-4:first-child .text-wrapper-13');
         this.orangeBetAmount = document.querySelector('.div-4:last-child .text-wrapper-13');
-        
-        // Multiplier displays
         this.blueMultiplierDisplay = document.querySelector('.text-wrapper-4');
         this.orangeMultiplierDisplay = document.querySelector('.text-wrapper-5');
-        
-        // Car elements
         this.blueCar = document.querySelector('.auto-blue-2');
         this.orangeCar = document.querySelector('.auto-orange');
+        this.raceArea = document.querySelector('.race');
+        this.roadLinesContainer = document.getElementById('roadLines');
+        this.countdownText = document.querySelector('.countdown-text');
+        this.gameElement = document.querySelector('.game');
         
-        // Balance display removed - using static HTML value
+        // Enable GPU acceleration for cars
+        if (this.blueCar) {
+            this.blueCar.style.transform = 'translateZ(0)';
+            this.blueCar.style.willChange = 'transform';
+        }
+        if (this.orangeCar) {
+            this.orangeCar.style.transform = 'translateZ(0)';
+            this.orangeCar.style.willChange = 'transform';
+        }
         
-        // Add event listeners
+        // Throttle settings for performance
+        this.lastMultiplierUpdate = 0;
+        this.multiplierUpdateInterval = 50; // Update every 50ms instead of every frame
+        
         this.setupEventListeners();
     }
 
@@ -490,23 +499,32 @@ class SpeedCashGame {
     }
     
     animateRoadLines() {
-        const roadContainer = document.getElementById('roadLines');
-        if (!roadContainer) return;
+        if (!this.roadLinesContainer) return;
+        
+        // Cache road lines once
+        if (!this.cachedRoadLines) {
+            this.cachedRoadLines = Array.from(this.roadLinesContainer.querySelectorAll('.road-line'));
+            // Enable GPU acceleration for road lines
+            this.cachedRoadLines.forEach(line => {
+                line.style.willChange = 'transform';
+            });
+        }
         
         const animateLines = () => {
             if (this.gameState !== 'racing') return;
             
-            const lines = roadContainer.querySelectorAll('.road-line');
-            lines.forEach(line => {
-                let currentTop = parseInt(line.style.top) || 0;
-                currentTop += 3; // Плавное движение
+            // Use transform instead of top for better performance
+            this.cachedRoadLines.forEach(line => {
+                let currentTop = parseFloat(line.dataset.top) || parseInt(line.style.top) || 0;
+                currentTop += 3;
                 
-                // Когда линия уходит за экран, возвращаем её наверх
                 if (currentTop > 700) {
                     currentTop = -400;
                 }
                 
-                line.style.top = `${currentTop}px`;
+                line.dataset.top = currentTop;
+                line.style.transform = `translate3d(0, ${currentTop}px, 0)`;
+                line.style.top = '0'; // Reset top to use transform
             });
             
             this.roadAnimationId = requestAnimationFrame(animateLines);
@@ -522,16 +540,14 @@ class SpeedCashGame {
         // Обрабатываем ставки из очереди
         this.processQueuedBets();
         
-        // Hide game elements and show countdown mode
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            raceArea.classList.add('countdown-mode');
-            raceArea.classList.remove('game-active');
+        // Use cached elements
+        if (this.raceArea) {
+            this.raceArea.classList.add('countdown-mode');
+            this.raceArea.classList.remove('game-active');
         }
         
-        const roadLines = document.getElementById('roadLines');
-        if (roadLines) {
-            roadLines.classList.remove('visible');
+        if (this.roadLinesContainer) {
+            this.roadLinesContainer.classList.remove('visible');
         }
         
         // Show countdown
@@ -826,17 +842,16 @@ class SpeedCashGame {
         this.escapeTextShown = false;
         this.blueDetained = false;
         this.orangeDetained = false;
+        this.lastMultiplierUpdate = 0;
         
-        // Show game elements
-        const raceArea = document.querySelector('.race');
-        if (raceArea) {
-            raceArea.classList.remove('countdown-mode');
-            raceArea.classList.add('game-active');
+        // Use cached elements
+        if (this.raceArea) {
+            this.raceArea.classList.remove('countdown-mode');
+            this.raceArea.classList.add('game-active');
         }
         
-        const roadLines = document.getElementById('roadLines');
-        if (roadLines) {
-            roadLines.classList.add('visible');
+        if (this.roadLinesContainer) {
+            this.roadLinesContainer.classList.add('visible');
         }
         
         // Reset positions and set initial multipliers
@@ -920,54 +935,51 @@ class SpeedCashGame {
             }
         }
         
-        // Update displays
-        this.updateMultiplierDisplays();
+        // Throttle updates - only update every 50ms for better performance
+        if (currentTime - this.lastMultiplierUpdate >= this.multiplierUpdateInterval) {
+            this.updateMultiplierDisplays();
+            this.updateLiveWinnings();
+            this.checkAutoCashOut();
+            this.lastMultiplierUpdate = currentTime;
+        }
         
-        // Live обновление выигрыша в кнопках
-        this.updateLiveWinnings();
+        // Движение машин - оптимизировано для производительности
+        // Precalculate time factors
+        const t1 = elapsed * 0.0008;
+        const t2 = elapsed * 0.0013;
+        const t3 = elapsed * 0.0019;
+        const t4 = elapsed * 0.0011;
+        const t5 = elapsed * 0.0017;
+        const t6 = elapsed * 0.0023;
         
-        // Проверка автокешаута
-        this.checkAutoCashOut();
-        
-        // Движение машин - ТОЛЬКО по команде сервера!
         // Blue car movement
         if (this.blueEscaped) {
-            // Уезжает вверх (установлено сервером)
             this.bluePosition -= 8;
         } else if (this.blueDetained) {
-            // Задержан - едет вниз
             this.bluePosition += 5;
         } else {
-            // Хаотичное плавание
-            const blueWave1 = Math.sin(elapsed * 0.0008) * 25;
-            const blueWave2 = Math.cos(elapsed * 0.0013) * 15;
-            const blueWave3 = Math.sin(elapsed * 0.0019) * 10;
-            const blueTarget = blueWave1 + blueWave2 + blueWave3;
+            // Optimized wave calculation
+            const blueTarget = Math.sin(t1) * 25 + Math.cos(t2) * 15 + Math.sin(t3) * 10;
             this.bluePosition += (blueTarget - this.bluePosition) * 0.04;
         }
         
-        // Orange car movement (независимое от blue)
+        // Orange car movement
         if (this.orangeEscaped) {
-            // Уезжает вверх (установлено сервером)
             this.orangePosition -= 8;
         } else if (this.orangeDetained) {
-            // Задержан - едет вниз
             this.orangePosition += 5;
         } else {
-            // Хаотичное плавание
-            const orangeWave1 = Math.sin(elapsed * 0.0011) * 20;
-            const orangeWave2 = Math.cos(elapsed * 0.0017) * 18;
-            const orangeWave3 = Math.sin(elapsed * 0.0023) * 12;
-            const orangeTarget = orangeWave1 + orangeWave2 + orangeWave3;
+            // Optimized wave calculation
+            const orangeTarget = Math.sin(t4) * 20 + Math.cos(t5) * 18 + Math.sin(t6) * 12;
             this.orangePosition += (orangeTarget - this.orangePosition) * 0.04;
         }
         
-        // Apply movement to cars
+        // Use GPU-accelerated transforms with translate3d
         if (this.blueCar) {
-            this.blueCar.style.transform = `translateY(${this.bluePosition}px)`;
+            this.blueCar.style.transform = `translate3d(0, ${this.bluePosition}px, 0)`;
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = `translateY(${this.orangePosition}px)`;
+            this.orangeCar.style.transform = `translate3d(0, ${this.orangePosition}px, 0)`;
         }
         
         // Continue animation
@@ -1316,9 +1328,9 @@ class SpeedCashGame {
     }
     
     updateCountdown() {
-        const countdownText = document.querySelector('.countdown-text');
-        if (countdownText) {
-            countdownText.textContent = this.bettingTimeLeft;
+        // Use cached element
+        if (this.countdownText) {
+            this.countdownText.textContent = this.bettingTimeLeft;
         }
     }
     
