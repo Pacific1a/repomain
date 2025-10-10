@@ -9,6 +9,15 @@
     <link rel="stylesheet" href="main/style.css" />
     <link rel="stylesheet" href="telegram-user-styles.css" />
     
+    <!-- Preload критических изображений для быстрой загрузки -->
+    <link rel="preload" as="image" href="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/loading/Token.svg" />
+    <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/imgALL/Group%208.png?raw=true" />
+    <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true" />
+    <link rel="preload" as="image" href="https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/image.svg" />
+    <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/main/Crown.png?raw=true" />
+    <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/main/labubu.png?raw=true" />
+    <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/main/love.png?raw=true" />
+    
   </head>
   <style>
     
@@ -123,7 +132,7 @@
     </style>
   <body>
 
-    <!-- <div id="app-loader">
+    <div id="app-loader">
       <img class="loader-token" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/loading/Token.svg" alt="Loading token" />
       <div class="loader-title">Best Money Cases</div>
       <div class="loader-subtitle">Developed in 2025</div>
@@ -133,7 +142,7 @@
         <span id="loadingProgress">0%</span>
       </p>
       <div class="loader-tag">@bot</div>
-    </div> -->
+    </div>
 
     <div id="app" class="main " data-model-id="27:145">
       <header class="header">
@@ -142,17 +151,17 @@
           <div class="nickname"><div class="text-wrapper">Nickname</div></div>
         </div>
         <div class="add-funds">
-          <img class="img" src="https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/image.svg" />
+          <img class="img" src="https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/image.svg" loading="eager" />
           <div class="div">Deposite</div>
         </div>
         <div class="balance-1">
           <div class="group-ico-1">
             0
-            <img src="https://github.com/Pacific1a/img/blob/main/imgALL/Group%208.png?raw=true" alt="" width="20px">
+            <img src="https://github.com/Pacific1a/img/blob/main/imgALL/Group%208.png?raw=true" alt="" width="20px" loading="eager">
           </div>
           <div class="group-ico-1">
             <span>0</span>
-            <img src="https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true" alt="" width="20px">
+            <img src="https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true" alt="" width="20px" loading="eager">
           </div>
      </div>
       </header>
@@ -216,7 +225,7 @@
         <div class="cards crown">
           <div class="hot-1"><img src="" alt="">HOT</div>  
           <div class="img-block">
-          <img src="https://github.com/Pacific1a/img/blob/main/main/Crown.png?raw=true" alt="" width="180px">
+          <img src="https://github.com/Pacific1a/img/blob/main/main/Crown.png?raw=true" alt="" width="180px" loading="eager">
         </div>
         <div class="text-block">
           <h4  style="
@@ -230,7 +239,7 @@
         <div class="cards">  
           <div class="new-1"><img src="" alt="">NEW</div>
           <div class="img-block">
-          <img src="https://github.com/Pacific1a/img/blob/main/main/labubu.png?raw=true" alt="" width="180px">
+          <img src="https://github.com/Pacific1a/img/blob/main/main/labubu.png?raw=true" alt="" width="180px" loading="eager">
         </div>
         <div class="text-block">
           <h4  style="
@@ -243,7 +252,7 @@
       </div>
         <div class="cards">  
           <div class="img-block">
-          <img src="https://github.com/Pacific1a/img/blob/main/main/love.png?raw=true" alt="">
+          <img src="https://github.com/Pacific1a/img/blob/main/main/love.png?raw=true" alt="" loading="eager">
         </div>
         <div class="text-block">
           <h4  style="
@@ -571,7 +580,15 @@
                 'global-balance.js',
                 'game-balance-api.js',
                 'telegram-user-data.js',
-                'telegram-user-styles.css'
+                'telegram-user-styles.css',
+                'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/loading/Token.svg',
+                'https://github.com/Pacific1a/img/blob/main/imgALL/Group%208.png?raw=true',
+                'https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true',
+                'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/image.svg',
+                'https://github.com/Pacific1a/img/blob/main/main/Crown.png?raw=true',
+                'https://github.com/Pacific1a/img/blob/main/main/labubu.png?raw=true',
+                'https://github.com/Pacific1a/img/blob/main/main/love.png?raw=true',
+                'https://github.com/Pacific1a/img/blob/main/main/Travel.png?raw=true'
               ],
               minDisplayTime: 2500,
               fallbackTimeout: 30000,
