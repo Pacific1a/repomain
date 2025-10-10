@@ -721,9 +721,9 @@
         { min: 8,  color: '#9033CE' },
         { min: 5,  color: '#8238DB' },
         { min: 3,  color: '#BF3190' },
-        { min: 2,  color: '#54A450' },
-        { min: 1.5, color: '#BAA657' },
-        { min: 0,  color: '#CA3959' }
+        { min: 2,  color: '#BF3190' },
+        { min: 1.5, color: '#BF3190' },
+        { min: 0,  color: '#BF3190' }
       ];
       
       const color = colors.find(c => point >= c.min).color;

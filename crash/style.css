@@ -12,7 +12,7 @@
 .bet-section-2 .bet,
 .bet-section-2 .div-wrapper-3 {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease ; 
 }
 
 .bet-section-2 .bet .text-wrapper-11,
