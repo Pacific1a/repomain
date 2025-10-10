@@ -147,8 +147,8 @@
   // =====================
   const sectionMenu = $('.section-menu');
   const selectIndicator = sectionMenu ? sectionMenu.querySelector('.select') : null;
-  const caseContainer = $('.case');
-  const caseCards = caseContainer ? $$('.case > *', document) : [];
+  const caseContainer = $('.case-card');
+  const caseCards = caseContainer ? $$('.case-card > .cards', document) : [];
   const originalOrder = caseCards.slice();
 
   function moveSelectTo(el){
@@ -218,8 +218,12 @@
         break;
       }
       case 'chips': {
-        // no chips yet — hide all
-        caseCards.forEach(card => showCard(card, false));
+        // show only cards with chips (data-chips="true")
+        restoreOriginalOrder();
+        caseCards.forEach(card => {
+          const hasChips = card.getAttribute('data-chips') === 'true';
+          showCard(card, hasChips);
+        });
         break;
       }
       case 'all':

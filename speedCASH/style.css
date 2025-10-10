@@ -1051,6 +1051,8 @@
   -webkit-backdrop-filter: blur(9px) brightness(100%);
 }
 
+/* Mobile optimizations - disable heavy effects */
+@media (max-width: 768px) {
   /* Simplify blur effects */
   .speed-cash .ellipse,
   .speed-cash .ellipse-2 {
