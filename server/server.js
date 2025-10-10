@@ -920,23 +920,24 @@ io.on('connection', (socket) => {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // Генерируем случайные точки остановки
-    gameState.blueStopMultiplier = 2 + Math.random() * 6; // 2-8x
-    gameState.orangeStopMultiplier = 2 + Math.random() * 6; // 2-8x
-    
-    // Определяем задержанную машину
+    // ПРОСТАЯ ЛОГИКА: кто первым достиг X - тот задержан, кто позже - тот уезжает
     const rand = Math.random();
-    if (rand < 0.15) {
-      gameState.delayedCar = 'both';
-    } else if (rand < 0.5) {
+    
+    if (rand < 0.5) {
+      // 50% - BLUE задержана (меньший X), ORANGE уезжает (больший X)
+      gameState.blueStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
+      gameState.orangeStopMultiplier = gameState.blueStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
       gameState.delayedCar = 'blue';
-    } else if (rand < 0.85) {
-      gameState.delayedCar = 'orange';
+      console.log(`🚔 Blue задержана на x${gameState.blueStopMultiplier.toFixed(2)}, Orange уедет на x${gameState.orangeStopMultiplier.toFixed(2)}`);
     } else {
-      gameState.delayedCar = null;
+      // 50% - ORANGE задержана (меньший X), BLUE уезжает (больший X)
+      gameState.orangeStopMultiplier = 2 + Math.random() * 4; // 2x - 6x (задержанная)
+      gameState.blueStopMultiplier = gameState.orangeStopMultiplier + 1 + Math.random() * 4; // +1x до +5x выше
+      gameState.delayedCar = 'orange';
+      console.log(`🚔 Orange задержана на x${gameState.orangeStopMultiplier.toFixed(2)}, Blue уедет на x${gameState.blueStopMultiplier.toFixed(2)}`);
     }
     
-    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar || 'none'}`);
+    console.log(`🚗 SpeedCASH: Betting started. Blue target: ${gameState.blueStopMultiplier.toFixed(2)}x, Orange target: ${gameState.orangeStopMultiplier.toFixed(2)}x, Delayed: ${gameState.delayedCar}`);
     
     io.to('global_speedcash').emit('speedcash_betting_start', {
       bettingTime: 5,
