@@ -715,7 +715,18 @@
       const historyItem = document.createElement('div');
       historyItem.className = 'history-item';
       
-      const color = point >= 2.0 ? '#54A450' : point >= 1.5 ? '#BAA657' : '#CA3959';
+      const colors = [
+        { min: 50, color: '#7C0073' },
+        { min: 10, color: '#9D1593' },
+        { min: 8,  color: '#9033CE' },
+        { min: 5,  color: '#8238DB' },
+        { min: 3,  color: '#BF3190' },
+        { min: 2,  color: '#54A450' },
+        { min: 1.5, color: '#BAA657' },
+        { min: 0,  color: '#CA3959' }
+      ];
+      
+      const color = colors.find(c => point >= c.min).color;
       
       historyItem.style.cssText = `
         display: flex;
