@@ -555,8 +555,9 @@
         const setLocalItem = (key, value) => {
           try {
             localStorage.setItem(key, value);
+            return true;
           } catch (e) {
-            // ignore
+            return false;
           }
         };
 
@@ -582,11 +583,19 @@
 
         const isLoaderDisabled = async () => {
           const cloudValue = await getCloudItem(storageKey);
-          if (cloudValue === 'true') {
-            return true;
-          }
           const localValue = getLocalItem(storageKey);
-          return localValue === 'true';
+          return cloudValue === 'true' || localValue === 'true';
+        };
+
+        // Функция для сброса флага прелоадера (для тестирования)
+        window.resetPreloader = () => {
+          setLocalItem(storageKey, 'false');
+          if (cloudAvailable && tg) {
+            tg.CloudStorage.setItem(storageKey, 'false', () => {
+              console.log('Preloader reset - reload page to see it again');
+            });
+          }
+          console.log('Preloader reset - reload page to see it again');
         };
 
         async function init() {
@@ -661,30 +670,34 @@
                 'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/main/vector-5.svg',
                 'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/main/vector-1.svg'
               ],
-              minDisplayTime: 5500,
+              minDisplayTime: 5000,
               fallbackTimeout: 30000,
               baseUrl: window.location.href,
               onProgress: ({ percent }) => {
-                progressElement.textContent = `${percent}%`;
+                // Плавная визуализация для красоты
+                const visualPercent = Math.min(100, Math.max(0, percent));
+                progressElement.textContent = `${Math.round(visualPercent)}%`;
                 if (progressBar) {
-                  progressBar.style.width = `${percent}%`;
+                  progressBar.style.width = `${visualPercent}%`;
                 }
-                if (percent >= 100) {
+                if (visualPercent >= 100) {
                   statusElement.textContent = 'Launching app...';
-                } else if (percent >= 75) {
+                } else if (visualPercent >= 75) {
                   statusElement.textContent = 'Almost ready...';
-                } else if (percent >= 50) {
+                } else if (visualPercent >= 50) {
                   statusElement.textContent = 'Loading resources...';
-                } else if (percent >= 25) {
+                } else if (visualPercent >= 25) {
                   statusElement.textContent = 'Loading images...';
                 } else {
                   statusElement.textContent = 'Initializing...';
                 }
               }
             });
-            await markLoaderCompleted();
           } catch (e) {
-            // ignore errors and continue to show app immediately
+            console.error('Preloader error:', e);
+          } finally {
+            // Устанавливаем флаг что прелоадер был показан (для показа только 1 раз)
+            await markLoaderCompleted();
           }
 
           showAppImmediately();
