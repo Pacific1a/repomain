@@ -722,9 +722,6 @@
         align-items: center;
         justify-content: center;
         padding: 6px 10px;
-        border-radius: 8px;
-        background: ${color}33;
-        border: 1px solid ${color}66;
         min-width: 50px;
       `;
       
