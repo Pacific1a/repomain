@@ -248,11 +248,16 @@
             };
 
             const drainQueue = async () => {
+                const delayBetweenAssets = 80;
                 while (currentIndex < assetQueue.length) {
                     const item = assetQueue[currentIndex];
                     currentIndex += 1;
                     // eslint-disable-next-line no-await-in-loop
                     await processAsset(item);
+                    if (currentIndex < assetQueue.length) {
+                        // eslint-disable-next-line no-await-in-loop
+                        await new Promise(resolve => setTimeout(resolve, delayBetweenAssets));
+                    }
                 }
             };
 

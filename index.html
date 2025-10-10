@@ -34,6 +34,13 @@
       .hidden {
         display: none !important;
       }
+      #app {
+        opacity: 0;
+        transition: opacity 0.8s ease-in;
+      }
+      #app.show {
+        opacity: 1;
+      }
       #app-loader {
         position: fixed;
         inset: 0;
@@ -44,6 +51,11 @@
         gap: 22px;
         background-color: #151414;
         z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.6s ease-out;
+      }
+      #app-loader.fade-out {
+        opacity: 0;
       }
       #app-loader .loader-token {
         width: 160px;
@@ -108,6 +120,22 @@
         font-size: 17px;
         letter-spacing: 0;
       }
+      #app-loader .loader-progress-bar {
+        width: 250px;
+        height: 4px;
+        background-color: #2a2a2a;
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+      #app-loader .loader-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ff403e 0%, #ff6b69 100%);
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.3s ease-out;
+        box-shadow: 0 0 10px rgba(255, 64, 62, 0.5);
+      }
       :root {
   --banner-bg: linear-gradient(90deg, rgba(255, 64, 62, 1) 0%, rgba(255,64,62,0.8) 100%);
   --banner-shadow: 0px 0px 55px #ff403f54;
@@ -141,14 +169,17 @@
       <div class="loader-title">Best Money Cases</div>
       <div class="loader-subtitle">Developed in 2025</div>
       <div class="loader-spinner"></div>
+      <div class="loader-progress-bar">
+        <div class="loader-progress-fill" id="progressBar"></div>
+      </div>
       <p class="loader-status">
-        <span id="loadingStatus">Loading...</span>
+        <span id="loadingStatus">Initializing...</span>
         <span id="loadingProgress">0%</span>
       </p>
       <div class="loader-tag">@bot</div>
     </div>
 
-    <div id="app" class="main " data-model-id="27:145">
+    <div id="app" class="main hidden" data-model-id="27:145">
       <header class="header">
         <div class="account-info">
           <div class="avatar"></div>
@@ -530,11 +561,17 @@
         };
 
         const showAppImmediately = () => {
+          if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(() => {
+              loader.style.display = 'none';
+            }, 600);
+          }
           if (app) {
             app.classList.remove('hidden');
-          }
-          if (loader) {
-            loader.style.display = 'none';
+            setTimeout(() => {
+              app.classList.add('show');
+            }, 50);
           }
         };
 
@@ -553,6 +590,7 @@
         };
 
         async function init() {
+          const progressBar = document.getElementById('progressBar');
           if (!loader || !app || !statusElement || !progressElement || typeof ProjectPreloader === 'undefined') {
             showAppImmediately();
             return;
@@ -623,15 +661,24 @@
                 'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/main/vector-5.svg',
                 'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/main/vector-1.svg'
               ],
-              minDisplayTime: 3000,
+              minDisplayTime: 5500,
               fallbackTimeout: 30000,
               baseUrl: window.location.href,
               onProgress: ({ percent }) => {
                 progressElement.textContent = `${percent}%`;
+                if (progressBar) {
+                  progressBar.style.width = `${percent}%`;
+                }
                 if (percent >= 100) {
-                  statusElement.textContent = 'Launching app';
+                  statusElement.textContent = 'Launching app...';
+                } else if (percent >= 75) {
+                  statusElement.textContent = 'Almost ready...';
+                } else if (percent >= 50) {
+                  statusElement.textContent = 'Loading resources...';
+                } else if (percent >= 25) {
+                  statusElement.textContent = 'Loading images...';
                 } else {
-                  statusElement.textContent = 'Loading...';
+                  statusElement.textContent = 'Initializing...';
                 }
               }
             });
@@ -641,9 +688,6 @@
           }
 
           showAppImmediately();
-          if (loader) {
-            loader.classList.add('hidden');
-          }
         }
 
         init();
