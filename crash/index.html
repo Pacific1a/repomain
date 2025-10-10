@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Preconnect для критических ресурсов -->
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
+    <link rel="preconnect" href="https://github.com" crossorigin>
+    <link rel="preconnect" href="https://telegram.org" crossorigin>
+    <link rel="preconnect" href="https://cdn.socket.io" crossorigin>
+    <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+    <link rel="dns-prefetch" href="https://github.com">
+    <!-- Критические стили с font-display оптимизацией -->
     <link rel="stylesheet" href="globals.css" />
     <link rel="stylesheet" href="styleguide.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="../telegram-user-styles.css" />
+    <style>
+      @font-face {
+        font-family: 'Montserrat';
+        font-display: swap;
+      }
+      /* Критическая оптимизация для LCP */
+      .multiplier-label {
+        content-visibility: auto;
+      }
+    </style>
   </head>
   <body>
     <div class="aviator" data-model-id="61:14">
@@ -38,9 +56,8 @@
       </header>
       <div class="fixed-block">
         <div class="game">
-          <img class="union" src="https://github.com/Pacific1a/img/blob/main/crash/Union.png?raw=true" />
           <div class="waiting" id="waitingRoot">
-            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="">
+            <img src="https://github.com/Pacific1a/img/blob/main/crash/Background.png?raw=true" alt="" fetchpriority="high">
           </div>
           <div class="multiplier-layer" id="multiplierLayer">
             <div class="multiplier-label" id="currentMultiplier">1.00x</div>
@@ -116,9 +133,8 @@
         </div>
       </div>
       <div class="menu">
-        <img class="select" src="https://github.com/Pacific1a/img/blob/main/imgALL/select.png?raw=true" />
         <a href="../index.html" class="main">
-          <img class="mask-group" src="https://github.com/Pacific1a/img/blob/main/imgALL/mask-group-3.png?raw=true" />
+          <img class="mask-group" src="https://github.com/Pacific1a/img/blob/main/imgALL/mask-group-3.png?raw=true" loading="lazy" />
           <div class="text-wrapper-29">Main</div>
         </a>
         <a href="../upgrade/index.html" class="upgrade">
@@ -132,26 +148,28 @@
         <a href="../swap/index.html" class="swap">
           <div class="overlap-group-wrapper">
             <div class="overlap-group-2">
-              <img class="vector" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-11.svg" /> <img class="vector-2" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-12.svg" />
+              <img class="vector" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-11.svg" loading="lazy" /> <img class="vector-2" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-12.svg" loading="lazy" />
             </div>
           </div>
           <div class="text-wrapper-30">Swap</div>
         </a>
         <a href="../profile/index.html" class="profile">
           <div class="icon-4">
-            <img class="vector-3" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-13.svg" /> <img class="vector-4" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-14.svg" />
+            <img class="vector-3" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-13.svg" loading="lazy" /> <img class="vector-4" src="https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/imgALL/vector-14.svg" loading="lazy" />
           </div>
           <div class="text-wrapper-30">Profile</div>
         </a>
       </div>
     </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    <script src="../global-balance.js"></script>
-    <script src="../game-balance-api.js"></script>
-    <script src="../telegram-user-data.js"></script>
-    <script src="../players-system.js"></script>
-    <script src="crash-websocket.js"></script>
+    <!-- Критические скрипты загружаются асинхронно для улучшения LCP -->
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" defer></script>
+    <script src="../global-balance.js" defer></script>
+    <script src="../game-balance-api.js" defer></script>
+    <script src="../telegram-user-data.js" defer></script>
+    <script src="../players-system.js" defer></script>
+    <script src="crash-chart.js" defer></script>
+    <script src="crash-websocket.js" defer></script>
 
   </body>
 </html>
