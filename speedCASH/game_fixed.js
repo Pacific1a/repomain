@@ -421,11 +421,9 @@ class SpeedCashGame {
             this.orangeCar.style.willChange = 'transform';
         }
         
-        // Throttle settings for performance (агрессивнее на мобильных)
+        // Throttle settings только для DOM обновлений (не для анимаций)
         this.lastMultiplierUpdate = 0;
-        this.multiplierUpdateInterval = this.isMobile ? 150 : 100; // Мобильные: 150ms, Десктоп: 100ms
-        this.lastRoadUpdate = 0;
-        this.roadUpdateInterval = this.isMobile ? 100 : 50; // Дорога реже обновляется на мобильных
+        this.multiplierUpdateInterval = this.isMobile ? 70 : 50; // Мобильные: 70ms, Десктоп: 50ms
         
         this.setupEventListeners();
     }
@@ -519,26 +517,19 @@ class SpeedCashGame {
         const animateLines = () => {
             if (this.gameState !== 'racing') return;
             
-            const currentTime = Date.now();
-            
-            // Throttle road lines update (особенно на мобильных)
-            if (currentTime - this.lastRoadUpdate >= this.roadUpdateInterval) {
-                // Use transform instead of top for better performance
-                this.cachedRoadLines.forEach(line => {
-                    let currentTop = parseFloat(line.dataset.top) || parseInt(line.style.top) || 0;
-                    currentTop += 3;
-                    
-                    if (currentTop > 700) {
-                        currentTop = -400;
-                    }
-                    
-                    line.dataset.top = currentTop;
-                    line.style.transform = `translate3d(0, ${currentTop}px, 0)`;
-                    line.style.top = '0'; // Reset top to use transform
-                });
+            // Анимация дороги на полном FPS (без throttling)
+            this.cachedRoadLines.forEach(line => {
+                let currentTop = parseFloat(line.dataset.top) || parseInt(line.style.top) || 0;
+                currentTop += 3;
                 
-                this.lastRoadUpdate = currentTime;
-            }
+                if (currentTop > 700) {
+                    currentTop = -400;
+                }
+                
+                line.dataset.top = currentTop;
+                line.style.transform = `translate3d(0, ${currentTop}px, 0)`;
+                line.style.top = '0'; // Reset top to use transform
+            });
             
             this.roadAnimationId = requestAnimationFrame(animateLines);
         };
@@ -856,7 +847,6 @@ class SpeedCashGame {
         this.blueDetained = false;
         this.orangeDetained = false;
         this.lastMultiplierUpdate = 0;
-        this.lastRoadUpdate = 0;
         
         // Use cached elements
         if (this.raceArea) {
