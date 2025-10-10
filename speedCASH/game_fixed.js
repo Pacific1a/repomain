@@ -1,5 +1,9 @@
 class SpeedCashGame {
     constructor() {
+        // Определение мобильного устройства
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        console.log(`📱 Мобильное устройство: ${this.isMobile}`);
+        
         this.gameState = 'waiting'; // 'waiting', 'betting', 'racing', 'finished'
         this.blueBet = 50;
         this.orangeBet = 50;
@@ -417,9 +421,11 @@ class SpeedCashGame {
             this.orangeCar.style.willChange = 'transform';
         }
         
-        // Throttle settings for performance
+        // Throttle settings for performance (агрессивнее на мобильных)
         this.lastMultiplierUpdate = 0;
-        this.multiplierUpdateInterval = 50; // Update every 50ms instead of every frame
+        this.multiplierUpdateInterval = this.isMobile ? 150 : 100; // Мобильные: 150ms, Десктоп: 100ms
+        this.lastRoadUpdate = 0;
+        this.roadUpdateInterval = this.isMobile ? 100 : 50; // Дорога реже обновляется на мобильных
         
         this.setupEventListeners();
     }
@@ -513,19 +519,26 @@ class SpeedCashGame {
         const animateLines = () => {
             if (this.gameState !== 'racing') return;
             
-            // Use transform instead of top for better performance
-            this.cachedRoadLines.forEach(line => {
-                let currentTop = parseFloat(line.dataset.top) || parseInt(line.style.top) || 0;
-                currentTop += 3;
+            const currentTime = Date.now();
+            
+            // Throttle road lines update (особенно на мобильных)
+            if (currentTime - this.lastRoadUpdate >= this.roadUpdateInterval) {
+                // Use transform instead of top for better performance
+                this.cachedRoadLines.forEach(line => {
+                    let currentTop = parseFloat(line.dataset.top) || parseInt(line.style.top) || 0;
+                    currentTop += 3;
+                    
+                    if (currentTop > 700) {
+                        currentTop = -400;
+                    }
+                    
+                    line.dataset.top = currentTop;
+                    line.style.transform = `translate3d(0, ${currentTop}px, 0)`;
+                    line.style.top = '0'; // Reset top to use transform
+                });
                 
-                if (currentTop > 700) {
-                    currentTop = -400;
-                }
-                
-                line.dataset.top = currentTop;
-                line.style.transform = `translate3d(0, ${currentTop}px, 0)`;
-                line.style.top = '0'; // Reset top to use transform
-            });
+                this.lastRoadUpdate = currentTime;
+            }
             
             this.roadAnimationId = requestAnimationFrame(animateLines);
         };
@@ -843,6 +856,7 @@ class SpeedCashGame {
         this.blueDetained = false;
         this.orangeDetained = false;
         this.lastMultiplierUpdate = 0;
+        this.lastRoadUpdate = 0;
         
         // Use cached elements
         if (this.raceArea) {
@@ -943,35 +957,58 @@ class SpeedCashGame {
             this.lastMultiplierUpdate = currentTime;
         }
         
-        // Движение машин - оптимизировано для производительности
-        // Precalculate time factors
-        const t1 = elapsed * 0.0008;
-        const t2 = elapsed * 0.0013;
-        const t3 = elapsed * 0.0019;
-        const t4 = elapsed * 0.0011;
-        const t5 = elapsed * 0.0017;
-        const t6 = elapsed * 0.0023;
-        
-        // Blue car movement
-        if (this.blueEscaped) {
-            this.bluePosition -= 8;
-        } else if (this.blueDetained) {
-            this.bluePosition += 5;
+        // Движение машин - упрощенная формула для мобильных
+        if (this.isMobile) {
+            // Упрощенная анимация для мобильных (только 2 sin вместо 6)
+            const t = elapsed * 0.001;
+            
+            // Blue car movement
+            if (this.blueEscaped) {
+                this.bluePosition -= 8;
+            } else if (this.blueDetained) {
+                this.bluePosition += 5;
+            } else {
+                const blueTarget = Math.sin(t) * 30;
+                this.bluePosition += (blueTarget - this.bluePosition) * 0.06;
+            }
+            
+            // Orange car movement
+            if (this.orangeEscaped) {
+                this.orangePosition -= 8;
+            } else if (this.orangeDetained) {
+                this.orangePosition += 5;
+            } else {
+                const orangeTarget = Math.sin(t * 1.2) * 30;
+                this.orangePosition += (orangeTarget - this.orangePosition) * 0.06;
+            }
         } else {
-            // Optimized wave calculation
-            const blueTarget = Math.sin(t1) * 25 + Math.cos(t2) * 15 + Math.sin(t3) * 10;
-            this.bluePosition += (blueTarget - this.bluePosition) * 0.04;
-        }
-        
-        // Orange car movement
-        if (this.orangeEscaped) {
-            this.orangePosition -= 8;
-        } else if (this.orangeDetained) {
-            this.orangePosition += 5;
-        } else {
-            // Optimized wave calculation
-            const orangeTarget = Math.sin(t4) * 20 + Math.cos(t5) * 18 + Math.sin(t6) * 12;
-            this.orangePosition += (orangeTarget - this.orangePosition) * 0.04;
+            // Полная анимация для десктопа
+            const t1 = elapsed * 0.0008;
+            const t2 = elapsed * 0.0013;
+            const t3 = elapsed * 0.0019;
+            const t4 = elapsed * 0.0011;
+            const t5 = elapsed * 0.0017;
+            const t6 = elapsed * 0.0023;
+            
+            // Blue car movement
+            if (this.blueEscaped) {
+                this.bluePosition -= 8;
+            } else if (this.blueDetained) {
+                this.bluePosition += 5;
+            } else {
+                const blueTarget = Math.sin(t1) * 25 + Math.cos(t2) * 15 + Math.sin(t3) * 10;
+                this.bluePosition += (blueTarget - this.bluePosition) * 0.04;
+            }
+            
+            // Orange car movement
+            if (this.orangeEscaped) {
+                this.orangePosition -= 8;
+            } else if (this.orangeDetained) {
+                this.orangePosition += 5;
+            } else {
+                const orangeTarget = Math.sin(t4) * 20 + Math.cos(t5) * 18 + Math.sin(t6) * 12;
+                this.orangePosition += (orangeTarget - this.orangePosition) * 0.04;
+            }
         }
         
         // Use GPU-accelerated transforms with translate3d

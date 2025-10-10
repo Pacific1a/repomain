@@ -987,7 +987,7 @@ io.on('connection', (socket) => {
     
     console.log(`🏁 SpeedCASH: Race started! Duration: ${(gameState.raceDuration/1000).toFixed(1)}s`);
     
-    // Обновляем множители каждые 50мс
+    // Обновляем множители каждые 100мс (оптимизация для мобильных)
     if (gameState.raceInterval) clearInterval(gameState.raceInterval);
     
     gameState.raceInterval = setInterval(() => {
@@ -1060,7 +1060,7 @@ io.on('connection', (socket) => {
         blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
         orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2))
       });
-    }, 50);
+    }, 100); // Увеличено до 100ms для лучшей производительности на мобильных
   }
 
   // Отключение
