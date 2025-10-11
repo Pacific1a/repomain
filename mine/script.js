@@ -470,11 +470,13 @@
       });
     }
 
-    // Bet/Cash Out main control (container .cash-out-button-2 is a div)
-    const betCash = $('.cash-out-button .cash-out-button-2');
+    // Bet/Cash Out main control (кнопка .cash-out-button)
+    const betCash = $('.cash-out-button');
     if (betCash) {
       betCash.style.cursor = 'pointer';
       betCash.addEventListener('click', onBetOrCash);
+    } else {
+      console.error('❌ Кнопка .cash-out-button не найдена!');
     }
 
     updateCashoutDisplay();
