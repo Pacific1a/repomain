@@ -9,13 +9,10 @@ class SpeedCashGame {
         this.orangeBet = 50;
         this.currentBlueBet = null;
         this.currentOrangeBet = null;
-        this.queuedBlueBet = null;
-        this.queuedOrangeBet = null;
         
         // Single mode
         this.singleBet = 50;
         this.currentSingleBet = null;
-        this.queuedSingleBet = null;
         this.singleSelectedCar = 'blue'; // 'blue' или 'orange'
         
         this.blueMultiplier = 1.00;
@@ -548,9 +545,6 @@ class SpeedCashGame {
         this.gameState = 'betting';
         this.bettingTimeLeft = 5;
         
-        // Обрабатываем ставки из очереди
-        this.processQueuedBets();
-        
         // Use cached elements
         if (this.raceArea) {
             this.raceArea.classList.add('countdown-mode');
@@ -577,57 +571,7 @@ class SpeedCashGame {
         countdown();
     }
 
-    processQueuedBets() {
-        // Blue
-        if (this.queuedBlueBet) {
-            if (window.GameBalanceAPI && window.GameBalanceAPI.canPlaceBet(this.queuedBlueBet, 'chips')) {
-                const success = window.GameBalanceAPI.placeBet(this.queuedBlueBet, 'chips');
-                if (success) {
-                    this.currentBlueBet = this.queuedBlueBet;
-                    this.updateBetButton('blue', 'cancel', this.queuedBlueBet);
-                    console.log(`✅ Ставка из очереди ${this.queuedBlueBet} чипов на blue принята`);
-                }
-            }
-            this.queuedBlueBet = null;
-        }
-        
-        // Orange
-        if (this.queuedOrangeBet) {
-            if (window.GameBalanceAPI && window.GameBalanceAPI.canPlaceBet(this.queuedOrangeBet, 'chips')) {
-                const success = window.GameBalanceAPI.placeBet(this.queuedOrangeBet, 'chips');
-                if (success) {
-                    this.currentOrangeBet = this.queuedOrangeBet;
-                    this.updateBetButton('orange', 'cancel', this.queuedOrangeBet);
-                    console.log(`✅ Ставка из очереди ${this.queuedOrangeBet} чипов на orange принята`);
-                }
-            }
-            this.queuedOrangeBet = null;
-        }
-        
-        // Single
-        if (this.queuedSingleBet) {
-            if (window.GameBalanceAPI && window.GameBalanceAPI.canPlaceBet(this.queuedSingleBet, 'chips')) {
-                const success = window.GameBalanceAPI.placeBet(this.queuedSingleBet, 'chips');
-                if (success) {
-                    this.currentSingleBet = this.queuedSingleBet;
-                    this.updateSingleButton('cancel', this.queuedSingleBet);
-                    console.log(`✅ Single ставка из очереди ${this.queuedSingleBet} чипов на ${this.singleSelectedCar} принята`);
-                }
-            }
-            this.queuedSingleBet = null;
-        }
-    }
 
-    cancelQueuedBet(color) {
-        if (color === 'blue') {
-            this.queuedBlueBet = null;
-        } else {
-            this.queuedOrangeBet = null;
-        }
-        const amount = color === 'blue' ? this.blueBet : this.orangeBet;
-        this.updateBetButton(color, 'bet', amount);
-        console.log(`❌ Ставка на ${color} из очереди отменена`);
-    }
 
     showNotification(message) {
         // Создаем уведомление
@@ -718,28 +662,8 @@ class SpeedCashGame {
                 }
                 // Есть ставка и машина не задержана - делаем Cash Out
                 this.cashOut(color);
-            } else {
-                // Нет ставки - ставим в очередь на следующий раунд
-                const queuedBet = color === 'blue' ? this.queuedBlueBet : this.queuedOrangeBet;
-                if (queuedBet) {
-                    // Уже в очереди - отменяем
-                    this.cancelQueuedBet(color);
-                } else {
-                    // Ставим в очередь
-                    const betAmount = color === 'blue' ? this.blueBet : this.orangeBet;
-                    if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
-                        this.showNotification('Недостаточно средств');
-                        return;
-                    }
-                    if (color === 'blue') {
-                        this.queuedBlueBet = betAmount;
-                    } else {
-                        this.queuedOrangeBet = betAmount;
-                    }
-                    this.updateBetButton(color, 'queued', betAmount);
-                    console.log(`⏳ Ставка ${betAmount} чипов на ${color} будет размещена в следующем раунде`);
-                }
             }
+            // Нет ставки во время racing - ничего не делаем (кнопка disabled)
             return;
         }
     }
@@ -839,11 +763,6 @@ class SpeedCashGame {
             if (amountElement) amountElement.textContent = `${amount} Chips`;
             button.classList.add('state-cashout');
             if (wrapper) wrapper.classList.add('state-cashout');
-        } else if (state === 'queued') {
-            if (textElement) textElement.textContent = 'Cancel';
-            if (amountElement) amountElement.textContent = 'Wait to next round';
-            button.classList.add('state-cancel');
-            if (wrapper) wrapper.classList.add('state-cancel');
         }
     }
     
@@ -923,14 +842,21 @@ class SpeedCashGame {
         console.log(`🚔 Delayed car: ${this.delayedCar}`);
         
         // Обновляем кнопки на Cash Out если ставки размещены (disabled = false, так как в начале гонки машины еще не задержаны)
+        // Если нет ставки - кнопка становится disabled
         if (this.currentBlueBet) {
             this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
+        } else {
+            this.updateBetButton('blue', 'bet', this.blueBet, true);
         }
         if (this.currentOrangeBet) {
             this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
+        } else {
+            this.updateBetButton('orange', 'bet', this.orangeBet, true);
         }
         if (this.currentSingleBet) {
             this.updateSingleButton('cashout', this.currentSingleBet, false);
+        } else {
+            this.updateSingleButton('bet', this.singleBet, true);
         }
         
         // Останавливаем старые анимации перед запуском новых
@@ -1299,20 +1225,15 @@ class SpeedCashGame {
             }
         }
         
-        // Reset bets только если нет ставок в очереди
-        // Если есть queuedBet, не сбрасываем currentBet - он будет обработан в processQueuedBets
-        if (!this.queuedBlueBet) {
-            this.currentBlueBet = null;
-            this.updateBetButton('blue', 'bet', this.blueBet);
-        }
-        if (!this.queuedOrangeBet) {
-            this.currentOrangeBet = null;
-            this.updateBetButton('orange', 'bet', this.orangeBet);
-        }
-        if (!this.queuedSingleBet) {
-            this.currentSingleBet = null;
-            this.updateSingleButton('bet', this.singleBet);
-        }
+        // Reset bets
+        this.currentBlueBet = null;
+        this.currentOrangeBet = null;
+        this.currentSingleBet = null;
+        
+        // Reset bet buttons
+        this.updateBetButton('blue', 'bet', this.blueBet);
+        this.updateBetButton('orange', 'bet', this.orangeBet);
+        this.updateSingleButton('bet', this.singleBet);
         
         // Reset multipliers
         this.blueMultiplier = 1.00;
@@ -1425,8 +1346,7 @@ class SpeedCashGame {
     adjustBetAmount(color, action) {
         // Single mode
         if (color === 'single') {
-            const canAdjust = this.gameState === 'betting' || (this.gameState === 'racing' && this.queuedSingleBet);
-            if (!canAdjust) return;
+            if (this.gameState !== 'betting') return;
             
             if (action === 'half') {
                 this.singleBet = Math.max(10, Math.floor(this.singleBet / 2));
@@ -1441,22 +1361,14 @@ class SpeedCashGame {
                 singleAmountDisplay.textContent = this.singleBet;
             }
             
-            if (!this.currentSingleBet && !this.queuedSingleBet) {
+            if (!this.currentSingleBet) {
                 this.updateSingleButton('bet', this.singleBet);
-            } else if (this.queuedSingleBet) {
-                this.queuedSingleBet = this.singleBet;
-                this.updateSingleButton('queued', this.singleBet);
             }
             return;
         }
         
-        // Разрешаем изменять ставку во время betting или если есть queued bet во время racing
-        const canAdjust = this.gameState === 'betting' || 
-                         (this.gameState === 'racing' && 
-                          ((color === 'blue' && this.queuedBlueBet) || 
-                           (color === 'orange' && this.queuedOrangeBet)));
-        
-        if (!canAdjust) return;
+        // Разрешаем изменять ставку только во время betting
+        if (this.gameState !== 'betting') return;
         
         if (color === 'blue') {
             if (action === 'half') {
@@ -1470,11 +1382,8 @@ class SpeedCashGame {
                 this.blueBetAmount.textContent = this.blueBet;
             }
             // Обновляем сумму в кнопке если нет активной ставки
-            if (!this.currentBlueBet && !this.queuedBlueBet) {
+            if (!this.currentBlueBet) {
                 this.updateBetButton('blue', 'bet', this.blueBet);
-            } else if (this.queuedBlueBet) {
-                this.queuedBlueBet = this.blueBet;
-                this.updateBetButton('blue', 'queued', this.blueBet);
             }
         } else if (color === 'orange') {
             if (action === 'half') {
@@ -1488,11 +1397,8 @@ class SpeedCashGame {
                 this.orangeBetAmount.textContent = this.orangeBet;
             }
             // Обновляем сумму в кнопке если нет активной ставки
-            if (!this.currentOrangeBet && !this.queuedOrangeBet) {
+            if (!this.currentOrangeBet) {
                 this.updateBetButton('orange', 'bet', this.orangeBet);
-            } else if (this.queuedOrangeBet) {
-                this.queuedOrangeBet = this.orangeBet;
-                this.updateBetButton('orange', 'queued', this.orangeBet);
             }
         }
     }
@@ -1541,20 +1447,8 @@ class SpeedCashGame {
                 }
                 // Cash Out для Single mode
                 this.cashOutSingle();
-            } else {
-                // Нет ставки - ставим в очередь
-                if (this.queuedSingleBet) {
-                    this.cancelQueuedSingleBet();
-                } else {
-                    if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.singleBet, 'chips')) {
-                        this.showNotification('Недостаточно средств');
-                        return;
-                    }
-                    this.queuedSingleBet = this.singleBet;
-                    this.updateSingleButton('queued', this.singleBet);
-                    console.log(`⏳ Single ставка ${this.singleBet} на ${this.singleSelectedCar} будет размещена`);
-                }
             }
+            // Нет ставки во время racing - ничего не делаем (кнопка disabled)
             return;
         }
     }
@@ -1595,11 +1489,7 @@ class SpeedCashGame {
         console.log(`❌ Single ставка отменена`);
     }
 
-    cancelQueuedSingleBet() {
-        this.queuedSingleBet = null;
-        this.updateSingleButton('bet', this.singleBet);
-        console.log(`❌ Single ставка из очереди отменена`);
-    }
+
 
     updateSingleButton(state, amount, disabled = false) {
         const button = document.querySelector('.who-is-win .bet-button');
@@ -1632,10 +1522,6 @@ class SpeedCashGame {
             if (textElement) textElement.textContent = 'Cash Out';
             if (amountElement) amountElement.textContent = `${amount} Chips`;
             button.classList.add('state-cashout');
-        } else if (state === 'queued') {
-            if (textElement) textElement.textContent = 'Cancel';
-            if (amountElement) amountElement.textContent = 'Wait to next round';
-            button.classList.add('state-cancel');
         }
     }
 
