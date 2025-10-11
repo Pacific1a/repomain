@@ -283,8 +283,7 @@ class CrashChart {
     // Подготавливаем массив точек с координатами
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
-      const timeInWindow = elapsed - point.time;
-      const x = this.padding.left + chartWidth * (1 - Math.min(timeInWindow / this.maxVisibleTime, 1)); 
+      const x = this.padding.left + chartWidth * (point.time / elapsed);
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
@@ -381,7 +380,7 @@ class CrashChart {
     const chartWidth = this.width - this.padding.left - this.padding.right;
     const lastPoint = this.points[this.points.length - 1];
     const elapsedTotal = Date.now() - this.startTime;
-    const lastX = this.padding.left + chartWidth * ((elapsedTotal - lastPoint.time) / this.maxVisibleTime);
+    const lastX = this.padding.left + chartWidth * (lastPoint.time / elapsedTotal);
     const lastY = this.crashAnimation.startY;
     
     const flyDistance = this.height * 0.5;
