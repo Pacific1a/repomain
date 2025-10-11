@@ -1,3 +1,15 @@
+/* Remove browser outline/focus rings */
+* {
+  outline: none !important;
+}
+
+button:focus,
+input:focus,
+div:focus,
+a:focus {
+  outline: none !important;
+}
+
 .mines {
   display: flex;
   flex-direction: column;
@@ -1108,7 +1120,7 @@
 .mines .game-info {
   display: flex;
   flex-direction: column;
-  height: 226px;
+  height: 155px;
   align-items: center;
   justify-content: center;
   gap: 10px;
@@ -1730,4 +1742,7 @@
   letter-spacing: 0;
   line-height: normal;
   white-space: nowrap;
+}
+.your-bets-block{
+  width: 100%;
 }

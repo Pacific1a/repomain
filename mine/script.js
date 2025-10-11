@@ -157,9 +157,11 @@
 
   function setInGame(on) {
     state.inGame = on;
-    // Keep label text as 'Cash Out' always (per request), only behavior changes
+    // Update button text: Bet when not in game, Cash Out when in game
     const label = $('.cash-out-button .text-wrapper-27');
-    if (label) label.textContent = 'Cash Out';
+    if (label) {
+      label.textContent = on ? 'Cash Out' : 'Bet';
+    }
 
     setControlsEnabled(!on);
   }
@@ -576,10 +578,90 @@
     container.appendChild(span);
   }
 
+  // ========== ИНТЕГРАЦИЯ СИСТЕМЫ ИГРОКОВ ==========
+  function initPlayersSystem() {
+    if (!window.PlayersSystem) {
+      console.warn('PlayersSystem не загружена');
+      return;
+    }
+
+    // Обновляем счетчик онлайн игроков
+    updateOnlineCount();
+    
+    // Показываем игроков в Live Bets
+    renderLiveBets();
+    
+    // Обновляем каждые 10 секунд
+    setInterval(() => {
+      updateOnlineCount();
+      renderLiveBets();
+    }, 10000);
+  }
+
+  function updateOnlineCount() {
+    const onlineElement = $('.element-online .text-wrapper-35');
+    if (onlineElement) {
+      // Реальные игроки + случайное количество ботов
+      const realCount = window.PlayersSystem.getAllRealPlayers().length;
+      const totalOnline = realCount + Math.floor(Math.random() * 50) + 20;
+      onlineElement.textContent = `${totalOnline} online`;
+    }
+  }
+
+  function renderLiveBets() {
+    const container = $('.user-templates');
+    if (!container) return;
+
+    // Получаем 5-10 случайных игроков для отображения
+    const playerCount = Math.floor(Math.random() * 6) + 5;
+    const players = window.PlayersSystem.getGameHistory(playerCount);
+
+    // Очищаем контейнер
+    container.innerHTML = '';
+
+    // Рендерим каждого игрока
+    players.forEach(player => {
+      const playerElement = createPlayerElement(player);
+      container.appendChild(playerElement);
+    });
+  }
+
+  function createPlayerElement(player) {
+    const div = document.createElement('div');
+    div.className = 'div-4';
+    
+    // Создаем аватар
+    const avatar = window.PlayersSystem.createAvatarElement(player, 32);
+    avatar.className = 'avatar-2'; // Используем существующий класс
+    
+    // Определяем результат
+    const multiplier = player.isWinner ? `${(Math.random() * 3 + 1).toFixed(2)}x` : '0x';
+    const winAmount = player.isWinner && player.win ? player.win : '--';
+    const winClass = player.isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
+    const winWrapperClass = player.isWinner ? 'element-5' : 'div-wrapper-4';
+
+    div.innerHTML = `
+      <div class="acc-inf">
+        <div class="avatar-wrapper"></div>
+        <div class="div-wrapper-3"><div class="text-wrapper-37">${player.maskedName}</div></div>
+      </div>
+      <div class="div-wrapper-3"><div class="text-wrapper-38">${player.bet}</div></div>
+      <div class="div-wrapper-3"><div class="text-wrapper-38">${multiplier}</div></div>
+      <div class="${winWrapperClass}"><div class="${winClass}">${winAmount}</div></div>
+    `;
+
+    // Вставляем аватар
+    const avatarWrapper = div.querySelector('.avatar-wrapper');
+    avatarWrapper.appendChild(avatar);
+
+    return div;
+  }
+
   function init() {
     setupTileClicks();
     setupBetControls();
     setupBombsSelector();
+    initPlayersSystem();
   }
 
   if (document.readyState === 'loading') {
