@@ -703,7 +703,13 @@ class SpeedCashGame {
         // Во время racing фазы
         if (this.gameState === 'racing') {
             if (currentBet) {
-                // Есть ставка - делаем Cash Out
+                // Проверяем не задержана ли машина
+                const isDetained = (color === 'blue' && this.blueDetained) || (color === 'orange' && this.orangeDetained);
+                if (isDetained) {
+                    this.showNotification('Машина задержана! Cash Out недоступен');
+                    return;
+                }
+                // Есть ставка и машина не задержана - делаем Cash Out
                 this.cashOut(color);
             } else {
                 // Нет ставки - ставим в очередь на следующий раунд
@@ -1333,7 +1339,7 @@ class SpeedCashGame {
 
     checkAutoCashOut() {
         // Blue auto cash out
-        if (this.currentBlueBet && this.blueAutoCashOutEnabled && this.blueMultiplier !== undefined) {
+        if (this.currentBlueBet && this.blueAutoCashOutEnabled && this.blueMultiplier !== undefined && !this.blueDetained) {
             if (this.blueMultiplier >= this.blueAutoCashOutMultiplier) {
                 this.cashOut('blue');
                 console.log(`🤖 Blue Auto Cash Out at x${this.blueMultiplier.toFixed(2)}`);
@@ -1341,7 +1347,7 @@ class SpeedCashGame {
         }
         
         // Orange auto cash out
-        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled && this.orangeMultiplier !== undefined) {
+        if (this.currentOrangeBet && this.orangeAutoCashOutEnabled && this.orangeMultiplier !== undefined && !this.orangeDetained) {
             if (this.orangeMultiplier >= this.orangeAutoCashOutMultiplier) {
                 this.cashOut('orange');
                 console.log(`🤖 Orange Auto Cash Out at x${this.orangeMultiplier.toFixed(2)}`);
@@ -1480,6 +1486,13 @@ class SpeedCashGame {
         // Во время racing фазы
         if (this.gameState === 'racing') {
             if (this.currentSingleBet) {
+                // Проверяем не задержана ли выбранная машина
+                const isDetained = (this.singleSelectedCar === 'blue' && this.blueDetained) || 
+                                   (this.singleSelectedCar === 'orange' && this.orangeDetained);
+                if (isDetained) {
+                    this.showNotification('Машина задержана! Cash Out недоступен');
+                    return;
+                }
                 // Cash Out для Single mode
                 this.cashOutSingle();
             } else {
