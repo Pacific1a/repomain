@@ -499,7 +499,8 @@ class SpeedCashGame {
         roadContainer.innerHTML = '';
         
         // Create proper dashed road markings with unique IDs
-        for (let i = 0; i < 15; i++) {
+        // Оптимизация для мобильных устройств: уменьшено с 15 до 12 линий
+        for (let i = 0; i < 12; i++) {
             const line = document.createElement('div');
             line.className = 'road-line';
             line.id = `road-line-${i}`;
@@ -884,6 +885,15 @@ class SpeedCashGame {
         // Reset positions and set initial multipliers
         this.bluePosition = 0;
         this.orangePosition = 0;
+        
+        // Сразу сбрасываем позиции машин в DOM чтобы избежать дергания
+        if (this.blueCar) {
+            this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
+        }
+        if (this.orangeCar) {
+            this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
+        }
+        
         this.blueMultiplier = 1.00;
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
@@ -1289,15 +1299,20 @@ class SpeedCashGame {
             }
         }
         
-        // Reset bets
-        this.currentBlueBet = null;
-        this.currentOrangeBet = null;
-        this.currentSingleBet = null;
-        
-        // Reset bet buttons
-        this.updateBetButton('blue', 'bet', this.blueBet);
-        this.updateBetButton('orange', 'bet', this.orangeBet);
-        this.updateSingleButton('bet', this.singleBet);
+        // Reset bets только если нет ставок в очереди
+        // Если есть queuedBet, не сбрасываем currentBet - он будет обработан в processQueuedBets
+        if (!this.queuedBlueBet) {
+            this.currentBlueBet = null;
+            this.updateBetButton('blue', 'bet', this.blueBet);
+        }
+        if (!this.queuedOrangeBet) {
+            this.currentOrangeBet = null;
+            this.updateBetButton('orange', 'bet', this.orangeBet);
+        }
+        if (!this.queuedSingleBet) {
+            this.currentSingleBet = null;
+            this.updateSingleButton('bet', this.singleBet);
+        }
         
         // Reset multipliers
         this.blueMultiplier = 1.00;
