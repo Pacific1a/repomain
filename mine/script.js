@@ -282,6 +282,10 @@
     if (lost) {
       console.log(`💥 Mines: проигрыш, потеряно ${state.bet} chips`);
       // Анимация уже отработала в onCellClick
+      
+      // Сохраняем результат игры в историю (ПРОИГРЫШ)
+      const multi = currentMultiplier();
+      saveCurrentGame(false, multi, 0);
     }
     
     // Add summary block only after a loss per request
@@ -395,6 +399,10 @@
         window.GameBalanceAPI.payWinnings(win, 'chips');
         console.log(`💰 Mines: выигрыш ${win} chips (x${multi})`);
       }
+      
+      // Сохраняем результат игры в историю (ВЫИГРЫШ)
+      saveCurrentGame(true, multi, win);
+      
       // Cash out: reveal all remaining, then clear board
       revealAllAfterCashout();
       schedule(() => {
@@ -588,53 +596,82 @@
     container.appendChild(span);
   }
 
-  // ========== ИНТЕГРАЦИЯ РЕАЛЬНЫХ ИГРОКОВ ЧЕРЕЗ WEBSOCKET ==========
-  let onlinePlayers = [];
+  // ========== ЛОКАЛЬНАЯ СИСТЕМА ИГРОКОВ (ТОЛЬКО НА СТРАНИЦЕ MINES) ==========
+  const STORAGE_KEY = 'mines_players_history';
+  const MAX_HISTORY_AGE = 5 * 60 * 1000; // 5 минут
   
   function initPlayersSystem() {
-    console.log('🎮 Инициализация системы игроков для Mines');
+    console.log('🎮 Инициализация локальной системы игроков для Mines');
     
-    // Ждем инициализации WebSocket
-    waitForWebSocket();
+    // Очищаем старые записи
+    cleanOldHistory();
     
-    // Обновляем каждые 5 секунд
+    // Обновляем отображение
+    updateOnlineCount();
+    renderLiveBets();
+    
+    // Обновляем каждые 10 секунд
     setInterval(() => {
+      cleanOldHistory();
       updateOnlineCount();
       renderLiveBets();
-    }, 5000);
+    }, 10000);
   }
 
-  function waitForWebSocket() {
-    if (window.GameWebSocket && window.GameWebSocket.socket && window.GameWebSocket.connected) {
-      console.log('✅ WebSocket готов для Mines');
-      setupWebSocketListeners();
-      updateOnlineCount();
-      renderLiveBets();
-    } else {
-      console.log('⏳ Ожидание WebSocket...');
-      setTimeout(waitForWebSocket, 500);
+  function getPlayersHistory() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
     }
   }
 
-  function setupWebSocketListeners() {
-    const ws = window.GameWebSocket.socket;
+  function savePlayerGame(playerData) {
+    const history = getPlayersHistory();
     
-    // Получаем список онлайн игроков
-    ws.on('online_users', (users) => {
-      console.log('👥 Обновление онлайн игроков для Mines:', users.length);
-      onlinePlayers = users;
-      updateOnlineCount();
-      renderLiveBets();
+    // Добавляем новую запись
+    history.push({
+      ...playerData,
+      timestamp: Date.now()
     });
+    
+    // Оставляем только последние 20 записей
+    const recentHistory = history.slice(-20);
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(recentHistory));
+      console.log('💾 Сохранена игра:', playerData);
+    } catch (e) {
+      console.error('Ошибка сохранения истории:', e);
+    }
+    
+    // Обновляем отображение
+    renderLiveBets();
+  }
 
-    // Запрашиваем текущий список
-    ws.emit('get_online_users');
+  function cleanOldHistory() {
+    const history = getPlayersHistory();
+    const now = Date.now();
+    const fresh = history.filter(p => (now - p.timestamp) < MAX_HISTORY_AGE);
+    
+    if (fresh.length !== history.length) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+        console.log(`🧹 Очищено ${history.length - fresh.length} старых записей`);
+      } catch (e) {
+        console.error('Ошибка очистки истории:', e);
+      }
+    }
   }
 
   function updateOnlineCount() {
     const onlineElement = $('.element-online .text-wrapper-35');
     if (onlineElement) {
-      const count = onlinePlayers.length || 1; // Минимум 1 (текущий пользователь)
+      const history = getPlayersHistory();
+      // Подсчитываем уникальных игроков за последние 5 минут
+      const uniquePlayers = new Set(history.map(p => p.userId)).size;
+      const count = Math.max(uniquePlayers, 1); // Минимум 1
       onlineElement.textContent = `${count} online`;
     }
   }
@@ -643,40 +680,41 @@
     const container = $('.user-templates');
     if (!container) return;
 
-    // Показываем только реальных игроков из WebSocket
-    const players = onlinePlayers.slice(0, 10); // Максимум 10 игроков
+    // Получаем последние игры (максимум 10)
+    const history = getPlayersHistory();
+    const recentGames = history.slice(-10).reverse(); // Последние 10, в обратном порядке
 
     // Очищаем контейнер
     container.innerHTML = '';
 
-    if (players.length === 0) {
-      // Показываем сообщение если нет игроков
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center;">No active players</div>';
+    if (recentGames.length === 0) {
+      // Показываем сообщение если нет игр
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center;">No recent games</div>';
       return;
     }
 
-    // Рендерим каждого реального игрока
-    players.forEach(player => {
-      const playerElement = createPlayerElement(player);
+    // Рендерим каждую игру
+    recentGames.forEach(game => {
+      const playerElement = createPlayerElement(game);
       container.appendChild(playerElement);
     });
   }
 
-  function createPlayerElement(player) {
+  function createPlayerElement(game) {
     const div = document.createElement('div');
     div.className = 'div-4';
     
-    // Создаем аватар из Telegram
-    const avatar = createTelegramAvatar(player);
+    // Создаем аватар
+    const avatar = createTelegramAvatar(game);
     
     // Маскируем имя
-    const maskedName = maskPlayerName(player.nickname || player.username || 'Player');
+    const maskedName = maskPlayerName(game.playerName);
     
-    // Случайные данные для демонстрации (в реальности будут приходить с сервера)
-    const bet = Math.floor(Math.random() * 500) + 50;
-    const isWinner = Math.random() > 0.5;
-    const multiplier = isWinner ? `${(Math.random() * 3 + 1).toFixed(2)}x` : '0x';
-    const winAmount = isWinner ? Math.floor(bet * (Math.random() * 3 + 1)) : '--';
+    // РЕАЛЬНЫЕ данные из игры
+    const bet = game.bet;
+    const isWinner = game.isWinner;
+    const multiplier = game.multiplier ? `${game.multiplier.toFixed(2)}x` : '0x';
+    const winAmount = isWinner && game.winnings ? game.winnings : '--';
     const winClass = isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
     const winWrapperClass = isWinner ? 'element-5' : 'div-wrapper-4';
 
@@ -697,7 +735,7 @@
     return div;
   }
 
-  function createTelegramAvatar(player) {
+  function createTelegramAvatar(game) {
     const avatar = document.createElement('div');
     avatar.className = 'avatar-2';
     avatar.style.width = '19px';
@@ -711,9 +749,9 @@
     avatar.style.fontWeight = 'bold';
     avatar.style.color = 'white';
     
-    if (player.photo_url || player.avatar) {
+    if (game.playerAvatar) {
       // Аватар из Telegram
-      avatar.style.backgroundImage = `url(${player.photo_url || player.avatar})`;
+      avatar.style.backgroundImage = `url(${game.playerAvatar})`;
       avatar.style.backgroundSize = 'cover';
       avatar.style.backgroundPosition = 'center';
     } else {
@@ -725,7 +763,7 @@
         'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
         'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
       ];
-      const name = player.nickname || player.username || player.first_name || 'P';
+      const name = game.playerName || 'P';
       const colorIndex = name.charCodeAt(0) % colors.length;
       avatar.style.background = colors[colorIndex];
       avatar.textContent = name[0].toUpperCase();
@@ -740,6 +778,41 @@
     const last = name[name.length - 1];
     const middle = '*'.repeat(Math.min(name.length - 2, 3));
     return `${first}${middle}${last}`;
+  }
+
+  function getCurrentPlayer() {
+    // Получаем данные игрока из Telegram
+    if (window.TelegramUserData) {
+      return {
+        userId: window.TelegramUserData.id || 'user_' + Date.now(),
+        playerName: window.TelegramUserData.first_name || 'Player',
+        playerAvatar: window.TelegramUserData.photo_url || null
+      };
+    }
+    // Fallback если нет Telegram данных
+    return {
+      userId: 'local_user',
+      playerName: 'Player',
+      playerAvatar: null
+    };
+  }
+
+  function saveCurrentGame(isWinner, multiplier, winnings) {
+    const player = getCurrentPlayer();
+    
+    const gameData = {
+      userId: player.userId,
+      playerName: player.playerName,
+      playerAvatar: player.playerAvatar,
+      bet: state.bet,
+      bombs: state.bombs,
+      revealed: state.revealed.size,
+      multiplier: multiplier,
+      isWinner: isWinner,
+      winnings: winnings
+    };
+    
+    savePlayerGame(gameData);
   }
 
   function init() {
