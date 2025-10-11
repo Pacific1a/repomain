@@ -706,7 +706,7 @@ class SpeedCashGame {
                 // Проверяем не задержана ли машина
                 const isDetained = (color === 'blue' && this.blueDetained) || (color === 'orange' && this.orangeDetained);
                 if (isDetained) {
-                    this.showNotification('Машина задержана! Cash Out недоступен');
+                    // Кнопка уже disabled, ничего не делаем
                     return;
                 }
                 // Есть ставка и машина не задержана - делаем Cash Out
@@ -791,7 +791,7 @@ class SpeedCashGame {
         }
     }
 
-    updateBetButton(color, state, amount) {
+    updateBetButton(color, state, amount, disabled = false) {
         const button = this.getButton(color);
         const wrapper = this.getButtonWrapper(color);
         if (!button) return;
@@ -800,9 +800,20 @@ class SpeedCashGame {
         const amountElement = button.querySelector(color === 'blue' ? '.text-wrapper-10' : '.text-wrapper-14');
         
         // Удаляем все классы состояний
-        button.classList.remove('state-bet', 'state-cancel', 'state-cashout');
+        button.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
         if (wrapper) {
-            wrapper.classList.remove('state-bet', 'state-cancel', 'state-cashout');
+            wrapper.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
+        }
+        
+        // Устанавливаем disabled если нужно
+        if (disabled) {
+            button.classList.add('disabled');
+            if (wrapper) wrapper.classList.add('disabled');
+            button.style.opacity = '0.5';
+            button.style.pointerEvents = 'none';
+        } else {
+            button.style.opacity = '';
+            button.style.pointerEvents = '';
         }
         
         // Устанавливаем новое состояние
@@ -1318,13 +1329,15 @@ class SpeedCashGame {
         // Blue live winnings
         if (this.currentBlueBet && this.gameState === 'racing' && this.blueMultiplier !== undefined) {
             const blueWinnings = Math.floor(this.currentBlueBet * this.blueMultiplier);
-            this.updateBetButton('blue', 'cashout', blueWinnings);
+            const blueDisabled = this.blueDetained;
+            this.updateBetButton('blue', 'cashout', blueWinnings, blueDisabled);
         }
         
         // Orange live winnings
         if (this.currentOrangeBet && this.gameState === 'racing' && this.orangeMultiplier !== undefined) {
             const orangeWinnings = Math.floor(this.currentOrangeBet * this.orangeMultiplier);
-            this.updateBetButton('orange', 'cashout', orangeWinnings);
+            const orangeDisabled = this.orangeDetained;
+            this.updateBetButton('orange', 'cashout', orangeWinnings, orangeDisabled);
         }
         
         // Single live winnings
@@ -1332,7 +1345,9 @@ class SpeedCashGame {
             const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
             if (multiplier !== undefined) {
                 const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
-                this.updateSingleButton('cashout', singleWinnings);
+                const singleDisabled = (this.singleSelectedCar === 'blue' && this.blueDetained) || 
+                                       (this.singleSelectedCar === 'orange' && this.orangeDetained);
+                this.updateSingleButton('cashout', singleWinnings, singleDisabled);
             }
         }
     }
@@ -1490,7 +1505,7 @@ class SpeedCashGame {
                 const isDetained = (this.singleSelectedCar === 'blue' && this.blueDetained) || 
                                    (this.singleSelectedCar === 'orange' && this.orangeDetained);
                 if (isDetained) {
-                    this.showNotification('Машина задержана! Cash Out недоступен');
+                    // Кнопка уже disabled, ничего не делаем
                     return;
                 }
                 // Cash Out для Single mode
@@ -1555,14 +1570,24 @@ class SpeedCashGame {
         console.log(`❌ Single ставка из очереди отменена`);
     }
 
-    updateSingleButton(state, amount) {
+    updateSingleButton(state, amount, disabled = false) {
         const button = document.querySelector('.who-is-win .bet-button');
         if (!button) return;
         
         const textElement = button.querySelector('.text-wrapper-9');
         const amountElement = button.querySelector('.text-wrapper-10');
         
-        button.classList.remove('state-bet', 'state-cancel', 'state-cashout');
+        button.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
+        
+        // Устанавливаем disabled если нужно
+        if (disabled) {
+            button.classList.add('disabled');
+            button.style.opacity = '0.5';
+            button.style.pointerEvents = 'none';
+        } else {
+            button.style.opacity = '';
+            button.style.pointerEvents = '';
+        }
         
         if (state === 'bet') {
             if (textElement) textElement.textContent = 'Bet';
