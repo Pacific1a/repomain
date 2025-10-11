@@ -243,9 +243,9 @@ class CrashChart {
   drawChart() {
     const elapsed = Date.now() - this.startTime;
     const chartWidth = this.width - this.padding.left - this.padding.right;
-    const startTime = Math.max(0, elapsed - this.maxVisibleTime);
+    
     const visiblePoints = this.points.filter(p => 
-      p.time >= startTime
+      elapsed - p.time < this.maxVisibleTime
     );
     
     if (visiblePoints.length < 2) return;
@@ -258,9 +258,9 @@ class CrashChart {
         this.width - this.padding.right, 
         0
       );
-      this.lineGradient.addColorStop(0, 'rgba(202, 57, 89, 0.8)');
-      this.lineGradient.addColorStop(0.5, 'rgba(202, 57, 89, 1)');
-      this.lineGradient.addColorStop(1, 'rgba(202, 57, 89, 1)');
+      this.lineGradient.addColorStop(0, 'rgba(64, 123, 61, 0.8)');
+      this.lineGradient.addColorStop(0.5, 'rgba(84, 164, 80, 1)');
+      this.lineGradient.addColorStop(1, 'rgba(186, 166, 87, 1)');
       
       this.fillGradient = this.ctx.createLinearGradient(
         0, 
@@ -268,8 +268,8 @@ class CrashChart {
         0, 
         this.height - this.padding.bottom
       );
-      this.fillGradient.addColorStop(0, 'rgba(202, 57, 89, 0.3)');
-      this.fillGradient.addColorStop(1, 'rgba(202, 57, 89, 0.05)');
+      this.fillGradient.addColorStop(0, 'rgba(84, 164, 80, 0.3)');
+      this.fillGradient.addColorStop(1, 'rgba(84, 164, 80, 0.05)');
       
       this.gradientDirty = false;
     }
@@ -283,12 +283,13 @@ class CrashChart {
     // Подготавливаем массив точек с координатами
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
-      const x = this.padding.left + chartWidth * (point.time / elapsed);
+      const timeSincePoint = elapsed - point.time;
+      const x = this.padding.left + chartWidth * (1 - timeSincePoint / this.maxVisibleTime);
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
     }
-    chartPoints.reverse();  // <--- ДОБАВЬ ЭТУ СТРОКУ СЮДА
+    
     // Оптимизация: уменьшаем интерполяцию с 2 до 1 промежуточной точки
     // это улучшает производительность на ~30% без значительной потери плавности
     const steps = 1;
@@ -323,9 +324,7 @@ class CrashChart {
     
     // Рисуем плавную линию через интерполированные точки
     if (interpolatedPoints.length > 0) {
-      // Начинаем с левого нижнего угла графика
-      this.ctx.moveTo(this.padding.left, this.height - this.padding.bottom);
-      this.ctx.lineTo(interpolatedPoints[0].x, interpolatedPoints[0].y);
+      this.ctx.moveTo(interpolatedPoints[0].x, interpolatedPoints[0].y);
       
       for (let i = 1; i < interpolatedPoints.length; i++) {
         this.ctx.lineTo(interpolatedPoints[i].x, interpolatedPoints[i].y);
@@ -353,8 +352,8 @@ class CrashChart {
     
     this.ctx.beginPath();
     this.ctx.arc(lastChartPoint.x, lastChartPoint.y, baseRadius * pulse, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#CA3959';
-    this.ctx.shadowColor = '#CA3959';
+    this.ctx.fillStyle = '#BAA657';
+    this.ctx.shadowColor = '#BAA657';
     this.ctx.shadowBlur = 15 * pulse;
     this.ctx.fill();
     this.ctx.shadowBlur = 0;
@@ -366,7 +365,7 @@ class CrashChart {
     
     this.ctx.beginPath();
     this.ctx.arc(lastChartPoint.x, lastChartPoint.y, (baseRadius + 3) * pulse, 0, Math.PI * 2);
-    this.ctx.strokeStyle = `rgba(202, 57, 89, ${0.5 / pulse})`;
+    this.ctx.strokeStyle = `rgba(186, 166, 87, ${0.5 / pulse})`;
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
   }
@@ -380,7 +379,7 @@ class CrashChart {
     const chartWidth = this.width - this.padding.left - this.padding.right;
     const lastPoint = this.points[this.points.length - 1];
     const elapsedTotal = Date.now() - this.startTime;
-    const lastX = this.padding.left + chartWidth * (lastPoint.time / elapsedTotal);
+    const lastX = this.padding.left + chartWidth * (1 - (elapsedTotal - lastPoint.time) / this.maxVisibleTime);
     const lastY = this.crashAnimation.startY;
     
     const flyDistance = this.height * 0.5;
