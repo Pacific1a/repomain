@@ -331,6 +331,12 @@ class SpeedCashGame {
             
             // Запускаем анимацию
             if (!this.animationId) {
+                // Останавливаем старые анимации на всякий случай
+                if (this.roadAnimationId) {
+                    cancelAnimationFrame(this.roadAnimationId);
+                    this.roadAnimationId = null;
+                }
+                
                 this.startTime = Date.now() - (data.elapsed || 0);
                 this.racePhaseEndTime = this.startTime + 8000;
                 this.animateRace();
@@ -906,15 +912,25 @@ class SpeedCashGame {
         console.log(`🎲 Blue target: x${this.blueTargetMultiplier.toFixed(2)}, Orange target: x${this.orangeTargetMultiplier.toFixed(2)}`);
         console.log(`🚔 Delayed car: ${this.delayedCar}`);
         
-        // Обновляем кнопки на Cash Out если ставки размещены
+        // Обновляем кнопки на Cash Out если ставки размещены (disabled = false, так как в начале гонки машины еще не задержаны)
         if (this.currentBlueBet) {
-            this.updateBetButton('blue', 'cashout', this.currentBlueBet);
+            this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
         }
         if (this.currentOrangeBet) {
-            this.updateBetButton('orange', 'cashout', this.currentOrangeBet);
+            this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
         }
         if (this.currentSingleBet) {
-            this.updateSingleButton('cashout', this.currentSingleBet);
+            this.updateSingleButton('cashout', this.currentSingleBet, false);
+        }
+        
+        // Останавливаем старые анимации перед запуском новых
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.roadAnimationId) {
+            cancelAnimationFrame(this.roadAnimationId);
+            this.roadAnimationId = null;
         }
         
         // Start animations
@@ -937,7 +953,7 @@ class SpeedCashGame {
 
         // Increment multipliers ONLY in local mode (no server)
         if (!this.gameEnded && !this.socket) {
-            const baseIncrease = 0.0003 + Math.random() * 0.0005;
+            const baseIncrease = 0.00015 + Math.random() * 0.00025;
 
             // Blue множитель
             if (!blueDelayed && !this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
@@ -1329,14 +1345,14 @@ class SpeedCashGame {
         // Blue live winnings
         if (this.currentBlueBet && this.gameState === 'racing' && this.blueMultiplier !== undefined) {
             const blueWinnings = Math.floor(this.currentBlueBet * this.blueMultiplier);
-            const blueDisabled = this.blueDetained;
+            const blueDisabled = this.blueDetained || this.blueEscaped;
             this.updateBetButton('blue', 'cashout', blueWinnings, blueDisabled);
         }
         
         // Orange live winnings
         if (this.currentOrangeBet && this.gameState === 'racing' && this.orangeMultiplier !== undefined) {
             const orangeWinnings = Math.floor(this.currentOrangeBet * this.orangeMultiplier);
-            const orangeDisabled = this.orangeDetained;
+            const orangeDisabled = this.orangeDetained || this.orangeEscaped;
             this.updateBetButton('orange', 'cashout', orangeWinnings, orangeDisabled);
         }
         
@@ -1345,8 +1361,8 @@ class SpeedCashGame {
             const multiplier = this.singleSelectedCar === 'blue' ? this.blueMultiplier : this.orangeMultiplier;
             if (multiplier !== undefined) {
                 const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
-                const singleDisabled = (this.singleSelectedCar === 'blue' && this.blueDetained) || 
-                                       (this.singleSelectedCar === 'orange' && this.orangeDetained);
+                const singleDisabled = (this.singleSelectedCar === 'blue' && (this.blueDetained || this.blueEscaped)) || 
+                                       (this.singleSelectedCar === 'orange' && (this.orangeDetained || this.orangeEscaped));
                 this.updateSingleButton('cashout', singleWinnings, singleDisabled);
             }
         }
