@@ -754,15 +754,10 @@ class SpeedCashGame {
             wrapper.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
         }
         
-        // Устанавливаем disabled если нужно
+        // Устанавливаем disabled если нужно (стили берутся из CSS с !important)
         if (disabled) {
             button.classList.add('disabled');
             if (wrapper) wrapper.classList.add('disabled');
-            button.style.opacity = '0.5';
-            button.style.pointerEvents = 'none';
-        } else {
-            button.style.opacity = '';
-            button.style.pointerEvents = '';
         }
         
         // Устанавливаем новое состояние
@@ -1518,14 +1513,9 @@ class SpeedCashGame {
         
         button.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
         
-        // Устанавливаем disabled если нужно
+        // Устанавливаем disabled если нужно (стили берутся из CSS с !important)
         if (disabled) {
             button.classList.add('disabled');
-            button.style.opacity = '0.5';
-            button.style.pointerEvents = 'none';
-        } else {
-            button.style.opacity = '';
-            button.style.pointerEvents = '';
         }
         
         if (state === 'bet') {

@@ -958,6 +958,16 @@
   background: linear-gradient(90deg, rgba(135, 116, 64, 1) 0%, rgba(186, 166, 87, 1) 100%);
 }
 
+/* Disabled state - перекрывает все другие состояния */
+.speed-cash .bet-button.disabled,
+.speed-cash .cash-out-button.disabled,
+.speed-cash .who-is-win .bet-button.disabled {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+  filter: grayscale(50%) !important;
+  cursor: not-allowed !important;
+}
+
 .speed-cash .text-wrapper-14 {
   background: linear-gradient(90deg, rgba(249, 227, 145, 0.7) 0%, rgba(228, 206, 126, 0.7) 100%);
   position: relative;
