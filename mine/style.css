@@ -904,19 +904,25 @@ a:focus {
 .mines .cash-out-button {
   display: flex;
   flex-direction: column;
-  width: 175px;
+  height: 64px;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 2px;
+  justify-content: space-between;
+  padding: 13px 0px;
   position: relative;
   align-self: stretch;
-  border-radius: 20px;
-  background: linear-gradient(
-    90deg,
-    rgba(22, 20, 20, 1) 0%,
-    rgba(22, 21, 21, 1) 100%
-  );
+  width: 50%;
+  border-radius: 18px;
+  border: 1px solid;
+  border-color: #77c073;
+  background: linear-gradient(90deg, rgba(64, 123, 61, 1) 0%, rgba(84, 164, 80, 1) 100%);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Cash Out state - золотой цвет */
+.mines .cash-out-button.state-cashout {
+  border-color: #c7b363;
+  background: linear-gradient(90deg, rgba(135, 116, 64, 1) 0%, rgba(186, 166, 87, 1) 100%);
 }
 
 .mines .cash-out-button-2 {
@@ -1141,7 +1147,7 @@ a:focus {
   align-self: stretch;
   width: 100%;
   flex-grow: 1;
-  margin-top: -1.00px;
+  margin-top: 20px;
   margin-bottom: -1.00px;
   margin-left: -1.00px;
   margin-right: -1.00px;
@@ -1346,12 +1352,33 @@ a:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
   position: relative;
   align-self: stretch;
   width: 100%;
-  flex: 0 0 auto;
+  max-height: 90px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Стили для скроллбара */
+.mines .user-templates::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mines .user-templates::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.mines .user-templates::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.mines .user-templates::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .mines .div-4 {

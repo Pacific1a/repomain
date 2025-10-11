@@ -151,18 +151,31 @@
   }
 
   function updateCashoutDisplay() {
-    const el = $('.cash-out-button .text-wrapper-28');
-    if (el) el.textContent = formatChips(state.bet);
+    const button = $('.cash-out-button');
+    const labelEl = $('.cash-out-button .text-wrapper-27');
+    const amountEl = $('.cash-out-button .text-wrapper-28');
+    
+    if (!button || !labelEl || !amountEl) return;
+    
+    if (state.inGame) {
+      // Cash Out режим - показываем текущий выигрыш
+      const multi = currentMultiplier();
+      const potentialWin = Math.floor(state.bet * multi);
+      
+      button.classList.add('state-cashout');
+      labelEl.textContent = 'Cash Out';
+      amountEl.textContent = formatChips(potentialWin);
+    } else {
+      // Bet режим - показываем ставку
+      button.classList.remove('state-cashout');
+      labelEl.textContent = 'Bet';
+      amountEl.textContent = formatChips(state.bet);
+    }
   }
 
   function setInGame(on) {
     state.inGame = on;
-    // Update button text: Bet when not in game, Cash Out when in game
-    const label = $('.cash-out-button .text-wrapper-27');
-    if (label) {
-      label.textContent = on ? 'Cash Out' : 'Bet';
-    }
-
+    updateCashoutDisplay();
     setControlsEnabled(!on);
   }
 
@@ -346,11 +359,8 @@
     state.revealed.add(idx);
     flipReveal(cell, ASSETS.SAFE, 500);
     
-    // Update potential cashout amount based on multiplier
-    const multi = currentMultiplier();
-    const win = Math.floor(state.bet * multi);
-    const el = $('.cash-out-button .text-wrapper-28');
-    if (el) el.textContent = `${win} Chips`;
+    // Update cashout display with new multiplier
+    updateCashoutDisplay();
   }
 
   function onBetOrCash() {
@@ -578,33 +588,54 @@
     container.appendChild(span);
   }
 
-  // ========== ИНТЕГРАЦИЯ СИСТЕМЫ ИГРОКОВ ==========
+  // ========== ИНТЕГРАЦИЯ РЕАЛЬНЫХ ИГРОКОВ ЧЕРЕЗ WEBSOCKET ==========
+  let onlinePlayers = [];
+  
   function initPlayersSystem() {
-    if (!window.PlayersSystem) {
-      console.warn('PlayersSystem не загружена');
-      return;
-    }
-
-    // Обновляем счетчик онлайн игроков
-    updateOnlineCount();
+    console.log('🎮 Инициализация системы игроков для Mines');
     
-    // Показываем игроков в Live Bets
-    renderLiveBets();
+    // Ждем инициализации WebSocket
+    waitForWebSocket();
     
-    // Обновляем каждые 10 секунд
+    // Обновляем каждые 5 секунд
     setInterval(() => {
       updateOnlineCount();
       renderLiveBets();
-    }, 10000);
+    }, 5000);
+  }
+
+  function waitForWebSocket() {
+    if (window.GameWebSocket && window.GameWebSocket.socket && window.GameWebSocket.connected) {
+      console.log('✅ WebSocket готов для Mines');
+      setupWebSocketListeners();
+      updateOnlineCount();
+      renderLiveBets();
+    } else {
+      console.log('⏳ Ожидание WebSocket...');
+      setTimeout(waitForWebSocket, 500);
+    }
+  }
+
+  function setupWebSocketListeners() {
+    const ws = window.GameWebSocket.socket;
+    
+    // Получаем список онлайн игроков
+    ws.on('online_users', (users) => {
+      console.log('👥 Обновление онлайн игроков для Mines:', users.length);
+      onlinePlayers = users;
+      updateOnlineCount();
+      renderLiveBets();
+    });
+
+    // Запрашиваем текущий список
+    ws.emit('get_online_users');
   }
 
   function updateOnlineCount() {
     const onlineElement = $('.element-online .text-wrapper-35');
     if (onlineElement) {
-      // Реальные игроки + случайное количество ботов
-      const realCount = window.PlayersSystem.getAllRealPlayers().length;
-      const totalOnline = realCount + Math.floor(Math.random() * 50) + 20;
-      onlineElement.textContent = `${totalOnline} online`;
+      const count = onlinePlayers.length || 1; // Минимум 1 (текущий пользователь)
+      onlineElement.textContent = `${count} online`;
     }
   }
 
@@ -612,14 +643,19 @@
     const container = $('.user-templates');
     if (!container) return;
 
-    // Получаем 5-10 случайных игроков для отображения
-    const playerCount = Math.floor(Math.random() * 6) + 5;
-    const players = window.PlayersSystem.getGameHistory(playerCount);
+    // Показываем только реальных игроков из WebSocket
+    const players = onlinePlayers.slice(0, 10); // Максимум 10 игроков
 
     // Очищаем контейнер
     container.innerHTML = '';
 
-    // Рендерим каждого игрока
+    if (players.length === 0) {
+      // Показываем сообщение если нет игроков
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center;">No active players</div>';
+      return;
+    }
+
+    // Рендерим каждого реального игрока
     players.forEach(player => {
       const playerElement = createPlayerElement(player);
       container.appendChild(playerElement);
@@ -630,22 +666,26 @@
     const div = document.createElement('div');
     div.className = 'div-4';
     
-    // Создаем аватар
-    const avatar = window.PlayersSystem.createAvatarElement(player, 32);
-    avatar.className = 'avatar-2'; // Используем существующий класс
+    // Создаем аватар из Telegram
+    const avatar = createTelegramAvatar(player);
     
-    // Определяем результат
-    const multiplier = player.isWinner ? `${(Math.random() * 3 + 1).toFixed(2)}x` : '0x';
-    const winAmount = player.isWinner && player.win ? player.win : '--';
-    const winClass = player.isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
-    const winWrapperClass = player.isWinner ? 'element-5' : 'div-wrapper-4';
+    // Маскируем имя
+    const maskedName = maskPlayerName(player.nickname || player.username || 'Player');
+    
+    // Случайные данные для демонстрации (в реальности будут приходить с сервера)
+    const bet = Math.floor(Math.random() * 500) + 50;
+    const isWinner = Math.random() > 0.5;
+    const multiplier = isWinner ? `${(Math.random() * 3 + 1).toFixed(2)}x` : '0x';
+    const winAmount = isWinner ? Math.floor(bet * (Math.random() * 3 + 1)) : '--';
+    const winClass = isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
+    const winWrapperClass = isWinner ? 'element-5' : 'div-wrapper-4';
 
     div.innerHTML = `
       <div class="acc-inf">
         <div class="avatar-wrapper"></div>
-        <div class="div-wrapper-3"><div class="text-wrapper-37">${player.maskedName}</div></div>
+        <div class="div-wrapper-3"><div class="text-wrapper-37">${maskedName}</div></div>
       </div>
-      <div class="div-wrapper-3"><div class="text-wrapper-38">${player.bet}</div></div>
+      <div class="div-wrapper-3"><div class="text-wrapper-38">${bet}</div></div>
       <div class="div-wrapper-3"><div class="text-wrapper-38">${multiplier}</div></div>
       <div class="${winWrapperClass}"><div class="${winClass}">${winAmount}</div></div>
     `;
@@ -655,6 +695,51 @@
     avatarWrapper.appendChild(avatar);
 
     return div;
+  }
+
+  function createTelegramAvatar(player) {
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar-2';
+    avatar.style.width = '19px';
+    avatar.style.height = '19px';
+    avatar.style.borderRadius = '50%';
+    avatar.style.overflow = 'hidden';
+    avatar.style.display = 'flex';
+    avatar.style.alignItems = 'center';
+    avatar.style.justifyContent = 'center';
+    avatar.style.fontSize = '10px';
+    avatar.style.fontWeight = 'bold';
+    avatar.style.color = 'white';
+    
+    if (player.photo_url || player.avatar) {
+      // Аватар из Telegram
+      avatar.style.backgroundImage = `url(${player.photo_url || player.avatar})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+    } else {
+      // Градиент с первой буквой имени
+      const colors = [
+        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+      ];
+      const name = player.nickname || player.username || player.first_name || 'P';
+      const colorIndex = name.charCodeAt(0) % colors.length;
+      avatar.style.background = colors[colorIndex];
+      avatar.textContent = name[0].toUpperCase();
+    }
+    
+    return avatar;
+  }
+
+  function maskPlayerName(name) {
+    if (!name || name.length <= 2) return name;
+    const first = name[0];
+    const last = name[name.length - 1];
+    const middle = '*'.repeat(Math.min(name.length - 2, 3));
+    return `${first}${middle}${last}`;
   }
 
   function init() {
