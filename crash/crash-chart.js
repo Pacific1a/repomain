@@ -258,9 +258,9 @@ class CrashChart {
         this.width - this.padding.right, 
         0
       );
-      this.lineGradient.addColorStop(0, 'rgba(64, 123, 61, 0.8)');
-      this.lineGradient.addColorStop(0.5, 'rgba(84, 164, 80, 1)');
-      this.lineGradient.addColorStop(1, 'rgba(186, 166, 87, 1)');
+      this.lineGradient.addColorStop(0, 'rgba(202, 57, 89, 0.8)');
+      this.lineGradient.addColorStop(0.5, 'rgba(202, 57, 89, 1)');
+      this.lineGradient.addColorStop(1, 'rgba(202, 57, 89, 1)');
       
       this.fillGradient = this.ctx.createLinearGradient(
         0, 
@@ -268,8 +268,8 @@ class CrashChart {
         0, 
         this.height - this.padding.bottom
       );
-      this.fillGradient.addColorStop(0, 'rgba(84, 164, 80, 0.3)');
-      this.fillGradient.addColorStop(1, 'rgba(84, 164, 80, 0.05)');
+      this.fillGradient.addColorStop(0, 'rgba(202, 57, 89, 0.3)');
+      this.fillGradient.addColorStop(1, 'rgba(202, 57, 89, 0.05)');
       
       this.gradientDirty = false;
     }
@@ -324,7 +324,9 @@ class CrashChart {
     
     // Рисуем плавную линию через интерполированные точки
     if (interpolatedPoints.length > 0) {
-      this.ctx.moveTo(interpolatedPoints[0].x, interpolatedPoints[0].y);
+      // Начинаем с левого нижнего угла графика
+      this.ctx.moveTo(this.padding.left, this.height - this.padding.bottom);
+      this.ctx.lineTo(interpolatedPoints[0].x, interpolatedPoints[0].y);
       
       for (let i = 1; i < interpolatedPoints.length; i++) {
         this.ctx.lineTo(interpolatedPoints[i].x, interpolatedPoints[i].y);
@@ -352,8 +354,8 @@ class CrashChart {
     
     this.ctx.beginPath();
     this.ctx.arc(lastChartPoint.x, lastChartPoint.y, baseRadius * pulse, 0, Math.PI * 2);
-    this.ctx.fillStyle = '#BAA657';
-    this.ctx.shadowColor = '#BAA657';
+    this.ctx.fillStyle = '#CA3959';
+    this.ctx.shadowColor = '#CA3959';
     this.ctx.shadowBlur = 15 * pulse;
     this.ctx.fill();
     this.ctx.shadowBlur = 0;
@@ -365,7 +367,7 @@ class CrashChart {
     
     this.ctx.beginPath();
     this.ctx.arc(lastChartPoint.x, lastChartPoint.y, (baseRadius + 3) * pulse, 0, Math.PI * 2);
-    this.ctx.strokeStyle = `rgba(186, 166, 87, ${0.5 / pulse})`;
+    this.ctx.strokeStyle = `rgba(202, 57, 89, ${0.5 / pulse})`;
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
   }
