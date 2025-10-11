@@ -289,7 +289,7 @@ class CrashChart {
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
     }
-    
+    chartPoints.reverse();  // <--- ДОБАВЬ ЭТУ СТРОКУ СЮДА
     // Оптимизация: уменьшаем интерполяцию с 2 до 1 промежуточной точки
     // это улучшает производительность на ~30% без значительной потери плавности
     const steps = 1;
