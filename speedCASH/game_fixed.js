@@ -313,6 +313,24 @@ class SpeedCashGame {
             this.orangeMultiplier = data.orangeMultiplier || 1.00;
             this.updateMultiplierDisplays();
             
+            // Устанавливаем правильное состояние кнопок при синхронизации
+            // Если есть активная ставка - Cash Out enabled, если нет - Bet disabled
+            if (this.currentBlueBet) {
+                this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
+            } else {
+                this.updateBetButton('blue', 'bet', this.blueBet, true);
+            }
+            if (this.currentOrangeBet) {
+                this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
+            } else {
+                this.updateBetButton('orange', 'bet', this.orangeBet, true);
+            }
+            if (this.currentSingleBet) {
+                this.updateSingleButton('cashout', this.currentSingleBet, false);
+            } else {
+                this.updateSingleButton('bet', this.singleBet, true);
+            }
+            
             // Скрываем countdown, показываем игру
             this.hideCountdown();
             const raceArea = document.querySelector('.race');
