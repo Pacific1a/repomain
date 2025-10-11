@@ -243,9 +243,9 @@ class CrashChart {
   drawChart() {
     const elapsed = Date.now() - this.startTime;
     const chartWidth = this.width - this.padding.left - this.padding.right;
-    
+    const startTime = Math.max(0, elapsed - this.maxVisibleTime);
     const visiblePoints = this.points.filter(p => 
-      p.time >= elapsed - this.maxVisibleTime
+      p.time >= startTime
     );
     
     if (visiblePoints.length < 2) return;
@@ -283,8 +283,8 @@ class CrashChart {
     // Подготавливаем массив точек с координатами
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
-      const timeSincePoint = elapsed - point.time;
-      const x = this.padding.left + chartWidth * (timeSincePoint / this.maxVisibleTime);
+      const timeInWindow = elapsed - point.time;
+      const x = this.padding.left + chartWidth * (1 - Math.min(timeInWindow / this.maxVisibleTime, 1)); 
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
