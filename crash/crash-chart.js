@@ -245,7 +245,7 @@ class CrashChart {
     const chartWidth = this.width - this.padding.left - this.padding.right;
     
     const visiblePoints = this.points.filter(p => 
-      elapsed - p.time < this.maxVisibleTime
+      p.time >= elapsed - this.maxVisibleTime
     );
     
     if (visiblePoints.length < 2) return;
