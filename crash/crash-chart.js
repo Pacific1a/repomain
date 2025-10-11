@@ -284,7 +284,7 @@ class CrashChart {
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
       const timeSincePoint = elapsed - point.time;
-      const x = this.padding.left + chartWidth * (1 - timeSincePoint / this.maxVisibleTime);
+      const x = this.padding.left + chartWidth * (timeSincePoint / this.maxVisibleTime);
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
@@ -381,7 +381,7 @@ class CrashChart {
     const chartWidth = this.width - this.padding.left - this.padding.right;
     const lastPoint = this.points[this.points.length - 1];
     const elapsedTotal = Date.now() - this.startTime;
-    const lastX = this.padding.left + chartWidth * (1 - (elapsedTotal - lastPoint.time) / this.maxVisibleTime);
+    const lastX = this.padding.left + chartWidth * ((elapsedTotal - lastPoint.time) / this.maxVisibleTime);
     const lastY = this.crashAnimation.startY;
     
     const flyDistance = this.height * 0.5;
