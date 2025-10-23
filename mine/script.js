@@ -225,18 +225,18 @@
       return;
     }
     
-    if (!window.GameBalanceAPI.canPlaceBet(state.bet, 'chips')) {
-      console.log('Недостаточно фишек');
+    if (!window.GameBalanceAPI.canPlaceBet(state.bet, 'rubles')) {
+      console.log('Недостаточно рублей');
       return;
     }
     
-    const success = await window.GameBalanceAPI.placeBet(state.bet, 'chips');
+    const success = await window.GameBalanceAPI.placeBet(state.bet, 'rubles');
     if (!success) {
       console.log('Ошибка списания ставки');
       return;
     }
     
-    console.log(`💣 Mines: ставка ${state.bet} chips списана`);
+    console.log(`💣 Mines: ставка ${state.bet} rubles списана`);
     
     hideInitialImages();
     clearAllTimers();
@@ -380,6 +380,11 @@
       }
       // Start game (balance check inside)
       startGame();
+      
+      // Показываем alert о ставке
+      if (window.Telegram?.WebApp?.showAlert) {
+        window.Telegram.WebApp.showAlert(`Ставка ${state.bet} rubles сделана!`);
+      }
     } else {
       // Block cashout reveal if bombs selection is invalid
       if (!isValidBombs(state.bombs)) {
@@ -396,8 +401,8 @@
       const win = Math.floor(state.bet * multi);
       
       if (window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinnings(win, 'chips');
-        console.log(`💰 Mines: выигрыш ${win} chips (x${multi})`);
+        window.GameBalanceAPI.payWinnings(win, 'rubles');
+        console.log(`💰 Mines: выигрыш ${win} rubles (x${multi})`);
       }
       
       // Сохраняем результат игры в историю (ВЫИГРЫШ)

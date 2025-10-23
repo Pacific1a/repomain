@@ -642,11 +642,11 @@ class SpeedCashGame {
             } else {
                 // Ставим новую ставку
                 const betAmount = color === 'blue' ? this.blueBet : this.orangeBet;
-                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.GameBalanceAPI.placeBet(betAmount, 'chips');
+                const success = window.GameBalanceAPI.placeBet(betAmount, 'rubles');
                 if (success) {
                     if (color === 'blue') {
                         this.currentBlueBet = betAmount;
@@ -655,6 +655,11 @@ class SpeedCashGame {
                     }
                     this.updateBetButton(color, 'cancel', betAmount);
                     console.log(`✅ Ставка ${betAmount} чипов на ${color} принята`);
+                    
+                    // Показываем alert о ставке
+                    if (window.Telegram?.WebApp?.showAlert) {
+                        window.Telegram.WebApp.showAlert(`Ставка ${betAmount} rubles на ${color === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
+                    }
                     
                     // Отправляем на сервер
                     if (this.socket) {
@@ -692,7 +697,7 @@ class SpeedCashGame {
         
         // Возвращаем средства
         if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(betAmount, 'chips');
+            window.GameBalanceAPI.payWinningsAndUpdate(betAmount, 'rubles');
         }
         
         // Сбрасываем ставку
@@ -705,6 +710,11 @@ class SpeedCashGame {
         const amount = color === 'blue' ? this.blueBet : this.orangeBet;
         this.updateBetButton(color, 'bet', amount);
         console.log(`❌ Ставка отменена: ${color} - ${betAmount} chips`);
+        
+        // Показываем alert об отмене ставки
+        if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert('Ставка отменена!');
+        }
     }
 
     cashOut(color) {
@@ -716,7 +726,7 @@ class SpeedCashGame {
         
         // Выплачиваем выигрыш
         if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
         }
         
         // Сбрасываем ставку
@@ -1215,7 +1225,7 @@ class SpeedCashGame {
         
         // Выплачиваем выигрыш через глобальный баланс
         if (winnings > 0 && window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
             console.log(`Выплачен выигрыш: ${winnings} чипов`);
         }
         
@@ -1424,15 +1434,20 @@ class SpeedCashGame {
                 this.cancelSingleBet();
             } else {
                 // Ставим новую ставку
-                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.singleBet, 'chips')) {
+                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.singleBet, 'rubles')) {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.GameBalanceAPI.placeBet(this.singleBet, 'chips');
+                const success = window.GameBalanceAPI.placeBet(this.singleBet, 'rubles');
                 if (success) {
                     this.currentSingleBet = this.singleBet;
                     this.updateSingleButton('cancel', this.singleBet);
                     console.log(`✅ Single ставка ${this.singleBet} чипов на ${this.singleSelectedCar} принята`);
+                    
+                    // Показываем alert о ставке
+                    if (window.Telegram?.WebApp?.showAlert) {
+                        window.Telegram.WebApp.showAlert(`Ставка ${this.singleBet} rubles на ${this.singleSelectedCar === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
+                    }
                     
                     // Отправляем на сервер
                     if (this.socket) {
@@ -1474,7 +1489,7 @@ class SpeedCashGame {
         
         // Выплачиваем выигрыш
         if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'chips');
+            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
         }
         
         this.currentSingleBet = null;
@@ -1495,11 +1510,16 @@ class SpeedCashGame {
     cancelSingleBet() {
         if (!this.currentSingleBet) return;
         if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(this.currentSingleBet, 'chips');
+            window.GameBalanceAPI.payWinningsAndUpdate(this.currentSingleBet, 'rubles');
         }
         this.currentSingleBet = null;
         this.updateSingleButton('bet', this.singleBet);
         console.log(`❌ Single ставка отменена`);
+        
+        // Показываем alert об отмене ставки
+        if (window.Telegram?.WebApp?.showAlert) {
+            window.Telegram.WebApp.showAlert('Ставка отменена!');
+        }
     }
 
 

@@ -15,6 +15,7 @@
   let bettingTimeLeft = 60;
   let bettingTimer = null;
   let currentRotation = 0;
+  let isBettingInProgress = false; // Флаг для защиты от множественных нажатий
 
   // ============ COLORS (новая палитра) ============
   const colors = [
@@ -109,23 +110,55 @@
 
   // ============ BET BUTTON ============
   elements.betButton?.addEventListener('click', async () => {
+    // Защита от множественных нажатий
+    if (isBettingInProgress) {
+      showNotification('Обработка ставки...');
+      return;
+    }
+    
     if (gameState === GAME_STATES.SPINNING || gameState === GAME_STATES.FINISHED) return;
 
     const betAmount = getBetAmount();
     
-    if (!window.GameBalanceAPI?.canPlaceBet(betAmount, 'chips')) {
-      showNotification('Недостаточно фишек');
+    if (!window.GameBalanceAPI?.canPlaceBet(betAmount, 'rubles')) {
+      showNotification('Недостаточно рублей');
       return;
     }
 
-    const success = await window.GameBalanceAPI.placeBet(betAmount, 'chips');
-    if (!success) return;
+    // Устанавливаем флаг и блокируем кнопку
+    isBettingInProgress = true;
+    if (elements.betButton) {
+      elements.betButton.style.opacity = '0.6';
+      elements.betButton.style.pointerEvents = 'none';
+    }
 
-    // СИНХРОНИЗАЦИЯ: отправляем ставку через WebSocket
-    if (window.RollSync && window.RollSync.placeBet) {
-      window.RollSync.placeBet(betAmount);
-      showNotification('Ставка сделана!');
-      return;
+    try {
+      const success = await window.GameBalanceAPI.placeBet(betAmount, 'rubles');
+      if (!success) {
+        return;
+      }
+
+      // СИНХРОНИЗАЦИЯ: отправляем ставку через WebSocket
+      if (window.RollSync && window.RollSync.placeBet) {
+        window.RollSync.placeBet(betAmount);
+        showNotification('Ставка принята');
+        
+        // Показываем alert о ставке
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} rubles сделана!`);
+        }
+        
+        return;
+      }
+    } finally {
+      // Разблокируем кнопку через 1 секунду
+      setTimeout(() => {
+        isBettingInProgress = false;
+        if (elements.betButton) {
+          elements.betButton.style.opacity = '1';
+          elements.betButton.style.pointerEvents = 'auto';
+        }
+      }, 1000);
     }
 
     // Fallback: старая логика (если нет мультиплеера)
@@ -140,7 +173,7 @@
     });
 
     if (!added) {
-      await window.GameBalanceAPI.payWinnings(betAmount, 'chips');
+      await window.GameBalanceAPI.payWinnings(betAmount, 'rubles');
       return;
     }
 
@@ -492,6 +525,7 @@
   // ============ GAME PHASES ============
   function startBetting() {
     gameState = GAME_STATES.BETTING;
+    isBettingInProgress = false; // Сбрасываем флаг при старте betting фазы
     bettingTimeLeft = 30;
     updateWaitText();
 
@@ -615,7 +649,7 @@
     const isWinner = winner.id == currentUserId || winner.id === currentUserId;
     
     if (isWinner && window.GameBalanceAPI) {
-      window.GameBalanceAPI.payWinnings(totalBets, 'chips');
+      window.GameBalanceAPI.payWinnings(totalBets, 'rubles');
       console.log(`🏆 Вы победили! Получено ${totalBets} фишек`);
     } else {
       console.log(`💰 Победил ${winner.username}, выиграл ${totalBets} фишек`);
@@ -640,6 +674,7 @@
 
   function resetGame() {
     gameState = GAME_STATES.WAITING;
+    isBettingInProgress = false; // Сбрасываем флаг при сбросе игры
     players = [];
     
     if (elements.wheel) {
@@ -673,26 +708,45 @@
 
   // ============ NOTIFICATIONS ============
   function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(31, 29, 29, 0.98);
-      color: #ffb3c1;
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: 1px solid rgba(202, 57, 88, 0.5);
-      font-family: 'Montserrat', Helvetica;
-      font-size: 13px;
-      font-weight: 600;
-      z-index: 9999;
-      box-shadow: 0 6px 18px rgba(202, 57, 88, 0.3);
-    `;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 2500);
+    // Переиспользуем один toast элемент как в Upgrade
+    let toast = document.querySelector('#roll-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'roll-toast';
+      Object.assign(toast.style, {
+        position: 'fixed',
+        left: '50%',
+        top: '10px',
+        transform: 'translateX(-50%)',
+        background: 'rgba(60,60,60,0.92)',
+        color: '#e5e5e5',
+        padding: '10px 14px',
+        borderRadius: '10px',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
+        fontFamily: 'Montserrat, Inter, Arial, sans-serif',
+        fontSize: '13px',
+        letterSpacing: '0.2px',
+        zIndex: '9999',
+        opacity: '0',
+        transition: 'opacity .2s ease',
+        pointerEvents: 'none'
+      });
+      document.body.appendChild(toast);
+    }
+    
+    // Сбрасываем предыдущий таймер если есть
+    if (toast.hideTimer) {
+      clearTimeout(toast.hideTimer);
+    }
+    
+    toast.textContent = message;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 1600);
+    });
   }
 
   // ============ TEST FUNCTIONS ============

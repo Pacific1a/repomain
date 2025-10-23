@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="stylesheet" href="main/globals.css" />
     <link rel="stylesheet" href="main/styleguide.css" />
     <link rel="stylesheet" href="main/style.css" />
@@ -27,9 +26,15 @@
     
       body, html{
         overflow-x: hidden;
-        touch-action: pan-y pan-x;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+        touch-action: manipulation;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      * {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
       .hidden {
         display: none !important;
@@ -508,14 +513,16 @@
     <script src="project-preloader.js"></script>
     <script src="upgrade/liveprize.js"></script>
     <script src="global-balance.js"></script>
+    <script src="game-balance-api.js"></script>
     <script src="main/home.js"></script>
+    <script src="main/case-opener.js"></script>
     <script>
       (function () {
         const loader = document.getElementById('app-loader');
         const app = document.getElementById('app');
         const statusElement = document.getElementById('loadingStatus');
         const progressElement = document.getElementById('loadingProgress');
-        const storageKey = 'app_loader_completed_v1';
+        const storageKey = 'app_loader_last_shown_v2';
         const tg = typeof window.Telegram !== 'undefined' ? window.Telegram.WebApp : undefined;
 
         const cloudAvailable = tg && tg.CloudStorage && typeof tg.CloudStorage.getItem === 'function';
@@ -577,25 +584,46 @@
         };
 
         const markLoaderCompleted = async () => {
-          setLocalItem(storageKey, 'true');
-          await setCloudItem(storageKey, 'true');
+          setLocalItem(storageKey, 'shown');
+          await setCloudItem(storageKey, 'shown');
         };
 
         const isLoaderDisabled = async () => {
           const cloudValue = await getCloudItem(storageKey);
           const localValue = getLocalItem(storageKey);
-          return cloudValue === 'true' || localValue === 'true';
+          
+          // Используем CloudStorage если доступен, иначе LocalStorage
+          const hasBeenShown = cloudValue || localValue;
+          
+          // Если loader уже был показан - пропускаем его
+          return hasBeenShown === 'shown';
         };
 
         // Функция для сброса флага прелоадера (для тестирования)
         window.resetPreloader = () => {
-          setLocalItem(storageKey, 'false');
+          localStorage.removeItem(storageKey);
           if (cloudAvailable && tg) {
-            tg.CloudStorage.setItem(storageKey, 'false', () => {
-              console.log('Preloader reset - reload page to see it again');
+            tg.CloudStorage.removeItem(storageKey, () => {
+              console.log('✅ Preloader reset - reload page to see it again');
             });
+          } else {
+            console.log('✅ Preloader reset - reload page to see it again');
           }
-          console.log('Preloader reset - reload page to see it again');
+        };
+        
+        // Функция для проверки статуса прелоадера (для тестирования)
+        window.checkPreloader = async () => {
+          const cloudValue = await getCloudItem(storageKey);
+          const localValue = getLocalItem(storageKey);
+          const value = cloudValue || localValue;
+          
+          if (!value) {
+            console.log('📌 Preloader: NOT shown yet (will show on next load)');
+          } else if (value === 'shown') {
+            console.log('✅ Preloader: Already shown (will be skipped)');
+          } else {
+            console.log('⚠️ Preloader: Unknown state -', value);
+          }
         };
 
         async function init() {

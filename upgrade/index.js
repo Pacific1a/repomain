@@ -21,7 +21,7 @@ const positionPercentEl = document.querySelector('.group-2 .text-wrapper-14');
 
 // Функция чтения баланса через глобальный API
 function getBalance() {
-  return window.GameBalanceAPI ? window.GameBalanceAPI.getBalance('rubles') : 1000;
+  return window.GameBalanceAPI ? window.GameBalanceAPI.getBalance('chips') : 1000;
 }
 
 // Текущее состояние
@@ -440,7 +440,7 @@ upgradeBtn?.addEventListener('click', () => {
   }
 
   // Списываем ставку перед розыгрышем через глобальный API
-  if (window.GameBalanceAPI && !window.GameBalanceAPI.safeBet(betAmount, 'rubles')) {
+  if (window.GameBalanceAPI && !window.GameBalanceAPI.safeBet(betAmount, 'chips')) {
     showToast('Недостаточно средств');
     isSpinning = false;
     document.querySelector('.upgrade-button')?.classList.remove('disabled');
@@ -480,7 +480,7 @@ upgradeBtn?.addEventListener('click', () => {
       const m = getActiveMultiplier();
       const winAmount = betAmount * m;
       if (window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinningsAndUpdate(winAmount, 'rubles');
+        window.GameBalanceAPI.payWinningsAndUpdate(winAmount, 'chips');
       }
       gameEl?.classList.add('win');
     } else {

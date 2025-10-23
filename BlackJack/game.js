@@ -452,16 +452,21 @@
         return;
       }
       
-      if (!window.GameBalanceAPI.canPlaceBet(this.bet, 'chips')) {
-        showResult('Недостаточно фишек');
+      if (!window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
+        showResult('Недостаточно рублей');
         return;
       }
       
       // Place bet
-      const success = await window.GameBalanceAPI.placeBet(this.bet, 'chips');
+      const success = await window.GameBalanceAPI.placeBet(this.bet, 'rubles');
       if (!success) {
         showResult('Ошибка ставки');
         return;
+      }
+      
+      // Показываем alert о ставке
+      if (window.Telegram?.WebApp?.showAlert) {
+        window.Telegram.WebApp.showAlert(`Ставка ${this.bet} rubles сделана!`);
       }
       
       this.betPlaced = true;
@@ -617,13 +622,13 @@
       if (this.roundOver || this.player.length !== 2 || this.hasActed) return;
       
       // Проверяем баланс для удвоения ставки
-      if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.bet, 'chips')) {
-        showResult("Недостаточно фишек для удвоения");
+      if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
+        showResult("Недостаточно рублей для удвоения");
         return;
       }
       
       // Списываем дополнительную ставку
-      const success = await window.GameBalanceAPI.placeBet(this.bet, 'chips');
+      const success = await window.GameBalanceAPI.placeBet(this.bet, 'rubles');
       if (!success) {
         showResult("Ошибка удвоения ставки");
         return;
@@ -689,10 +694,10 @@
 
       // Pay winnings via GameBalanceAPI
       if (winAmount > 0 && window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinnings(winAmount, 'chips');
-        console.log(`💰 BlackJack ${outcome}: +${winAmount} chips`);
+        window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
+        console.log(`💰 BlackJack ${outcome}: +${winAmount} rubles`);
       } else {
-        console.log(`💸 BlackJack ${outcome}: -${this.bet} chips`);
+        console.log(`💸 BlackJack ${outcome}: -${this.bet} rubles`);
       }
       
       this.betPlaced = false;

@@ -391,7 +391,7 @@
       // Обрабатываем ставки - списываем баланс для ВСЕХ зарезервированных ставок
       if (playerHasBet && !playerCashedOut) {
         // Списываем баланс независимо от того когда была сделана ставка
-        const success = await window.GameBalanceAPI.placeBet(playerBetAmount, 'chips');
+        const success = await window.GameBalanceAPI.placeBet(playerBetAmount, 'rubles');
         if (!success) {
           // Если не хватает баланса - отменяем ставку
           console.log('❌ Недостаточно фишек для активации ставки');
@@ -606,7 +606,7 @@
     }
     
     const winAmount = Math.floor(playerBetAmount * currentMultiplier);
-    await window.GameBalanceAPI.payWinnings(winAmount, 'chips');
+    await window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
     
     playerCashedOut = true;
     betPlacedDuringFlight = false; // Сбрасываем флаг
@@ -632,7 +632,7 @@
         // Резервируем ставку в период ожидания (баланс НЕ списываем)
         const betAmount = getBetAmount();
         
-        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
           console.log('❌ Недостаточно фишек');
           return;
         }
@@ -646,12 +646,17 @@
         setButtonState(BUTTON_STATES.CANCEL);
         updateAutoSectionState();
         
+        // Показываем alert о ставке
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} chips сделана!`);
+        }
+        
         console.log(`✅ Ставка зарезервирована: ${betAmount} chips (баланс будет списан при старте раунда)`);
       } else if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.FLYING) {
         // Резервируем ставку на следующий раунд (баланс НЕ списываем)
         const betAmount = getBetAmount();
         
-        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'chips')) {
+        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
           console.log('❌ Недостаточно фишек');
           return;
         }
@@ -664,6 +669,11 @@
         betPlacedDuringFlight = true; // Помечаем что ставка сделана во время полета
         setButtonState(BUTTON_STATES.CANCEL);
         updateAutoSectionState();
+        
+        // Показываем alert о ставке
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} chips сделана на следующий раунд!`);
+        }
         
         console.log(`✅ Ставка зарезервирована на следующий раунд: ${betAmount} chips (баланс будет списан при старте)`);
       } else if (buttonState === BUTTON_STATES.CANCEL) {
@@ -678,6 +688,11 @@
             game: 'crash',
             userId
           });
+        }
+        
+        // Показываем alert об отмене ставки
+        if (window.Telegram?.WebApp?.showAlert) {
+          window.Telegram.WebApp.showAlert('Ставка отменена!');
         }
         
         console.log('❌ Резервирование ставки отменено');
