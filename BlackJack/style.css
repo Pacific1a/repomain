@@ -801,7 +801,7 @@
 
 .blackjack .section-menu {
   display: flex;
-  width: 267px;
+  width: 60%;
   height: 27px;
   align-items: center;
   justify-content: space-between;
@@ -903,7 +903,7 @@
 .blackjack .live-bets-2 {
   display: flex;
   flex-direction: column;
-  width: 369px;
+  width: 100%;
   height: 48px;
   align-items: flex-start;
   gap: 2px;

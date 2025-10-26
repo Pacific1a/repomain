@@ -18,6 +18,8 @@
     explodedIndex: null,
     timers: [],
     clickLock: false,
+    isCashingOut: false,
+    isGameOver: false,
   };
 
   // Helpers
@@ -157,7 +159,8 @@
     
     if (!button || !labelEl || !amountEl) return;
     
-    if (state.inGame) {
+    // Если игра завершена (проигрыш) - показываем Bet режим
+    if (state.inGame && !state.isGameOver) {
       // Cash Out режим - показываем текущий выигрыш
       const multi = currentMultiplier();
       const potentialWin = Math.floor(state.bet * multi);
@@ -243,6 +246,8 @@
     resetBoardVisuals();
     placeMines();
     setInGame(true);
+    state.isCashingOut = false;
+    state.isGameOver = false;
     updateCashoutDisplay();
   }
 
@@ -336,7 +341,11 @@
     if (state.mines.has(idx)) {
       // Попали на мину!
       state.clickLock = true;
+      state.isGameOver = true;
       state.explodedIndex = idx;
+      
+      // Сразу переключаем кнопку в Bet режим
+      updateCashoutDisplay();
       
       // 1. Показываем гранату на 1 секунду
       flipReveal(cell, ASSETS.MINE_GRENADE, 400);
@@ -352,6 +361,15 @@
           schedule(() => {
             endGame(true);
             state.clickLock = false;
+            
+            // Сбрасываем доску после задержки
+            schedule(() => {
+              resetBoardVisuals();
+              state.revealed.clear();
+              state.mines.clear();
+              state.explodedIndex = null;
+              state.isGameOver = false;
+            }, 2000);
           }, 1000);
         }, 600);
       }, 1000);
@@ -396,6 +414,26 @@
         indicateOpenRequired();
         return;
       }
+      // Блокировка если игра уже завершена (проигрыш)
+      if (state.isGameOver) {
+        console.log('⚠️ Игра уже завершена, Cash Out невозможен');
+        return;
+      }
+      // Блокировка повторного нажатия Cash Out
+      if (state.isCashingOut) {
+        return;
+      }
+      
+      state.isCashingOut = true;
+      
+      // Блокируем кнопку визуально
+      const cashOutBtn = $('.cash-out-button');
+      if (cashOutBtn) {
+        cashOutBtn.style.opacity = '0.5';
+        cashOutBtn.style.cursor = 'not-allowed';
+        cashOutBtn.style.pointerEvents = 'none';
+      }
+      
       // Calculate winnings and pay out through global API
       const multi = currentMultiplier();
       const win = Math.floor(state.bet * multi);
@@ -413,7 +451,15 @@
       schedule(() => {
         setInGame(false);
         renderRoundSummary();
-        schedule(() => resetBoardVisuals(), 300);
+        schedule(() => {
+          resetBoardVisuals();
+          // Восстанавливаем кнопку после сброса
+          if (cashOutBtn) {
+            cashOutBtn.style.opacity = '';
+            cashOutBtn.style.cursor = '';
+            cashOutBtn.style.pointerEvents = '';
+          }
+        }, 300);
       }, 500);
     }
   }

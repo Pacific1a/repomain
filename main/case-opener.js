@@ -40,6 +40,7 @@
   let currentCase = null;
   let isSpinning = false;
   let wonPrize = null;
+  let isPrizeCollected = false;
 
   function initCaseOpener() {
     const cards = document.querySelectorAll('.case-card .cards');
@@ -293,7 +294,15 @@
   }
 
   async function keepPrize() {
-    if (!wonPrize) return;
+    if (!wonPrize || isPrizeCollected) return;
+    
+    isPrizeCollected = true;
+    const keepButton = document.querySelector('.keep-it button');
+    if (keepButton) {
+      keepButton.disabled = true;
+      keepButton.style.opacity = '0.5';
+      keepButton.style.cursor = 'not-allowed';
+    }
 
     await window.GameBalanceAPI.payWinnings(wonPrize, 'rubles');
     
@@ -313,9 +322,18 @@
 
     modal.style.display = 'none';
     document.body.style.overflow = '';
+    
+    const keepButton = document.querySelector('.keep-it button');
+    if (keepButton) {
+      keepButton.disabled = false;
+      keepButton.style.opacity = '';
+      keepButton.style.cursor = '';
+    }
+    
     currentCase = null;
     isSpinning = false;
     wonPrize = null;
+    isPrizeCollected = false;
   }
 
   if (document.readyState === 'loading') {
