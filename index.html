@@ -42,29 +42,61 @@
       .modal-window {
         display: none;
         position: fixed;
-        top: 20px;
-        left: 12px;
-        width: 95%;
-        height: 95%;
-        border-radius: 22px;
-        scrollbar-width: none;
-        background: #151414;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         z-index: 10000;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .modal-window::before {
+        content: '';
+        position: absolute;
+        top: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 85%;
+        max-width: 450px;
+        height: calc(100% - 80px);
+        border-radius: 22px;
+        background: #151414;
+        z-index: -1;
+      }
+      .modal-window > * {
+        position: relative;
+        z-index: 1;
+      }
+      .modal-window-content {
+        width: 85%;
+        max-width: 450px;
+        height: calc(100% - 80px);
+        overflow-y: auto;
+        scrollbar-width: none;
+        display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        overflow-y: auto;
-        padding: 20px;
+      }
+      .modal-window-content::-webkit-scrollbar {
+        display: none;
       }
       .modal-window .exit {
         position: absolute;
-        top: 20px;
-        right: 20px;
+        top: 55px;
+        right: calc(50% - 42.5% + 20px);
         cursor: pointer;
-        z-index: 10001;
+        z-index: 10;
+      }
+      @media (min-width: 450px) {
+        .modal-window .exit {
+          right: calc(55% - 225px + 20px);
+        }
       }
       .modal-window .title-window {
-        margin-top: 60px;
         font-size: 28px;
         font-weight: 700;
       }
@@ -643,6 +675,7 @@
           <path d="M16.3904 0.390382C16.1403 0.140421 15.8013 0 15.4477 0C15.0942 0 14.7551 0.140421 14.505 0.390382L8.39038 6.50505L2.27572 0.390382C2.02568 0.140421 1.6866 0 1.33305 0C0.979496 0 0.640419 0.140421 0.390382 0.390382C0.140421 0.640419 0 0.979496 0 1.33305C0 1.6866 0.140421 2.02568 0.390382 2.27572L6.50505 8.39038L0.390382 14.505C0.140421 14.7551 0 15.0942 0 15.4477C0 15.8013 0.140421 16.1403 0.390382 16.3904C0.640419 16.6403 0.979496 16.7808 1.33305 16.7808C1.6866 16.7808 2.02568 16.6403 2.27572 16.3904L8.39038 10.2757L14.505 16.3904C14.7551 16.6403 15.0942 16.7808 15.4477 16.7808C15.8013 16.7808 16.1403 16.6403 16.3904 16.3904C16.6403 16.1403 16.7808 15.8013 16.7808 15.4477C16.7808 15.0942 16.6403 14.7551 16.3904 14.505L10.2757 8.39038L16.3904 2.27572C16.6403 2.02568 16.7808 1.6866 16.7808 1.33305C16.7808 0.979496 16.6403 0.640419 16.3904 0.390382Z" fill="#EDEDED"/>
           </svg>
       </div>
+      <div class="modal-window-content">
       <div class="title-window">
         <span>NAME CASE</span>
       </div>
@@ -689,6 +722,7 @@
             <img src="main/img/Very Low Prize 2.png" alt="">
             <img src="main/img/Very Low Prize 3.png" alt="">
             <img src="main/img/Very Low Prize 4.png" alt="">
+      </div>
       </div>
     </div>
     </div>
