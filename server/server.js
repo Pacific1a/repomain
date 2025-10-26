@@ -197,6 +197,12 @@ const globalGames = {
     waitingTimer: null,
     waitingTime: 5, // 5 секунд ожидания
     isInitialized: false // Флаг инициализации
+  },
+  blackjack: {
+    status: 'waiting', // waiting
+    players: [], // Онлайн игроки
+    history: [], // История последних игр
+    isInitialized: false
   }
 };
 
@@ -572,18 +578,34 @@ io.on('connection', (socket) => {
     
     const gameState = globalGames[game];
     if (gameState) {
-      // Отправляем текущее состояние игры
-      socket.emit('game_state_sync', {
-        status: gameState.status,
-        players: gameState.players.map(p => ({
-          userId: p.userId,
-          nickname: p.nickname,
-          photoUrl: p.photoUrl,
-          bet: p.bet,
-          color: p.color
-        })),
-        startTime: gameState.startTime
-      });
+      // Для blackjack отправляем другую структуру
+      if (game === 'blackjack') {
+        socket.emit('game_state_sync', {
+          game: 'blackjack',
+          status: gameState.status,
+          players: gameState.players.map(p => ({
+            userId: p.userId,
+            nickname: p.nickname,
+            photoUrl: p.photoUrl,
+            lastSeen: p.lastSeen
+          })),
+          history: gameState.history
+        });
+      } else {
+        // Отправляем текущее состояние игры
+        socket.emit('game_state_sync', {
+          game: game,
+          status: gameState.status,
+          players: gameState.players.map(p => ({
+            userId: p.userId,
+            nickname: p.nickname,
+            photoUrl: p.photoUrl,
+            bet: p.bet,
+            color: p.color
+          })),
+          startTime: gameState.startTime
+        });
+      }
       
       // Crash: отправляем текущее состояние БЕЗ ЗАДЕРЖКИ
       if (game === 'crash') {
@@ -614,18 +636,41 @@ io.on('connection', (socket) => {
 
   // Получить состояние игры
   socket.on('get_game_state', ({ game }) => {
-    // Отправляем чистую копию без циклических ссылок + ЦВЕТ
+    const gameState = globalGames[game];
+    if (!gameState) {
+      console.error(`❌ Игра ${game} не найдена в globalGames`);
+      return;
+    }
+    
+    // Для blackjack отправляем другую структуру
+    if (game === 'blackjack') {
+      socket.emit('game_state_sync', {
+        game: 'blackjack',
+        status: gameState.status,
+        players: gameState.players.map(p => ({
+          userId: p.userId,
+          nickname: p.nickname,
+          photoUrl: p.photoUrl,
+          lastSeen: p.lastSeen
+        })),
+        history: gameState.history
+      });
+      return;
+    }
+    
+    // Для остальных игр (roll, crash и т.д.)
     const cleanState = {
-      status: globalGames[game].status,
-      players: globalGames[game].players.map(p => ({
+      game: game,
+      status: gameState.status,
+      players: gameState.players.map(p => ({
         userId: p.userId,
         nickname: p.nickname,
         photoUrl: p.photoUrl,
         bet: p.bet,
         color: p.color // ДОБАВЛЯЕМ ЦВЕТ
       })),
-      timer: globalGames[game].timer,
-      startTime: globalGames[game].startTime ? globalGames[game].startTime.toISOString() : null
+      timer: gameState.timer,
+      startTime: gameState.startTime ? gameState.startTime.toISOString() : null
     };
     socket.emit('game_state_sync', cleanState);
   });
@@ -1063,6 +1108,112 @@ io.on('connection', (socket) => {
     }, 100); // Увеличено до 100ms для лучшей производительности на мобильных
   }
 
+  // ============ BLACKJACK ============
+  
+  // Игрок зашел в blackjack
+  socket.on('join_game_session', ({ game, userId, nickname, photoUrl }) => {
+    if (game !== 'blackjack') return;
+    
+    const gameState = globalGames.blackjack;
+    
+    // Проверяем есть ли уже такой игрок
+    const existingPlayer = gameState.players.find(p => p.userId === userId);
+    if (!existingPlayer) {
+      gameState.players.push({
+        userId,
+        nickname,
+        photoUrl,
+        lastSeen: Date.now()
+      });
+      console.log(`👤 BlackJack: Игрок ${nickname} зашел в игру`);
+      
+      // Уведомляем всех о новом игроке
+      io.to('global_blackjack').emit('player_joined_game', {
+        game: 'blackjack',
+        userId,
+        nickname,
+        photoUrl
+      });
+    } else {
+      // Обновляем lastSeen
+      existingPlayer.lastSeen = Date.now();
+    }
+    
+    // Отправляем текущее состояние новому игроку
+    socket.emit('game_state_sync', {
+      game: 'blackjack',
+      status: gameState.status,
+      players: gameState.players.map(p => ({
+        userId: p.userId,
+        nickname: p.nickname,
+        photoUrl: p.photoUrl,
+        lastSeen: p.lastSeen
+      })),
+      history: gameState.history
+    });
+  });
+  
+  // Результат игры blackjack
+  socket.on('blackjack_result', ({ game, userId, nickname, photoUrl, bet, win, isWinner, multiplier }) => {
+    if (game !== 'blackjack') return;
+    
+    const gameState = globalGames.blackjack;
+    
+    console.log(`🃏 BlackJack результат:`, { nickname, bet, win, isWinner, multiplier });
+    
+    // Добавляем в историю
+    gameState.history.unshift({
+      userId,
+      nickname,
+      photoUrl,
+      bet,
+      win,
+      isWinner,
+      multiplier,
+      timestamp: Date.now()
+    });
+    
+    // Оставляем только последние 20 игр
+    if (gameState.history.length > 20) {
+      gameState.history = gameState.history.slice(0, 20);
+    }
+    
+    // Уведомляем всех о завершении игры
+    io.to('global_blackjack').emit('blackjack_game_finished', {
+      userId,
+      nickname,
+      photoUrl,
+      bet,
+      win,
+      isWinner,
+      multiplier
+    });
+    
+    // Отправляем обновленное состояние
+    io.to('global_blackjack').emit('game_state_sync', {
+      game: 'blackjack',
+      status: gameState.status,
+      players: gameState.players,
+      history: gameState.history
+    });
+  });
+  
+  // Очистка неактивных игроков blackjack (каждые 30 секунд)
+  setInterval(() => {
+    const gameState = globalGames.blackjack;
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+    
+    const beforeCount = gameState.players.length;
+    gameState.players = gameState.players.filter(p => {
+      return (now - p.lastSeen) < fiveMinutes;
+    });
+    
+    if (gameState.players.length !== beforeCount) {
+      console.log(`🧹 BlackJack: Очищено ${beforeCount - gameState.players.length} неактивных игроков`);
+    }
+  }, 30000);
+  
   // Отключение
   socket.on('disconnect', () => {
     const user = onlineUsers.get(socket.id);
