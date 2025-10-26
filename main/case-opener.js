@@ -250,6 +250,8 @@
     setTimeout(() => {
       const finalImage = document.elementFromPoint(centerPosition + document.querySelector('.content-window').getBoundingClientRect().left, window.innerHeight / 2);
       console.log('DEBUG: Final image under indicator:', finalImage?.dataset?.value);
+      
+      // Показываем результат с анимацией
       showWinResult();
     }, 6800);
   }
@@ -278,17 +280,88 @@
   }
 
   async function showWinResult() {
+    const contentWindow = document.querySelector('.content-window');
     const winWindow = document.querySelector('.win-window');
     const winItem = winWindow.querySelector('.win-window-item');
+    const polygonIndicator = document.querySelector('.content-window img[src*="Polygon"]');
+    const openBtn = document.querySelector('.open-btn');
     
+    // Скрываем кнопку Open с схлопыванием
+    if (openBtn) {
+      openBtn.style.transition = 'opacity 0.3s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out';
+      openBtn.style.opacity = '0';
+      openBtn.style.maxHeight = '0';
+      openBtn.style.margin = '0';
+      openBtn.style.overflow = 'hidden';
+      setTimeout(() => {
+        openBtn.style.display = 'none';
+      }, 300);
+    }
+    
+    // 1. Плавно скрываем карусель и индикатор
+    contentWindow.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out, max-height 0.3s ease-out 0.5s, margin 0.3s ease-out 0.5s';
+    contentWindow.style.opacity = '0';
+    contentWindow.style.transform = 'scale(0.8)';
+    
+    if (polygonIndicator) {
+      polygonIndicator.style.transition = 'opacity 0.5s ease-out';
+      polygonIndicator.style.opacity = '0';
+    }
+    
+    // Схлопываем высоту после затухания
+    setTimeout(() => {
+      contentWindow.style.maxHeight = '0';
+      contentWindow.style.margin = '0';
+      contentWindow.style.overflow = 'hidden';
+    }, 500);
+    
+    // Ждем завершения всех анимаций
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Полностью скрываем карусель
+    contentWindow.style.display = 'none';
+    
+    // 2. Подготавливаем win-window для появления
+    const prizeInfo = PRIZE_IMAGES[wonPrize];
     winItem.innerHTML = '';
     const winImg = document.createElement('img');
-    winImg.src = PRIZE_IMAGES[wonPrize]?.win || '';
+    winImg.src = prizeInfo?.win || '';
     winImg.alt = `WIN ${wonPrize}₽`;
     winItem.appendChild(winImg);
 
+    // Устанавливаем начальное состояние для анимации появления
     winWindow.style.display = 'flex';
-    document.querySelector('.keep-it').style.display = 'block';
+    winWindow.style.maxHeight = '0';
+    winWindow.style.opacity = '0';
+    winWindow.style.transform = 'scale(0.5) translateY(30px)';
+    winWindow.style.overflow = 'hidden';
+    
+    // 3. Запускаем анимацию появления
+    requestAnimationFrame(() => {
+      winWindow.style.transition = 'opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), max-height 0.6s ease-out';
+      winWindow.style.maxHeight = '500px';
+      winWindow.style.opacity = '1';
+      winWindow.style.transform = 'scale(1) translateY(0)';
+      winWindow.style.overflow = 'visible';
+    });
+    
+    // 4. Показываем кнопку Keep it с задержкой
+    setTimeout(() => {
+      const keepItBtn = document.querySelector('.keep-it');
+      keepItBtn.style.display = 'block';
+      keepItBtn.style.maxHeight = '0';
+      keepItBtn.style.opacity = '0';
+      keepItBtn.style.transform = 'translateY(20px)';
+      keepItBtn.style.overflow = 'hidden';
+      
+      requestAnimationFrame(() => {
+        keepItBtn.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out, max-height 0.4s ease-out';
+        keepItBtn.style.maxHeight = '200px';
+        keepItBtn.style.opacity = '1';
+        keepItBtn.style.transform = 'translateY(0)';
+        keepItBtn.style.overflow = 'visible';
+      });
+    }, 400);
 
     isSpinning = false;
   }
@@ -306,28 +379,70 @@
 
     await window.GameBalanceAPI.payWinnings(wonPrize, 'rubles');
     
-    alert(`🎉 Поздравляем! Вы выиграли ${wonPrize}₽`);
+    console.log(`🎉 Поздравляем! Вы выиграли ${wonPrize}₽`);
     
     closeModal();
   }
 
   function closeModal() {
     const modal = document.querySelector('.modal-window');
-    const contentWindow = document.querySelector('.content-window-item');
+    const contentWindow = document.querySelector('.content-window');
+    const contentWindowItem = document.querySelector('.content-window-item');
+    const winWindow = document.querySelector('.win-window');
+    const polygonIndicator = document.querySelector('.content-window img[src*="Polygon"]');
     
+    // Сбрасываем состояние карусели
+    if (contentWindowItem) {
+      contentWindowItem.style.transition = 'none';
+      contentWindowItem.style.transform = 'translateX(0)';
+    }
+    
+    // Сбрасываем видимость элементов
     if (contentWindow) {
-      contentWindow.style.transition = 'none';
-      contentWindow.style.transform = 'translateX(0)';
+      contentWindow.style.display = 'flex';
+      contentWindow.style.opacity = '1';
+      contentWindow.style.transform = 'scale(1)';
+      contentWindow.style.maxHeight = '';
+      contentWindow.style.margin = '';
+      contentWindow.style.overflow = 'hidden';
+    }
+    
+    if (polygonIndicator) {
+      polygonIndicator.style.opacity = '1';
+    }
+    
+    if (winWindow) {
+      winWindow.style.display = 'none';
+      winWindow.style.opacity = '0';
+      winWindow.style.transform = 'scale(0.5)';
+      winWindow.style.maxHeight = '0';
+      winWindow.style.overflow = 'hidden';
     }
 
     modal.style.display = 'none';
     document.body.style.overflow = '';
     
     const keepButton = document.querySelector('.keep-it button');
+    const keepItBtn = document.querySelector('.keep-it');
+    const openBtn = document.querySelector('.open-btn');
+    
     if (keepButton) {
       keepButton.disabled = false;
       keepButton.style.opacity = '';
       keepButton.style.cursor = '';
+    }
+    if (keepItBtn) {
+      keepItBtn.style.display = 'none';
+      keepItBtn.style.opacity = '0';
+      keepItBtn.style.maxHeight = '0';
+      keepItBtn.style.overflow = 'hidden';
+    }
+    if (openBtn) {
+      openBtn.style.display = 'flex';
+      openBtn.style.opacity = '1';
+      openBtn.style.maxHeight = '';
+      openBtn.style.margin = '';
+      openBtn.style.overflow = 'visible';
     }
     
     currentCase = null;
