@@ -130,6 +130,7 @@
     modal.querySelector('.open-btn button').disabled = false;
     modal.querySelector('.keep-it').style.display = 'none';
     modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
     isSpinning = false;
     wonPrize = null;
   }
@@ -311,6 +312,7 @@
     }
 
     modal.style.display = 'none';
+    document.body.style.overflow = '';
     currentCase = null;
     isSpinning = false;
     wonPrize = null;
