@@ -213,11 +213,11 @@
     playersList.innerHTML = '';
     
     if (currentTab === 'live-bets') {
-      // Live Bets - показываем онлайн игроков
+      // Live Bets - показываем онлайн игроков (все в режиме реального времени)
       updateOnlineCount();
       renderLivePlayers(playersList);
     } else {
-      // Your Bets - показываем историю игр
+      // Your Bets - показываем ОБЩУЮ историю всех игр
       renderGameHistory(playersList);
     }
   }
@@ -252,14 +252,17 @@
     }
   }
 
-  // Отрисовка истории игр
+  // Отрисовка ОБЩЕЙ истории игр (всех игроков)
   function renderGameHistory(container) {
     if (gameState.history.length === 0) {
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center;">No game history</div>';
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center;">No game history yet</div>';
       return;
     }
 
-    gameState.history.forEach(game => {
+    // Показываем последние 10 игр всех игроков
+    const recentGames = gameState.history.slice(0, 10);
+    
+    recentGames.forEach(game => {
       const playerEl = createPlayerElement(game, false);
       container.appendChild(playerEl);
     });
@@ -269,6 +272,18 @@
   function createPlayerElement(player, isLive) {
     const div = document.createElement('div');
     div.className = 'div-4';
+    
+    // Окрашиваем фон в зависимости от результата (только для истории)
+    if (!isLive) {
+      if (player.isWinner) {
+        div.style.backgroundColor = '#407B3D'; // Зеленый для выигрыша
+      } else {
+        div.style.backgroundColor = '#402626'; // Красный для проигрыша
+      }
+      div.style.borderRadius = '8px';
+      div.style.padding = '8px';
+      div.style.marginBottom = '4px';
+    }
     
     // Создаем аватар
     let avatarHTML = '';
@@ -302,20 +317,18 @@
         <div class="div-wrapper-2"><div class="text-wrapper-16">-</div></div>
       `;
     } else {
-      // Your Bets - показываем полную информацию
-      const multiplier = player.multiplier ? `${player.multiplier}x` : '0x';
+      // Your Bets - показываем полную информацию с окрашенным фоном
+      const multiplier = player.multiplier ? `${player.multiplier.toFixed(1)}x` : '0x';
       const winAmount = player.isWinner && player.win ? player.win : '--';
-      const winClass = player.isWinner ? 'text-wrapper-19' : 'text-wrapper-16';
-      const winWrapperClass = player.isWinner ? 'element-2' : 'div-wrapper-2';
       
       div.innerHTML = `
         <div class="acc-inf">
-          <div class="avatar-3"><div class="avatar-4">${avatarHTML}</div></div>
-          <div class="div-3"><div class="text-wrapper-17">${maskedName}</div></div>
+          <div class="avatar-wrapper">${avatarHTML}</div>
+          <div class="div-3"><div class="text-wrapper-17" style="color: #fff;">${maskedName}</div></div>
         </div>
-        <div class="div-3"><div class="text-wrapper-18">${player.bet}</div></div>
-        <div class="div-3"><div class="text-wrapper-18">${multiplier}</div></div>
-        <div class="${winWrapperClass}"><div class="${winClass}">${winAmount}</div></div>
+        <div class="div-3"><div class="text-wrapper-18" style="color: #fff;">${player.bet}</div></div>
+        <div class="div-3"><div class="text-wrapper-18" style="color: #fff;">${multiplier}</div></div>
+        <div class="div-3"><div class="text-wrapper-19" style="color: #fff;">${winAmount}</div></div>
       `;
     }
     
