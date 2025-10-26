@@ -1527,7 +1527,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 18px;
   background: linear-gradient(90deg, #282828 0%, #333333c9 100%);
 }
 .text-block span{
@@ -1588,4 +1588,90 @@
   background: linear-gradient(90deg, #CA3959 0%, #CA3959 100%)!important;
   -webkit-background-clip: text!important;
   -webkit-text-fill-color: transparent!important;
+}
+.exit{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+.img-block{
+  width: 100%;
+}
+.img-block img{
+  width: 100%;
+}
+
+.content-window-item{
+  display: flex;
+  gap: 1px;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    height: 155px;
+}
+.content-window{
+  overflow: hidden;
+  width: 100%;
+  height: 195px;
+background: linear-gradient(#1B1A1A, #151414);
+border: 2px solid #2C2A2A;
+border-radius: 18px;
+}
+.item{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+}
+.item img{
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+}
+.item-preview-item{
+  display: grid;
+  grid-template-columns: repeat(3, 3fr);
+  gap: 10px;
+}
+.keep-it, .open-btn{
+  width: 100%;
+}
+.btn-open{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-direction: column;
+
+}
+.keep-it button, .open-btn button{
+  border: none;
+  border-radius: 14px;
+  width: 100%;
+  height: 60px;
+  font-family: "Montserrat", Helvetica;
+  font-weight: 600;
+  color: white;
+}
+.keep-it button{
+  background: linear-gradient(#FF3B5E, #DD2C4B);
+}
+.open-btn button{
+  background: linear-gradient(#FFAC4E, #FF8A37);
+}
+.title-prewiew{
+  color: white;
+  font-family: "Montserrat", Helvetica;
+  text-align: center;
+  padding: 20px 0px 20px 0px;
+}
+.title-window{
+  color: white;
+  font-family: "Montserrat", Helvetica;
+  text-align: center;
+  padding: 20px 0px 20px 0px;
+  font-weight: 900;
 }
