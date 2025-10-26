@@ -133,13 +133,8 @@
   }
 
   function renderHand(cards, container, { hideHole = false } = {}) {
-    console.log('🎴 renderHand вызван, карт:', cards.length, 'контейнер:', container);
-    if (!container) {
-      console.error('❌ renderHand: контейнер не найден!');
-      return;
-    }
+    if (!container) return;
     if (!cards || cards.length === 0) {
-      console.log('🎴 renderHand: очищаем контейнер');
       clear(container);
       return;
     }
@@ -178,11 +173,7 @@
         img.classList.add("card-img", "bj-predeal");
         img.style.visibility = "hidden";
         img.onerror = function () { 
-          console.error('❌ Ошибка загрузки карты:', this.src);
           this.style.display = 'none'; 
-        };
-        img.onload = function() {
-          console.log('✅ Карта загружена:', this.src);
         };
         container.appendChild(img);
       }
@@ -197,7 +188,6 @@
       const nextSrc = isHoleCard ? CARD_BACK_SRC : card.image;
       const sourceChanged = img.dataset.currentSrc !== nextSrc;
       if (sourceChanged) {
-        console.log('🎴 Загружаем карту:', nextSrc);
         img.style.visibility = "hidden";
         img.src = nextSrc;
         img.dataset.currentSrc = nextSrc;
@@ -231,7 +221,6 @@
               if (img.dataset.dealToken !== token || img.classList.contains("bj-deal")) return;
               requestAnimationFrame(() => {
                 if (img.dataset.dealToken !== token || img.classList.contains("bj-deal")) return;
-                console.log('🎴 Показываем карту с анимацией');
                 img.style.visibility = "visible";
                 img.classList.add("bj-deal");
                 img.classList.remove("bj-predeal");
@@ -387,8 +376,6 @@
   // --- Controller / Game ---
   class Game {
     constructor() {
-      console.log('🎮 BlackJack: Инициализация игры...');
-      
       this.bet = 50;
       this.deck = new Deck();
       this.player = [];
@@ -398,11 +385,6 @@
       this.dealLock = false;
       this.playerBusted = false;
       this.betPlaced = false; // Track if bet was deducted
-      
-      console.log('🎮 BlackJack: Проверка элементов UI...');
-      console.log('- Кнопка New Game:', el.btn.newGame);
-      console.log('- Область игры:', el.gameArea);
-      console.log('- Кнопки действий:', el.buttonsBar);
       
       ensureAnimationStyles();
       this.bindUI();
@@ -441,50 +423,15 @@
     }
 
     bindUI() {
-      console.log('🎮 BlackJack: Привязка обработчиков событий...');
-      
-      el.btn.hit && el.btn.hit.addEventListener("click", () => {
-        console.log('🎮 Hit clicked');
-        this.hit();
-      });
-      el.btn.stand && el.btn.stand.addEventListener("click", () => {
-        console.log('🎮 Stand clicked');
-        this.stand();
-      });
-      el.btn.double && el.btn.double.addEventListener("click", () => {
-        console.log('🎮 Double clicked');
-        this.doubleDown();
-      });
-      el.btn.split && el.btn.split.addEventListener("click", () => {
-        console.log('🎮 Split clicked');
-        this.split();
-      });
-      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => {
-        console.log('🎮 Bet Minus clicked');
-        this.changeBet(-10);
-      });
-      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => {
-        console.log('🎮 Bet Plus clicked');
-        this.changeBet(10);
-      });
-      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => {
-        console.log('🎮 Bet Half clicked');
-        this.setBet(Math.max(10, Math.floor(this.bet / 2)));
-      });
-      el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => {
-        console.log('🎮 Bet Double clicked');
-        this.setBet(this.bet * 2);
-      });
-      
-      if (el.btn.newGame) {
-        el.btn.newGame.addEventListener("click", () => {
-          console.log('🎮 New Game clicked!');
-          this.newRound(true);
-        });
-        console.log('✅ Кнопка New Game привязана');
-      } else {
-        console.error('❌ Кнопка New Game не найдена!');
-      }
+      el.btn.hit && el.btn.hit.addEventListener("click", () => this.hit());
+      el.btn.stand && el.btn.stand.addEventListener("click", () => this.stand());
+      el.btn.double && el.btn.double.addEventListener("click", () => this.doubleDown());
+      el.btn.split && el.btn.split.addEventListener("click", () => this.split());
+      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-10));
+      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(10));
+      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(10, Math.floor(this.bet / 2))));
+      el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => this.setBet(this.bet * 2));
+      el.btn.newGame && el.btn.newGame.addEventListener("click", () => this.newRound(true));
     }
 
     setBet(value) {
@@ -499,30 +446,18 @@
     }
 
     async newRound(force = false) {
-      console.log('🎮 newRound вызван, force:', force, 'roundOver:', this.roundOver);
-      
-      if (!force && !this.roundOver) {
-        console.log('⚠️ Раунд еще не завершен');
-        return;
-      }
+      if (!force && !this.roundOver) return;
       
       // Check balance
       if (!window.GameBalanceAPI) {
-        console.error('❌ GameBalanceAPI не загружен!');
         showResult('Balance API not ready');
         return;
       }
       
-      console.log('✅ GameBalanceAPI загружен, проверка баланса...');
-      console.log('Ставка:', this.bet, 'руб');
-      
       if (!window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
-        console.error('❌ Недостаточно рублей');
         showResult('Недостаточно рублей');
         return;
       }
-      
-      console.log('✅ Баланс достаточен, списываем ставку...');
       
       // Place bet
       const success = await window.GameBalanceAPI.placeBet(this.bet, 'rubles');
@@ -557,10 +492,6 @@
 
       // Initial deal: 2 cards to player, 2 cards to dealer (last hidden)
       // Чередуем раздачу: игрок → дилер → игрок → дилер
-      console.log('🎴 Начинаем раздачу карт...');
-      console.log('🎴 Player cards container:', el.playerCards);
-      console.log('🎴 Dealer cards container:', el.dealerCards);
-      
       await this.dealCard(this.player, el.playerCards, { hideHole: false });
       await sleep(300);
       await this.dealCard(this.dealer, el.dealerCards, { hideHole: false });
@@ -570,7 +501,6 @@
       await this.dealCard(this.dealer, el.dealerCards, { hideHole: true });
       await sleep(200);
       
-      console.log('✅ Раздача завершена');
       setButtonsEnabled(true, this);
     }
 
@@ -621,10 +551,7 @@
     }
 
     async dealCard(target, container, { hideHole }) {
-      const card = this.deck.draw();
-      console.log('🎴 dealCard вызван, карта:', card.rank, card.suit);
-      target.push(card);
-      console.log('🎴 Вызываем renderHand, карт в руке:', target.length);
+      target.push(this.deck.draw());
       renderHand(target, container, { hideHole });
       this.updateScores(false);
       await sleep(260);
@@ -770,6 +697,16 @@
         console.log(`💰 BlackJack ${outcome}: +${winAmount} rubles`);
       } else {
         console.log(`💸 BlackJack ${outcome}: -${this.bet} rubles`);
+      }
+      
+      // Отправляем результат в систему мультиплеера
+      if (window.BlackJackSync) {
+        const isWinner = outcome === 'win' || outcome === 'blackjack' || outcome === 'push';
+        const multiplier = outcome === 'blackjack' ? 2.5 : outcome === 'win' ? 2.0 : outcome === 'push' ? 1.0 : 0;
+        const actualWin = winAmount > 0 ? winAmount : 0;
+        
+        window.BlackJackSync.reportGameResult(this.bet, actualWin, isWinner, multiplier);
+        console.log('📊 BlackJack: Результат отправлен в систему мультиплеера');
       }
       
       this.betPlaced = false;
