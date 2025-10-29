@@ -1,17 +1,17 @@
-// Telegram User Data Loader
+﻿// Telegram User Data Loader
 class TelegramUserData {
     constructor() {
         this.userData = null;
-        this.maxNicknameLength = 12; // Максимальная длина ника с троеточием
-        // Не вызываем init() здесь, это будет сделано после создания экземпляра
+        this.maxNicknameLength = 12; // РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РЅРёРєР° СЃ С‚СЂРѕРµС‚РѕС‡РёРµРј
+        // РќРµ РІС‹Р·С‹РІР°РµРј init() Р·РґРµСЃСЊ, СЌС‚Рѕ Р±СѓРґРµС‚ СЃРґРµР»Р°РЅРѕ РїРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ СЌРєР·РµРјРїР»СЏСЂР°
     }
 
     init() {
-        // Ждем загрузки Telegram WebApp API
+        // Р–РґРµРј Р·Р°РіСЂСѓР·РєРё Telegram WebApp API
         if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
             this.loadUserData();
         } else {
-            // Ждем загрузки API с задержкой
+            // Р–РґРµРј Р·Р°РіСЂСѓР·РєРё API СЃ Р·Р°РґРµСЂР¶РєРѕР№
             setTimeout(() => {
                 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
                     this.loadUserData();
@@ -26,15 +26,15 @@ class TelegramUserData {
         try {
             const tg = window.Telegram.WebApp;
             
-            // Пробуем разные способы получения данных пользователя
+            // РџСЂРѕР±СѓРµРј СЂР°Р·РЅС‹Рµ СЃРїРѕСЃРѕР±С‹ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
             let user = null;
             
-            // Способ 1: initDataUnsafe
+            // РЎРїРѕСЃРѕР± 1: initDataUnsafe
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 user = tg.initDataUnsafe.user;
             }
             
-            // Способ 2: initData (если первый не сработал)
+            // РЎРїРѕСЃРѕР± 2: initData (РµСЃР»Рё РїРµСЂРІС‹Р№ РЅРµ СЃСЂР°Р±РѕС‚Р°Р»)
             if (!user && tg.initData) {
                 try {
                     const initData = new URLSearchParams(tg.initData);
@@ -42,19 +42,19 @@ class TelegramUserData {
                     if (userData) {
                         user = JSON.parse(decodeURIComponent(userData));
                     } else {
-                        // параметр user отсутствует, оставляем user = null
+                        // РїР°СЂР°РјРµС‚СЂ user РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, РѕСЃС‚Р°РІР»СЏРµРј user = null
                     }
                 } catch (e) {
-                    // initData не содержит корректный JSON пользователя
+                    // initData РЅРµ СЃРѕРґРµСЂР¶РёС‚ РєРѕСЂСЂРµРєС‚РЅС‹Р№ JSON РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
                 }
             }
             
-            // Способ 3: Прямой доступ к tg.user (если есть)
+            // РЎРїРѕСЃРѕР± 3: РџСЂСЏРјРѕР№ РґРѕСЃС‚СѓРї Рє tg.user (РµСЃР»Рё РµСЃС‚СЊ)
             if (!user && tg.user) {
                 user = tg.user;
             }
             
-            // Способ 4: Пробуем получить из URL параметров
+            // РЎРїРѕСЃРѕР± 4: РџСЂРѕР±СѓРµРј РїРѕР»СѓС‡РёС‚СЊ РёР· URL РїР°СЂР°РјРµС‚СЂРѕРІ
             if (!user) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const userParam = urlParams.get('user');
@@ -62,12 +62,12 @@ class TelegramUserData {
                     try {
                         user = JSON.parse(decodeURIComponent(userParam));
                     } catch (e) {
-                        // некорректный JSON в параметре user
+                        // РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ JSON РІ РїР°СЂР°РјРµС‚СЂРµ user
                     }
                 }
             }
             
-            // Способ 5: Пробуем получить из hash
+            // РЎРїРѕСЃРѕР± 5: РџСЂРѕР±СѓРµРј РїРѕР»СѓС‡РёС‚СЊ РёР· hash
             if (!user && window.location.hash) {
                 try {
                     const hashData = JSON.parse(decodeURIComponent(window.location.hash.substring(1)));
@@ -75,7 +75,7 @@ class TelegramUserData {
                         user = hashData.user;
                     }
                 } catch (e) {
-                    // некорректный JSON в hash
+                    // РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ JSON РІ hash
                 }
             }
             
@@ -117,7 +117,7 @@ class TelegramUserData {
             displayName += ' ' + this.userData.lastName;
         }
         
-        // Обрезаем длинные имена
+        // РћР±СЂРµР·Р°РµРј РґР»РёРЅРЅС‹Рµ РёРјРµРЅР°
         if (displayName.length > this.maxNicknameLength) {
             displayName = displayName.substring(0, this.maxNicknameLength - 3) + '...';
         }
@@ -140,7 +140,7 @@ class TelegramUserData {
     updateUI() {
         const displayName = this.getDisplayName();
         
-        // Создаем глобальный объект для совместимости
+        // РЎРѕР·РґР°РµРј РіР»РѕР±Р°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё
         window.TelegramUserData = {
             id: this.getUserId(),
             first_name: this.userData?.firstName || '',
@@ -150,7 +150,7 @@ class TelegramUserData {
             is_premium: this.userData?.isPremium || false
         };
         
-        // Обновляем все блоки account-info
+        // РћР±РЅРѕРІР»СЏРµРј РІСЃРµ Р±Р»РѕРєРё account-info
         const accountInfoBlocks = document.querySelectorAll('.account-info');
         accountInfoBlocks.forEach(block => {
             const nicknameElement = block.querySelector('.nickname .text-wrapper');
@@ -166,7 +166,7 @@ class TelegramUserData {
             }
         });
 
-        // Обновляем все блоки acc-info
+        // РћР±РЅРѕРІР»СЏРµРј РІСЃРµ Р±Р»РѕРєРё acc-info
         const accInfoBlocks = document.querySelectorAll('.acc-info');
         accInfoBlocks.forEach(block => {
             const nickElement = block.querySelector('.nick .text-wrapper');
@@ -187,13 +187,13 @@ class TelegramUserData {
             }
         });
 
-        // Обновляем другие варианты блоков с никнеймами
+        // РћР±РЅРѕРІР»СЏРµРј РґСЂСѓРіРёРµ РІР°СЂРёР°РЅС‚С‹ Р±Р»РѕРєРѕРІ СЃ РЅРёРєРЅРµР№РјР°РјРё
         const devBlocks = document.querySelectorAll('.dev .text-wrapper');
         devBlocks.forEach(block => {
             block.textContent = this.getDisplayName();
         });
 
-        // Обновляем аватары в списках игроков
+        // РћР±РЅРѕРІР»СЏРµРј Р°РІР°С‚Р°СЂС‹ РІ СЃРїРёСЃРєР°С… РёРіСЂРѕРєРѕРІ
         const playerAvatars = document.querySelectorAll('.acc-inf .avatar-2, .acc-inf .avatar-3, .acc-inf .avatar-4');
         playerAvatars.forEach(avatar => {
             if (this.getPhotoUrl()) {
@@ -203,7 +203,7 @@ class TelegramUserData {
             }
         });
 
-        // Обновляем никнеймы в списках игроков (маскируем для приватности)
+        // РћР±РЅРѕРІР»СЏРµРј РЅРёРєРЅРµР№РјС‹ РІ СЃРїРёСЃРєР°С… РёРіСЂРѕРєРѕРІ (РјР°СЃРєРёСЂСѓРµРј РґР»СЏ РїСЂРёРІР°С‚РЅРѕСЃС‚Рё)
         const playerNicks = document.querySelectorAll('.acc-inf .text-wrapper-22, .acc-inf .text-wrapper-26, .acc-inf .text-wrapper-37, .acc-inf .text-wrapper-40');
         playerNicks.forEach(nick => {
             const displayName = this.getDisplayName();
@@ -219,29 +219,29 @@ class TelegramUserData {
     }
 }
 
-// Ждем загрузки Telegram API перед созданием экземпляра
+// Р–РґРµРј Р·Р°РіСЂСѓР·РєРё Telegram API РїРµСЂРµРґ СЃРѕР·РґР°РЅРёРµРј СЌРєР·РµРјРїР»СЏСЂР°
 function initTelegramUser() {
     if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
         window.TelegramUser = new TelegramUserData();
-        window.TelegramUser.init(); // Вызываем init после создания
+        window.TelegramUser.init(); // Р’С‹Р·С‹РІР°РµРј init РїРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ
     } else {
-        // Если API еще не загружен, ждем
+        // Р•СЃР»Рё API РµС‰Рµ РЅРµ Р·Р°РіСЂСѓР¶РµРЅ, Р¶РґРµРј
         setTimeout(initTelegramUser, 100);
     }
 }
 
-// Запускаем инициализацию
+// Р—Р°РїСѓСЃРєР°РµРј РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ
 initTelegramUser();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Инициализируем Telegram WebApp если доступен
+    // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј Telegram WebApp РµСЃР»Рё РґРѕСЃС‚СѓРїРµРЅ
     if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
     }
     
-    // Ждем создания экземпляра TelegramUser
+    // Р–РґРµРј СЃРѕР·РґР°РЅРёСЏ СЌРєР·РµРјРїР»СЏСЂР° TelegramUser
     const checkTelegramUser = () => {
         if (window.TelegramUser) {
             window.TelegramUser.updateUI();
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkTelegramUser();
 });
 
-// Дополнительная проверка через 3 секунды
+// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РїСЂРѕРІРµСЂРєР° С‡РµСЂРµР· 3 СЃРµРєСѓРЅРґС‹
 setTimeout(() => {
     if (window.TelegramUser) {
         if (!window.TelegramUser.getUserId() || window.TelegramUser.getUserId() === 123456789) {
@@ -261,3 +261,4 @@ setTimeout(() => {
         }
     }
 }, 3000);
+

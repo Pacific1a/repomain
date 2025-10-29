@@ -340,13 +340,9 @@
     return div;
   }
 
-  // Маскировка имени
+  // Показываем имя полностью без маскирования
   function maskPlayerName(name) {
-    if (!name || name.length <= 2) return name;
-    const first = name[0];
-    const last = name[name.length - 1];
-    const middle = '*'.repeat(Math.min(name.length - 2, 3));
-    return `${first}${middle}${last}`;
+    return name || 'Player';
   }
 
   // Инициализация вкладок

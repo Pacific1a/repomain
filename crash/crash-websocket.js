@@ -820,22 +820,23 @@
           avatarHTML = `<div class="avatar-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${initial}</div>`;
         }
         
-        // Маскируем ник
-        const maskedNick = player.nickname.length > 2 
-          ? player.nickname[0] + '***' + player.nickname[player.nickname.length - 1]
-          : player.nickname;
-        
+        // Показываем ник ПОЛНОСТЬЮ без маскирования
         const multiplierText = player.multiplier ? `${player.multiplier.toFixed(2)}x` : '-';
         const cashoutText = player.cashout ? player.cashout : '-';
+        
+        // Применяем цветовую индикацию: выигрыш - зелёный, без выигрыша - серый
+        const hasCashout = player.cashout && player.cashout > 0;
+        const multiplierClass = hasCashout ? 'text-wrapper-24' : 'text-wrapper-24';
+        const cashoutClass = hasCashout ? 'text-wrapper-25' : 'text-wrapper-24';
         
         playerEl.innerHTML = `
           <div class="acc-inf">
             <div class="div-wrapper-2">${avatarHTML}</div>
-            <div class="div-wrapper-3"><div class="text-wrapper-22">${maskedNick}</div></div>
+            <div class="div-wrapper-3"><div class="text-wrapper-22">${player.nickname}</div></div>
           </div>
           <div class="div-wrapper-3"><div class="text-wrapper-23">${player.bet}</div></div>
-          <div class="div-wrapper-3"><div class="text-wrapper-24">${multiplierText}</div></div>
-          <div class="div-wrapper-4"><div class="text-wrapper-25">${cashoutText}</div></div>
+          <div class="div-wrapper-3"><div class="${multiplierClass}">${multiplierText}</div></div>
+          <div class="div-wrapper-4"><div class="${cashoutClass}">${cashoutText}</div></div>
         `;
         
         playerEl._lastBet = player.bet;

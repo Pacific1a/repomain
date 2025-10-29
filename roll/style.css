@@ -1,14 +1,28 @@
 /* Loss styles to mirror win blocks */
-.previos .win,
+.previos .win {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0px;
+  border-radius: 12px;
+  background: #407b3d88;
+  width: 100% !important;
+}
+
 .previos .default {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 0px;
   border-radius: 12px;
-  background: rgba(34,34,34,0.6);
+  background: linear-gradient(90deg, #161414 0%, #161515 100%);
   width: 100% !important;
+}
+
+.previos .default.lost {
+  background: linear-gradient(90deg, #352323 0%, #402626 100%);
 }
 
 /* Red accent for lost rows */
@@ -29,13 +43,13 @@
 /* Keep typography consistent inside rows */
 .previos .acc-inf { display: flex; align-items: center; gap: 10px; }
 .previos .avatar-wrapper { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; }
-.previos .avatar-2 { width: 28px; height: 28px; border-radius: 50%; background: #777; }
+.previos .avatar-2 { width: 25px; height: 25px; border-radius: 12.5px; background: #777; }
 .previos .n-k-2 { font-family: 'Montserrat', Helvetica; font-weight: 600; color: #fff; font-size: 14px; }
 .previos .text-wrapper-14, /* bet amount */
 .previos .element-3 { /* win amount */
   font-family: 'Montserrat', Helvetica;
   font-weight: 600;
-  color: #eaeaea;
+  color: #AEAEAE;
   font-size: 14px;
   text-align: right;
 }
@@ -1038,31 +1052,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   position: relative;
   align-self: stretch;
   width: 100%;
-  flex: 0 0 auto;
+  max-height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 5px;
 }
 
-.roll-playing .win {
-  display: flex;
-  width: 358px;
-  height: 27px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px;
-  position: relative;
-  margin-left: -4.00px;
-  margin-right: -4.00px;
-  border-radius: 13.5px;
-  background: linear-gradient(
-      90deg,
-      rgba(64, 123, 61, 0.3) 0%,
-      rgba(84, 164, 80, 0.3) 100%
-    ), linear-gradient(90deg, rgba(22, 20, 20, 1) 0%, rgba(22, 21, 21, 1) 100%);
+/* Custom scrollbar styling */
+.roll-playing .user-templates::-webkit-scrollbar {
+  width: 6px;
 }
+
+.roll-playing .user-templates::-webkit-scrollbar-track {
+  background: rgba(22, 20, 20, 0.5);
+  border-radius: 3px;
+}
+
+.roll-playing .user-templates::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.roll-playing .user-templates::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+
 
 .roll-playing .acc-inf {
   display: flex;
@@ -1082,18 +1102,7 @@
   flex: 0 0 auto;
 }
 
-.roll-playing .avatar-2 {
-  position: relative;
-  width: 19px;
-  height: 19px;
-  border-radius: 9.5px;
-  box-shadow: 0px 1px 3px #bbbbbb1a, 0px 1px 5px #bbbbbb17;
-  background: linear-gradient(
-    180deg,
-    rgba(125, 125, 125, 1) 0%,
-    rgba(162, 162, 162, 1) 100%
-  );
-}
+
 
 .roll-playing .n-k {
   display: flex;
@@ -1126,7 +1135,7 @@
   flex: 1;
   text-shadow: 0px 1px 4px #00000038;
   font-weight: 500;
-  color: #aeaeae;
+  color: #AEAEAE;
   font-size: 10px;
   text-align: center;
   letter-spacing: -0.30px;
@@ -1159,7 +1168,7 @@
   text-shadow: 0px 1px 4px #00000038;
   font-family: "Montserrat", Helvetica;
   font-weight: 500;
-  color: #aeaeae;
+  color: #AEAEAE;
   font-size: 10px;
   text-align: right;
   letter-spacing: -0.30px;

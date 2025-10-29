@@ -499,6 +499,11 @@
     winItem.appendChild(winImg);
     
     console.log('🏆 Showing win:', wonPrize + '₽', window.winningColor);
+    
+    // Отправляем выигрыш через WebSocket всем пользователям
+    if (window.LivePrizes) {
+      window.LivePrizes.broadcastWin(wonPrize, currentCase.isChipsCase, window.winningColor);
+    }
 
     // Устанавливаем начальное состояние для анимации появления
     winWindow.style.display = 'flex';

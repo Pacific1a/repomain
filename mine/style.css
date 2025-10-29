@@ -1353,32 +1353,33 @@ a:focus {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 5px;
+  gap: 4px;
   position: relative;
   align-self: stretch;
   width: 100%;
-  max-height: 90px;
+  max-height: 100px;
   overflow-y: auto;
   overflow-x: hidden;
+  padding-right: 5px;
 }
 
-/* Стили для скроллбара */
+/* Custom scrollbar styling */
 .mines .user-templates::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .mines .user-templates::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 2px;
+  background: rgba(22, 20, 20, 0.5);
+  border-radius: 3px;
 }
 
 .mines .user-templates::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
 }
 
 .mines .user-templates::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .mines .div-4 {
@@ -1386,17 +1387,39 @@ a:focus {
   height: 27px;
   align-items: center;
   justify-content: space-between;
-  padding: 4px;
+  padding: 0px;
   position: relative;
   align-self: stretch;
   width: 100%;
   border-radius: 13.5px;
-  background: linear-gradient(
-      90deg,
-      rgba(22, 20, 20, 1) 0%,
-      rgba(22, 21, 21, 1) 100%
-    )
-   
+  background: linear-gradient(90deg, #161414 0%, #161515 100%);
+}
+
+/* Выигрыш */
+.mines .element-5 {
+  display: flex;
+  height: 27px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  border-radius: 13.5px;
+}
+
+/* Проигрыш */
+.mines .div-wrapper-4 {
+  display: flex;
+  height: 27px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  border-radius: 13.5px;
+  background: linear-gradient(90deg, #352323 0%, #402626 100%);
 }
 
 .mines .acc-inf {
@@ -1446,7 +1469,7 @@ a:focus {
 .mines .text-wrapper-37 {
   font-family: "Montserrat", Helvetica;
   font-weight: 500;
-  color: #aeaeae;
+  color: #AEAEAE;
   font-size: 10px;
   letter-spacing: -0.30px;
   line-height: normal;
@@ -1458,7 +1481,7 @@ a:focus {
   position: relative;
   flex: 1;
   font-weight: 500;
-  color: #aeaeae;
+  color: #AEAEAE;
   font-size: 10px;
   text-align: center;
   letter-spacing: -0.30px;
@@ -1484,11 +1507,11 @@ a:focus {
   margin-top: -0.50px;
   font-family: "Montserrat", Helvetica;
   font-weight: 500;
-  color: #aeaeae;
   font-size: 10px;
   text-align: right;
   letter-spacing: -0.30px;
   line-height: normal;
+  color: #ca3959;
 }
 
 .mines .avatar-3 {
@@ -1502,9 +1525,9 @@ a:focus {
 
 .mines .avatar-4 {
   position: relative;
-  width: 19px;
-  height: 19px;
-  border-radius: 9.5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 12.5px;
   box-shadow: 0px 1px 3px #bbbbbb1a, 0px 1px 5px #bbbbbb17;
   background: linear-gradient(
     180deg,
@@ -1517,7 +1540,7 @@ a:focus {
   text-shadow: 0px 1px 4px #00000038;
   font-family: "Montserrat", Helvetica;
   font-weight: 500;
-  color: #aeaeae;
+  color: #AEAEAE;
   font-size: 10px;
   letter-spacing: -0.30px;
   line-height: normal;
@@ -1543,7 +1566,7 @@ a:focus {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0px 3px;
+  padding: 0px 15px;
   position: relative;
   flex: 1;
   align-self: stretch;
@@ -1555,12 +1578,12 @@ a:focus {
   flex: 1;
   text-shadow: 0px 1px 4px #00000038;
   font-weight: 500;
-  color: #53a24f;
   font-size: 10px;
   text-align: right;
   letter-spacing: -0.30px;
   font-family: "Montserrat", Helvetica;
   line-height: normal;
+  color: #54A450;
 }
 
 .mines .menu {

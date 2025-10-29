@@ -299,10 +299,10 @@
         
         let avatarHTML = '';
         if (player.photoUrl) {
-          avatarHTML = `<div class="avatar-2" style="background-image: url(${player.photoUrl}); background-size: cover; background-position: center; width: 32px; height: 32px; border-radius: 50%;"></div>`;
+          avatarHTML = `<div class="avatar-2" style="background-image: url(${player.photoUrl}); background-size: cover; background-position: center; width: 25px; height: 25px; border-radius: 50%;"></div>`;
         } else {
           const initial = player.nickname ? player.nickname[0].toUpperCase() : 'P';
-          avatarHTML = `<div class="avatar-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; width: 32px; height: 32px; border-radius: 50%; font-size: 16px;">${initial}</div>`;
+          avatarHTML = `<div class="avatar-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; width: 25px; height: 25px; border-radius: 50%; font-size: 16px;">${initial}</div>`;
         }
         
         // В Live Bets показываем только ник и аватарку, в Previos - полную информацию

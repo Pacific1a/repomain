@@ -155,22 +155,14 @@ class SpeedCashGame {
                 this.blueDetained = false;
                 this.orangeDetained = false;
                 
-                // Сбрасываем позиции машин
+                // НЕ сбрасываем позиции машин визуально!
+                // Они будут установлены в startBettingPhase
                 this.bluePosition = 0;
                 this.orangePosition = 0;
-                if (this.blueCar) {
-                    this.blueCar.style.transform = 'translateY(0px)';
-                }
-                if (this.orangeCar) {
-                    this.orangeCar.style.transform = 'translateY(0px)';
-                }
                 
                 // Удаляем иконки задержания
                 const crashIcons = document.querySelectorAll('.crash-icon');
                 crashIcons.forEach(icon => icon.remove());
-                
-                // Обрабатываем ставки из очереди
-                this.processQueuedBets();
                 
                 // Очищаем старый таймер
                 if (this.bettingTimer) {
@@ -197,66 +189,22 @@ class SpeedCashGame {
                 }
             });
             
-            // Обновление таймера
+            // Обновление таймера - обновляем визуал
             this.socket.on('speedcash_betting_timer', (data) => {
                 this.bettingTimeLeft = data.timeLeft;
-                const countdownText = document.querySelector('.countdown-text');
-                if (countdownText) {
-                    countdownText.textContent = this.bettingTimeLeft;
-                }
+                this.updateCountdown();
             });
             
-            // Начало гонки
+            // Начало гонки - WebSocket управление!
             this.socket.on('speedcash_race_start', (data) => {
-                console.log('🏁 Начало гонки:', data);
-                this.gameState = 'racing';
+                console.log('🏁 WebSocket: race_start → запускаем гонку');
                 
-                // Инициализируем множители
-                this.blueMultiplier = 1.00;
-                this.orangeMultiplier = 1.00;
+                // Сохраняем какая машина будет задержана
                 this.delayedCar = data.delayedCar;
-                this.updateMultiplierDisplays();
                 
-                // Сбрасываем состояние игры
-                this.gameEnded = false;
-                this.blueEscaped = false;
-                this.orangeEscaped = false;
-                this.blueDetained = false;
-                this.orangeDetained = false;
-                this.escapeTextShown = false;
-                
-                // Скрываем countdown
+                // Скрываем countdown и запускаем гонку
                 this.hideCountdown();
-                
-                // Показываем игру
-                const raceArea = document.querySelector('.race');
-                if (raceArea) {
-                    raceArea.classList.remove('countdown-mode');
-                    raceArea.classList.add('game-active');
-                }
-                
-                const roadLines = document.getElementById('roadLines');
-                if (roadLines) {
-                    roadLines.classList.add('visible');
-                }
-                
-                // Запускаем анимацию
-                this.startTime = Date.now();
-                this.racePhaseEndTime = this.startTime + 8000;
-                
-                // Останавливаем старые анимации
-                if (this.animationId) {
-                    cancelAnimationFrame(this.animationId);
-                    this.animationId = null;
-                }
-                if (this.roadAnimationId) {
-                    cancelAnimationFrame(this.roadAnimationId);
-                    this.roadAnimationId = null;
-                }
-                
-                // Запускаем новые анимации
-                this.animateRace();
-                this.animateRoadLines();
+                this.startRace();
             });
         } else {
             console.log('⚠️ WebSocket не доступен - локальный режим');
@@ -268,12 +216,44 @@ class SpeedCashGame {
     }
     
     syncWithServer(data) {
-        this.hideGlassLoader();
+        console.log('🔄 syncWithServer вызван:', data.status);
         
         if (data.status === 'betting' || data.status === 'waiting') {
+            console.log('✅ Сервер в состоянии BETTING - показываем countdown');
+            this.hideGlassLoader();
+            
             // Фаза ставок
             this.gameState = 'betting';
             this.bettingTimeLeft = data.timeLeft || 5;
+            
+            // ❗ ОСТАНАВЛИВАЕМ ВСЕ АНИМАЦИИ
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+            if (this.roadAnimationId) {
+                cancelAnimationFrame(this.roadAnimationId);
+                this.roadAnimationId = null;
+            }
+            
+            // Переходим в режим countdown
+            const raceArea = document.querySelector('.race');
+            if (raceArea) {
+                raceArea.classList.add('countdown-mode');
+                raceArea.classList.remove('game-active');
+            }
+            
+            // Ставим машины на 150px и скрываем дорогу
+            if (this.blueCar) {
+                this.blueCar.style.transform = 'translate3d(0, 150px, 0)';
+            }
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = 'translate3d(0, 150px, 0)';
+            }
+            if (this.roadLinesContainer) {
+                this.roadLinesContainer.style.display = 'none';
+                this.roadLinesContainer.classList.remove('visible');
+            }
             
             // Инициализируем множители
             this.blueMultiplier = 1.00;
@@ -285,78 +265,69 @@ class SpeedCashGame {
                 clearTimeout(this.bettingTimer);
             }
             
-            // Показываем countdown
+            // Показываем countdown с правильным временем
             this.showCountdown();
+            this.updateCountdown();
             
-            // Обновляем countdown с правильным временем
-            const countdownText = document.querySelector('.countdown-text');
-            if (countdownText) {
-                countdownText.textContent = this.bettingTimeLeft;
-            }
-            
-            // Запускаем таймер с правильной позиции
-            const countdown = () => {
-                if (this.bettingTimeLeft > 0) {
-                    this.bettingTimeLeft--;
-                    this.updateCountdown();
-                    this.bettingTimer = setTimeout(countdown, 1000);
-                } else {
-                    this.hideCountdown();
-                    this.startRace();
-                }
-            };
-            countdown();
+            console.log(`📟 Countdown показан с временем: ${this.bettingTimeLeft} сек`);
         } else if (data.status === 'racing' || data.status === 'playing') {
-            // Гонка идет
+            console.log('🏁 Сервер в состоянии RACING - показываем гонку в реальном времени!');
+            
+            // СКРЫВАЕМ SKELETON!
+            this.hideGlassLoader();
+            
+            // Устанавливаем состояние гонки
             this.gameState = 'racing';
             this.blueMultiplier = data.blueMultiplier || 1.00;
             this.orangeMultiplier = data.orangeMultiplier || 1.00;
-            this.updateMultiplierDisplays();
+            this.delayedCar = data.delayedCar;
             
-            // Устанавливаем правильное состояние кнопок при синхронизации
-            // Если есть активная ставка - Cash Out enabled, если нет - Bet disabled
-            if (this.currentBlueBet) {
-                this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
-            } else {
-                this.updateBetButton('blue', 'bet', this.blueBet, true);
-            }
-            if (this.currentOrangeBet) {
-                this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
-            } else {
-                this.updateBetButton('orange', 'bet', this.orangeBet, true);
-            }
-            if (this.currentSingleBet) {
-                this.updateSingleButton('cashout', this.currentSingleBet, false);
-            } else {
-                this.updateSingleButton('bet', this.singleBet, true);
+            // Скрываем countdown
+            const countdown = document.querySelector('.countdown-wrapper');
+            if (countdown) {
+                countdown.style.display = 'none';
             }
             
-            // Скрываем countdown, показываем игру
-            this.hideCountdown();
+            // Показываем игровое поле
             const raceArea = document.querySelector('.race');
             if (raceArea) {
                 raceArea.classList.remove('countdown-mode');
                 raceArea.classList.add('game-active');
             }
             
-            const roadLines = document.getElementById('roadLines');
-            if (roadLines) {
-                roadLines.classList.add('visible');
+            // Машины начинают с центра (0px в racing состоянии)
+            this.bluePosition = 0;
+            this.orangePosition = 0;
+            
+            if (this.blueCar) {
+                this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
+                this.blueCar.style.top = '';
+            }
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
+                this.orangeCar.style.top = '';
             }
             
-            // Запускаем анимацию
-            if (!this.animationId) {
-                // Останавливаем старые анимации на всякий случай
-                if (this.roadAnimationId) {
-                    cancelAnimationFrame(this.roadAnimationId);
-                    this.roadAnimationId = null;
-                }
-                
-                this.startTime = Date.now() - (data.elapsed || 0);
-                this.racePhaseEndTime = this.startTime + 8000;
-                this.animateRace();
-                this.animateRoadLines();
+            // Показываем дорогу
+            if (this.roadLinesContainer) {
+                this.roadLinesContainer.style.display = 'block';
+                this.roadLinesContainer.classList.add('visible');
             }
+            
+            // Обновляем множители
+            this.updateMultiplierDisplays();
+            
+            // Сбрасываем счетчики для плавного движения
+            this.blueChangeCounter = 0;
+            this.orangeChangeCounter = 0;
+            
+            // Запускаем анимации
+            this.startTime = Date.now() - 2000;
+            this.raceStartAnimation = false;
+            this.animateRace();
+            this.animateRoadLines();
+            
+            console.log('✅ Гонка отображается в реальном времени');
         }
     }
     
@@ -364,6 +335,7 @@ class SpeedCashGame {
         const gameElement = document.querySelector('.game');
         if (!gameElement) return;
         
+        // Один большой skeleton на всё окно
         const loader = document.createElement('div');
         loader.className = 'glass-loader';
         loader.style.cssText = `
@@ -372,48 +344,62 @@ class SpeedCashGame {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+            background: linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.85) 0%,
+                rgba(30, 30, 30, 0.9) 50%,
+                rgba(0, 0, 0, 0.85) 100%
+            );
+            background-size: 200% 100%;
+            animation: skeletonShimmer 2.5s ease-in-out infinite;
+            backdrop-filter: blur(20px) saturate(150%);
+            -webkit-backdrop-filter: blur(20px) saturate(150%);
             border-radius: 20px;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-out forwards, skeletonShimmer 2.5s ease-in-out infinite;
+            overflow: hidden;
         `;
         
-        const spinner = document.createElement('div');
-        spinner.style.cssText = `
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ffffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        `;
-        
-        // Добавляем CSS анимацию
-        if (!document.getElementById('spinnerAnimation')) {
+        // Добавляем CSS анимации
+        if (!document.getElementById('glassLoaderAnimation')) {
             const style = document.createElement('style');
-            style.id = 'spinnerAnimation';
+            style.id = 'glassLoaderAnimation';
             style.textContent = `
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: scale(1); }
+                    to { opacity: 0; transform: scale(0.95); }
+                }
+                @keyframes skeletonShimmer {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                }
             `;
             document.head.appendChild(style);
         }
         
-        loader.appendChild(spinner);
         gameElement.appendChild(loader);
         this.glassLoader = loader;
     }
     
     hideGlassLoader() {
         if (this.glassLoader && this.glassLoader.parentNode) {
-            this.glassLoader.parentNode.removeChild(this.glassLoader);
-            this.glassLoader = null;
+            // Плавное исчезновение
+            this.glassLoader.style.animation = 'fadeOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                if (this.glassLoader && this.glassLoader.parentNode) {
+                    this.glassLoader.parentNode.removeChild(this.glassLoader);
+                    this.glassLoader = null;
+                }
+            }, 300);
         }
     }
 
@@ -432,13 +418,11 @@ class SpeedCashGame {
         this.countdownText = document.querySelector('.countdown-text');
         this.gameElement = document.querySelector('.game');
         
-        // Enable GPU acceleration for cars
+        // Enable GPU acceleration for cars (НЕ трогаем transform!)
         if (this.blueCar) {
-            this.blueCar.style.transform = 'translateZ(0)';
             this.blueCar.style.willChange = 'transform';
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = 'translateZ(0)';
             this.orangeCar.style.willChange = 'transform';
         }
         
@@ -569,24 +553,39 @@ class SpeedCashGame {
             this.raceArea.classList.remove('game-active');
         }
         
+        // Скрываем дорогу во время countdown
         if (this.roadLinesContainer) {
             this.roadLinesContainer.classList.remove('visible');
+            this.roadLinesContainer.style.display = 'none';
         }
         
-        // Show countdown
-        this.showCountdown();
-        const countdown = () => {
-            if (this.bettingTimeLeft > 0) {
-                this.bettingTimeLeft--;
-                this.updateCountdown();
-                this.bettingTimer = setTimeout(countdown, 1000);
-            } else {
-                this.hideCountdown();
-                this.startRace();
-            }
-        };
+        // Ставим машины так, чтобы половина была видна (150px)
+        if (this.blueCar) {
+            this.blueCar.style.transform = 'translate3d(0, 150px, 0)';
+            this.blueCar.style.opacity = '1';
+            this.blueCar.style.transition = '';
+        }
+        if (this.orangeCar) {
+            this.orangeCar.style.transform = 'translate3d(0, 150px, 0)';
+            this.orangeCar.style.opacity = '1';
+            this.orangeCar.style.transition = '';
+        }
         
-        countdown();
+        // Показываем множители
+        if (this.blueMultiplierDisplay) {
+            this.blueMultiplierDisplay.style.opacity = '1';
+            this.blueMultiplierDisplay.textContent = 'x1.00';
+        }
+        if (this.orangeMultiplierDisplay) {
+            this.orangeMultiplierDisplay.style.opacity = '1';
+            this.orangeMultiplierDisplay.textContent = 'x1.00';
+        }
+        
+        // Show countdown (только визуал, управление через WebSocket!)
+        this.showCountdown();
+        
+        // НЕ запускаем локальный таймер!
+        // WebSocket событие 'speedcash_race_start' запустит startRace()
     }
 
 
@@ -802,10 +801,25 @@ class SpeedCashGame {
     }
 
     startRace() {
-        this.gameState = 'racing';
-        this.raceStartTime = Date.now();
-        this.startTime = this.raceStartTime;
-        this.racePhaseEndTime = this.raceStartTime + 8000;
+        console.log('🏁 startRace() вызван');
+        
+        // ❗ ПЕРВЫМ ДЕЛОМ ОСТАНАВЛИВАЕМ ВСЕ АНИМАЦИИ!
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        if (this.roadAnimationId) {
+            cancelAnimationFrame(this.roadAnimationId);
+            this.roadAnimationId = null;
+        }
+        console.log('⏹️ Все анимации остановлены');
+        
+        // Очищаем таймер если есть
+        if (this.bettingTimer) {
+            clearTimeout(this.bettingTimer);
+            this.bettingTimer = null;
+        }
+        
         this.gameEnded = false;
         this.blueEscaped = false;
         this.orangeEscaped = false;
@@ -820,20 +834,26 @@ class SpeedCashGame {
             this.raceArea.classList.add('game-active');
         }
         
+        // Скрываем дорогу (будет показана в конце startRace)
         if (this.roadLinesContainer) {
-            this.roadLinesContainer.classList.add('visible');
+            this.roadLinesContainer.style.display = 'none';
+            this.roadLinesContainer.classList.remove('visible');
         }
         
         // Reset positions and set initial multipliers
-        this.bluePosition = 0;
-        this.orangePosition = 0;
+        // Машины стартуют с позиции 150px (половина видна)
+        // В течение 1.5 секунд плавно поднимаются до 0px (рабочая позиция)
+        this.bluePosition = 150;
+        this.orangePosition = 150;
+        this.raceStartOffset = 150; // Начальное смещение (половина видна)
+        this.raceStartAnimation = true; // Флаг начальной анимации
         
-        // Сразу сбрасываем позиции машин в DOM чтобы избежать дергания
+        // СРАЗУ ставим машины визуально на 150px (половина видна)
         if (this.blueCar) {
-            this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
+            this.blueCar.style.transform = 'translate3d(0, 150px, 0)';
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
+            this.orangeCar.style.transform = 'translate3d(0, 150px, 0)';
         }
         
         this.blueMultiplier = 1.00;
@@ -882,26 +902,72 @@ class SpeedCashGame {
             this.updateSingleButton('bet', this.singleBet, true);
         }
         
-        // Останавливаем старые анимации перед запуском новых
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-        if (this.roadAnimationId) {
-            cancelAnimationFrame(this.roadAnimationId);
-            this.roadAnimationId = null;
+        // СРАЗУ запускаем гонку (без задержки!)
+        console.log('✅ ЗАПУСКАЕМ ГОНКУ - выезд машин + рост иксов!');
+        
+        // Меняем состояние на racing
+        this.gameState = 'racing';
+        this.raceStartTime = Date.now();
+        this.startTime = this.raceStartTime;
+        this.racePhaseEndTime = this.raceStartTime + 8000 + 1500; // +1.5 сек на выезд
+        
+        // ПОКАЗЫВАЕМ ДОРОГУ
+        if (this.roadLinesContainer) {
+            this.roadLinesContainer.style.display = 'block';
+            this.roadLinesContainer.classList.add('visible');
         }
         
-        // Start animations
+        // Запускаем анимации (выезд + рост иксов параллельно!)
         this.animateRace();
         this.animateRoadLines();
     }
 
     animateRace() {
-        if (this.gameState !== 'racing') return;
+        // Проверяем что gameState = 'racing', а не 'waiting_to_start'
+        if (this.gameState !== 'racing') {
+            console.log('⏸️ animateRace остановлен - gameState:', this.gameState);
+            return;
+        }
         
         const currentTime = Date.now();
         const elapsed = currentTime - this.startTime;
+        
+        // Начальная анимация выезда (первые 1.5 секунды) БЕЗ КОЛЕБАНИЙ!
+        if (this.raceStartAnimation && elapsed < 1500) {
+            const progress = elapsed / 1500; // 0 → 1
+            const easeOut = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+            const offset = this.raceStartOffset * (1 - easeOut); // 150 → 0
+            
+            // Обновляем позиции СТРОГО БЕЗ КОЛЕБАНИЙ (только выезд)
+            if (this.blueCar) {
+                this.blueCar.style.transform = `translate3d(0, ${offset}px, 0)`;
+            }
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = `translate3d(0, ${offset}px, 0)`;
+            }
+            
+            // Continue animation (БЕЗ обновления иксов!)
+            this.animationId = requestAnimationFrame(() => this.animateRace());
+            return;
+        }
+        
+        // Заканчиваем начальную анимацию - машины СТРОГО на 0px
+        if (this.raceStartAnimation) {
+            this.raceStartAnimation = false;
+            this.bluePosition = 0;
+            this.orangePosition = 0;
+            
+            // Устанавливаем машины СТРОГО на 0px (чтобы не было дёрганий)
+            if (this.blueCar) {
+                this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
+            }
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
+            }
+            
+            this.racePhaseEndTime = currentTime + 8000;
+            console.log('✅ Машины на позиции 0px, начинается гонка!');
+        }
         
         // Determine racing phase (first 8 seconds)
         this.racingPhase = currentTime < this.racePhaseEndTime;
@@ -910,8 +976,8 @@ class SpeedCashGame {
         const blueDelayed = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
         const orangeDelayed = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
 
-        // Increment multipliers ONLY in local mode (no server)
-        if (!this.gameEnded && !this.socket) {
+        // Increment multipliers СРАЗУ когда racing (параллельно с выездом!)
+        if (!this.gameEnded && !this.socket && this.gameState === 'racing') {
             const baseIncrease = 0.00015 + Math.random() * 0.00025;
 
             // Blue множитель
@@ -939,66 +1005,181 @@ class SpeedCashGame {
             this.lastMultiplierUpdate = currentTime;
         }
         
-        // Движение машин - упрощенная формула для мобильных
-        if (this.isMobile) {
-            // Упрощенная анимация для мобильных (только 2 sin вместо 6)
-            const t = elapsed * 0.001;
-            
-            // Blue car movement
-            if (this.blueEscaped) {
-                this.bluePosition -= 8;
-            } else if (this.blueDetained) {
-                this.bluePosition += 5;
-            } else {
-                const blueTarget = Math.sin(t) * 30;
-                this.bluePosition += (blueTarget - this.bluePosition) * 0.06;
+        // Движение машин
+        // Blue car movement
+        if (this.blueEscaped) {
+            // Уехала - едет ВВЕРХ (максимум -1000px)
+            this.bluePosition -= 8;
+            this.bluePosition = Math.max(-1000, this.bluePosition);
+            if (this.blueCar) {
+                this.blueCar.style.transform = `translate3d(0, ${this.bluePosition}px, 0)`;
+                this.blueCar.style.top = '';
             }
-            
-            // Orange car movement
-            if (this.orangeEscaped) {
-                this.orangePosition -= 8;
-            } else if (this.orangeDetained) {
-                this.orangePosition += 5;
-            } else {
-                const orangeTarget = Math.sin(t * 1.2) * 30;
-                this.orangePosition += (orangeTarget - this.orangePosition) * 0.06;
+        } else if (this.blueDetained) {
+            // Задержана - едет ВНИЗ (максимум +1000px)
+            this.bluePosition += 5;
+            this.bluePosition = Math.min(1000, this.bluePosition);
+            if (this.blueCar) {
+                this.blueCar.style.transform = `translate3d(0, ${this.bluePosition}px, 0)`;
+                this.blueCar.style.top = '';
             }
         } else {
-            // Полная анимация для десктопа
-            const t1 = elapsed * 0.0008;
-            const t2 = elapsed * 0.0013;
-            const t3 = elapsed * 0.0019;
-            const t4 = elapsed * 0.0011;
-            const t5 = elapsed * 0.0017;
-            const t6 = elapsed * 0.0023;
+            // Гонка - СТОЯНКА 1.1 сек, потом движение по 4 точкам
+            const elapsedTime = currentTime - this.startTime;
             
-            // Blue car movement
-            if (this.blueEscaped) {
-                this.bluePosition -= 8;
-            } else if (this.blueDetained) {
-                this.bluePosition += 5;
+            // Первые 2.6 секунды (выезд 1.5с + стоянка 1.1с) - стоим на 0px
+            if (elapsedTime < 2600) {
+                // Инициализируем offset как 0 (НЕ прыгаем!)
+                if (this.blueCurrentOffset === undefined) {
+                    this.blueCurrentOffset = 0;
+                }
+                
+                if (this.blueCar) {
+                    this.blueCar.style.transform = 'translate3d(0, 0px, 0)';
+                    this.blueCar.style.top = '';
+                }
             } else {
-                const blueTarget = Math.sin(t1) * 25 + Math.cos(t2) * 15 + Math.sin(t3) * 10;
-                this.bluePosition += (blueTarget - this.bluePosition) * 0.04;
-            }
-            
-            // Orange car movement
-            if (this.orangeEscaped) {
-                this.orangePosition -= 8;
-            } else if (this.orangeDetained) {
-                this.orangePosition += 5;
-            } else {
-                const orangeTarget = Math.sin(t4) * 20 + Math.cos(t5) * 18 + Math.sin(t6) * 12;
-                this.orangePosition += (orangeTarget - this.orangePosition) * 0.04;
+                // После 2.6 сек - плавное движение по 4 точкам
+                if (!this.blueWaypoints || this.blueWaypoints.length === 0) {
+                    // Начинаем с 0px (не прыгаем!)
+                    if (this.blueCurrentOffset === undefined) {
+                        this.blueCurrentOffset = 0;
+                    }
+                    
+                    this.blueCurrentWaypoint = 0;
+                    this.blueWaypoints = [];
+                    
+                    // Генерируем 4 точки с ±50px ОТ ТЕКУЩЕЙ позиции
+                    let currentPoint = this.blueCurrentOffset; // От 0px!
+                    for (let i = 0; i < 4; i++) {
+                        const offset = (Math.random() - 0.5) * 100; // ±50px
+                        currentPoint = currentPoint + offset;
+                        currentPoint = Math.max(-50, Math.min(50, currentPoint)); // -50 до +50px
+                        this.blueWaypoints.push(currentPoint);
+                    }
+                }
+                
+                // Целевая точка
+                const targetOffset = this.blueWaypoints[this.blueCurrentWaypoint];
+                
+                // ПЛАВНАЯ интерполяция (проскальзывание)
+                const diff = targetOffset - this.blueCurrentOffset;
+                this.blueCurrentOffset += diff * 0.01; // 1% - плавно
+                
+                // Переход к следующей точке
+                if (Math.abs(diff) < 0.5) {
+                    this.blueCurrentWaypoint++;
+                    
+                    // Генерируем новые 4 точки ОТ ТЕКУЩЕЙ позиции
+                    if (this.blueCurrentWaypoint >= this.blueWaypoints.length) {
+                        this.blueCurrentWaypoint = 0;
+                        this.blueWaypoints = [];
+                        
+                        let currentPoint = this.blueCurrentOffset;
+                        for (let i = 0; i < 4; i++) {
+                            const offset = (Math.random() - 0.5) * 100;
+                            currentPoint = currentPoint + offset;
+                            currentPoint = Math.max(-50, Math.min(50, currentPoint));
+                            this.blueWaypoints.push(currentPoint);
+                        }
+                    }
+                }
+                
+                if (this.blueCar) {
+                    // Округляем до целых - убирает дерганье
+                    const roundedOffset = Math.round(this.blueCurrentOffset);
+                    this.blueCar.style.transform = `translate3d(0, ${roundedOffset}px, 0)`;
+                    this.blueCar.style.top = '';
+                }
             }
         }
         
-        // Use GPU-accelerated transforms with translate3d
-        if (this.blueCar) {
-            this.blueCar.style.transform = `translate3d(0, ${this.bluePosition}px, 0)`;
-        }
-        if (this.orangeCar) {
-            this.orangeCar.style.transform = `translate3d(0, ${this.orangePosition}px, 0)`;
+        // Orange car movement
+        if (this.orangeEscaped) {
+            // Уехала - едет ВВЕРХ (максимум -1000px)
+            this.orangePosition -= 8;
+            this.orangePosition = Math.max(-1000, this.orangePosition);
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = `translate3d(0, ${this.orangePosition}px, 0)`;
+                this.orangeCar.style.top = '';
+            }
+        } else if (this.orangeDetained) {
+            // Задержана - едет ВНИЗ (максимум +1000px)
+            this.orangePosition += 5;
+            this.orangePosition = Math.min(1000, this.orangePosition);
+            if (this.orangeCar) {
+                this.orangeCar.style.transform = `translate3d(0, ${this.orangePosition}px, 0)`;
+                this.orangeCar.style.top = '';
+            }
+        } else {
+            // Гонка - СТОЯНКА 1.1 сек, потом движение по 4 точкам (РАЗНЫЕ!)
+            const elapsedTime = currentTime - this.startTime;
+            
+            // Первые 2.6 секунды (выезд 1.5с + стоянка 1.1с) - стоим на 0px
+            if (elapsedTime < 2600) {
+                // Инициализируем offset как 0 (НЕ прыгаем!)
+                if (this.orangeCurrentOffset === undefined) {
+                    this.orangeCurrentOffset = 0;
+                }
+                
+                if (this.orangeCar) {
+                    this.orangeCar.style.transform = 'translate3d(0, 0px, 0)';
+                    this.orangeCar.style.top = '';
+                }
+            } else {
+                // После 2.6 сек - плавное движение по 4 точкам (РАЗНЫЕ!)
+                if (!this.orangeWaypoints || this.orangeWaypoints.length === 0) {
+                    // Начинаем с 0px (не прыгаем!)
+                    if (this.orangeCurrentOffset === undefined) {
+                        this.orangeCurrentOffset = 0;
+                    }
+                    
+                    this.orangeCurrentWaypoint = 0;
+                    this.orangeWaypoints = [];
+                    
+                    // Генерируем 4 РАЗНЫЕ точки с ±50px ОТ ТЕКУЩЕЙ позиции
+                    let currentPoint = this.orangeCurrentOffset; // От 0px!
+                    for (let i = 0; i < 4; i++) {
+                        const offset = (Math.random() - 0.5) * 100; // ±50px
+                        currentPoint = currentPoint + offset;
+                        currentPoint = Math.max(-50, Math.min(50, currentPoint)); // -50 до +50px
+                        this.orangeWaypoints.push(currentPoint);
+                    }
+                }
+                
+                // Целевая точка
+                const targetOffset = this.orangeWaypoints[this.orangeCurrentWaypoint];
+                
+                // ПЛАВНАЯ интерполяция (проскальзывание)
+                const diff = targetOffset - this.orangeCurrentOffset;
+                this.orangeCurrentOffset += diff * 0.01; // 1% - плавно
+                
+                // Переход к следующей точке
+                if (Math.abs(diff) < 0.5) {
+                    this.orangeCurrentWaypoint++;
+                    
+                    // Генерируем новые 4 точки ОТ ТЕКУЩЕЙ позиции
+                    if (this.orangeCurrentWaypoint >= this.orangeWaypoints.length) {
+                        this.orangeCurrentWaypoint = 0;
+                        this.orangeWaypoints = [];
+                        
+                        let currentPoint = this.orangeCurrentOffset;
+                        for (let i = 0; i < 4; i++) {
+                            const offset = (Math.random() - 0.5) * 100;
+                            currentPoint = currentPoint + offset;
+                            currentPoint = Math.max(-50, Math.min(50, currentPoint));
+                            this.orangeWaypoints.push(currentPoint);
+                        }
+                    }
+                }
+                
+                if (this.orangeCar) {
+                    // Округляем до целых - убирает дерганье
+                    const roundedOffset = Math.round(this.orangeCurrentOffset);
+                    this.orangeCar.style.transform = `translate3d(0, ${roundedOffset}px, 0)`;
+                    this.orangeCar.style.top = '';
+                }
+            }
         }
         
         // Continue animation
@@ -1140,7 +1321,9 @@ class SpeedCashGame {
     }
 
     showDroveAwayScreen() {
-        // Создаем экран DROVE AWAY (как waiting screen)
+        console.log('🚗 showDroveAwayScreen() вызван');
+        
+        // Показываем DROVE AWAY СРАЗУ
         const droveAwayScreen = document.createElement('div');
         droveAwayScreen.className = 'drove-away-screen';
         droveAwayScreen.style.cssText = `
@@ -1165,32 +1348,21 @@ class SpeedCashGame {
             font-family: 'Montserrat', sans-serif;
             letter-spacing: 2px;
             text-transform: uppercase;
-            animation: droveAwayPulse 1s ease-in-out;
         `;
         
         droveAwayScreen.appendChild(droveAwayText);
         document.querySelector('.race').appendChild(droveAwayScreen);
+        console.log('✅ DROVE AWAY показан');
         
-        // Добавляем CSS анимацию
-        if (!document.getElementById('droveAwayAnimation')) {
-            const style = document.createElement('style');
-            style.id = 'droveAwayAnimation';
-            style.textContent = `
-                @keyframes droveAwayPulse {
-                    0% { opacity: 0; }
-                    100% { opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        
-        // Удаляем через 1 секунду и заканчиваем игру
+        // Через 2 сек убираем DROVE AWAY и запускаем переход
         setTimeout(() => {
+            console.log('🔄 Убираем DROVE AWAY и запускаем новую игру');
             if (droveAwayScreen.parentNode) {
                 droveAwayScreen.parentNode.removeChild(droveAwayScreen);
             }
+            // ТЕПЕРЬ запускаем переход
             this.endGame();
-        }, 1000);
+        }, 2000);
     }
 
     endGame() {
@@ -1263,13 +1435,18 @@ class SpeedCashGame {
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
         
-        // Reset car positions СРАЗУ
+        // НЕ трогаем позиции машин! Они будут установлены в startBettingPhase
+        // Только возвращаем видимость
         if (this.blueCar) {
-            this.blueCar.style.transform = 'translateY(0px)';
+            this.blueCar.style.opacity = '1';
         }
         if (this.orangeCar) {
-            this.orangeCar.style.transform = 'translateY(0px)';
+            this.orangeCar.style.opacity = '1';
         }
+        
+        // Возвращаем видимость множителям
+        if (this.blueMultiplierDisplay) this.blueMultiplierDisplay.style.opacity = '1';
+        if (this.orangeMultiplierDisplay) this.orangeMultiplierDisplay.style.opacity = '1';
         
         // Clear any crash icons СРАЗУ
         const existingIcons = document.querySelectorAll('.crash-icon');
@@ -1285,6 +1462,7 @@ class SpeedCashGame {
         const roadLines = document.getElementById('roadLines');
         if (roadLines) {
             roadLines.classList.remove('visible');
+            roadLines.style.opacity = '1'; // Возвращаем opacity для следующей игры
         }
         
         // Запускаем новую фазу betting БЕЗ задержки
@@ -1358,6 +1536,19 @@ class SpeedCashGame {
     }
     
     hideCountdown() {
+        console.log('👋 hideCountdown() вызван');
+        
+        // Скрываем countdown полностью
+        const countdown = document.querySelector('.countdown-wrapper');
+        if (countdown) {
+            countdown.classList.remove('show');
+            setTimeout(() => {
+                countdown.style.display = 'none';
+                console.log('✅ Countdown скрыт');
+            }, 300);
+        }
+        
+        // Также меняем текст на GO!
         const countdownText = document.querySelector('.countdown-text');
         const countdownLabel = document.querySelector('.countdown-label');
         if (countdownText && countdownLabel) {
