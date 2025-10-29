@@ -15,27 +15,60 @@
     999: [400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000]
   };
 
-  const PRIZE_IMAGES = {
-    5000: { spin: 'main/img/5000r-red.png', preview: 'main/img/5000r-prewiew.png', win: 'main/img/win-5000r-red.png', color: 'red' },
-    4000: { spin: 'main/img/4000r-red.png', preview: 'main/img/4000r-prewiew.png', win: 'main/img/win-4000r-red.png', color: 'red' },
-    3000: { spin: 'main/img/3000r-red.png', preview: 'main/img/3000r-prewiew-red.png', win: 'main/img/win-3000r-red.png', color: 'red' },
-    2500: { spin: 'main/img/2500r-blue.png', preview: 'main/img/2500r-prewiew.png', win: 'main/img/win-2500r-blue.png', color: 'blue' },
-    2000: { spin: 'main/img/2000r-blue.png', preview: 'main/img/2000r-prewiew.png', win: 'main/img/win-2000r-blue.png', color: 'blue' },
-    1500: { spin: 'main/img/1500r-purple.png', preview: 'main/img/1500r-prewiew.png', win: 'main/img/win-1500r-purple.png', color: 'purple' },
-    1000: { spin: 'main/img/1000r-purple.png', preview: 'main/img/1000r-prewiew.png', win: 'main/img/win-1000r-purple.png', color: 'purple' },
-    888: { spin: 'main/img/888r-purple.png', preview: 'main/img/888r-prewiew.png', win: 'main/img/win-888r-purple.png', color: 'purple' },
-    777: { spin: 'main/img/777r-yellow.png', preview: 'main/img/777r-prewiew.png', win: 'main/img/win-777r-yellow.png', color: 'yellow' },
-    700: { spin: 'main/img/700r-purple.png', preview: 'main/img/700r-prewiew.png', win: 'main/img/win-700r-purple.png', color: 'purple' },
-    500: { spin: 'main/img/500r-yellow.png', preview: 'main/img/500r-prewiew.png', win: 'main/img/win-500r-yellow.png', color: 'yellow' },
-    400: { spin: 'main/img/400r-yellow.png', preview: 'main/img/400r-prewiew.png', win: 'main/img/win-400r-yellow.png', color: 'yellow' },
-    350: { spin: 'main/img/350r-yellow.png', preview: 'main/img/350r-prewiew.png', win: 'main/img/win-350r-yellow.png', color: 'yellow' },
-    300: { spin: 'main/img/300r-yellow.png', preview: 'main/img/300r-prewiew.png', win: 'main/img/win-300r-yellow.png', color: 'yellow' },
-    250: { spin: 'main/img/250r-gray.png', preview: 'main/img/250r-prewiew.png', win: 'main/img/win-250r-gray.png', color: 'gray' },
-    200: { spin: 'main/img/200r-gray.png', preview: 'main/img/200r-prewiew.png', win: 'main/img/win-200r-gray.png', color: 'gray' },
-    150: { spin: 'main/img/150r-gray.png', preview: 'main/img/150r-prewiew.png', win: 'main/img/win-150r-gray.png', color: 'gray' },
-    100: { spin: 'main/img/100r-gray.png', preview: 'main/img/100r-prewiew.png', win: 'main/img/win-100r-gray.png', color: 'gray' },
-    50: { spin: 'main/img/50r-gray.png', preview: 'main/img/50r-prewiew.png', win: 'main/img/win-50r-gray.png', color: 'gray' }
+  // Все доступные цвета для каждого номинала (проверено - все файлы существуют!)
+  const PRIZE_COLORS = {
+    5000: ['red'],                              // red везде
+    4000: ['blue'],                             // blue везде
+    3000: ['blue'],                             // blue везде
+    2500: ['red', 'blue'],                      // red + blue везде
+    2000: ['red', 'blue', 'purple'],            // red + blue + purple везде
+    1500: ['red', 'blue', 'purple'],            // red + blue + purple везде
+    1000: ['yellow', 'blue', 'purple'],         // yellow + blue + purple везде
+    888: ['yellow', 'blue', 'purple'],          // yellow + blue + purple везде
+    777: ['yellow', 'blue', 'purple'],          // yellow + blue + purple везде
+    700: ['yellow', 'gray', 'purple'],          // yellow + gray + purple везде
+    500: ['yellow', 'gray', 'purple'],          // yellow + gray + purple везде
+    400: ['yellow', 'gray', 'purple'],          // yellow + gray + purple везде
+    350: ['yellow', 'gray'],                    // yellow + gray везде
+    300: ['yellow', 'gray'],                    // yellow + gray везде
+    250: ['yellow', 'gray'],                    // yellow + gray везде
+    200: ['gray'],                              // gray везде
+    150: ['gray'],                              // gray везде
+    100: ['gray'],                              // gray везде
+    50: ['gray']                                // gray везде
   };
+
+  // Функция для получения рандомного цвета для номинала
+  function getRandomColor(prize) {
+    const colors = PRIZE_COLORS[prize];
+    if (!colors || colors.length === 0) return 'gray';
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  // Функция для получения путей к изображениям с учетом рандомного цвета
+  function getPrizeImages(prize) {
+    const color = getRandomColor(prize);
+    
+    // ВАЖНО: Папка называется purple, но ФАЙЛЫ внутри названы puple (с опечаткой!)
+    const previewColor = color === 'purple' ? 'puple' : color;
+    
+    const paths = {
+      spin: `main/Case-tokens/${color}/${prize}-r-${color}.png`,
+      preview: `main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
+      win: `main/win-tokens/${color}/${prize}-r-${color}.png`,
+      color: color
+    };
+    
+    // Для не-purple цветов используем обычный путь
+    if (color !== 'purple') {
+      paths.preview = `main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
+    }
+    
+    return paths;
+  }
+
+  // Кэш для хранения выбранных цветов (чтобы в рамках одной сессии цвет не менялся)
+  const prizeColorCache = {};
 
   let currentCase = null;
   let isSpinning = false;
@@ -114,7 +147,8 @@
       itemPreview.innerHTML = '';
       prizes.forEach(prize => {
         const img = document.createElement('img');
-        img.src = PRIZE_IMAGES[prize]?.preview || '';
+        const prizeData = getPrizeImages(prize);
+        img.src = prizeData.preview;
         img.alt = `${prize}₽`;
         itemPreview.appendChild(img);
       });
@@ -180,9 +214,11 @@
     const fragment = document.createDocumentFragment();
     duplicated.forEach(prize => {
       const img = document.createElement('img');
-      img.src = PRIZE_IMAGES[prize]?.spin || '';
+      const prizeData = getPrizeImages(prize);
+      img.src = prizeData.spin;
       img.alt = `${prize}₽`;
       img.dataset.value = prize;
+      img.dataset.color = prizeData.color; // Добавляем цвет в data-атрибут
       img.loading = 'lazy';
       fragment.appendChild(img);
     });
@@ -218,38 +254,116 @@
     const contentWindow = document.querySelector('.content-window-item');
     const images = contentWindow.querySelectorAll('img');
     
-    const itemWidth = 65;
     const containerWidth = document.querySelector('.content-window').offsetWidth;
     const centerPosition = containerWidth / 2;
     
-    const minIndex = Math.floor(images.length * 0.70);
-    const maxIndex = Math.floor(images.length * 0.80);
-    const winningIndex = Math.floor(Math.random() * (maxIndex - minIndex) + minIndex);
+    // НЕ создаем новую фишку! Ищем СУЩЕСТВУЮЩИЕ фишки с нужным номиналом в карусели
+    const matchingImages = [];
+    images.forEach((img, index) => {
+      if (parseInt(img.dataset.value) === wonPrize) {
+        matchingImages.push({ img, index });
+      }
+    });
     
-    const winningImg = document.createElement('img');
-    winningImg.src = PRIZE_IMAGES[wonPrize]?.spin || '';
-    winningImg.alt = `${wonPrize}₽`;
-    winningImg.dataset.value = wonPrize;
-    winningImg.loading = 'lazy';
-    winningImg.style.width = '60px';
-    winningImg.style.height = '60px';
-    winningImg.style.flexShrink = '0';
+    // Если нашли фишки с нужным номиналом - выбираем одну из них
+    let winningIndex;
+    let winningImg;
+    let winningColor;
     
-    if (images[winningIndex]) {
-      images[winningIndex].replaceWith(winningImg);
+    if (matchingImages.length > 0) {
+      // Выбираем случайную фишку нужного номинала из доступных в карусели
+      const randomMatch = matchingImages[Math.floor(Math.random() * matchingImages.length)];
+      winningIndex = randomMatch.index;
+      winningImg = randomMatch.img;
+      winningColor = winningImg.dataset.color;
+      console.log('✅ Found', matchingImages.length, 'matching images for', wonPrize + '₽', '→ selected index', winningIndex, 'color:', winningColor);
+    } else {
+      // Если не нашли (не должно быть) - используем старую логику
+      const minIndex = Math.floor(images.length * 0.70);
+      const maxIndex = Math.floor(images.length * 0.80);
+      winningIndex = Math.floor(Math.random() * (maxIndex - minIndex) + minIndex);
+      winningImg = images[winningIndex];
+      winningColor = winningImg.dataset.color || getRandomColor(wonPrize);
+      console.warn('⚠️  No matching images found, using fallback');
     }
     
-    const imageCenterPosition = (winningIndex * itemWidth) + (itemWidth / 2);
+    // ИСПОЛЬЗУЕМ РЕАЛЬНЫЕ РАЗМЕРЫ из браузера!
+    // Берем первую фишку и измеряем её РЕАЛЬНЫЙ размер
+    const firstImg = contentWindow.querySelector('img');
+    const firstImgRect = firstImg.getBoundingClientRect();
+    const realItemWidth = firstImgRect.width;
+    
+    // Считаем РЕАЛЬНЫЙ gap между фишками
+    const containerStyle = window.getComputedStyle(contentWindow);
+    const realGap = parseFloat(containerStyle.gap) || 1;
+    
+    // Полная ширина элемента = ширина фишки + gap
+    const totalItemWidth = realItemWidth + realGap;
+    
+    // ТОЧНЫЙ РАСЧЕТ: центр выигрышной фишки используя РЕАЛЬНЫЕ размеры
+    const leftEdge = winningIndex * totalItemWidth;
+    const imageCenterPosition = leftEdge + (realItemWidth / 2);
     const targetOffset = centerPosition - imageCenterPosition;
     
-    console.log('DEBUG: wonPrize =', wonPrize, 'index =', winningIndex, 'containerW =', containerWidth, 'centerPos =', centerPosition, 'imgCenter =', imageCenterPosition, 'offset =', targetOffset);
+    console.log('🎯 SPIN START');
+    console.log('💰 Prize:', wonPrize + '₽', 'Color:', winningColor);
+    console.log('📍 Index:', winningIndex, '/', images.length);
+    console.log('📐 REAL sizes: img=' + realItemWidth + 'px, gap=' + realGap + 'px, total=' + totalItemWidth + 'px');
+    console.log('📏 Container:', containerWidth + 'px', '→ Center:', centerPosition + 'px');
+    console.log('🎯 Image left edge:', leftEdge + 'px', '→ Center:', imageCenterPosition + 'px');
+    console.log('↔️  Offset:', targetOffset + 'px');
     
     contentWindow.style.transition = 'transform 6.5s cubic-bezier(0.22, 1, 0.36, 1)';
     contentWindow.style.transform = `translateX(${targetOffset}px)`;
 
     setTimeout(() => {
-      const finalImage = document.elementFromPoint(centerPosition + document.querySelector('.content-window').getBoundingClientRect().left, window.innerHeight / 2);
-      console.log('DEBUG: Final image under indicator:', finalImage?.dataset?.value);
+      console.log('✅ SPIN COMPLETE');
+      
+      // Проверяем какая фишка РЕАЛЬНО под индикатором
+      const container = document.querySelector('.content-window');
+      const containerRect = container.getBoundingClientRect();
+      const indicatorCenterX = containerRect.left + centerPosition;
+      
+      // Получаем все фишки после анимации
+      const allImages = contentWindow.querySelectorAll('img');
+      let actualWinningImg = null;
+      let minDistance = Infinity;
+      
+      allImages.forEach(img => {
+        const imgRect = img.getBoundingClientRect();
+        const imgCenterX = imgRect.left + (imgRect.width / 2);
+        const distance = Math.abs(imgCenterX - indicatorCenterX);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          actualWinningImg = img;
+        }
+      });
+      
+      if (actualWinningImg) {
+        const actualValue = parseInt(actualWinningImg.dataset.value);
+        const actualColor = actualWinningImg.dataset.color;
+        console.log('🎯 Under indicator:', actualValue + '₽', actualColor, '(distance:', Math.round(minDistance) + 'px)');
+        console.log('🏆 Expected win:', wonPrize + '₽', winningColor);
+        
+        if (actualValue != wonPrize || actualColor != winningColor) {
+          if (actualValue != wonPrize) {
+            console.warn('⚠️  VALUE MISMATCH! Expected', wonPrize, 'but got', actualValue);
+          }
+          if (actualColor != winningColor) {
+            console.warn('⚠️  COLOR MISMATCH! Expected', winningColor, 'but got', actualColor);
+          }
+          console.warn('🔧 FIXING: Using actual chip under indicator');
+          // ИСПРАВЛЯЕМ - используем реальное значение и цвет под индикатором!
+          wonPrize = actualValue;
+          winningColor = actualColor;
+        } else {
+          console.log('✅ PERFECT MATCH! Indicator shows:', wonPrize + '₽', winningColor);
+        }
+      }
+      
+      // Сохраняем цвет для использования в showWinResult
+      window.winningColor = winningColor;
       
       // Показываем результат с анимацией
       showWinResult();
@@ -322,12 +436,20 @@
     contentWindow.style.display = 'none';
     
     // 2. Подготавливаем win-window для появления
-    const prizeInfo = PRIZE_IMAGES[wonPrize];
+    // ВАЖНО: используем winningColor который был определен в spinCase()
+    const prizeInfo = getPrizeImages(wonPrize);
+    // Если winningColor задан - используем его для win-токена
+    const winImagePath = window.winningColor ? 
+      `main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png` : 
+      prizeInfo.win;
+    
     winItem.innerHTML = '';
     const winImg = document.createElement('img');
-    winImg.src = prizeInfo?.win || '';
+    winImg.src = winImagePath;
     winImg.alt = `WIN ${wonPrize}₽`;
     winItem.appendChild(winImg);
+    
+    console.log('🏆 Showing win:', wonPrize + '₽', window.winningColor);
 
     // Устанавливаем начальное состояние для анимации появления
     winWindow.style.display = 'flex';

@@ -1611,13 +1611,93 @@
     align-items: center;
     height: 155px;
 }
+
+/* Изображения призов в карусели - размер 110x110px */
+.content-window-item img {
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+/* Обертка для создания мутного фона позади каждой фишки */
+.content-window-item {
+  position: relative;
+}
+
+/* Создаем мутное свечение позади фишек через box-shadow */
+.content-window-item img {
+  position: relative;
+}
+
+/* Альтернатива - мутный фон через shadow */
+.content-window-item img {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) 
+          drop-shadow(0 0 40px rgba(255, 255, 255, 0.08))
+          drop-shadow(0 0 60px rgba(255, 255, 255, 0.04));
+}
+
 .content-window{
   overflow: hidden;
   width: 100%;
   height: 195px;
-background: linear-gradient(#1B1A1A, #151414);
-border: 2px solid #2C2A2A;
-border-radius: 18px;
+  border-radius: 18px;
+  position: relative;
+  background: transparent;
+}
+
+/* Индикатор (треугольник) - подогнан под фишки 110px */
+.content-window > img[src*="Group"] {
+  position: absolute !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+  pointer-events: none;
+  object-fit: contain !important;
+}
+
+/* Виньетка под цвет модального окна - плавный переход */
+.content-window::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+  background: 
+    linear-gradient(90deg, 
+      rgba(21, 20, 20, 1) 0%, 
+      rgba(21, 20, 20, 0.7) 8%, 
+      transparent 20%, 
+      transparent 80%, 
+      rgba(21, 20, 20, 0.7) 92%, 
+      rgba(21, 20, 20, 1) 100%
+    );
+}
+
+/* Дополнительная виньетка сверху и снизу */
+.content-window::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(180deg,
+      rgba(21, 20, 20, 0.6) 0%,
+      transparent 15%,
+      transparent 85%,
+      rgba(21, 20, 20, 0.6) 100%
+    );
+  pointer-events: none;
+  z-index: 9;
 }
 .item{
   display: flex;
@@ -1635,6 +1715,32 @@ border-radius: 18px;
   grid-template-columns: repeat(3, 3fr);
   gap: 10px;
 }
+
+/* Изображения в превью возможных призов - размер 110x110px */
+.item-preview-item img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.item-preview-item img:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+/* Изображения выигранных токенов - размер 110x110px (БЕЗ свечения) */
+.win-window-item img,
+.win-window img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+}
+
 .keep-it, .open-btn{
   width: 100%;
 }
