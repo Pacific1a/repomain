@@ -12,6 +12,9 @@ class RealtimeLivePrizes {
         this.maxWins = 10; // Максимум видимых призов
         this.reconnectTimeout = null;
         this.reconnectDelay = 3000;
+        this.maxReconnectAttempts = 5; // Максимум попыток переподключения
+        this.reconnectAttempts = 0;
+        this.isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         
         this.init();
     }
@@ -189,9 +192,20 @@ class RealtimeLivePrizes {
     
     connectWebSocket() {
         // Определяем URL WebSocket сервера
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.hostname;
-        const wsUrl = `${protocol}//${host}:3001`;
+        // Используем production сервер на Render
+        let wsUrl;
+        
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Локальная разработка - пытаемся подключиться к локальному серверу
+            // Если сервер не запущен - будет переподключение каждые 3 секунды
+            wsUrl = 'ws://localhost:3001';
+            console.log('🔧 Development mode - connecting to local WebSocket server');
+        } else {
+            // Production - используем WebSocket сервер на Render
+            // TODO: Замените на ваш реальный URL сервера на Render
+            wsUrl = 'wss://your-render-app.onrender.com';
+            console.log('🌐 Production mode - connecting to Render WebSocket server');
+        }
         
         console.log('🔌 Connecting to WebSocket:', wsUrl);
         
@@ -201,6 +215,7 @@ class RealtimeLivePrizes {
             this.ws.onopen = () => {
                 console.log('✅ WebSocket connected');
                 this.reconnectDelay = 3000; // Сброс задержки
+                this.reconnectAttempts = 0; // Сброс счетчика попыток
             };
             
             this.ws.onmessage = (event) => {
@@ -237,6 +252,17 @@ class RealtimeLivePrizes {
     scheduleReconnect() {
         if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
+        }
+        
+        // В локальной разработке ограничиваем попытки переподключения
+        if (this.isLocalDev) {
+            this.reconnectAttempts++;
+            if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                console.warn(`⚠️  WebSocket: Превышено максимум попыток подключения (${this.maxReconnectAttempts})`);
+                console.warn('💡 Для локальной разработки запустите WebSocket сервер: cd server && node server.js');
+                console.warn('💡 Или игнорируйте эти ошибки - приложение работает без WebSocket');
+                return; // Прекращаем попытки
+            }
         }
         
         this.reconnectTimeout = setTimeout(() => {
