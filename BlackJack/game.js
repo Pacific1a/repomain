@@ -515,8 +515,18 @@
           if (this.dealer[0]) visible.push(this.dealer[0]);
           dealerShown = score(visible);
         }
-        el.scoreBgs[0].textContent = String(dealerShown || 0);
-        el.scoreBgs[1].textContent = ps;
+        
+        // Логирование для отладки
+        console.log('📊 Scores Update:', {
+          playerScore: ps,
+          playerCards: this.player.map(c => c.rank).join(', '),
+          dealerShown: dealerShown,
+          dealerCards: this.dealer.map(c => c.rank).join(', '),
+          revealed: revealDealer
+        });
+        
+        el.scoreBgs[0].textContent = String(dealerShown || 0);  // Дилер
+        el.scoreBgs[1].textContent = ps;                        // Игрок
       }
     }
 
