@@ -192,17 +192,15 @@ class RealtimeLivePrizes {
     
     connectWebSocket() {
         // Определяем URL WebSocket сервера
-        // Используем production сервер на Render
         let wsUrl;
         
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            // Локальная разработка - пытаемся подключиться к локальному серверу
-            // Если сервер не запущен - будет переподключение каждые 3 секунды
-            wsUrl = 'ws://localhost:3001';
+            // Локальная разработка - подключаемся к локальному серверу на порту 3000
+            wsUrl = 'ws://localhost:3000';
             console.log('🔧 Development mode - connecting to local WebSocket server');
         } else {
-            // Production - используем WebSocket сервер на Render
-            // TODO: Замените на ваш реальный URL сервера на Render
+            // Production - явно указываем URL Render сервера
+            // Фронтенд на Vercel, бэкенд на Render
             wsUrl = 'wss://telegram-games-plkj.onrender.com';
             console.log('🌐 Production mode - connecting to Render WebSocket server');
         }

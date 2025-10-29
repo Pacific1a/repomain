@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const WebSocket = require('ws');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -23,6 +24,70 @@ const io = socketIo(server, {
     credentials: true
   }
 });
+
+// Нативный WebSocket сервер для live prizes
+const wss = new WebSocket.Server({ server });
+
+// Хранилище последних выигрышей для новых подключений
+const recentWins = [];
+const MAX_RECENT_WINS = 20;
+
+wss.on('connection', (ws) => {
+  console.log('✅ WebSocket client connected');
+  
+  // Отправляем историю последних выигрышей
+  ws.send(JSON.stringify({
+    type: 'init',
+    wins: recentWins
+  }));
+  
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+      
+      if (data.type === 'win') {
+        // Новый выигрыш - рассылаем всем подключенным клиентам
+        const winData = {
+          type: 'new_win',
+          win: {
+            prize: data.prize,
+            isChips: data.isChips,
+            color: data.color,
+            imagePath: data.imagePath,
+            timestamp: Date.now()
+          }
+        };
+        
+        // Добавляем в историю
+        recentWins.push(winData.win);
+        if (recentWins.length > MAX_RECENT_WINS) {
+          recentWins.shift();
+        }
+        
+        // Рассылаем всем клиентам
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(winData));
+          }
+        });
+        
+        console.log(`📣 Broadcast win: ${data.prize}${data.isChips ? ' chips' : '₽'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error processing WebSocket message:', error);
+    }
+  });
+  
+  ws.on('close', () => {
+    console.log('❌ WebSocket client disconnected');
+  });
+  
+  ws.on('error', (error) => {
+    console.error('❌ WebSocket error:', error);
+  });
+});
+
+console.log('📡 Native WebSocket server initialized');
 
 // Middleware
 app.use(helmet({
