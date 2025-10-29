@@ -3,6 +3,7 @@
   'use strict';
 
   const CASE_CONFIG = {
+    // Кейсы за рубли
     279: [50, 100, 150, 200, 250, 300, 350, 400, 500, 700, 777, 888, 1500],
     329: [50, 100, 150, 200, 250, 300, 350, 400, 500, 700, 777, 888, 1000, 2000],
     389: [50, 100, 150, 200, 250, 300, 350, 400, 500, 700, 777, 888, 1000, 2000],
@@ -12,11 +13,18 @@
     659: [200, 250, 300, 350, 400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000],
     777: [200, 250, 300, 350, 400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000],
     819: [250, 300, 350, 400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000],
-    999: [400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000]
+    999: [400, 500, 700, 777, 888, 1000, 1500, 2000, 2500, 3000, 4000, 5000],
+    
+    // Кейсы за фишки (chips)
+    314: [50, 101, 155, 202, 255, 303, 404, 505, 707, 777, 880, 1001, 1505, 2002],
+    542: [155, 202, 255, 303, 404, 505, 707, 777, 880, 1001, 1505, 2002, 2505],
+    911: [255, 303, 404, 505, 707, 777, 880, 1001, 1505, 2002, 2505, 3003],
+    993: [255, 303, 404, 505, 707, 777, 880, 1001, 1505, 2002, 2505, 3003, 4004],
+    1337: [255, 303, 404, 505, 707, 777, 880, 1001, 1505, 2002, 2505, 3003, 4004, 5005]
   };
 
-  // Все доступные цвета для каждого номинала (проверено - все файлы существуют!)
-  const PRIZE_COLORS = {
+  // Все доступные цвета для рублевых призов
+  const PRIZE_COLORS_RUBLES = {
     5000: ['red'],                              // red везде
     4000: ['blue'],                             // blue везде
     3000: ['blue'],                             // blue везде
@@ -38,33 +46,67 @@
     50: ['gray']                                // gray везде
   };
 
+  // Все доступные цвета для фишек (ТОЛЬКО существующие во ВСЕХ трех папках!)
+  const PRIZE_COLORS_CHIPS = {
+    5005: ['red'],
+    4004: ['red'],                    // blue только в Win, НЕТ в preview
+    3003: ['blue', 'red'],
+    2505: ['blue', 'purple', 'red'],
+    2002: ['blue', 'purple', 'red'],
+    1505: ['blue'],                   // purple НЕТ в Win
+    1001: ['blue', 'purple', 'yellow'],
+    880: ['purple'],                  // НЕТ в Win!
+    777: ['purple', 'yellow'],
+    707: ['purple', 'yellow'],
+    505: ['gray', 'yellow'],
+    404: ['gray', 'yellow'],
+    303: ['gray', 'yellow'],
+    255: ['gray', 'yellow'],
+    202: ['gray'],
+    155: ['gray'],
+    101: ['gray'],
+    50: ['gray']
+  };
+
   // Функция для получения рандомного цвета для номинала
-  function getRandomColor(prize) {
-    const colors = PRIZE_COLORS[prize];
+  function getRandomColor(prize, isChips = false) {
+    const colors = isChips ? PRIZE_COLORS_CHIPS[prize] : PRIZE_COLORS_RUBLES[prize];
     if (!colors || colors.length === 0) return 'gray';
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
   // Функция для получения путей к изображениям с учетом рандомного цвета
-  function getPrizeImages(prize) {
-    const color = getRandomColor(prize);
+  function getPrizeImages(prize, isChips = false) {
+    const color = getRandomColor(prize, isChips);
     
-    // ВАЖНО: Папка называется purple, но ФАЙЛЫ внутри названы puple (с опечаткой!)
-    const previewColor = color === 'purple' ? 'puple' : color;
-    
-    const paths = {
-      spin: `main/Case-tokens/${color}/${prize}-r-${color}.png`,
-      preview: `main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
-      win: `main/win-tokens/${color}/${prize}-r-${color}.png`,
-      color: color
-    };
-    
-    // Для не-purple цветов используем обычный путь
-    if (color !== 'purple') {
-      paths.preview = `main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
+    if (isChips) {
+      // Пути для кейсов за фишки
+      const paths = {
+        spin: `main/Chips-case/${color}/${prize}-chips-${color}.png`,
+        preview: `main/preview-chips/${prize}-chips-${color}-preview.png`,
+        win: `main/Win-chips/${prize}-chips-${color}.png`,
+        color: color
+      };
+      return paths;
+    } else {
+      // Пути для кейсов за рубли
+      // ВАЖНО: Папка называется purple, но ФАЙЛЫ внутри названы puple (с опечаткой!)
+      const previewColor = color === 'purple' ? 'puple' : color;
+      
+      const paths = {
+        spin: `main/Case-tokens/${color}/${prize}-r-${color}.png`,
+        preview: `main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
+        win: `main/win-tokens/${color}/${prize}-r-${color}.png`,
+        color: color
+      };
+      
+      // Для не-purple цветов используем обычный путь
+      if (color !== 'purple') {
+        paths.preview = `main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
+      }
+      
+      return paths;
     }
-    
-    return paths;
   }
 
   // Кэш для хранения выбранных цветов (чтобы в рамках одной сессии цвет не менялся)
@@ -147,9 +189,9 @@
       itemPreview.innerHTML = '';
       prizes.forEach(prize => {
         const img = document.createElement('img');
-        const prizeData = getPrizeImages(prize);
+        const prizeData = getPrizeImages(prize, isChipsCase);
         img.src = prizeData.preview;
-        img.alt = `${prize}₽`;
+        img.alt = isChipsCase ? `${prize} chips` : `${prize}₽`;
         itemPreview.appendChild(img);
       });
     }
@@ -214,9 +256,9 @@
     const fragment = document.createDocumentFragment();
     duplicated.forEach(prize => {
       const img = document.createElement('img');
-      const prizeData = getPrizeImages(prize);
+      const prizeData = getPrizeImages(prize, currentCase.isChipsCase);
       img.src = prizeData.spin;
-      img.alt = `${prize}₽`;
+      img.alt = currentCase.isChipsCase ? `${prize} chips` : `${prize}₽`;
       img.dataset.value = prize;
       img.dataset.color = prizeData.color; // Добавляем цвет в data-атрибут
       img.loading = 'lazy';
@@ -437,11 +479,18 @@
     
     // 2. Подготавливаем win-window для появления
     // ВАЖНО: используем winningColor который был определен в spinCase()
-    const prizeInfo = getPrizeImages(wonPrize);
+    const prizeInfo = getPrizeImages(wonPrize, currentCase.isChipsCase);
     // Если winningColor задан - используем его для win-токена
-    const winImagePath = window.winningColor ? 
-      `main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png` : 
-      prizeInfo.win;
+    let winImagePath;
+    if (window.winningColor) {
+      if (currentCase.isChipsCase) {
+        winImagePath = `main/Win-chips/${wonPrize}-chips-${window.winningColor}.png`;
+      } else {
+        winImagePath = `main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png`;
+      }
+    } else {
+      winImagePath = prizeInfo.win;
+    }
     
     winItem.innerHTML = '';
     const winImg = document.createElement('img');
