@@ -203,7 +203,7 @@ class RealtimeLivePrizes {
         } else {
             // Production - используем WebSocket сервер на Render
             // TODO: Замените на ваш реальный URL сервера на Render
-            wsUrl = 'https://telegram-games-plkj.onrender.com';
+            wsUrl = 'wss://telegram-games-plkj.onrender.com';
             console.log('🌐 Production mode - connecting to Render WebSocket server');
         }
         
