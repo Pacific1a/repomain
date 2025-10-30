@@ -596,6 +596,13 @@
             return;
         }
 
+        // Максимальная сумма обмена - 1 миллион
+        const MAX_EXCHANGE = 1000000;
+        if (rublesAmount > MAX_EXCHANGE) {
+            showNotification(`❌ Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} ₽`);
+            return;
+        }
+
         const currentRubles = window.GameBalanceAPI.getBalance('rubles');
         if (rublesAmount > currentRubles) {
             showNotification('❌ Недостаточно рублей');
@@ -626,6 +633,13 @@
     async function exchangeChipsToRubles() {
         if (tokensAmount < MIN_AMOUNT) {
             showNotification(`Минимальная сумма обмена: ${MIN_AMOUNT} Chips`);
+            return;
+        }
+
+        // Максимальная сумма обмена - 1 миллион
+        const MAX_EXCHANGE = 1000000;
+        if (tokensAmount > MAX_EXCHANGE) {
+            showNotification(`❌ Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} Chips`);
             return;
         }
 
