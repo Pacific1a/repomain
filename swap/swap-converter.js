@@ -120,10 +120,13 @@
                 cursor: text;
                 user-select: text;
                 min-width: 50px;
+                max-width: 90px;
                 display: inline-block;
                 -webkit-user-select: text;
                 -moz-user-select: text;
                 -ms-user-select: text;
+                overflow: hidden;
+                white-space: nowrap;
             }
 
             .rubles .text-wrapper-7 {

@@ -225,18 +225,18 @@
     // Проверка баланса и списание ставки
     if (!window.GameBalanceAPI) {
       console.error('GameBalanceAPI не загружен');
-      return;
+      return false;
     }
     
     if (!window.GameBalanceAPI.canPlaceBet(state.bet, 'rubles')) {
       console.log('Недостаточно рублей');
-      return;
+      return false;
     }
     
     const success = await window.GameBalanceAPI.placeBet(state.bet, 'rubles');
     if (!success) {
       console.log('Ошибка списания ставки');
-      return;
+      return false;
     }
     
     console.log(`💣 Mines: ставка ${state.bet} rubles списана`);
@@ -249,6 +249,7 @@
     state.isCashingOut = false;
     state.isGameOver = false;
     updateCashoutDisplay();
+    return true;
   }
 
   function revealAllAfterMine() {
@@ -385,7 +386,7 @@
     updateCashoutDisplay();
   }
 
-  function onBetOrCash() {
+  async function onBetOrCash() {
     if (!state.inGame) {
       if (state.clickLock) return;
       // brief debounce to avoid accidental double-trigger when starting
@@ -397,11 +398,14 @@
         return;
       }
       // Start game (balance check inside)
-      startGame();
+      const gameStarted = await startGame();
       
-      // Показываем alert о ставке
-      if (window.Telegram?.WebApp?.showAlert) {
+      // Показываем alert только если ставка успешно сделана
+      if (gameStarted && window.Telegram?.WebApp?.showAlert) {
         window.Telegram.WebApp.showAlert(`Ставка ${state.bet} rubles сделана!`);
+      } else if (!gameStarted && window.Telegram?.WebApp?.showAlert) {
+        // Показываем ошибку если средств недостаточно
+        window.Telegram.WebApp.showAlert(`Недостаточно средств для ставки ${state.bet} rubles`);
       }
     } else {
       // Block cashout reveal if bombs selection is invalid

@@ -411,6 +411,8 @@
   position: relative;
   flex: 1;
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .swap .element-3 {
@@ -419,11 +421,14 @@
   gap: 10px;
   position: relative;
   flex: 0 0 auto;
+  max-width: 120px;
+  overflow: hidden;
 }
 
 .swap .text-wrapper-7 {
   position: relative;
   width: fit-content;
+  max-width: 90px;
   margin-top: -1.00px;
   text-shadow: 0px 0px 7px #ffffff38;
   color: #ffffff;
@@ -432,6 +437,8 @@
   font-weight: 600;
   letter-spacing: 0;
   line-height: normal;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .swap .overlap-group-wrapper {
@@ -494,6 +501,8 @@
   position: relative;
   flex: 1;
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .swap .element-wrapper {
