@@ -39,14 +39,14 @@
             return;
         }
 
-        // Делаем поля редактируемыми
-        elements.rublesInput.setAttribute('contenteditable', 'true');
+        // Делаем поля редактируемыми (plaintext-only блокирует форматирование и переносы)
+        elements.rublesInput.setAttribute('contenteditable', 'plaintext-only');
         elements.rublesInput.setAttribute('inputmode', 'decimal');
         elements.rublesInput.setAttribute('autocomplete', 'off');
         elements.rublesInput.setAttribute('autocorrect', 'off');
         elements.rublesInput.setAttribute('spellcheck', 'false');
-        
-        elements.tokensInput.setAttribute('contenteditable', 'true');
+
+        elements.tokensInput.setAttribute('contenteditable', 'plaintext-only');
         elements.tokensInput.setAttribute('inputmode', 'decimal');
         elements.tokensInput.setAttribute('autocomplete', 'off');
         elements.tokensInput.setAttribute('autocorrect', 'off');
@@ -127,6 +127,9 @@
                 -ms-user-select: text;
                 overflow: hidden;
                 white-space: nowrap;
+                word-break: keep-all;
+                word-wrap: normal;
+                overflow-wrap: normal;
             }
 
             .rubles .text-wrapper-7 {
@@ -227,10 +230,34 @@
      * Настройка обработчиков событий
      */
     function setupEventListeners() {
+        // Блокируем перенос строки через Enter/Shift+Enter
+        const blockLineBreaks = (e) => {
+            // Блокируем Enter и Shift+Enter
+            if (e.key === 'Enter' || (e.keyCode === 13)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        };
+        
+        // Блокируем вставку текста с переносами строк
+        const blockPasteBreaks = (e) => {
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            if (paste && paste.includes('\n')) {
+                e.preventDefault();
+                // Вставляем только первую строку без переносов
+                const cleanText = paste.split('\n')[0].replace(/[^0-9.]/g, '');
+                document.execCommand('insertText', false, cleanText);
+                return false;
+            }
+        };
+        
         // Ввод в поле рублей
         elements.rublesInput.addEventListener('input', handleRublesInput);
         elements.rublesInput.addEventListener('focus', () => handleFieldFocus('rubles'));
         elements.rublesInput.addEventListener('blur', handleBlur);
+        elements.rublesInput.addEventListener('keydown', blockLineBreaks);
+        elements.rublesInput.addEventListener('paste', blockPasteBreaks);
         
         // Клик на весь контейнер рублей для быстрого фокуса
         if (elements.rublesContainer) {
@@ -253,6 +280,8 @@
         elements.tokensInput.addEventListener('input', handleTokensInput);
         elements.tokensInput.addEventListener('focus', () => handleFieldFocus('tokens'));
         elements.tokensInput.addEventListener('blur', handleBlur);
+        elements.tokensInput.addEventListener('keydown', blockLineBreaks);
+        elements.tokensInput.addEventListener('paste', blockPasteBreaks);
         
         // Клик на весь контейнер фишек для быстрого фокуса
         if (elements.tokensContainer) {
@@ -349,7 +378,8 @@
         currentMode = 'rubles-to-chips';
         
         let text = elements.rublesInput.textContent || '';
-        text = text.replace(/[^0-9.]/g, '');
+        // Удаляем все переносы строк и недопустимые символы
+        text = text.replace(/[\r\n]/g, '').replace(/[^0-9.]/g, '');
         
         // Разрешаем только одну точку
         const parts = text.split('.');
@@ -360,6 +390,13 @@
         // Ограничиваем два знака после запятой
         if (parts.length === 2 && parts[1].length > 2) {
             text = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        
+        // Лимит до 1 миллиона
+        const maxValue = 1000000;
+        const numValue = parseFloat(text) || 0;
+        if (numValue > maxValue) {
+            text = maxValue.toString();
         }
 
         if (elements.rublesInput.textContent !== text) {
@@ -379,7 +416,8 @@
         currentMode = 'chips-to-rubles';
         
         let text = elements.tokensInput.textContent || '';
-        text = text.replace(/[^0-9.]/g, '');
+        // Удаляем все переносы строк и недопустимые символы
+        text = text.replace(/[\r\n]/g, '').replace(/[^0-9.]/g, '');
         
         // Разрешаем только одну точку
         const parts = text.split('.');
@@ -390,6 +428,13 @@
         // Ограничиваем два знака после запятой
         if (parts.length === 2 && parts[1].length > 2) {
             text = parts[0] + '.' + parts[1].substring(0, 2);
+        }
+        
+        // Лимит до 1 миллиона
+        const maxValue = 1000000;
+        const numValue = parseFloat(text) || 0;
+        if (numValue > maxValue) {
+            text = maxValue.toString();
         }
 
         if (elements.tokensInput.textContent !== text) {
