@@ -1184,6 +1184,7 @@
   gap: 30px;
   position: fixed;
   bottom: 10px;
+  z-index: 1000;
   margin-left: -8.00px;
   margin-right: -8.00px;
   background-color: #96969633;

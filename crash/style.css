@@ -1377,7 +1377,7 @@
   align-self: stretch;
   width: 100%;
   border-radius: 13.5px;
-  background: linear-gradient(90deg, #407B3D 0%, #54A450 100%);
+  background: #407b3d88;
 }
 
 .aviator .acc-inf {
