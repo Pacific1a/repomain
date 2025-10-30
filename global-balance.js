@@ -1,16 +1,24 @@
-// Глобальная система балансов (Telegram CloudStorage + fallback)
+// Глобальная система балансов (Server + CloudStorage + fallback)
 class GlobalBalance {
     constructor() {
         this.balance = this.defaultBalance();
         this.storageKey = 'telegram_game_balance';
         this.isCloudAvailable = this.tg && this.tg.CloudStorage && typeof this.tg.CloudStorage.getItem === 'function';
+        this.serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3000' 
+            : 'https://telegram-games-plkj.onrender.com';
         // Cache DOM elements to avoid repeated queries
         this.cachedElements = {};
         this.updateThrottle = null;
+        this.telegramId = null;
         this.init();
     }
 
     async init() {
+        // Получаем Telegram ID
+        this.telegramId = this.getTelegramId();
+        console.log('🆔 Telegram ID:', this.telegramId);
+        
         await this.loadBalance();
         this.updateMainBalance();
 
@@ -21,6 +29,25 @@ class GlobalBalance {
                 this.updateMainBalance();
             }
         });
+        
+        // Синхронизируем с сервером каждые 30 секунд
+        setInterval(() => this.syncWithServer(), 30000);
+    }
+    
+    getTelegramId() {
+        // Пытаемся получить Telegram ID из разных источников
+        if (this.tg && this.tg.initDataUnsafe && this.tg.initDataUnsafe.user) {
+            return this.tg.initDataUnsafe.user.id.toString();
+        }
+        
+        // Для тестирования - используем ID из localStorage или генерируем
+        let testId = localStorage.getItem('test_telegram_id');
+        if (!testId) {
+            testId = 'test_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('test_telegram_id', testId);
+            console.log('⚠️ Test mode: generated ID:', testId);
+        }
+        return testId;
     }
 
     defaultBalance() {
@@ -91,6 +118,18 @@ class GlobalBalance {
 
     async loadBalance() {
         try {
+            // Приоритет 1: Загрузить с сервера
+            const serverBalance = await this.loadFromServer();
+            if (serverBalance) {
+                this.balance = serverBalance;
+                this.setLocalItem(this.storageKey, JSON.stringify(serverBalance));
+                await this.setCloudItem(this.storageKey, JSON.stringify(serverBalance));
+                console.log('✅ Balance loaded from server:', serverBalance);
+                this.isReady = true;
+                return;
+            }
+            
+            // Приоритет 2: CloudStorage
             const cloudValue = await this.getCloudItem(this.storageKey);
             if (cloudValue) {
                 const parsed = JSON.parse(cloudValue);
@@ -99,20 +138,78 @@ class GlobalBalance {
                     chips: parseInt(parsed.chips, 10) || 1000
                 };
                 this.setLocalItem(this.storageKey, cloudValue);
+                // Синхронизируем с сервером
+                await this.saveToServer();
             } else {
+                // Приоритет 3: localStorage
                 await this.loadFromLocal();
                 await this.persistBalance();
             }
         } catch (e) {
+            console.error('❌ Error loading balance:', e);
             await this.loadFromLocal();
         }
         this.isReady = true;
+    }
+    
+    async loadFromServer() {
+        if (!this.telegramId) return null;
+        
+        try {
+            const response = await fetch(`${this.serverUrl}/api/balance/${this.telegramId}`);
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    rubles: parseFloat(data.rubles) || 1000.00,
+                    chips: parseInt(data.chips, 10) || 1000
+                };
+            }
+        } catch (e) {
+            console.warn('⚠️ Server not available, using local balance');
+        }
+        return null;
+    }
+    
+    async saveToServer() {
+        if (!this.telegramId) return false;
+        
+        try {
+            const response = await fetch(`${this.serverUrl}/api/balance/${this.telegramId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(this.balance)
+            });
+            if (response.ok) {
+                console.log('✅ Balance synced to server');
+                return true;
+            }
+        } catch (e) {
+            console.warn('⚠️ Failed to sync balance to server');
+        }
+        return false;
+    }
+    
+    async syncWithServer() {
+        // Синхронизируем баланс с сервером
+        const serverBalance = await this.loadFromServer();
+        if (serverBalance) {
+            // Если баланс на сервере отличается - обновляем локальный
+            if (serverBalance.rubles !== this.balance.rubles || 
+                serverBalance.chips !== this.balance.chips) {
+                this.balance = serverBalance;
+                await this.setCloudItem(this.storageKey, JSON.stringify(serverBalance));
+                this.setLocalItem(this.storageKey, JSON.stringify(serverBalance));
+                this.updateMainBalance();
+                console.log('🔄 Balance synced from server');
+            }
+        }
     }
 
     async persistBalance() {
         const payload = JSON.stringify(this.balance);
         this.setLocalItem(this.storageKey, payload);
         await this.setCloudItem(this.storageKey, payload);
+        await this.saveToServer(); // Синхронизируем с сервером
     }
 
     getBalance() {
