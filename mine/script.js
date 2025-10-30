@@ -755,8 +755,7 @@
 
   function createPlayerElement(game) {
     const div = document.createElement('div');
-    // Цветовое состояние на контейнере: win или lost
-    div.className = game.isWinner ? 'div-4 win' : 'div-4 lost';
+    div.className = 'div-4';
     
     // Создаем аватар
     const avatar = createTelegramAvatar(game);
@@ -770,8 +769,7 @@
     const multiplier = game.multiplier ? `${game.multiplier.toFixed(2)}x` : '0x';
     const winAmount = isWinner && game.winnings ? game.winnings : '--';
     const winClass = isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
-    // При проигрыше не используем div-wrapper-4, чтобы цвет не брался с внутреннего блока
-    const winWrapperClass = isWinner ? 'element-5' : 'div-wrapper-3';
+    const winWrapperClass = isWinner ? 'element-5' : 'div-wrapper-4';
 
     div.innerHTML = `
       <div class="acc-inf">

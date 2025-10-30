@@ -1376,10 +1376,10 @@ class SpeedCashGame {
             cancelAnimationFrame(this.roadAnimationId);
         }
         
-        // Start smooth transition after escape text is shown
-        setTimeout(() => {
-            this.startTransition();
-        }, 2000);
+        // РАНЕЕ была задержка 2s перед началом фазы ставок.
+        // Убираем её: сразу начинаем плавный переход к фазе ставок,
+        // чтобы кнопки Bet стали активны сразу после завершения DROVE AWAY
+        this.startTransition();
     }
     
     startTransition() {
@@ -1452,23 +1452,21 @@ class SpeedCashGame {
         const existingIcons = document.querySelectorAll('.crash-icon');
         existingIcons.forEach(icon => icon.remove());
         
-        // НЕ включаем countdown здесь, чтобы он не накладывался на DROVE AWAY экран
-        // Скрываем дорогу и оставляем показ таймера на startBettingPhase()
+        // СРАЗУ скрываем игровые элементы и показываем countdown
         const raceArea = document.querySelector('.race');
         if (raceArea) {
             raceArea.classList.remove('game-active');
+            raceArea.classList.add('countdown-mode');
         }
+        
         const roadLines = document.getElementById('roadLines');
         if (roadLines) {
             roadLines.classList.remove('visible');
-            roadLines.style.display = 'none';
+            roadLines.style.opacity = '1'; // Возвращаем opacity для следующей игры
         }
         
-        // Небольшая задержка, чтобы корректно завершить все анимации и скрыть оверлеи,
-        // затем запускаем новую фазу ставок (countdown)
-        setTimeout(() => {
-            this.startBettingPhase();
-        }, 300);
+        // Запускаем новую фазу betting БЕЗ задержки
+        this.startBettingPhase();
     }
 
     updateMultiplierDisplays() {
