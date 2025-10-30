@@ -285,7 +285,7 @@ class RealtimeLivePrizes {
     }
     
     getPrizeImagePath(prize, color, isChips) {
-        // Проверяем находимся ли мы в upgrade/
+        // Проверяем находимся ли мы в upgrade/ или swap/
         const currentPath = window.location.pathname;
         const currentHref = window.location.href;
         
@@ -294,7 +294,11 @@ class RealtimeLivePrizes {
                            currentPath.includes('/upgrade') ||
                            currentHref.includes('/upgrade/');
         
-        const prefix = isInUpgrade ? '../' : '';
+        const isInSwap = currentPath.includes('/swap/') || 
+                        currentPath.includes('/swap') ||
+                        currentHref.includes('/swap/');
+        
+        const prefix = (isInUpgrade || isInSwap) ? '../' : '';
         
         if (isChips) {
             return `${prefix}main/Chips-case/${color}/${prize}-chips-${color}.png`;
@@ -309,8 +313,11 @@ class RealtimeLivePrizes {
         const isInUpgrade = currentPath.includes('/upgrade/') || 
                            currentPath.includes('/upgrade');
         
-        if (isInUpgrade && win.imagePath && !win.imagePath.startsWith('../')) {
-            // Добавляем ../ если мы в upgrade/ и путь ещё не исправлен
+        const isInSwap = currentPath.includes('/swap/') || 
+                        currentPath.includes('/swap');
+        
+        if ((isInUpgrade || isInSwap) && win.imagePath && !win.imagePath.startsWith('../')) {
+            // Добавляем ../ если мы в upgrade/ или swap/ и путь ещё не исправлен
             return {
                 ...win,
                 imagePath: '../' + win.imagePath
