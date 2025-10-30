@@ -1452,21 +1452,23 @@ class SpeedCashGame {
         const existingIcons = document.querySelectorAll('.crash-icon');
         existingIcons.forEach(icon => icon.remove());
         
-        // СРАЗУ скрываем игровые элементы и показываем countdown
+        // НЕ включаем countdown здесь, чтобы он не накладывался на DROVE AWAY экран
+        // Скрываем дорогу и оставляем показ таймера на startBettingPhase()
         const raceArea = document.querySelector('.race');
         if (raceArea) {
             raceArea.classList.remove('game-active');
-            raceArea.classList.add('countdown-mode');
         }
-        
         const roadLines = document.getElementById('roadLines');
         if (roadLines) {
             roadLines.classList.remove('visible');
-            roadLines.style.opacity = '1'; // Возвращаем opacity для следующей игры
+            roadLines.style.display = 'none';
         }
         
-        // Запускаем новую фазу betting БЕЗ задержки
-        this.startBettingPhase();
+        // Небольшая задержка, чтобы корректно завершить все анимации и скрыть оверлеи,
+        // затем запускаем новую фазу ставок (countdown)
+        setTimeout(() => {
+            this.startBettingPhase();
+        }, 300);
     }
 
     updateMultiplierDisplays() {
