@@ -206,8 +206,9 @@ class GameWebSocket {
             return 'http://localhost:3000';
         }
         
-        // Production: используем тот же домен где открыт фронт
-        return window.location.origin;
+        // Production: используем сервер на Render
+        // Фронтенд на Vercel, бэкенд на Render
+        return 'https://telegram-games-plkj.onrender.com';
     }
 
     connect() {
