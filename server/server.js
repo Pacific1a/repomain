@@ -106,6 +106,9 @@ wss.on('connection', (ws) => {
 
 console.log('📡 Native WebSocket server initialized on path /live-prizes');
 
+// Trust proxy - необходимо для работы за прокси (Render, Heroku и т.д.)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet({
   contentSecurityPolicy: {
