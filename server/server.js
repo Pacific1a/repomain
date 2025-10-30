@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const WebSocket = require('ws');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -22,89 +21,49 @@ const io = socketIo(server, {
     ],
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  transports: ['websocket', 'polling'],
+  allowEIO3: true
 });
 
-// Нативный WebSocket сервер для live prizes
-// Используем noServer: true чтобы вручную управлять upgrade
-const wss = new WebSocket.Server({ noServer: true });
+console.log('📡 Socket.IO server initialized');
 
-// Хранилище последних выигрышей для новых подключений
+// Namespace для live prizes (вместо нативного WebSocket)
+const livePrizesNamespace = io.of('/live-prizes');
 const recentWins = [];
 const MAX_RECENT_WINS = 20;
 
-// Обрабатываем upgrade запросы для нативного WebSocket
-server.on('upgrade', (request, socket, head) => {
-  const pathname = new URL(request.url, 'http://localhost').pathname;
-  
-  // Только для пути /live-prizes используем нативный WebSocket
-  if (pathname === '/live-prizes') {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request);
-    });
-  } else {
-    // Для остальных путей пусть Socket.IO обрабатывает (путь /socket.io/)
-    // Если это не socket.io путь - закрываем соединение
-    socket.destroy();
-  }
-});
-
-wss.on('connection', (ws) => {
-  console.log('✅ WebSocket client connected (live-prizes)');
+livePrizesNamespace.on('connection', (socket) => {
+  console.log('✅ Live Prizes client connected:', socket.id);
   
   // Отправляем историю последних выигрышей
-  ws.send(JSON.stringify({
-    type: 'init',
-    wins: recentWins
-  }));
+  socket.emit('init', { wins: recentWins });
   
-  ws.on('message', (message) => {
-    try {
-      const data = JSON.parse(message);
-      
-      if (data.type === 'win') {
-        // Новый выигрыш - рассылаем всем подключенным клиентам
-        const winData = {
-          type: 'new_win',
-          win: {
-            prize: data.prize,
-            isChips: data.isChips,
-            color: data.color,
-            imagePath: data.imagePath,
-            timestamp: Date.now()
-          }
-        };
-        
-        // Добавляем в историю
-        recentWins.push(winData.win);
-        if (recentWins.length > MAX_RECENT_WINS) {
-          recentWins.shift();
-        }
-        
-        // Рассылаем всем клиентам
-        wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(winData));
-          }
-        });
-        
-        console.log(`📣 Broadcast win: ${data.prize}${data.isChips ? ' chips' : '₽'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error processing WebSocket message:', error);
+  socket.on('win', (data) => {
+    const winData = {
+      prize: data.prize,
+      isChips: data.isChips,
+      color: data.color,
+      imagePath: data.imagePath,
+      timestamp: Date.now()
+    };
+    
+    // Добавляем в историю
+    recentWins.push(winData);
+    if (recentWins.length > MAX_RECENT_WINS) {
+      recentWins.shift();
     }
+    
+    // Рассылаем всем клиентам
+    livePrizesNamespace.emit('new_win', { win: winData });
+    
+    console.log(`📣 Broadcast win: ${data.prize}${data.isChips ? ' chips' : '₽'}`);
   });
   
-  ws.on('close', () => {
-    console.log('❌ WebSocket client disconnected');
-  });
-  
-  ws.on('error', (error) => {
-    console.error('❌ WebSocket error:', error);
+  socket.on('disconnect', () => {
+    console.log('❌ Live Prizes client disconnected:', socket.id);
   });
 });
-
-console.log('📡 Native WebSocket server initialized on path /live-prizes');
 
 // Trust proxy - необходимо для работы за прокси (Render, Heroku и т.д.)
 app.set('trust proxy', 1);

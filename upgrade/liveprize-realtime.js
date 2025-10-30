@@ -191,59 +191,58 @@ class RealtimeLivePrizes {
     }
     
     connectWebSocket() {
-        // Определяем URL WebSocket сервера
-        let wsUrl;
+        // Определяем URL сервера
+        let serverUrl;
         
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            // Локальная разработка - подключаемся к локальному серверу на порту 3000
-            wsUrl = 'ws://localhost:3000/live-prizes';
-            console.log('🔧 Development mode - connecting to local WebSocket server');
+            serverUrl = 'http://localhost:3000';
+            console.log('🔧 Development mode - connecting to local server');
         } else {
-            // Production - явно указываем URL Render сервера с путем /live-prizes
-            // Фронтенд на Vercel, бэкенд на Render
-            wsUrl = 'wss://telegram-games-plkj.onrender.com/live-prizes';
-            console.log('🌐 Production mode - connecting to Render WebSocket server');
+            serverUrl = 'https://telegram-games-plkj.onrender.com';
+            console.log('🌐 Production mode - connecting to Render server');
         }
         
-        console.log('🔌 Connecting to WebSocket:', wsUrl);
+        console.log('🔌 Connecting to Socket.IO:', serverUrl + '/live-prizes');
         
         try {
-            this.ws = new WebSocket(wsUrl);
+            // Используем Socket.IO вместо нативного WebSocket
+            this.ws = io(serverUrl + '/live-prizes', {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionDelay: 3000,
+                reconnectionAttempts: this.maxReconnectAttempts || Infinity
+            });
             
-            this.ws.onopen = () => {
-                console.log('✅ WebSocket connected');
-                this.reconnectDelay = 3000; // Сброс задержки
-                this.reconnectAttempts = 0; // Сброс счетчика попыток
-            };
+            this.ws.on('connect', () => {
+                console.log('✅ Socket.IO connected');
+                this.reconnectDelay = 3000;
+                this.reconnectAttempts = 0;
+            });
             
-            this.ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    
-                    if (data.type === 'init') {
-                        // Начальные данные - исправляем пути
-                        this.recentWins = (data.wins || []).map(win => this.fixImagePath(win));
-                        this.renderWins();
-                    } else if (data.type === 'new_win') {
-                        // Новый выигрыш - исправляем путь
-                        this.addWin(this.fixImagePath(data.win));
-                    }
-                } catch (error) {
-                    console.error('❌ Error parsing WebSocket message:', error);
+            this.ws.on('init', (data) => {
+                // Начальные данные - исправляем пути
+                this.recentWins = (data.wins || []).map(win => this.fixImagePath(win));
+                this.renderWins();
+            });
+            
+            this.ws.on('new_win', (data) => {
+                // Новый выигрыш - исправляем путь
+                this.addWin(this.fixImagePath(data.win));
+            });
+            
+            this.ws.on('connect_error', (error) => {
+                console.error('❌ Socket.IO error:', error.message);
+            });
+            
+            this.ws.on('disconnect', (reason) => {
+                console.log('❌ Socket.IO disconnected:', reason);
+                if (reason === 'io server disconnect') {
+                    // Переподключаемся если сервер отключил
+                    this.ws.connect();
                 }
-            };
-            
-            this.ws.onerror = (error) => {
-                console.error('❌ WebSocket error:', error);
-            };
-            
-            this.ws.onclose = () => {
-                console.log('❌ WebSocket disconnected, reconnecting...');
-                this.scheduleReconnect();
-            };
+            });
         } catch (error) {
-            console.error('❌ Error creating WebSocket:', error);
-            this.scheduleReconnect();
+            console.error('❌ Error creating Socket.IO connection:', error);
         }
     }
     
@@ -270,22 +269,19 @@ class RealtimeLivePrizes {
     }
     
     sendWin(prize, isChips, color) {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            console.warn('⚠️  WebSocket not connected');
+        if (!this.ws || !this.ws.connected) {
+            console.warn('⚠️  Socket.IO not connected');
             return;
         }
         
         const imagePath = this.getPrizeImagePath(prize, color, isChips);
         
-        const message = JSON.stringify({
-            type: 'win',
+        this.ws.emit('win', {
             prize: prize,
             isChips: isChips,
             color: color,
             imagePath: imagePath
         });
-        
-        this.ws.send(message);
     }
     
     getPrizeImagePath(prize, color, isChips) {
