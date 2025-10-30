@@ -26,14 +26,31 @@ const io = socketIo(server, {
 });
 
 // Нативный WebSocket сервер для live prizes
-const wss = new WebSocket.Server({ server });
+// Используем noServer: true чтобы вручную управлять upgrade
+const wss = new WebSocket.Server({ noServer: true });
 
 // Хранилище последних выигрышей для новых подключений
 const recentWins = [];
 const MAX_RECENT_WINS = 20;
 
+// Обрабатываем upgrade запросы для нативного WebSocket
+server.on('upgrade', (request, socket, head) => {
+  const pathname = new URL(request.url, 'http://localhost').pathname;
+  
+  // Только для пути /live-prizes используем нативный WebSocket
+  if (pathname === '/live-prizes') {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } else {
+    // Для остальных путей пусть Socket.IO обрабатывает (путь /socket.io/)
+    // Если это не socket.io путь - закрываем соединение
+    socket.destroy();
+  }
+});
+
 wss.on('connection', (ws) => {
-  console.log('✅ WebSocket client connected');
+  console.log('✅ WebSocket client connected (live-prizes)');
   
   // Отправляем историю последних выигрышей
   ws.send(JSON.stringify({
@@ -87,7 +104,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log('📡 Native WebSocket server initialized');
+console.log('📡 Native WebSocket server initialized on path /live-prizes');
 
 // Middleware
 app.use(helmet({

@@ -196,12 +196,12 @@ class RealtimeLivePrizes {
         
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             // Локальная разработка - подключаемся к локальному серверу на порту 3000
-            wsUrl = 'ws://localhost:3000';
+            wsUrl = 'ws://localhost:3000/live-prizes';
             console.log('🔧 Development mode - connecting to local WebSocket server');
         } else {
-            // Production - явно указываем URL Render сервера
+            // Production - явно указываем URL Render сервера с путем /live-prizes
             // Фронтенд на Vercel, бэкенд на Render
-            wsUrl = 'wss://telegram-games-plkj.onrender.com';
+            wsUrl = 'wss://telegram-games-plkj.onrender.com/live-prizes';
             console.log('🌐 Production mode - connecting to Render WebSocket server');
         }
         
