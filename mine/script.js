@@ -9,6 +9,8 @@
     MINE_EXPLOSION: 'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/mine/hit-a-mine.svg',
   };
 
+  const MIN_BET = 50; // Минимальная ставка
+  
   const state = {
     inGame: false,
     bombs: 2,
@@ -27,6 +29,49 @@
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
   function formatChips(n){ return `${Math.max(0, Math.floor(n))} Chips`; }
+
+  // Функция для показа toast-уведомлений
+  function showNotification(message) {
+    let toast = document.querySelector('#mine-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'mine-toast';
+      toast.className = 'roll-toast';
+      Object.assign(toast.style, {
+        position: 'fixed',
+        left: '50%',
+        top: '10px',
+        transform: 'translateX(-50%)',
+        background: 'rgba(60, 60, 60, 0.92)',
+        color: 'rgb(229, 229, 229)',
+        padding: '10px 14px',
+        borderRadius: '10px',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: 'rgba(0, 0, 0, 0.35) 0px 6px 20px',
+        fontFamily: 'Montserrat, Inter, Arial, sans-serif',
+        fontSize: '13px',
+        letterSpacing: '0.2px',
+        zIndex: '9999',
+        opacity: '0',
+        transition: 'opacity 0.2s',
+        pointerEvents: 'none'
+      });
+      document.body.appendChild(toast);
+    }
+    
+    // Сбрасываем предыдущий таймер если есть
+    if (toast.hideTimer) {
+      clearTimeout(toast.hideTimer);
+    }
+    
+    toast.textContent = message;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 1600);
+    });
+  }
 
   function getCells() {
     // All clickable tiles are divs with class .div-3 inside .game .tile
@@ -222,6 +267,12 @@
   }
 
   async function startGame() {
+    // Проверка минимальной ставки
+    if (state.bet < MIN_BET) {
+      showNotification(`Минимальная ставка: ${MIN_BET} rubles`);
+      return false;
+    }
+    
     // Проверка баланса и списание ставки
     if (!window.GameBalanceAPI) {
       console.error('GameBalanceAPI не загружен');
@@ -229,13 +280,13 @@
     }
     
     if (!window.GameBalanceAPI.canPlaceBet(state.bet, 'rubles')) {
-      console.log('Недостаточно рублей');
+      showNotification(`Недостаточно средств для ставки ${state.bet} rubles`);
       return false;
     }
     
     const success = await window.GameBalanceAPI.placeBet(state.bet, 'rubles');
     if (!success) {
-      console.log('Ошибка списания ставки');
+      showNotification('Ошибка списания ставки');
       return false;
     }
     
@@ -400,12 +451,11 @@
       // Start game (balance check inside)
       const gameStarted = await startGame();
       
-      // Показываем alert только если ставка успешно сделана
-      if (gameStarted && window.Telegram?.WebApp?.showAlert) {
-        window.Telegram.WebApp.showAlert(`Ставка ${state.bet} rubles сделана!`);
-      } else if (!gameStarted && window.Telegram?.WebApp?.showAlert) {
-        // Показываем ошибку если средств недостаточно
-        window.Telegram.WebApp.showAlert(`Недостаточно средств для ставки ${state.bet} rubles`);
+      // Показываем toast уведомления
+      if (gameStarted) {
+        showNotification(`Ставка ${state.bet} rubles сделана!`);
+      } else {
+        // Ошибка уже показывается в startGame() через showNotification
       }
     } else {
       // Block cashout reveal if bombs selection is invalid
@@ -509,7 +559,7 @@
     const halfBtn = $('.bet .button-x .button-2');
     if (halfBtn) {
       halfBtn.addEventListener('click', () => {
-        state.bet = Math.max(1, Math.floor(state.bet / 2));
+        state.bet = Math.max(MIN_BET, Math.floor(state.bet / 2));
         updateCashoutDisplay();
         renderBetAmount();
       });
@@ -541,7 +591,7 @@
     if (minusBtn) {
       minusBtn.style.cursor = 'pointer';
       minusBtn.addEventListener('click', () => {
-        state.bet = Math.max(1, state.bet - 1);
+        state.bet = Math.max(MIN_BET, state.bet - 1);
         updateCashoutDisplay();
         renderBetAmount();
       });
@@ -550,7 +600,7 @@
     const unionBtn = $('.input-amount-bet .union-wrapper');
     if (unionBtn) {
       unionBtn.style.cursor = 'pointer';
-      const presets = [10, 25, 50, 100, 250, 500, 1000];
+      const presets = [50, 100, 250, 500, 1000, 2500, 5000];
       unionBtn.addEventListener('click', () => {
         const idx = presets.findIndex(v => v >= state.bet);
         const next = presets[(idx + 1) % presets.length];

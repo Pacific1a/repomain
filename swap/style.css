@@ -276,6 +276,7 @@
 }
 
 .swap .circle {
+  top: 5px;
   position: relative;
   width: 4px;
   height: 4px;

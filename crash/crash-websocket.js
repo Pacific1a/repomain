@@ -1,6 +1,9 @@
 (function() {
   'use strict';
 
+  // ============ КОНСТАНТЫ ============
+  const MIN_BET = 50; // Минимальная ставка
+
   // ============ СОСТОЯНИЯ ============
   const GAME_STATES = {
     WAITING: 'waiting',
@@ -394,7 +397,7 @@
         const success = await window.GameBalanceAPI.placeBet(playerBetAmount, 'rubles');
         if (!success) {
           // Если не хватает баланса - отменяем ставку
-          console.log('❌ Недостаточно фишек для активации ставки');
+          showNotification('Недостаточно средств для активации ставки');
           playerBetAmount = 0;
           playerHasBet = false;
           playerCashedOut = false;
@@ -518,14 +521,57 @@
     });
   }
 
+  // ============ УВЕДОМЛЕНИЯ ============
+  function showNotification(message) {
+    let toast = document.querySelector('#crash-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'crash-toast';
+      toast.className = 'roll-toast';
+      Object.assign(toast.style, {
+        position: 'fixed',
+        left: '50%',
+        top: '10px',
+        transform: 'translateX(-50%)',
+        background: 'rgba(60, 60, 60, 0.92)',
+        color: 'rgb(229, 229, 229)',
+        padding: '10px 14px',
+        borderRadius: '10px',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: 'rgba(0, 0, 0, 0.35) 0px 6px 20px',
+        fontFamily: 'Montserrat, Inter, Arial, sans-serif',
+        fontSize: '13px',
+        letterSpacing: '0.2px',
+        zIndex: '9999',
+        opacity: '0',
+        transition: 'opacity 0.2s',
+        pointerEvents: 'none'
+      });
+      document.body.appendChild(toast);
+    }
+    
+    // Сбрасываем предыдущий таймер если есть
+    if (toast.hideTimer) {
+      clearTimeout(toast.hideTimer);
+    }
+    
+    toast.textContent = message;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 1600);
+    });
+  }
+
   // ============ СТАВКА ============
   function getBetAmount() {
-    return parseInt(elements.betInput?.value) || 50;
+    return parseInt(elements.betInput?.value) || MIN_BET;
   }
 
   function setBetAmount(amount) {
     if (elements.betInput) {
-      elements.betInput.value = Math.max(50, amount);
+      elements.betInput.value = Math.max(MIN_BET, amount);
     }
   }
 
@@ -632,8 +678,14 @@
         // Резервируем ставку в период ожидания (баланс НЕ списываем)
         const betAmount = getBetAmount();
         
+        // Проверка минимальной ставки
+        if (betAmount < MIN_BET) {
+          showNotification(`Минимальная ставка: ${MIN_BET} rubles`);
+          return;
+        }
+        
         if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
-          console.log('❌ Недостаточно фишек');
+          showNotification('Недостаточно средств');
           return;
         }
         
@@ -646,18 +698,22 @@
         setButtonState(BUTTON_STATES.CANCEL);
         updateAutoSectionState();
         
-        // Показываем alert о ставке
-        if (window.Telegram?.WebApp?.showAlert) {
-          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} chips сделана!`);
-        }
+        // Показываем toast уведомление
+        showNotification(`Ставка ${betAmount} rubles сделана!`);
         
         console.log(`✅ Ставка зарезервирована: ${betAmount} chips (баланс будет списан при старте раунда)`);
       } else if (buttonState === BUTTON_STATES.BET && gameState === GAME_STATES.FLYING) {
         // Резервируем ставку на следующий раунд (баланс НЕ списываем)
         const betAmount = getBetAmount();
         
+        // Проверка минимальной ставки
+        if (betAmount < MIN_BET) {
+          showNotification(`Минимальная ставка: ${MIN_BET} rubles`);
+          return;
+        }
+        
         if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
-          console.log('❌ Недостаточно фишек');
+          showNotification('Недостаточно средств');
           return;
         }
         
@@ -670,10 +726,8 @@
         setButtonState(BUTTON_STATES.CANCEL);
         updateAutoSectionState();
         
-        // Показываем alert о ставке
-        if (window.Telegram?.WebApp?.showAlert) {
-          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} chips сделана на следующий раунд!`);
-        }
+        // Показываем toast уведомление
+        showNotification(`Ставка ${betAmount} rubles сделана на следующий раунд!`);
         
         console.log(`✅ Ставка зарезервирована на следующий раунд: ${betAmount} chips (баланс будет списан при старте)`);
       } else if (buttonState === BUTTON_STATES.CANCEL) {
@@ -690,10 +744,8 @@
           });
         }
         
-        // Показываем alert об отмене ставки
-        if (window.Telegram?.WebApp?.showAlert) {
-          window.Telegram.WebApp.showAlert('Ставка отменена!');
-        }
+        // Показываем toast уведомление
+        showNotification('Ставка отменена!');
         
         console.log('❌ Резервирование ставки отменено');
         

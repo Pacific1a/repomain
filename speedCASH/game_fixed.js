@@ -1,5 +1,8 @@
 class SpeedCashGame {
     constructor() {
+        // Минимальная ставка
+        this.MIN_BET = 50;
+        
         // Определение мобильного устройства
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
         console.log(`📱 Мобильное устройство: ${this.isMobile}`);
@@ -641,6 +644,13 @@ class SpeedCashGame {
             } else {
                 // Ставим новую ставку
                 const betAmount = color === 'blue' ? this.blueBet : this.orangeBet;
+                
+                // Проверка минимальной ставки
+                if (betAmount < this.MIN_BET) {
+                    this.showNotification(`Минимальная ставка: ${this.MIN_BET} rubles`);
+                    return;
+                }
+                
                 if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
                     this.showNotification('Недостаточно средств');
                     return;
@@ -1563,11 +1573,11 @@ class SpeedCashGame {
             if (this.gameState !== 'betting') return;
             
             if (action === 'half') {
-                this.singleBet = Math.max(10, Math.floor(this.singleBet / 2));
+                this.singleBet = Math.max(this.MIN_BET, Math.floor(this.singleBet / 2));
             } else if (action === 'double') {
                 this.singleBet = this.singleBet * 2;
             } else {
-                this.singleBet = Math.max(10, this.singleBet + action);
+                this.singleBet = Math.max(this.MIN_BET, this.singleBet + action);
             }
             
             const singleAmountDisplay = document.querySelector('.who-is-win .text-wrapper-13');
@@ -1586,11 +1596,11 @@ class SpeedCashGame {
         
         if (color === 'blue') {
             if (action === 'half') {
-                this.blueBet = Math.max(10, Math.floor(this.blueBet / 2));
+                this.blueBet = Math.max(this.MIN_BET, Math.floor(this.blueBet / 2));
             } else if (action === 'double') {
                 this.blueBet = this.blueBet * 2;
             } else {
-                this.blueBet = Math.max(10, this.blueBet + action);
+                this.blueBet = Math.max(this.MIN_BET, this.blueBet + action);
             }
             if (this.blueBetAmount) {
                 this.blueBetAmount.textContent = this.blueBet;
@@ -1601,11 +1611,11 @@ class SpeedCashGame {
             }
         } else if (color === 'orange') {
             if (action === 'half') {
-                this.orangeBet = Math.max(10, Math.floor(this.orangeBet / 2));
+                this.orangeBet = Math.max(this.MIN_BET, Math.floor(this.orangeBet / 2));
             } else if (action === 'double') {
                 this.orangeBet = this.orangeBet * 2;
             } else {
-                this.orangeBet = Math.max(10, this.orangeBet + action);
+                this.orangeBet = Math.max(this.MIN_BET, this.orangeBet + action);
             }
             if (this.orangeBetAmount) {
                 this.orangeBetAmount.textContent = this.orangeBet;
@@ -1625,6 +1635,13 @@ class SpeedCashGame {
                 this.cancelSingleBet();
             } else {
                 // Ставим новую ставку
+                
+                // Проверка минимальной ставки
+                if (this.singleBet < this.MIN_BET) {
+                    this.showNotification(`Минимальная ставка: ${this.MIN_BET} rubles`);
+                    return;
+                }
+                
                 if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.singleBet, 'rubles')) {
                     this.showNotification('Недостаточно средств');
                     return;
