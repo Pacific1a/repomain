@@ -220,8 +220,8 @@
       veryHigh: 1,
       high: 2,
       medium: 8,
-      low: 15,
-      veryLow: 20
+      low: 20,
+      veryLow: 30
     };
 
     prizes.forEach(prize => {
@@ -414,12 +414,12 @@
 
   function selectRandomPrize(prizes) {
     const weights = prizes.map(prize => {
-      if (prize >= 3000) return 2;
-      if (prize >= 2000) return 5;
-      if (prize >= 1000) return 15;
-      if (prize >= 500) return 25;
-      if (prize >= 300) return 30;
-      return 50;
+      if (prize >= 3000) return 1;
+      if (prize >= 2000) return 2;
+      if (prize >= 1000) return 8;
+      if (prize >= 500) return 20;
+      if (prize >= 300) return 35;
+      return 60;
     });
 
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);

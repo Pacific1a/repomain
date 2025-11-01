@@ -421,7 +421,11 @@
   background-color: #fff5f538;
   border-radius: 3px;
 }
-
+.MORE-button a{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 .main .MORE-button {
   display: flex;
   width: 108px;

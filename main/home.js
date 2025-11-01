@@ -89,12 +89,10 @@
 
   if (bannerEl){
     applyBanner(0);
-    if (moreBtn){
-      moreBtn.addEventListener('click', (e)=>{ e.preventDefault(); nextBanner(); });
-    }
     // also allow clicking banner area to switch
     bannerEl.addEventListener('click', (e)=>{
-      if (e.target.closest('.MORE-button')) return; // already handled
+      // Игнорируем клики по кнопке "Подробнее" - пусть она работает как ссылка
+      if (e.target.closest('.MORE-button')) return;
       nextBanner();
     });
     // ellipse indicators click
