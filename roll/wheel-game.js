@@ -453,9 +453,8 @@
       }
       
       players.forEach(player => {
-        // Пропускаем невалидных игроков и БОТОВ
+        // Пропускаем только невалидных игроков (боты теперь отображаются!)
         if (!player || !player.id || !player.username || player.id === 'undefined') return;
-        if (player.isBot) return; // Пропускаем ботов
         
         // Ищем существующий блок игрока
         let playerDiv = elements.playersList.querySelector(`[data-player-id="${player.id}"]`);

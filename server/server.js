@@ -205,6 +205,87 @@ function getPlayerColor(userId) {
   return playerColors.get(userId);
 }
 
+// ============ ROLL BOTS SYSTEM ============
+const ROLL_BOTS = [
+  { id: 'bot_den', nickname: 'den', photoUrl: '/roll/aaaaasdasfd.png' },
+  { id: 'bot_sagarius', nickname: 'Sagarius', photoUrl: '/roll/aagsagsags.png' },
+  { id: 'bot_dev_fenomen', nickname: 'dev_fenomen', photoUrl: '/roll/asaggasad.png' },
+  { id: 'bot_majer', nickname: 'Majer', photoUrl: '/roll/asd;plaksf;lkapowjrawkdsad.png' },
+  { id: 'bot_ovi', nickname: 'OVI', photoUrl: '/roll/asdagaghagsdasg.png' },
+  { id: 'bot_user', nickname: 'User', photoUrl: '/roll/asdasdasfasgfasd.png' },
+  { id: 'bot_mr_baton', nickname: 'Mr.Baton', photoUrl: '/roll/asdeasfagasdas.png' },
+  { id: 'bot_wal', nickname: 'Wal?!!?', photoUrl: '/roll/asfahgsh.png' },
+  { id: 'bot_r1mskyy', nickname: 'r1mskyy', photoUrl: '/roll/ashgahh.png' },
+  { id: 'bot_crownfall', nickname: 'crownfall', photoUrl: '/roll/sdsdffsdsddfsdfsdf.png' },
+  { id: 'bot_roverds', nickname: 'ʀᴏᴠᴇʀᴅs', photoUrl: '/roll/aaaaasdasfd.png' },
+  { id: 'bot_good', nickname: 'ɢᴏᴏᴅ', photoUrl: '/roll/aagsagsags.png' },
+  { id: 'bot_happiness', nickname: 'ハピネス', photoUrl: '/roll/asaggasad.png' }
+];
+
+// Ставки ботов (цикл)
+const BOT_BET_SEQUENCE = [700, 800, 1000, 300, 500, 700];
+const BOT_BET_INTERVAL = 10000; // 10 секунд между ставками
+
+// Активные боты и их состояние
+const activeBotsData = new Map(); // botId -> { gamesPlayed, currentBetIndex, betTimer }
+
+// Получить случайных ботов (не более 2-3 одинаковых)
+function getRandomBots(count) {
+  const botsToAdd = [];
+  const selectedIds = new Set();
+  const shuffled = [...ROLL_BOTS].sort(() => Math.random() - 0.5);
+  
+  for (let i = 0; i < count && i < shuffled.length; i++) {
+    const bot = shuffled[i];
+    // Проверяем что бота еще нет в активных
+    const gameState = globalGames.roll;
+    const alreadyActive = gameState.activeBots.find(b => b.id === bot.id);
+    
+    if (!alreadyActive && !selectedIds.has(bot.id)) {
+      botsToAdd.push(bot);
+      selectedIds.add(bot.id);
+    }
+  }
+  
+  return botsToAdd;
+}
+
+// Добавить ботов в игру
+function addBotsToRoll(count) {
+  const gameState = globalGames.roll;
+  
+  // НЕ добавляем ботов во время игры (только в waiting)
+  if (gameState.status !== 'waiting') {
+    console.log(`⚠️ Нельзя добавлять ботов во время игры (статус: ${gameState.status})`);
+    return;
+  }
+  
+  const botsToAdd = getRandomBots(count);
+  
+  botsToAdd.forEach(bot => {
+    // Проверяем что бота еще нет
+    if (!gameState.activeBots.find(b => b.id === bot.id)) {
+      gameState.activeBots.push({
+        id: bot.id,
+        nickname: bot.nickname,
+        photoUrl: bot.photoUrl,
+        gamesPlayed: 0,
+        currentBetIndex: 0
+      });
+      
+      activeBotsData.set(bot.id, {
+        gamesPlayed: 0,
+        currentBetIndex: 0,
+        betTimer: null
+      });
+      
+      console.log(`🤖 Бот ${bot.nickname} добавлен в игру`);
+    }
+  });
+}
+
+// Функции ботов будут определены внутри io.on('connection') после startGlobalGame
+
 // Глобальные игры (одна игра для всех пользователей)
 const globalGames = {
   speedcash: {
@@ -229,7 +310,8 @@ const globalGames = {
     timerInterval: null,
     winner: null,
     totalBet: 0,
-    bets: {}
+    bets: {},
+    activeBots: [] // Активные боты в текущей сессии
   },
   crash: {
     status: 'waiting', // waiting, flying, crashed
@@ -645,7 +727,8 @@ io.on('connection', (socket) => {
             nickname: p.nickname,
             photoUrl: p.photoUrl,
             bet: p.bet,
-            color: p.color
+            color: p.color,
+            isBot: p.isBot || String(p.userId).startsWith('bot_') // Добавляем флаг бота
           })),
           startTime: gameState.startTime
         });
@@ -711,7 +794,8 @@ io.on('connection', (socket) => {
         nickname: p.nickname,
         photoUrl: p.photoUrl,
         bet: p.bet,
-        color: p.color // ДОБАВЛЯЕМ ЦВЕТ
+        color: p.color, // ДОБАВЛЯЕМ ЦВЕТ
+        isBot: p.isBot || String(p.userId).startsWith('bot_') // Добавляем флаг бота
       })),
       timer: gameState.timer,
       startTime: gameState.startTime ? gameState.startTime.toISOString() : null
@@ -807,27 +891,54 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // Выбираем победителя по весам
+    // Останавливаем ставки ботов
+    stopBotBets();
+
+    // Выбираем победителя по весам (боты имеют +30% шанс)
     const totalBets = gameState.players.reduce((sum, p) => sum + p.bet, 0);
-    const random = Math.random() * totalBets;
+    
+    // Рассчитываем взвешенные ставки (боты +30%)
+    const weightedBets = gameState.players.map(p => {
+      const isBot = p.isBot || String(p.userId).startsWith('bot_');
+      const weight = isBot ? p.bet * 1.3 : p.bet; // +30% для ботов
+      return { player: p, weight };
+    });
+    
+    const totalWeight = weightedBets.reduce((sum, w) => sum + w.weight, 0);
+    const random = Math.random() * totalWeight;
     let sum = 0;
     let winner = gameState.players[0];
 
-    for (const player of gameState.players) {
-      sum += player.bet;
+    for (const weighted of weightedBets) {
+      sum += weighted.weight;
       if (random <= sum) {
-        winner = player;
+        winner = weighted.player;
         break;
       }
     }
 
-    console.log(`🏆 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId})`);
+    // Увеличиваем счетчик игр для всех активных ботов (они участвовали в игре)
+    gameState.players.forEach(player => {
+      if (player.isBot || String(player.userId).startsWith('bot_')) {
+        const botData = activeBotsData.get(player.userId);
+        if (botData) {
+          botData.gamesPlayed++;
+          const isWinner = player.userId === winner.userId;
+          console.log(`🤖 Бот ${player.nickname} ${isWinner ? 'выиграл' : 'участвовал'} (игр: ${botData.gamesPlayed}/2)`);
+        }
+      }
+    });
+
+    console.log(`🏆 Победитель в ${game}: ${winner.nickname} (userId: ${winner.userId}, бот: ${winner.isBot || String(winner.userId).startsWith('bot_')})`);
     
     // Сохраняем победителя в состоянии
     gameState.status = 'spinning';
     gameState.winner = winner.userId;
 
-    io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId });
+    // Вычисляем общую сумму для победителя
+    const totalAmount = gameState.players.reduce((sum, p) => sum + p.bet, 0);
+
+    io.to(`global_${game}`).emit('spin_wheel', { winner: winner.userId, amount: totalAmount });
     console.log(`📤 Отправлено событие spin_wheel в комнату global_${game} с winnerId: ${winner.userId}`);
     console.log(`📊 Клиентов в комнате global_${game}:`, io.sockets.adapter.rooms.get(`global_${game}`)?.size || 0);
 
@@ -835,16 +946,240 @@ io.on('connection', (socket) => {
     setTimeout(() => {
       io.to(`global_${game}`).emit('game_finished', { winner: winner.userId });
       
+      // Очищаем ботов после 2 игр
+      cleanupBots();
+      
       // Сбрасываем состояние
       gameState.status = 'waiting';
       gameState.players = [];
       gameState.startTime = null;
       
+      // Очищаем ботов после 2 игр и проверяем нужно ли добавить новых
+      setTimeout(() => {
+        // Проверяем что игра все еще в waiting (могла начаться новая)
+        if (gameState.status !== 'waiting') {
+          console.log(`⏸️ Игра уже началась, откладываем добавление ботов`);
+          return;
+        }
+        
+        cleanupBots(); // Очищаем ботов после 2 игр
+        
+        // Проверяем количество активных ботов после очистки
+        const currentBotCount = gameState.activeBots.length;
+        const targetBotCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
+        
+        // Если ботов стало меньше, добавляем новых (только если игра в waiting)
+        if (gameState.status === 'waiting' && currentBotCount < targetBotCount) {
+          const botsToAdd = targetBotCount - currentBotCount;
+          console.log(`🤖 После игры: добавляем ${botsToAdd} новых ботов (текущее: ${currentBotCount})`);
+          addBotsToRoll(botsToAdd);
+        }
+        
+        // Запускаем ставки для всех активных ботов (только если игра в waiting)
+        if (gameState.status === 'waiting' && gameState.activeBots.length > 0) {
+          startBotBets();
+        }
+      }, 2000);
+      
       console.log(`🏁 Глобальная игра ${game} завершена`);
     }, 5000);
   }
 
+  // ============ ROLL BOTS FUNCTIONS (внутри io.on для доступа к startGlobalGame) ============
+  // Сделать ставку от бота
+  function makeBotBet(botId) {
+    const gameState = globalGames.roll;
+    const botData = activeBotsData.get(botId);
+    if (!botData) return;
+    
+    const bot = ROLL_BOTS.find(b => b.id === botId);
+    if (!bot) return;
+    
+    // Не делаем ставки во время spinning
+    if (gameState.status === 'spinning') {
+      return;
+    }
+    
+    // Получаем текущую ставку из последовательности
+    const betAmount = BOT_BET_SEQUENCE[botData.currentBetIndex % BOT_BET_SEQUENCE.length];
+    botData.currentBetIndex++;
+    
+    // Симулируем ставку через place_bet
+    const botColor = getPlayerColor(botId);
+    
+    // Добавляем/обновляем игрока
+    const existingPlayer = gameState.players.find(p => p.userId === botId);
+    if (existingPlayer) {
+      existingPlayer.bet += betAmount;
+    } else {
+      const cleanPlayer = {
+        userId: botId,
+        nickname: bot.nickname,
+        photoUrl: bot.photoUrl,
+        bet: betAmount,
+        color: botColor,
+        isBot: true // Маркер бота
+      };
+      gameState.players.push(cleanPlayer);
+    }
+    
+    // Отправляем всем в комнате
+    io.to('global_roll').emit('player_bet', {
+      userId: botId,
+      nickname: bot.nickname,
+      photoUrl: bot.photoUrl,
+      bet: betAmount,
+      color: botColor,
+      isBot: true // Добавляем флаг бота
+    });
+    
+    console.log(`🤖 Бот ${bot.nickname} сделал ставку ${betAmount}₽`);
+    
+    // Запускаем игру если нужно
+    if (gameState.status === 'waiting' && gameState.players.length >= 2) {
+      startGlobalGame('roll');
+    }
+    
+    // Следующая ставка через 10 секунд (только если игра в waiting или betting)
+    // НЕ планируем следующую ставку если бот уже сыграл 2 игры
+    if (botData.gamesPlayed >= 2) {
+      console.log(`🤖 Бот ${bot.nickname} достиг лимита игр (2), прекращаем ставки`);
+      return; // Бот уже сыграл максимум игр
+    }
+    
+    if (gameState.status === 'waiting' || gameState.status === 'betting') {
+      botData.betTimer = setTimeout(() => {
+        makeBotBet(botId);
+      }, BOT_BET_INTERVAL);
+    }
+  }
+
+  // Запуск ставок для ботов
+  function startBotBets() {
+    const gameState = globalGames.roll;
+    
+    gameState.activeBots.forEach(bot => {
+      const botData = activeBotsData.get(bot.id);
+      if (!botData) return;
+      
+      // Пропускаем ботов которые уже сыграли 2 игры
+      if (botData.gamesPlayed >= 2) {
+        return;
+      }
+      
+      // Первая ставка через случайную задержку (0-5 сек)
+      const delay = Math.random() * 5000;
+      
+      setTimeout(() => {
+        makeBotBet(bot.id);
+      }, delay);
+    });
+  }
+
+  // Остановить ставки ботов
+  function stopBotBets() {
+    activeBotsData.forEach(botData => {
+      if (botData.betTimer) {
+        clearTimeout(botData.betTimer);
+        botData.betTimer = null;
+      }
+    });
+  }
+
+  // Удалить ботов после 2 игр
+  function cleanupBots() {
+    const gameState = globalGames.roll;
+    
+    gameState.activeBots = gameState.activeBots.filter(bot => {
+      const botData = activeBotsData.get(bot.id);
+      if (botData && botData.gamesPlayed >= 2) {
+        // Удаляем из активных
+        activeBotsData.delete(bot.id);
+        console.log(`🤖 Бот ${bot.nickname} удален после ${botData.gamesPlayed} игр`);
+        return false;
+      }
+      return true;
+    });
+  }
+
+  // Экспортируем функции ботов для использования в scheduleBotSpawn
+  botFunctions = {
+    startBotBets,
+    stopBotBets,
+    cleanupBots,
+    makeBotBet
+  };
+  
+  // Запускаем спавн ботов после первого подключения (только один раз)
+  if (!scheduleBotSpawn.initialized) {
+    scheduleBotSpawn.initialized = true;
+    scheduleBotSpawn();
+    
+    // Первичная инициализация ботов через 2 секунды
+    setTimeout(() => {
+      const initialBots = 2 + Math.floor(Math.random() * 3); // 2-4 бота
+      console.log(`🤖 Первичная инициализация ${initialBots} ботов в Roll...`);
+      addBotsToRoll(initialBots);
+      
+      setTimeout(() => {
+        if (botFunctions) {
+          botFunctions.startBotBets();
+        }
+      }, 2000);
+    }, 2000);
+    
+    // Также запускаем проверку сразу (чтобы боты добавлялись быстрее после удаления)
+    setTimeout(() => {
+      if (!botFunctions) return;
+      const gameState = globalGames.roll;
+      
+      // НЕ добавляем ботов во время игры
+      if (gameState.status !== 'waiting') {
+        console.log(`⏸️ Быстрая проверка пропущена (статус: ${gameState.status})`);
+        return;
+      }
+      
+      botFunctions.cleanupBots();
+      
+      const currentBotCount = gameState.activeBots.length;
+      const targetBotCount = 2 + Math.floor(Math.random() * 3);
+      
+      if (currentBotCount < targetBotCount) {
+        const botsToAdd = targetBotCount - currentBotCount;
+        console.log(`🤖 Быстрая проверка: добавляем ${botsToAdd} ботов`);
+        addBotsToRoll(botsToAdd);
+        
+        setTimeout(() => {
+          if (botFunctions && gameState.status === 'waiting') {
+            botFunctions.startBotBets();
+          }
+        }, 1000);
+      }
+    }, 30000); // Проверка через 30 секунд после старта
+  }
+
   // ============ CRASH GAME ============
+  
+  // Генерация взвешенного crash point (чаще низкие множители)
+  function generateWeightedCrashPoint() {
+    const rand = Math.random();
+    
+    // 75% - низкие множители (1.15, 1.22, 1.32, 1.45, 1.56)
+    if (rand < 0.75) {
+      const lowMultipliers = [1.15, 1.22, 1.32, 1.45, 1.56];
+      const randomLow = lowMultipliers[Math.floor(Math.random() * lowMultipliers.length)];
+      // Добавляем небольшой разброс ±0.05
+      return randomLow + (Math.random() - 0.5) * 0.1;
+    }
+    // 20% - средние множители (1.6-2.0)
+    else if (rand < 0.95) {
+      return 1.6 + Math.random() * 0.4;
+    }
+    // 5% - высокие множители (>2.0, до 3.5)
+    else {
+      return 2.0 + Math.random() * 1.5;
+    }
+  }
   
   // Запуск Crash (таймер ожидания)
   function startCrashWaiting() {
@@ -887,7 +1222,9 @@ io.on('connection', (socket) => {
     gameState.status = 'flying';
     gameState.startTime = new Date();
     gameState.multiplier = 1.00;
-    gameState.crashPoint = (Math.random() * 9 + 1).toFixed(2);
+    // Генерация crash point с уклоном в низкие значения
+    // 75% - низкие множители (1.15-1.6), 20% - средние (1.6-2.0), 5% - высокие (>2.0)
+    gameState.crashPoint = generateWeightedCrashPoint().toFixed(2);
     
     io.to('global_crash').emit('crash_started', {
       startTime: gameState.startTime.toISOString()
@@ -1571,6 +1908,51 @@ app.get('/api/admin/balances', async (req, res) => {
   }
 });
 
+// ============ ROLL BOTS AUTO-SPAWN ============
+// Переменные для хранения ссылок на функции ботов из io.on
+let botFunctions = null;
+
+// Периодически добавляем ботов (2-4 бота)
+function scheduleBotSpawn() {
+  // Проверяем и добавляем ботов каждые 5 минут
+  const botCheckInterval = 5 * 60 * 1000; // 5 минут
+  
+  setInterval(() => {
+    if (!botFunctions) return; // Функции еще не инициализированы
+    
+    const gameState = globalGames.roll;
+    
+    // НЕ добавляем ботов во время игры
+    if (gameState.status !== 'waiting') {
+      console.log(`⏸️ Пропускаем добавление ботов (статус игры: ${gameState.status})`);
+      return;
+    }
+    
+    // Очищаем старых ботов (после 2 игр)
+    botFunctions.cleanupBots();
+    
+    // Проверяем количество активных ботов
+    const currentBotCount = gameState.activeBots.length;
+    const targetBotCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
+    
+    // Если ботов меньше целевого количества, добавляем новых
+    if (currentBotCount < targetBotCount) {
+      const botsToAdd = targetBotCount - currentBotCount;
+      console.log(`🤖 Добавляем ${botsToAdd} новых ботов (текущее: ${currentBotCount}, целевое: ${targetBotCount})`);
+      addBotsToRoll(botsToAdd);
+      
+      // Запускаем ставки для новых ботов
+      setTimeout(() => {
+        if (botFunctions) {
+          botFunctions.startBotBets();
+        }
+      }, 1000);
+    } else {
+      console.log(`🤖 Достаточно ботов (${currentBotCount}), ожидание...`);
+    }
+  }, botCheckInterval);
+}
+
 // Запуск сервера
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
@@ -1578,6 +1960,7 @@ server.listen(PORT, () => {
   console.log(`📡 WebSocket готов к подключениям`);
   console.log(`💾 Персистентное хранилище: ${DATA_DIR}`);
   console.log(`🗄️ MongoDB: ${MONGODB_URI && MONGODB_URI.trim() !== '' ? 'Настроена' : 'Отключена (используется JSON)'}`);
+  console.log(`🤖 Система ботов Roll будет активирована после первого подключения`);
 });
 
 // Graceful shutdown

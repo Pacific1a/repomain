@@ -36,30 +36,63 @@
     // Получаем текущее состояние
     ws.socket.on('game_state_sync', (state) => {
       console.log('🔄 Синхронизация состояния:', state);
+      console.log('🤖 Игроки в состоянии:', state.players?.length, 'ботов:', state.players?.filter(p => p.isBot || String(p.userId || p.id || '').startsWith('bot_')).length);
       
       const wasWaiting = gameState.status === 'waiting';
+      const previousStatus = gameState.status;
       gameState = state;
       
       // ТОЛЬКО updateUI (внутри уже есть обновление колеса)
       updateUI();
       
-      // Запускаем таймер ТОЛЬКО ПРИ ПЕРЕХОДЕ waiting -> betting
-      if (state.status === 'betting' && state.startTime && wasWaiting && !timerActive) {
+      // Восстанавливаем таймер если игра в betting
+      // Это работает как для перехода waiting->betting, так и для переподключения во время betting
+      if (state.status === 'betting' && state.startTime) {
+        // Останавливаем старый таймер если есть (на случай переподключения)
+        if (activeTimerInterval) {
+          clearInterval(activeTimerInterval);
+          activeTimerInterval = null;
+        }
+        
+        // Запускаем/восстанавливаем таймер
         timerActive = true;
+        console.log('⏱️ Запускаем/восстанавливаем таймер (статус: betting, startTime:', state.startTime, ')');
         syncTimer(state.startTime, state.timer);
+      }
+      
+      // Если игра в spinning, останавливаем таймер и показываем PLAY
+      if (state.status === 'spinning') {
+        if (activeTimerInterval) {
+          clearInterval(activeTimerInterval);
+          activeTimerInterval = null;
+        }
+        timerActive = false;
+        
+        const waitText = document.querySelector('.wait span:last-child');
+        const waitSpan = document.querySelector('.wait span:first-child');
+        if (waitText && waitSpan) {
+          waitSpan.style.display = 'none';
+          waitText.style.display = 'inline';
+          waitText.style.color = '#ffc107';
+          waitText.textContent = 'PLAY';
+        }
       }
       
       // Сбрасываем флаг когда игра закончилась
       if (state.status === 'waiting') {
         timerActive = false;
+        if (activeTimerInterval) {
+          clearInterval(activeTimerInterval);
+          activeTimerInterval = null;
+        }
       }
     });
 
     // Новый игрок сделал ставку
     ws.socket.on('player_bet', (data) => {
-      console.log('💰 Игрок сделал ставку:', data);
+      console.log('💰 Игрок сделал ставку:', data, 'бот:', data.isBot);
       
-      // Добавляем/обновляем игрока (С ЦВЕТОМ!)
+      // Добавляем/обновляем игрока (С ЦВЕТОМ И ФЛАГОМ БОТА!)
       const existingPlayer = gameState.players.find(p => p.userId === data.userId);
       if (existingPlayer) {
         existingPlayer.bet += data.bet;
@@ -67,13 +100,18 @@
         if (data.color) {
           existingPlayer.color = data.color;
         }
+        // Обновляем флаг бота
+        if (data.isBot !== undefined) {
+          existingPlayer.isBot = data.isBot;
+        }
       } else {
         gameState.players.push({
           userId: data.userId,
           nickname: data.nickname,
           photoUrl: data.photoUrl,
           bet: data.bet,
-          color: data.color // ДОБАВЛЯЕМ ЦВЕТ!
+          color: data.color, // ДОБАВЛЯЕМ ЦВЕТ!
+          isBot: data.isBot || false // Добавляем флаг бота
         });
       }
 
@@ -98,7 +136,24 @@
       console.log('📥 ПОЛУЧЕНО СОБЫТИЕ spin_wheel!', data);
       console.log('🎰 Крутим колесо! Победитель:', data.winner);
       console.log('📊 Текущие игроки:', gameState.players);
+      
+      // Останавливаем таймер если он активен
+      if (activeTimerInterval) {
+        clearInterval(activeTimerInterval);
+        activeTimerInterval = null;
+      }
+      
       gameState.status = 'spinning';
+      
+      // Показываем "Play" только когда начинается spinning
+      const waitText = document.querySelector('.wait span:last-child');
+      const waitSpan = document.querySelector('.wait span:first-child');
+      if (waitText && waitSpan) {
+        waitSpan.style.display = 'none';
+        waitText.style.display = 'inline';
+        waitText.style.color = '#ffc107';
+        waitText.textContent = 'PLAY';
+      }
       
       // НЕ очищаем игроков! Колесо должно крутиться с текущими игроками
       if (window.rollGame && window.rollGame.spin) {
@@ -150,8 +205,17 @@
     ws.socket.emit('get_game_state', { game: 'roll' });
   }
 
+  // Хранилище активных интервалов таймера
+  let activeTimerInterval = null;
+
   // Синхронизация таймера
   function syncTimer(startTime, duration) {
+    // Очищаем предыдущий интервал если есть
+    if (activeTimerInterval) {
+      clearInterval(activeTimerInterval);
+      activeTimerInterval = null;
+    }
+
     const elapsed = Math.floor((Date.now() - new Date(startTime).getTime()) / 1000);
     let timeLeft = duration - elapsed;
 
@@ -161,49 +225,61 @@
 
     console.log(`⏱️ Таймер: ${timeLeft} сек (прошло ${elapsed} сек)`);
 
-    const timerInterval = setInterval(() => {
+    // Обновляем UI сразу
+    const waitText = document.querySelector('.wait span:last-child');
+    const waitSpan = document.querySelector('.wait span:first-child');
+    
+    if (waitText && waitSpan) {
+      waitSpan.style.display = 'none';
+      if (timeLeft > 0) {
+        waitText.style.display = 'inline';
+        waitText.style.color = '#39d811';
+        waitText.textContent = `${timeLeft}s`;
+      } else {
+        // Если таймер уже закончился, не показываем "Play" - ждем события spin_wheel
+        waitText.style.display = 'none';
+      }
+    }
+
+    // Если таймер уже закончился, не создаем интервал
+    if (timeLeft <= 0) {
+      console.log('⏰ Таймер уже закончился, ожидаем spin_wheel от сервера...');
+      return;
+    }
+
+    activeTimerInterval = setInterval(() => {
       timeLeft--;
       
-      // Обновляем таймер в wheel-game
-      const waitText = document.querySelector('.wait span:last-child');
-      if (waitText) {
+      // Проверяем статус игры - если уже spinning, останавливаем таймер
+      if (gameState.status === 'spinning' || gameState.status === 'finished') {
+        clearInterval(activeTimerInterval);
+        activeTimerInterval = null;
+        return;
+      }
+      
+      // Обновляем таймер
+      if (waitText && waitSpan) {
+        waitSpan.style.display = 'none';
+        
         if (timeLeft > 0) {
+          // Показываем счетчик времени
           waitText.style.display = 'inline';
           waitText.style.color = '#39d811';
           waitText.textContent = `${timeLeft}s`;
         } else {
-          waitText.textContent = 'Play';
-          waitText.style.color = '#39d811';
+          // Таймер закончился - скрываем текст, ждем spin_wheel от сервера
+          waitText.style.display = 'none';
+          waitSpan.style.display = 'none';
         }
-      }
-      const waitSpan = document.querySelector('.wait span:first-child');
-      if (waitSpan) {
-        waitSpan.style.display = 'none';
       }
 
       if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        // Оставляем "Play" без мигания
-        if (waitText) {
-          waitText.textContent = 'Play';
-          waitText.style.color = '#39d811';
-          waitText.style.display = 'inline';
-        }
+        clearInterval(activeTimerInterval);
+        activeTimerInterval = null;
         console.log('⏰ Таймер закончился, ожидаем spin_wheel от сервера...');
+        // НЕ показываем "Play" здесь - он появится только когда придет spin_wheel
       }
     }, 1000);
-
-    // Обновляем UI сразу
-    const waitText = document.querySelector('.wait span:last-child');
-    if (waitText) {
-      waitText.style.display = 'inline';
-      waitText.style.color = '#39d811';
-      waitText.textContent = `${timeLeft}s`;
-    }
-    const waitSpan = document.querySelector('.wait span:first-child');
-    if (waitSpan) {
-      waitSpan.style.display = 'none';
-    }
   }
 
   // Сделать ставку
@@ -358,17 +434,21 @@
     // Преобразуем формат для wheel-game (фильтруем невалидных игроков)
     const wheelPlayers = gameState.players
       .filter(player => player && player.userId && player.nickname) // Только валидные игроки
-      .map((player, index) => ({
-        id: player.userId,
-        username: player.nickname,
-        photo_url: player.photoUrl,
-        betAmount: player.bet || 0,
-        color: player.color || '#39d811', // ДОБАВЛЯЕМ ЦВЕТ!
-        isUser: false,
-        isBot: false
-      }));
+      .map((player, index) => {
+        const playerId = String(player.userId || player.id || '');
+        const isBot = player.isBot || playerId.startsWith('bot_');
+        return {
+          id: playerId,
+          username: player.nickname,
+          photo_url: player.photoUrl,
+          betAmount: player.bet || 0,
+          color: player.color || '#39d811', // ДОБАВЛЯЕМ ЦВЕТ!
+          isUser: false,
+          isBot: isBot // Правильно определяем ботов
+        };
+      });
     
-    console.log('🔄 syncPlayersToWheel:', wheelPlayers);
+    console.log('🔄 syncPlayersToWheel:', wheelPlayers.length, 'игроков, ботов:', wheelPlayers.filter(p => p.isBot).length);
     window.rollGame.updateState({ players: wheelPlayers });
   }
   // Экспорт

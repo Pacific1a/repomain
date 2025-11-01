@@ -870,13 +870,14 @@ class SpeedCashGame {
         this.orangeMultiplier = 1.00;
         this.updateMultiplierDisplays();
         
-        // Рандомные иксы для обеих машин (2.0 - 8.0)
-        this.blueTargetMultiplier = 2.0 + Math.random() * 6.0;
-        this.orangeTargetMultiplier = 2.0 + Math.random() * 6.0;
+        // Генерация множителей с уклоном в низкие значения
+        // 75% - низкие множители (1.15-1.6), 20% - средние (1.6-2.0), 5% - высокие (>2.0)
+        this.blueTargetMultiplier = this.generateWeightedMultiplier();
+        this.orangeTargetMultiplier = this.generateWeightedMultiplier();
         
-        // Убедимся что иксы разные (минимум 0.3 разницы)
-        while (Math.abs(this.blueTargetMultiplier - this.orangeTargetMultiplier) < 0.3) {
-            this.orangeTargetMultiplier = 2.0 + Math.random() * 6.0;
+        // Убедимся что иксы разные (минимум 0.15 разницы)
+        while (Math.abs(this.blueTargetMultiplier - this.orangeTargetMultiplier) < 0.15) {
+            this.orangeTargetMultiplier = this.generateWeightedMultiplier();
         }
         
         // Определяем кто будет задержан
@@ -1758,6 +1759,26 @@ class SpeedCashGame {
             if (textElement) textElement.textContent = 'Cash Out';
             if (amountElement) amountElement.textContent = `${amount} Chips`;
             button.classList.add('state-cashout');
+        }
+    }
+
+    generateWeightedMultiplier() {
+        const rand = Math.random();
+        
+        // 75% - низкие множители (1.15, 1.22, 1.32, 1.45, 1.56)
+        if (rand < 0.75) {
+            const lowMultipliers = [1.15, 1.22, 1.32, 1.45, 1.56];
+            const randomLow = lowMultipliers[Math.floor(Math.random() * lowMultipliers.length)];
+            // Добавляем небольшой разброс ±0.05
+            return randomLow + (Math.random() - 0.5) * 0.1;
+        }
+        // 20% - средние множители (1.6-2.0)
+        else if (rand < 0.95) {
+            return 1.6 + Math.random() * 0.4;
+        }
+        // 5% - высокие множители (>2.0, до 3.5)
+        else {
+            return 2.0 + Math.random() * 1.5;
         }
     }
 

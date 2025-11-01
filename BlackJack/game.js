@@ -448,7 +448,7 @@
     async newRound(force = false) {
       if (!force && !this.roundOver) return;
       
-      // Check balance
+      // Check balance (не списываем сразу, только проверяем)
       if (!window.GameBalanceAPI) {
         showResult('Balance API not ready');
         return;
@@ -459,14 +459,8 @@
         return;
       }
       
-      // Place bet
-      const success = await window.GameBalanceAPI.placeBet(this.bet, 'rubles');
-      if (!success) {
-        showResult('Ошибка ставки');
-        return;
-      }
-      
-      console.log(`✅ Ставка ${this.bet} rubles списана успешно`);
+      // НЕ списываем баланс сразу - только после завершения игры
+      console.log(`✅ Ставка ${this.bet} rubles зарезервирована`);
       
       this.betPlaced = true;
       this.roundOver = false;
@@ -630,20 +624,14 @@
     async doubleDown() {
       if (this.roundOver || this.player.length !== 2 || this.hasActed) return;
       
-      // Проверяем баланс для удвоения ставки
+      // Проверяем баланс для удвоения ставки (не списываем сразу)
       if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
         showResult("Недостаточно рублей для удвоения");
         return;
       }
       
-      // Списываем дополнительную ставку
-      const success = await window.GameBalanceAPI.placeBet(this.bet, 'rubles');
-      if (!success) {
-        showResult("Ошибка удвоения ставки");
-        return;
-      }
-      
-      this.bet *= 2; // Удваиваем ставку
+      // Удваиваем ставку (не списываем, спишется при завершении игры)
+      this.bet *= 2;
       this.hasActed = true;
       
       // Берем одну карту и автоматически stand
@@ -701,12 +689,17 @@
         winAmount = this.bet; // Return bet
       }
 
-      // Pay winnings via GameBalanceAPI
-      if (winAmount > 0 && window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
-        console.log(`💰 BlackJack ${outcome}: +${winAmount} rubles`);
-      } else {
-        console.log(`💸 BlackJack ${outcome}: -${this.bet} rubles`);
+      // Обрабатываем баланс в зависимости от результата
+      if (window.GameBalanceAPI) {
+        if (winAmount > 0) {
+          // Выигрыш или push - добавляем выигрыш
+          window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
+          console.log(`💰 BlackJack ${outcome}: +${winAmount} rubles`);
+        } else {
+          // Проигрыш - списываем ставку
+          window.GameBalanceAPI.placeBet(this.bet, 'rubles');
+          console.log(`💸 BlackJack ${outcome}: -${this.bet} rubles`);
+        }
       }
       
       // Отправляем результат в систему мультиплеера

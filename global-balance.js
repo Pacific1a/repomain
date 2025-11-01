@@ -338,6 +338,70 @@ class GlobalBalance {
 
 window.GlobalBalance = new GlobalBalance();
 
+// ============ КОНСОЛЬНЫЕ КОМАНДЫ ДЛЯ ТЕСТИРОВАНИЯ ============
+// Добавить средства через консоль
+window.addMoney = async function(rubles = 0, chips = 0) {
+    if (rubles > 0) {
+        await window.GlobalBalance.addRubles(rubles);
+        console.log(`💰 Добавлено ${rubles}₽`);
+    }
+    if (chips > 0) {
+        await window.GlobalBalance.addChips(chips);
+        console.log(`💰 Добавлено ${chips} фишек`);
+    }
+    const balance = window.GlobalBalance.getBalance();
+    console.log(`💵 Текущий баланс: ${balance.rubles.toFixed(2)}₽, ${balance.chips} фишек`);
+};
+
+// Установить точный баланс
+window.setMoney = async function(rubles = null, chips = null) {
+    if (rubles !== null) {
+        await window.GlobalBalance.setRubles(rubles);
+        console.log(`💰 Установлено ${rubles}₽`);
+    }
+    if (chips !== null) {
+        await window.GlobalBalance.setChips(chips);
+        console.log(`💰 Установлено ${chips} фишек`);
+    }
+    const balance = window.GlobalBalance.getBalance();
+    console.log(`💵 Текущий баланс: ${balance.rubles.toFixed(2)}₽, ${balance.chips} фишек`);
+};
+
+// Показать текущий баланс
+window.showBalance = function() {
+    const balance = window.GlobalBalance.getBalance();
+    console.log(`💵 Текущий баланс: ${balance.rubles.toFixed(2)}₽, ${balance.chips} фишек`);
+    return balance;
+};
+
+// Сбросить баланс
+window.resetMoney = async function() {
+    await window.GlobalBalance.resetBalance();
+    console.log('🔄 Баланс сброшен до значений по умолчанию');
+    window.showBalance();
+};
+
+// Быстрые команды
+window.million = async () => await window.addMoney(1000000, 1000000);
+window.rich = async () => await window.setMoney(999999, 999999);
+
+console.log(`
+💰 Команды для выдачи денег:
+   addMoney(рубли, фишки) - добавить средства
+   setMoney(рубли, фишки) - установить точный баланс
+   showBalance() - показать текущий баланс
+   resetMoney() - сбросить баланс
+   
+   Быстрые команды:
+   million() - выдать по миллиону рублей и фишек
+   rich() - установить баланс 999999/999999
+   
+   Примеры:
+   addMoney(10000, 5000)
+   setMoney(50000, null) - только рубли
+   setMoney(null, 100000) - только фишки
+`);
+
 document.addEventListener('DOMContentLoaded', () => {
     if (window.GlobalBalance && window.GlobalBalance.isReady) {
         window.GlobalBalance.updateMainBalance();

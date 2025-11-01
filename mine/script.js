@@ -273,7 +273,7 @@
       return false;
     }
     
-    // Проверка баланса и списание ставки
+    // Проверка баланса (не списываем сразу, только проверяем)
     if (!window.GameBalanceAPI) {
       console.error('GameBalanceAPI не загружен');
       return false;
@@ -284,13 +284,8 @@
       return false;
     }
     
-    const success = await window.GameBalanceAPI.placeBet(state.bet, 'rubles');
-    if (!success) {
-      showNotification('Ошибка списания ставки');
-      return false;
-    }
-    
-    console.log(`💣 Mines: ставка ${state.bet} rubles списана`);
+    // НЕ списываем баланс сразу - только после завершения игры
+    console.log(`💣 Mines: ставка ${state.bet} rubles зарезервирована`);
     
     hideInitialImages();
     clearAllTimers();
@@ -337,7 +332,12 @@
     setInGame(false);
     
     if (lost) {
-      console.log(`💥 Mines: проигрыш, потеряно ${state.bet} chips`);
+      // Проигрыш - списываем ставку
+      if (window.GameBalanceAPI) {
+        window.GameBalanceAPI.placeBet(state.bet, 'rubles');
+        console.log(`💥 Mines: проигрыш, списано ${state.bet} rubles`);
+      }
+      
       // Анимация уже отработала в onCellClick
       
       // Сохраняем результат игры в историю (ПРОИГРЫШ)
