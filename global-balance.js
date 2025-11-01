@@ -108,8 +108,8 @@ class GlobalBalance {
         try {
             const parsed = JSON.parse(stored);
             this.balance = {
-                rubles: parseFloat(parsed.rubles) || 1000.00,
-                chips: parseInt(parsed.chips, 10) || 1000
+                rubles: parseFloat(parsed.rubles) ?? 0,
+                chips: parseInt(parsed.chips, 10) ?? 0
             };
         } catch (e) {
             this.balance = this.defaultBalance();
@@ -134,8 +134,8 @@ class GlobalBalance {
             if (cloudValue) {
                 const parsed = JSON.parse(cloudValue);
                 this.balance = {
-                    rubles: parseFloat(parsed.rubles) || 1000.00,
-                    chips: parseInt(parsed.chips, 10) || 1000
+                    rubles: parseFloat(parsed.rubles) ?? 0,
+                    chips: parseInt(parsed.chips, 10) ?? 0
                 };
                 this.setLocalItem(this.storageKey, cloudValue);
                 // Синхронизируем с сервером
@@ -160,8 +160,8 @@ class GlobalBalance {
             if (response.ok) {
                 const data = await response.json();
                 return {
-                    rubles: parseFloat(data.rubles) || 1000.00,
-                    chips: parseInt(data.chips, 10) || 1000
+                    rubles: parseFloat(data.rubles) ?? 0,
+                    chips: parseInt(data.chips, 10) ?? 0
                 };
             }
         } catch (e) {

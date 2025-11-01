@@ -1776,19 +1776,19 @@ app.get('/api/balance/:telegramId', async (req, res) => {
           telegramId,
           nickname: `User${telegramId.slice(-4)}`,
           balance: {
-            rubles: 1000,
-            chips: 1000
+            coins: 0,
+            chips: 0
           }
         });
       }
       res.json({
-        rubles: user.balance.coins || 1000, // coins используем как rubles
-        chips: user.balance.chips || 1000
+        rubles: user.balance.coins || 0, // coins используем как rubles
+        chips: user.balance.chips || 0
       });
     } else {
       // Используем JSON файл
       const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
-      const userBalance = balances[telegramId] || { rubles: 1000, chips: 1000 };
+      const userBalance = balances[telegramId] || { rubles: 0, chips: 0 };
       res.json(userBalance);
     }
   } catch (error) {
@@ -1811,13 +1811,19 @@ app.post('/api/balance/:telegramId', async (req, res) => {
           telegramId,
           nickname: `User${telegramId.slice(-4)}`,
           balance: {
-            coins: parseFloat(rubles) || 1000,
-            chips: parseInt(chips) || 1000
+            coins: parseFloat(rubles) || 0,
+            chips: parseInt(chips) || 0
           }
         });
       } else {
-        user.balance.coins = parseFloat(rubles) || user.balance.coins;
-        user.balance.chips = parseInt(chips) || user.balance.chips;
+        if (rubles !== undefined && rubles !== null) {
+          user.balance.coins = parseFloat(rubles);
+          if (isNaN(user.balance.coins)) user.balance.coins = 0;
+        }
+        if (chips !== undefined && chips !== null) {
+          user.balance.chips = parseInt(chips);
+          if (isNaN(user.balance.chips)) user.balance.chips = 0;
+        }
         await user.save();
       }
       
@@ -1829,8 +1835,8 @@ app.post('/api/balance/:telegramId', async (req, res) => {
       // Используем JSON файл
       const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
       balances[telegramId] = {
-        rubles: parseFloat(rubles) || 1000,
-        chips: parseInt(chips) || 1000
+        rubles: parseFloat(rubles) || 0,
+        chips: parseInt(chips) || 0
       };
       fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
       res.json(balances[telegramId]);
