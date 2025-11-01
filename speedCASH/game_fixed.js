@@ -25,7 +25,6 @@ class SpeedCashGame {
         this.animationId = null;
         this.roadAnimationId = null;
         this.winner = null;
-        this.balance = 1000; // Starting balance (displayed in HTML)
         this.bettingTimer = null;
         this.bettingTimeLeft = 5; // 5 seconds to bet
         this.delayedCar = null; // Only one car gets delayed

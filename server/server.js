@@ -216,34 +216,39 @@ const ROLL_BOTS = [
   { id: 'bot_mr_baton', nickname: 'Mr.Baton', photoUrl: '/roll/asdeasfagasdas.png' },
   { id: 'bot_wal', nickname: 'Wal?!!?', photoUrl: '/roll/asfahgsh.png' },
   { id: 'bot_r1mskyy', nickname: 'r1mskyy', photoUrl: '/roll/ashgahh.png' },
-  { id: 'bot_crownfall', nickname: 'crownfall', photoUrl: '/roll/sdsdffsdsddfsdfsdf.png' },
-  { id: 'bot_roverds', nickname: 'ʀᴏᴠᴇʀᴅs', photoUrl: '/roll/aaaaasdasfd.png' },
-  { id: 'bot_good', nickname: 'ɢᴏᴏᴅ', photoUrl: '/roll/aagsagsags.png' },
-  { id: 'bot_happiness', nickname: 'ハピネス', photoUrl: '/roll/asaggasad.png' }
+  { id: 'bot_crownfall', nickname: 'crownfall', photoUrl: '/roll/sdsdffsdsddfsdfsdf.png' }
 ];
 
-// Ставки ботов (цикл)
-const BOT_BET_SEQUENCE = [700, 800, 1000, 300, 500, 700];
+// Ставки ботов (рандомные от 100 до 2000)
+const BOT_BET_MIN = 100;
+const BOT_BET_MAX = 2000;
 const BOT_BET_INTERVAL = 10000; // 10 секунд между ставками
 
 // Активные боты и их состояние
-const activeBotsData = new Map(); // botId -> { gamesPlayed, currentBetIndex, betTimer }
+const activeBotsData = new Map(); // botId -> { gamesPlayed, betTimer }
 
-// Получить случайных ботов (не более 2-3 одинаковых)
+// Получить случайных ботов (без повтора ID и аватарок)
 function getRandomBots(count) {
   const botsToAdd = [];
   const selectedIds = new Set();
+  const usedAvatars = new Set(); // Отслеживаем уже использованные аватарки
   const shuffled = [...ROLL_BOTS].sort(() => Math.random() - 0.5);
+  
+  // Собираем уже используемые аватарки активных ботов
+  const gameState = globalGames.roll;
+  gameState.activeBots.forEach(activeBot => {
+    usedAvatars.add(activeBot.photoUrl);
+  });
   
   for (let i = 0; i < count && i < shuffled.length; i++) {
     const bot = shuffled[i];
-    // Проверяем что бота еще нет в активных
-    const gameState = globalGames.roll;
+    // Проверяем что бота еще нет в активных и аватарка не используется
     const alreadyActive = gameState.activeBots.find(b => b.id === bot.id);
     
-    if (!alreadyActive && !selectedIds.has(bot.id)) {
+    if (!alreadyActive && !selectedIds.has(bot.id) && !usedAvatars.has(bot.photoUrl)) {
       botsToAdd.push(bot);
       selectedIds.add(bot.id);
+      usedAvatars.add(bot.photoUrl);
     }
   }
   
@@ -269,13 +274,11 @@ function addBotsToRoll(count) {
         id: bot.id,
         nickname: bot.nickname,
         photoUrl: bot.photoUrl,
-        gamesPlayed: 0,
-        currentBetIndex: 0
+        gamesPlayed: 0
       });
       
       activeBotsData.set(bot.id, {
         gamesPlayed: 0,
-        currentBetIndex: 0,
         betTimer: null
       });
       
@@ -1000,9 +1003,8 @@ io.on('connection', (socket) => {
       return;
     }
     
-    // Получаем текущую ставку из последовательности
-    const betAmount = BOT_BET_SEQUENCE[botData.currentBetIndex % BOT_BET_SEQUENCE.length];
-    botData.currentBetIndex++;
+    // Получаем случайную ставку от 100 до 2000
+    const betAmount = Math.floor(Math.random() * (BOT_BET_MAX - BOT_BET_MIN + 1)) + BOT_BET_MIN;
     
     // Симулируем ставку через place_bet
     const botColor = getPlayerColor(botId);

@@ -143,11 +143,6 @@
         window.RollSync.placeBet(betAmount);
         showNotification('Ставка принята');
         
-        // Показываем alert о ставке
-        if (window.Telegram?.WebApp?.showAlert) {
-          window.Telegram.WebApp.showAlert(`Ставка ${betAmount} rubles сделана!`);
-        }
-        
         return;
       }
     } finally {
