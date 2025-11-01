@@ -665,10 +665,8 @@ class SpeedCashGame {
                     this.updateBetButton(color, 'cancel', betAmount);
                     console.log(`✅ Ставка ${betAmount} чипов на ${color} принята`);
                     
-                    // Показываем alert о ставке
-                    if (window.Telegram?.WebApp?.showAlert) {
-                        window.Telegram.WebApp.showAlert(`Ставка ${betAmount} rubles на ${color === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
-                    }
+                    // Показываем toast уведомление
+                    this.showNotification(`Ставка ${betAmount} rubles на ${color === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
                     
                     // Отправляем на сервер
                     if (this.socket) {
@@ -720,10 +718,8 @@ class SpeedCashGame {
         this.updateBetButton(color, 'bet', amount);
         console.log(`❌ Ставка отменена: ${color} - ${betAmount} chips`);
         
-        // Показываем alert об отмене ставки
-        if (window.Telegram?.WebApp?.showAlert) {
-            window.Telegram.WebApp.showAlert('Ставка отменена!');
-        }
+        // Показываем toast уведомление
+        this.showNotification('Ставка отменена!');
     }
 
     cashOut(color) {
@@ -1653,10 +1649,8 @@ class SpeedCashGame {
                     this.updateSingleButton('cancel', this.singleBet);
                     console.log(`✅ Single ставка ${this.singleBet} чипов на ${this.singleSelectedCar} принята`);
                     
-                    // Показываем alert о ставке
-                    if (window.Telegram?.WebApp?.showAlert) {
-                        window.Telegram.WebApp.showAlert(`Ставка ${this.singleBet} rubles на ${this.singleSelectedCar === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
-                    }
+                    // Показываем toast уведомление
+                    this.showNotification(`Ставка ${this.singleBet} rubles на ${this.singleSelectedCar === 'blue' ? 'синюю' : 'оранжевую'} машину!`);
                     
                     // Отправляем на сервер
                     if (this.socket) {
@@ -1725,10 +1719,8 @@ class SpeedCashGame {
         this.updateSingleButton('bet', this.singleBet);
         console.log(`❌ Single ставка отменена`);
         
-        // Показываем alert об отмене ставки
-        if (window.Telegram?.WebApp?.showAlert) {
-            window.Telegram.WebApp.showAlert('Ставка отменена!');
-        }
+        // Показываем toast уведомление
+        this.showNotification('Ставка отменена!');
     }
 
 

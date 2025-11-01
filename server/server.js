@@ -1058,6 +1058,10 @@ io.on('connection', (socket) => {
   function startBotBets() {
     const gameState = globalGames.roll;
     
+    // Задержки для ботов: 1, 3, 6, 9, 12 секунд и т.д.
+    const botDelays = [1000, 3000, 6000, 9000, 12000, 15000, 18000, 21000, 24000, 27000];
+    let delayIndex = 0;
+    
     gameState.activeBots.forEach(bot => {
       const botData = activeBotsData.get(bot.id);
       if (!botData) return;
@@ -1067,8 +1071,9 @@ io.on('connection', (socket) => {
         return;
       }
       
-      // Первая ставка через случайную задержку (0-5 сек)
-      const delay = Math.random() * 5000;
+      // Первая ставка через разную задержку для каждого бота (1с, 3с, 6с и т.д.)
+      const delay = botDelays[delayIndex % botDelays.length];
+      delayIndex++;
       
       setTimeout(() => {
         makeBotBet(bot.id);
