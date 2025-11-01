@@ -10,6 +10,7 @@
   const bannerEl = $('#banner');
   const bannerTitleEl = $('#banner-title');
   const bannerTextEl = $('#banner-text');
+  const bannerLinkEl = $('#banner-link');
   const moreBtn = bannerEl ? bannerEl.querySelector('.MORE-button') : null;
 
   const banners = [
@@ -17,19 +18,22 @@
       title: 'Реферальная система',
       html: 'Приглашай друзей и <br>получай бонусы.',
       bg: 'linear-gradient(90deg, rgba(255, 65, 62, 0.73) 0%, rgba(255,64,62,0.8) 100%)',
-      shadow: '0px 0px 55px #ff403f54'
+      shadow: '0px 0px 55px #ff403f54',
+      link: 'https://t.me/TwinsUP'
     },
     {
       title: 'Новостной канал',
       html: 'Всегда в курсе свежих обновлений <br>и событий.',
       bg: 'linear-gradient(90deg, rgba(62, 126, 255, 0.69) 0%, rgba(62,125,255,0.8) 100%)',
-      shadow: '0px 0px 55px rgba(62,125,255,0.33)'
+      shadow: '0px 0px 55px rgba(62,125,255,0.33)',
+      link: 'https://t.me/TwinsUP'
     },
     {
       title: 'Сотрудничество',
       html: 'Свяжись с нами<br>напрямую через бота.',
       bg: 'linear-gradient(90deg, rgba(57, 255, 149, 0.69) 0%, rgba(57,255,149,0.85) 100%)',
-      shadow: '0px 0px 55px rgba(57,255,149,0.32)'
+      shadow: '0px 0px 55px rgba(57,255,149,0.32)',
+      link: 'https://t.me/TwinsHelperBot'
     }
   ];
   let bannerIdx = 0;
@@ -49,6 +53,10 @@
       bannerTextEl.innerHTML = b.html;
       bannerEl.style.background = b.bg;
       bannerEl.style.boxShadow = b.shadow;
+      // Обновляем ссылку для кнопки "Подробнее"
+      if (bannerLinkEl && b.link) {
+        bannerLinkEl.href = b.link;
+      }
       bannerTitleEl.classList.remove('fade-out');
       bannerTextEl.classList.remove('fade-out');
       bannerTitleEl.classList.add('fade-in');
