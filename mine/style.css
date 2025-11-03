@@ -1361,6 +1361,7 @@ a:focus {
   max-height: 100px;
   overflow-y: auto;
   overflow-x: hidden;
+  font-family: "Montserrat", Helvetica;
   padding-right: 5px;
 }
 

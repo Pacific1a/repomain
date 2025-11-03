@@ -796,7 +796,7 @@
 
     if (recentGames.length === 0) {
       // Показываем сообщение если нет игр
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center;">No recent games</div>';
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center; font-family: "Montserrat", Helvetica;">No recent games</div>';
       return;
     }
 
