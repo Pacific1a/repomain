@@ -17,16 +17,32 @@
   let currentRotation = 0;
   let isBettingInProgress = false; // Флаг для защиты от множественных нажатий
 
-  // ============ COLORS (новая палитра) ============
-  const colors = [
-    '#bde0fe', '#ffafcc', '#ade8f4', '#edede9', '#6f2dbd',
-    '#b8c0ff', '#ff9e00', '#826aed', '#ffff3f', '#1dd3b0',
-    '#ffd449', '#54defd', '#2fe6de', '#00f2f2', '#2d00f7',
-    '#00ccf5', '#00f59b', '#7014f2', '#ff00ff', '#ffe017',
-    '#44d800', '#ff8c00', '#ff3800', '#fff702', '#00ffff',
-    '#00ffe0', '#00ffc0', '#00ffa0', '#00ffff', '#8000ff',
-    '#02b3f6'
-  ];
+  // ============ COLORS (яркая палитра, без тёмных, все уникальные) ============
+
+
+  // Возврат следующего доступного яркого цвета, не повторяя уже занятые
+  function getNextAvailableColor(usedSet) {
+    for (let i = 0; i < colors.length; i++) {
+      const c = colors[i];
+      if (!usedSet.has(c)) return c;
+    }
+    // Если все заняты: сгенерировать яркий HSL и убедиться, что он не совпадает
+    for (let h = 0; h < 360; h += 18) {
+      const c = hslToHex(h, 95, 55); // очень ярко
+      if (!usedSet.has(c)) return c;
+    }
+    // На крайний случай — первый цвет
+    return colors[0];
+  }
+
+  function hslToHex(h, s, l) {
+    s /= 100; l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const toHex = x => Math.round(255 * x).toString(16).padStart(2, '0');
+    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`.toUpperCase();
+  }
   
   // Функция удалена - цвета только с сервера
 
@@ -193,10 +209,11 @@
     if (existing) {
       existing.betAmount += player.betAmount;
     } else {
-      // Назначаем цвет по порядку
-      const colorIndex = players.length;
-      player.color = colors[colorIndex];
-      player.colorIndex = colorIndex;
+      // Назначаем уникальный яркий цвет (без повторов)
+      const used = new Set(players.map(p => p.color).filter(Boolean));
+      const uniqueColor = getNextAvailableColor(used);
+      player.color = uniqueColor;
+      player.colorIndex = colors.indexOf(uniqueColor);
       players.push(player);
     }
 
@@ -858,11 +875,12 @@
       if (state.players) {
         console.log('🔄 updateState получил игроков:', state.players);
         
-        // Преобразуем игроков с ПОСТОЯННЫМИ цветами
+        // Преобразуем игроков с ПОСТОЯННЫМИ цветами и устраняем дубликаты цветов
+        const usedColors = new Set();
         const newPlayers = state.players.map((player) => {
           const playerId = player.id || player.userId;
           
-          // Используем ТОЛЬКО цвет с сервера
+          // Используем цвет с сервера, но если он уже занят — выбираем ближайший свободный
           let playerColor = player.color;
           
           if (!playerColor) {
@@ -873,6 +891,12 @@
             playerColors.set(playerId, playerColor);
             console.log(`🎨 Игрок ${player.username || player.nickname} получил цвет с сервера: ${playerColor}`);
           }
+
+          // Если цвет уже занят — подберём новый яркий свободный
+          if (usedColors.has(playerColor)) {
+            playerColor = getNextAvailableColor(usedColors);
+          }
+          usedColors.add(playerColor);
           
           return {
             id: playerId,

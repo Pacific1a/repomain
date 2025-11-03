@@ -235,7 +235,7 @@
   // Отрисовка ОБЩЕЙ истории игр всех игроков (Live Bets)
   function renderAllGamesHistory(container) {
     if (gameState.history.length === 0) {
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center;">No games played yet</div>';
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center; font-family: "Montserrat", Helvetica;">No games played yet</div>';
       return;
     }
 

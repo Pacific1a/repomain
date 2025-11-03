@@ -485,6 +485,7 @@
 }
 
 .game .mask-group-3 {
+  border-radius: 15px;
   position: relative;
   width: 160px;
   height: 120px;
@@ -523,6 +524,7 @@
 }
 
 .game .group-wrapper {
+  border-radius: 15px;
   flex-direction: column;
   align-items: center;
   border-radius: 15px;

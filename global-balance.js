@@ -52,8 +52,8 @@ class GlobalBalance {
 
     defaultBalance() {
         return {
-            rubles: 1000.00,
-            chips: 1000
+            rubles: 0.00,
+            chips: 0
         };
     }
 
