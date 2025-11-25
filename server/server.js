@@ -207,16 +207,16 @@ function getPlayerColor(userId) {
 
 // ============ ROLL BOTS SYSTEM ============
 const ROLL_BOTS = [
-  { id: 'bot_den', nickname: 'den', photoUrl: '/roll/aaaaasdasfd.png' },
-  { id: 'bot_sagarius', nickname: 'Sagarius', photoUrl: '/roll/aagsagsags.png' },
-  { id: 'bot_dev_fenomen', nickname: 'dev_fenomen', photoUrl: '/roll/asaggasad.png' },
-  { id: 'bot_majer', nickname: 'Majer', photoUrl: '/roll/asd;plaksf;lkapowjrawkdsad.png' },
-  { id: 'bot_ovi', nickname: 'OVI', photoUrl: '/roll/asdagaghagsdasg.png' },
-  { id: 'bot_user', nickname: 'User', photoUrl: '/roll/asdasdasfasgfasd.png' },
-  { id: 'bot_mr_baton', nickname: 'Mr.Baton', photoUrl: '/roll/asdeasfagasdas.png' },
-  { id: 'bot_wal', nickname: 'Wal?!!?', photoUrl: '/roll/asfahgsh.png' },
-  { id: 'bot_r1mskyy', nickname: 'r1mskyy', photoUrl: '/roll/ashgahh.png' },
-  { id: 'bot_crownfall', nickname: 'crownfall', photoUrl: '/roll/sdsdffsdsddfsdfsdf.png' }
+  { id: 'bot_den', nickname: 'den', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/1.png?raw=true' },
+  { id: 'bot_sagarius', nickname: 'Sagarius', photoUrl: '/https://github.com/Pacific1a/img/blob/main/roll/2.png?raw=true' },
+  { id: 'bot_dev_fenomen', nickname: 'dev_fenomen', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/3.png?raw=true' },
+  { id: 'bot_majer', nickname: 'Majer', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/4.png?raw=true' },
+  { id: 'bot_ovi', nickname: 'OVI', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/5.png?raw=true' },
+  { id: 'bot_user', nickname: 'User', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/6.png?raw=true' },
+  { id: 'bot_mr_baton', nickname: 'Mr.Baton', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/7.png?raw=true' },
+  { id: 'bot_wal', nickname: 'Wal?!!?', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/8.png?raw=true' },
+  { id: 'bot_r1mskyy', nickname: 'r1mskyy', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/9.png?raw=true' },
+  { id: 'bot_crownfall', nickname: 'crownfall', photoUrl: 'https://github.com/Pacific1a/img/blob/main/roll/10.png?raw=true' }
 ];
 
 // Ставки ботов (рандомные от 100 до 2000)

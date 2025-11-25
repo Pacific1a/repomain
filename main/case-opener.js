@@ -82,9 +82,9 @@
     if (isChips) {
       // Пути для кейсов за фишки
       const paths = {
-        spin: `main/Chips-case/${color}/${prize}-chips-${color}.png`,
-        preview: `main/preview-chips/${prize}-chips-${color}-preview.png`,
-        win: `main/Win-chips/${prize}-chips-${color}.png`,
+        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Chips-case/${color}/${prize}-chips-${color}.png`,
+        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/preview-chips/${prize}-chips-${color}-preview.png`,
+        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${prize}-chips-${color}.png`,
         color: color
       };
       return paths;
@@ -94,15 +94,15 @@
       const previewColor = color === 'purple' ? 'puple' : color;
       
       const paths = {
-        spin: `main/Case-tokens/${color}/${prize}-r-${color}.png`,
-        preview: `main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
-        win: `main/win-tokens/${color}/${prize}-r-${color}.png`,
+        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Case-tokens/${color}/${prize}-r-${color}.png`,
+        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
+        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${color}/${prize}-r-${color}.png`,
         color: color
       };
       
       // Для не-purple цветов используем обычный путь
       if (color !== 'purple') {
-        paths.preview = `main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
+        paths.preview = `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
       }
       
       return paths;
@@ -484,9 +484,9 @@
     let winImagePath;
     if (window.winningColor) {
       if (currentCase.isChipsCase) {
-        winImagePath = `main/Win-chips/${wonPrize}-chips-${window.winningColor}.png`;
+        winImagePath = `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${wonPrize}-chips-${window.winningColor}.png`;
       } else {
-        winImagePath = `main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png`;
+        winImagePath = `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png`;
       }
     } else {
       winImagePath = prizeInfo.win;
