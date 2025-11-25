@@ -2064,6 +2064,76 @@ app.get('/api/admin/balances', async (req, res) => {
   }
 });
 
+// ============================================
+// TRANSACTIONS API - История транзакций
+// ============================================
+
+const TRANSACTIONS_FILE = path.join(DATA_DIR, 'transactions.json');
+
+// Инициализация файла транзакций
+if (!fs.existsSync(TRANSACTIONS_FILE)) {
+  fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify({}, null, 2));
+}
+
+// Получить историю транзакций пользователя
+app.get('/api/transactions/:telegramId', async (req, res) => {
+  try {
+    const { telegramId } = req.params;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    const transactions = JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8'));
+    const userTransactions = transactions[telegramId] || [];
+    
+    // Возвращаем последние N транзакций
+    res.json(userTransactions.slice(-limit).reverse());
+  } catch (error) {
+    console.error('❌ Error getting transactions:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Добавить транзакцию
+app.post('/api/transactions/:telegramId', async (req, res) => {
+  try {
+    const { telegramId } = req.params;
+    const { type, amount, source, description } = req.body;
+    
+    const transactions = JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8'));
+    
+    if (!transactions[telegramId]) {
+      transactions[telegramId] = [];
+    }
+    
+    const transaction = {
+      id: Date.now().toString(),
+      type, // 'add', 'subtract', 'win', 'bet', 'transfer'
+      amount: parseFloat(amount),
+      source: source || 'system', // 'bot', 'game', 'admin', 'system'
+      description: description || '',
+      timestamp: Date.now(),
+      date: new Date().toISOString()
+    };
+    
+    transactions[telegramId].push(transaction);
+    
+    // Храним только последние 100 транзакций на пользователя
+    if (transactions[telegramId].length > 100) {
+      transactions[telegramId] = transactions[telegramId].slice(-100);
+    }
+    
+    fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
+    
+    // Отправляем через WebSocket
+    io.emit(`transaction_added_${telegramId}`, transaction);
+    
+    res.json(transaction);
+    console.log(`📝 Transaction added for ${telegramId}: ${type} ${amount}`);
+  } catch (error) {
+    console.error('❌ Error adding transaction:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // ============ ROLL BOTS AUTO-SPAWN ============
 // Переменные для хранения ссылок на функции ботов из io.on
 let botFunctions = null;

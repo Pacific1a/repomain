@@ -4,7 +4,10 @@
 (function() {
     'use strict';
     
-    const SERVER_URL = window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com';
+    // Автоматически определяем URL сервера
+    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : (window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com');
     
     class BalanceAPI {
         constructor() {
@@ -115,7 +118,7 @@
             return false;
         }
         
-        async addMoney(rubles = 0, chips = 0) {
+        async addMoney(rubles = 0, chips = 0, source = 'system', description = '') {
             try {
                 const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}/add`, {
                     method: 'POST',
@@ -131,6 +134,15 @@
                     };
                     this.updateVisual();
                     this.notifyCallbacks();
+                    
+                    // Сохраняем транзакцию
+                    if (rubles > 0) {
+                        await this.saveTransaction('add', rubles, source, description || `Пополнение ${rubles}₽`);
+                    }
+                    if (chips > 0) {
+                        await this.saveTransaction('add', chips, source, description || `Пополнение ${chips} chips`);
+                    }
+                    
                     console.log(`➕ Added ${rubles}₽, ${chips} chips. New balance:`, this.balance);
                     return true;
                 }
@@ -140,30 +152,57 @@
             return false;
         }
         
-        async subtractRubles(amount) {
+        async saveTransaction(type, amount, source = 'system', description = '') {
+            try {
+                await fetch(`${SERVER_URL}/api/transactions/${this.telegramId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type,
+                        amount,
+                        source,
+                        description
+                    })
+                });
+            } catch (error) {
+                console.error('❌ Error saving transaction:', error);
+            }
+        }
+        
+        async subtractRubles(amount, source = 'game', description = '') {
             const newRubles = this.balance.rubles - amount;
             if (newRubles < 0) {
                 console.warn('⚠️ Insufficient balance');
                 return false;
             }
-            return await this.updateBalance(newRubles, this.balance.chips);
+            
+            const result = await this.updateBalance(newRubles, this.balance.chips);
+            if (result) {
+                await this.saveTransaction('subtract', amount, source, description || `Списание ${amount}₽`);
+            }
+            return result;
         }
         
-        async subtractChips(amount) {
+        async subtractChips(amount, source = 'game', description = '') {
             const newChips = this.balance.chips - amount;
             if (newChips < 0) {
                 console.warn('⚠️ Insufficient chips');
                 return false;
             }
-            return await this.updateBalance(this.balance.rubles, newChips);
+            
+            const result = await this.updateBalance(this.balance.rubles, newChips);
+            if (result) {
+                await this.saveTransaction('subtract', amount, source, description || `Списание ${amount} chips`);
+            }
+            return result;
         }
         
-        async addRubles(amount) {
-            return await this.addMoney(amount, 0);
+        async addRubles(amount, source = 'game', description = '') {
+            return await this.addMoney(amount, 0, source, description);
         }
         
-        async addChips(amount) {
-            return await this.addMoney(0, amount);
+        async addChips(amount, source = 'game', description = '') {
+            return await this.addMoney(0, amount, source, description);
         }
         
         hasEnoughRubles(amount) {

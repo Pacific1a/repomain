@@ -298,12 +298,13 @@ class RealtimeLivePrizes {
                         currentPath.includes('/swap') ||
                         currentHref.includes('/swap/');
         
-        const prefix = (isInUpgrade || isInSwap) ? '../' : '';
+        // Используем полные GitHub URLs вместо относительных путей
+        const baseUrl = 'https://raw.githubusercontent.com/Pacific1a/img/main/';
         
         if (isChips) {
-            return `${prefix}main/Chips-case/${color}/${prize}-chips-${color}.png`;
+            return `${baseUrl}main/Chips-case/${color}/${prize}-chips-${color}.png`;
         } else {
-            return `${prefix}main/Case-tokens/${color}/${prize}-r-${color}.png`;
+            return `${baseUrl}main/Case-tokens/${color}/${prize}-r-${color}.png`;
         }
     }
     

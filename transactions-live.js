@@ -1,8 +1,11 @@
-// Система живых транзакций для профиля
+// Динамическая система транзакций с сервера
 (function() {
     'use strict';
     
-    const SERVER_URL = window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com';
+    // Автоматически определяем URL сервера
+    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : (window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com');
     
     class TransactionsList {
         constructor() {
@@ -17,12 +20,11 @@
         async init() {
             console.log('📜 Transactions List initializing...');
             
-            // Получаем Telegram ID
-            this.telegramId = this.getTelegramId();
-            if (!this.telegramId) {
-                console.error('❌ No Telegram ID');
-                return;
-            }
+            // Ждем загрузки BalanceAPI
+            await this.waitForBalanceAPI();
+            
+            this.telegramId = window.BalanceAPI.telegramId;
+            console.log('✅ Telegram ID:', this.telegramId);
             
             // Ждем загрузки DOM
             if (document.readyState === 'loading') {
@@ -32,14 +34,17 @@
             }
         }
         
-        getTelegramId() {
-            if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-                return window.Telegram.WebApp.initDataUnsafe.user.id.toString();
-            }
-            if (window.MiniAppBalanceSync?.telegramId) {
-                return window.MiniAppBalanceSync.telegramId;
-            }
-            return localStorage.getItem('test_telegram_id') || '1889923046';
+        async waitForBalanceAPI() {
+            return new Promise((resolve) => {
+                const check = () => {
+                    if (window.BalanceAPI && window.BalanceAPI.isReady) {
+                        resolve();
+                    } else {
+                        setTimeout(check, 100);
+                    }
+                };
+                check();
+            });
         }
         
         async setup() {
@@ -50,14 +55,19 @@
                 return;
             }
             
+            console.log('✅ Transaction container found');
+            
+            // Удаляем статичные блоки
+            const staticBlocks = this.container.querySelectorAll('.transaction-2');
+            staticBlocks.forEach(block => block.remove());
+            console.log(`🗑️ Removed ${staticBlocks.length} static transaction blocks`);
+            
             // Находим кнопку show
             this.showButton = this.container.querySelector('.show-button');
             if (this.showButton) {
                 this.showButton.style.cursor = 'pointer';
                 this.showButton.addEventListener('click', () => this.toggleExpand());
             }
-            
-            console.log('✅ Transaction container found');
             
             // Загружаем транзакции
             await this.loadTransactions();
@@ -68,21 +78,27 @@
         
         async loadTransactions() {
             try {
-                const response = await fetch(`${SERVER_URL}/api/transactions/${this.telegramId}`);
+                const response = await fetch(`${SERVER_URL}/api/transactions/${this.telegramId}?limit=20`);
                 if (response.ok) {
                     this.transactions = await response.json();
                     this.render();
                     console.log(`✅ Loaded ${this.transactions.length} transactions`);
+                } else {
+                    console.warn('⚠️ No transactions found');
+                    this.transactions = [];
+                    this.render();
                 }
             } catch (error) {
                 console.error('❌ Error loading transactions:', error);
+                this.transactions = [];
+                this.render();
             }
         }
         
         render() {
             if (!this.container) return;
             
-            // Удаляем старые блоки .transaction-2
+            // Удаляем старые блоки транзакций (но НЕ .frame-3!)
             const oldBlocks = this.container.querySelectorAll('.transaction-2');
             oldBlocks.forEach(block => block.remove());
             
@@ -90,10 +106,13 @@
                 // Показываем сообщение о пустоте
                 const emptyBlock = document.createElement('div');
                 emptyBlock.className = 'transaction-2';
-                emptyBlock.style.cssText = 'padding: 20px; text-align: center; opacity: 0.5;';
-                emptyBlock.textContent = 'Транзакций пока нет';
+                emptyBlock.style.cssText = 'padding: 20px; text-align: center; opacity: 0.7; color: #999;';
+                emptyBlock.innerHTML = `
+                    <div style="font-size: 16px;">История транзакций пуста</div>
+                    <div style="font-size: 14px; margin-top: 5px;">Пополните баланс или сыграйте в игру</div>
+                `;
                 
-                // Вставляем после .frame-3 если есть
+                // Вставляем после .frame-3
                 const frame = this.container.querySelector('.frame-3');
                 if (frame) {
                     frame.after(emptyBlock);
@@ -101,128 +120,188 @@
                     this.container.appendChild(emptyBlock);
                 }
                 
-                // Скрываем кнопку
+                // Скрываем кнопку show
                 if (this.showButton) {
                     this.showButton.style.display = 'none';
                 }
                 return;
             }
             
-            // Сортируем по дате (новые первыми)
-            const sorted = [...this.transactions].sort((a, b) => b.timestamp - a.timestamp);
+            // Отображаем только последние 5 или все
+            const visibleTransactions = this.isExpanded 
+                ? this.transactions 
+                : this.transactions.slice(0, 5);
             
-            // Показываем только первые 3 или все
-            const toShow = this.isExpanded ? sorted : sorted.slice(0, 3);
+            // Создаем блоки транзакций
+            const fragment = document.createDocumentFragment();
             
-            // Создаем блоки
-            toShow.forEach(transaction => {
-                const block = this.createTransactionBlock(transaction);
-                
-                // Вставляем после .frame-3
-                const frame = this.container.querySelector('.frame-3');
-                if (frame) {
-                    frame.after(block);
-                } else {
-                    this.container.appendChild(block);
-                }
+            visibleTransactions.forEach(tx => {
+                const block = this.createTransactionBlock(tx);
+                fragment.appendChild(block);
             });
             
-            // Управляем кнопкой
-            if (this.showButton) {
-                if (this.transactions.length > 3) {
-                    this.showButton.style.display = '';
-                    const buttonText = this.showButton.querySelector('.text-wrapper-9');
-                    if (buttonText) {
-                        buttonText.textContent = this.isExpanded ? 'Show less' : 'Show available';
-                    }
-                } else {
-                    this.showButton.style.display = 'none';
-                }
+            // Вставляем после .frame-3
+            const frame = this.container.querySelector('.frame-3');
+            if (frame) {
+                frame.after(fragment);
+            } else {
+                this.container.appendChild(fragment);
             }
             
-            console.log(`✅ Rendered ${toShow.length} transactions`);
+            // Обновляем кнопку show
+            if (this.showButton && this.transactions.length > 5) {
+                this.showButton.style.display = 'block';
+                const textElement = this.showButton.querySelector('.text-wrapper-9');
+                if (textElement) {
+                    textElement.textContent = this.isExpanded ? 'Show less' : 'Show more';
+                }
+            } else if (this.showButton) {
+                this.showButton.style.display = 'none';
+            }
         }
         
-        createTransactionBlock(transaction) {
-            const date = new Date(transaction.timestamp);
-            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-            
+        createTransactionBlock(tx) {
             const block = document.createElement('div');
             block.className = 'transaction-2';
+            block.dataset.transactionId = tx.id;
             
+            // Определяем цвет и префикс
+            let amountPrefix = '+';
+            let color = '#4ade80'; // зеленый
+            
+            if (tx.type === 'subtract' || tx.type === 'bet') {
+                amountPrefix = '-';
+                color = '#ef4444'; // красный
+            } else if (tx.type === 'win') {
+                amountPrefix = '+';
+                color = '#22c55e'; // ярко-зеленый для выигрыша
+            }
+            
+            // Форматируем дату и время
+            const date = new Date(tx.timestamp);
+            const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            
+            // Форматируем описание
+            const description = tx.description || this.getDefaultDescription(tx);
+            
+            // Структура как в оригинальном профиле
             block.innerHTML = `
                 <div class="div-2">
-                    <div class="text-wrapper-11">${dateStr}, ${timeStr}</div>
-                    <div class="text-wrapper-10">${transaction.method || 'CactusPay'}</div>
+                    <div class="text-wrapper-10">${timeStr} ${dateStr}</div>
+                    <div class="text-wrapper-11">${description}</div>
                 </div>
                 <div class="element-2">
-                    <div class="text-wrapper-12">+${transaction.amount}₽</div>
+                    <div class="text-wrapper-12" style="color: ${color};">
+                        ${amountPrefix}${Math.abs(tx.amount).toFixed(2)}₽
+                    </div>
                 </div>
             `;
             
             return block;
         }
         
+        getDefaultDescription(tx) {
+            const sourceNames = {
+                'bot': 'Telegram Bot',
+                'game': 'Игра',
+                'admin': 'Администратор',
+                'system': 'Система',
+                'case': 'Кейс',
+                'crash': 'Crash',
+                'roll': 'Roll',
+                'blackjack': 'BlackJack',
+                'mines': 'Mines',
+                'speedcash': 'SpeedCASH'
+            };
+            
+            const source = sourceNames[tx.source] || tx.source || 'Система';
+            
+            if (tx.type === 'add') {
+                return `Пополнение • ${source}`;
+            } else if (tx.type === 'subtract') {
+                return `Списание • ${source}`;
+            } else if (tx.type === 'win') {
+                return `Выигрыш • ${source}`;
+            } else if (tx.type === 'bet') {
+                return `Ставка • ${source}`;
+            } else {
+                return source;
+            }
+        }
+        
         toggleExpand() {
             this.isExpanded = !this.isExpanded;
             this.render();
-            
-            // Скроллим если расширили
-            if (this.isExpanded && this.transactions.length > 3) {
-                setTimeout(() => {
-                    this.container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-            }
         }
         
-        addTransaction(transaction) {
-            // Добавляем в начало списка
-            this.transactions.unshift(transaction);
+        addTransaction(tx) {
+            // Добавляем в начало массива
+            this.transactions.unshift(tx);
+            
+            // Оставляем только последние 20
+            if (this.transactions.length > 20) {
+                this.transactions = this.transactions.slice(0, 20);
+            }
+            
             this.render();
-            console.log('➕ Transaction added:', transaction);
+            
+            // Показываем уведомление
+            this.showTransactionNotification(tx);
+        }
+        
+        showTransactionNotification(tx) {
+            const notification = document.createElement('div');
+            const isPositive = tx.type === 'add' || tx.type === 'win';
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${isPositive ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10001;
+                font-size: 16px;
+                font-weight: 600;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            
+            const prefix = isPositive ? '+' : '-';
+            notification.textContent = `${prefix}${Math.abs(tx.amount).toFixed(2)}₽`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
         }
         
         listenWebSocket() {
-            if (typeof io === 'undefined') {
-                console.warn('⚠️ Socket.IO not loaded');
+            if (!window.BalanceAPI?.socket) {
+                console.warn('⚠️ Socket not available');
                 return;
             }
             
-            try {
-                const socket = io(SERVER_URL, {
-                    transports: ['websocket', 'polling']
-                });
-                
-                socket.on('connect', () => {
-                    console.log('✅ Transactions WebSocket connected');
-                });
-                
-                socket.on(`balance_updated_${this.telegramId}`, (data) => {
-                    if (data.transaction) {
-                        this.addTransaction(data.transaction);
-                    }
-                });
-                
-                socket.on('new_transaction', (data) => {
-                    if (data.telegramId === this.telegramId) {
-                        this.loadTransactions();
-                    }
-                });
-            } catch (error) {
-                console.error('❌ WebSocket error:', error);
-            }
+            const socket = window.BalanceAPI.socket;
+            
+            // Слушаем новые транзакции
+            socket.on(`transaction_added_${this.telegramId}`, (tx) => {
+                console.log('📝 New transaction received:', tx);
+                this.addTransaction(tx);
+            });
+            
+            console.log('✅ WebSocket listening for transactions');
         }
     }
     
-    // Инициализация
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            window.TransactionsList = new TransactionsList();
-        });
-    } else {
-        window.TransactionsList = new TransactionsList();
-    }
+    // Создаем глобальный экземпляр
+    window.TransactionsList = new TransactionsList();
     
     console.log('📜 Transactions List loaded!');
+    
 })();
