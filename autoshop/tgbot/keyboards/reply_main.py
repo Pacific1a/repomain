@@ -18,6 +18,8 @@ def menu_frep(user_id) -> ReplyKeyboardMarkup:
 
     if user_id in get_admins():
         keyboard.row(
+            rkb("🧪 ТЕСТ"),  # Кнопка тестового пополнения
+        ).row(
             rkb("🎁 Управление товарами"), rkb("📊 Статистика"),
         ).row(
             rkb("⚙️ Настройки"), rkb("🔆 Общие функции"), rkb("🔑 Платежные системы"),

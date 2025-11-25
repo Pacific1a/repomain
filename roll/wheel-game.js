@@ -136,7 +136,7 @@
 
     const betAmount = getBetAmount();
     
-    if (!window.GameBalanceAPI?.canPlaceBet(betAmount, 'rubles')) {
+    if (!window.BalanceAPI?.hasEnoughRubles(betAmount)) {
       showNotification('Недостаточно рублей');
       return;
     }
@@ -149,7 +149,7 @@
     }
 
     try {
-      const success = await window.GameBalanceAPI.placeBet(betAmount, 'rubles');
+      const success = await window.BalanceAPI.subtractRubles(betAmount);
       if (!success) {
         return;
       }
@@ -184,7 +184,7 @@
     });
 
     if (!added) {
-      await window.GameBalanceAPI.payWinnings(betAmount, 'rubles');
+      await window.BalanceAPI.addRubles(betAmount);
       return;
     }
 
@@ -709,8 +709,8 @@
     // Победитель получает ВСЕ ставки (ТОЛЬКО ЕСЛИ ЭТО ОН!)
     const isWinner = winner.id == currentUserId || winner.id === currentUserId;
     
-    if (isWinner && window.GameBalanceAPI) {
-      window.GameBalanceAPI.payWinnings(totalBets, 'rubles');
+    if (isWinner && window.BalanceAPI) {
+      window.BalanceAPI.addRubles(totalBets);
       console.log(`🏆 Вы победили! Получено ${totalBets} фишек`);
     } else {
       console.log(`💰 Победил ${winner.username}, выиграл ${totalBets} фишек`);

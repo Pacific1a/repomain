@@ -21,6 +21,50 @@ min_refill_rub = 10  # Минимальная сумма пополнения в
 router = Router(name=__name__)
 
 
+################################################################################
+############################ 🧪 ТЕСТОВОЕ ПОПОЛНЕНИЕ ############################
+# Команда для тестового пополнения (только для админов)
+@router.message(F.text.in_(('/test_balance', '/test', '🧪 ТЕСТ')))
+async def test_refill_balance(message: Message, bot: Bot, state: FSM, arSession: ARS):
+    from tgbot.data.config import get_admins
+    
+    # Только для админов
+    if message.from_user.id not in get_admins():
+        return await message.answer("⛔ Эта команда доступна только администраторам.")
+    
+    get_user = Userx.get(user_id=message.from_user.id)
+    
+    # Тестовая сумма
+    test_amount = 100.0
+    
+    # Обновляем баланс в боте
+    Userx.update(
+        message.from_user.id,
+        user_balance=round(get_user.user_balance + test_amount, 2),
+        user_refill=round(get_user.user_refill + test_amount, 2),
+    )
+    
+    # ✅ ОБНОВЛЯЕМ БАЛАНС В MINI APP
+    await update_miniapp_balance(message.from_user.id, test_amount)
+    
+    new_balance = round(get_user.user_balance + test_amount, 2)
+    
+    await message.answer(
+        f"<b>🧪 ТЕСТ: Баланс пополнен!</b>\n\n"
+        f"➕ Добавлено: <code>{test_amount}₽</code>\n"
+        f"💰 Теперь баланс: <code>{new_balance}₽</code>\n\n"
+        f"✅ Mini App баланс обновлен!\n"
+        f"📱 Откройте приложение чтобы проверить визуальное обновление.",
+        parse_mode="html"
+    )
+    
+    print(f"🧪 TEST: Added {test_amount}₽ to user {message.from_user.id}")
+
+
+################################################################################
+################################# ПОПОЛНЕНИЕ ###################################
+
+
 # Выбор способа пополнения
 @router.callback_query(F.data == "user_refill")
 async def refill_method(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS):

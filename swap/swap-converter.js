@@ -325,11 +325,11 @@
         }
 
         // Обновление баланса при изменениях
-        if (window.GameBalanceAPI) {
+        if (window.BalanceAPI) {
             // Подписываемся на обновления баланса
-            const originalUpdate = window.GameBalanceAPI.updateBalanceUI;
-            window.GameBalanceAPI.updateBalanceUI = function() {
-                originalUpdate.call(window.GameBalanceAPI);
+            const originalUpdate = window.BalanceAPI.updateBalanceUI;
+            window.BalanceAPI.updateBalanceUI = function() {
+                originalUpdate.call(window.BalanceAPI);
                 updateBalanceDisplay();
             };
         }
@@ -575,7 +575,7 @@
      * Обработка нажатия кнопки Exchange
      */
     async function handleExchange() {
-        if (!window.GameBalanceAPI) {
+        if (!window.BalanceAPI) {
             showNotification('❌ Система баланса не загружена');
             return;
         }
@@ -603,14 +603,14 @@
             return;
         }
 
-        const currentRubles = window.GameBalanceAPI.getBalance('rubles');
+        const currentRubles = window.BalanceAPI.getRubles();
         if (rublesAmount > currentRubles) {
             showNotification('❌ Недостаточно рублей');
             return;
         }
 
         // Списываем рубли через placeBet
-        const deducted = window.GameBalanceAPI.placeBet(rublesAmount, 'rubles');
+        const deducted = window.BalanceAPI.subtractRubles(rublesAmount);
         if (!deducted) {
             showNotification('❌ Ошибка списания рублей');
             return;
@@ -618,7 +618,7 @@
 
         // Начисляем фишки
         const chipsToAdd = parseFloat(tokensAmount.toFixed(2));
-        window.GameBalanceAPI.payWinningsAndUpdate(chipsToAdd, 'chips');
+        window.BalanceAPI.addChips(chipsToAdd);
 
         showNotification(`Обменяно: ${rublesAmount.toFixed(2)} ₽ → ${chipsToAdd.toFixed(2)} Chips`);
 
@@ -643,14 +643,14 @@
             return;
         }
 
-        const currentChips = window.GameBalanceAPI.getBalance('chips');
+        const currentChips = window.BalanceAPI.getChips();
         if (tokensAmount > currentChips) {
             showNotification('❌ Недостаточно фишек');
             return;
         }
 
         // Списываем фишки через placeBet
-        const deducted = window.GameBalanceAPI.placeBet(tokensAmount, 'chips');
+        const deducted = window.BalanceAPI.subtractChips(tokensAmount);
         if (!deducted) {
             showNotification('❌ Ошибка списания фишек');
             return;
@@ -660,7 +660,7 @@
         const rublesToAdd = parseFloat(rublesAmount.toFixed(2));
         const fee = parseFloat((tokensAmount * EXCHANGE_RATE * CHIPS_TO_RUBLES_FEE).toFixed(2));
         
-        window.GameBalanceAPI.payWinningsAndUpdate(rublesToAdd, 'rubles');
+        window.BalanceAPI.addRubles(rublesToAdd);
 
         showNotification(`Обменяно: ${tokensAmount.toFixed(2)} Chips → ${rublesToAdd.toFixed(2)} ₽ (комиссия ${fee.toFixed(2)} ₽)`);
 
@@ -707,10 +707,10 @@
      * Обновление отображения баланса
      */
     function updateBalanceDisplay() {
-        if (!window.GameBalanceAPI) return;
+        if (!window.BalanceAPI) return;
 
-        const rubles = window.GameBalanceAPI.getBalance('rubles');
-        const chips = window.GameBalanceAPI.getBalance('chips');
+        const rubles = window.BalanceAPI.getRubles();
+        const chips = window.BalanceAPI.getChips();
 
         // Баланс уже обновляется через GameBalanceAPI.updateBalanceUI
         console.log(`💰 Текущий баланс: ${rubles.toFixed(2)} ₽ | ${chips} Chips`);

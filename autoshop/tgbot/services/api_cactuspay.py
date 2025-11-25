@@ -42,13 +42,42 @@ class CactusPayAPI:
         session         = await self.arSession.get_session()
         url             = f"https://lk.cactuspay.pro/api/?method=create"
         response        = await session.post(url, json={"token": self.token, "amount": pay_amount, "order_id": bill_receipt}, ssl=True)
-        response_data   = json.loads((await response.read()).decode())
-        return response_data['response']['url']
+        
+        try:
+            response_data = json.loads((await response.read()).decode())
+            print(f"🔍 CactusPay create response: {response_data}")
+            
+            # Проверяем разные форматы ответа
+            if isinstance(response_data, dict):
+                # Вариант 1: {"response": {"url": "..."}}
+                if 'response' in response_data and isinstance(response_data['response'], dict):
+                    return response_data['response'].get('url', None)
+                # Вариант 2: {"url": "..."}
+                elif 'url' in response_data:
+                    return response_data['url']
+                # Вариант 3: {"payment_url": "..."}
+                elif 'payment_url' in response_data:
+                    return response_data['payment_url']
+            
+            print(f"❌ Unexpected CactusPay response format: {response_data}")
+            return None
+        except Exception as e:
+            print(f"❌ Error parsing CactusPay response: {e}")
+            try:
+                response_text = (await response.read()).decode()
+                print(f"❌ Raw response: {response_text}")
+            except:
+                pass
+            return None
 
     # Генерация платежа
     async def bill(self, pay_amount: float) -> tuple[str, str, int]:
         bill_receipt    = gen_id()
         bill_url        = await self.get_payment_url(pay_amount, bill_receipt)
+        
+        if not bill_url:
+            # Если не получили URL - возвращаем ошибку
+            return "❌ Ошибка создания платежа. Обратитесь в поддержку.", None, None
         bill_message    = ded(f"""
             <b>💰 Пополнение баланса</b>
             ➖➖➖➖➖➖➖➖➖➖
@@ -68,15 +97,31 @@ class CactusPayAPI:
         session         = await self.arSession.get_session()
         url             = f"https://lk.cactuspay.pro/api/?method=get"
         response        = await session.post(url, json={"token": self.token, "order_id": receipt}, ssl=True)
-        response_data   = json.loads((await response.read()).decode())
-        pay_status      = 1
-        pay_amount      = None
+        
+        try:
+            response_data = json.loads((await response.read()).decode())
+            print(f"🔍 CactusPay check response: {response_data}")
+            
+            pay_status      = 1
+            pay_amount      = None
 
-        if response_data['status']:
-            pay_status = 2
+            # Проверяем формат ответа
+            if isinstance(response_data, dict):
+                # Проверяем статус
+                if 'status' in response_data and response_data['status']:
+                    pay_status = 2  # Pending
+                    
+                    # Вариант 1: {"response": {"status": "ACCEPT", "amount": 100}}
+                    if 'response' in response_data and isinstance(response_data['response'], dict):
+                        if response_data['response'].get('status') == "ACCEPT":
+                            pay_amount = int(float(response_data['response'].get('amount', 0)))
+                            pay_status = 0
+                    # Вариант 2: {"status": "ACCEPT", "amount": 100}
+                    elif response_data.get('status') == "ACCEPT":
+                        pay_amount = int(float(response_data.get('amount', 0)))
+                        pay_status = 0
 
-            if response_data['response']['status'] == "ACCEPT":
-                pay_amount  = int(float(response_data['response']['amount']))
-                pay_status  = 0
-
-        return pay_status, pay_amount
+            return pay_status, pay_amount
+        except Exception as e:
+            print(f"❌ Error checking CactusPay payment: {e}")
+            return 1, None

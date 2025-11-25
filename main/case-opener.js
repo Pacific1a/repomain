@@ -272,17 +272,26 @@
     
     const currency = currentCase.isChipsCase ? 'chips' : 'rubles';
     
-    if (!window.GameBalanceAPI) {
+    if (!window.BalanceAPI) {
       alert('Система баланса не загружена');
       return;
     }
 
-    if (!window.GameBalanceAPI.canPlaceBet(currentCase.price, currency)) {
+    // Проверяем баланс
+    const hasEnough = currency === 'chips' 
+      ? window.BalanceAPI.hasEnoughChips(currentCase.price)
+      : window.BalanceAPI.hasEnoughRubles(currentCase.price);
+      
+    if (!hasEnough) {
       alert(`Недостаточно средств! Требуется: ${currentCase.price}${currency === 'chips' ? ' chips' : '₽'}`);
       return;
     }
 
-    const success = await window.GameBalanceAPI.placeBet(currentCase.price, currency);
+    // Списываем средства
+    const success = currency === 'chips'
+      ? await window.BalanceAPI.subtractChips(currentCase.price)
+      : await window.BalanceAPI.subtractRubles(currentCase.price);
+      
     if (!success) {
       alert('Ошибка при списании средств');
       return;
@@ -553,7 +562,8 @@
       keepButton.style.cursor = 'not-allowed';
     }
 
-    await window.GameBalanceAPI.payWinnings(wonPrize, 'rubles');
+    // Начисляем выигрыш (всегда в рублях из кейсов)
+    await window.BalanceAPI.addRubles(wonPrize);
     
     console.log(`🎉 Поздравляем! Вы выиграли ${wonPrize}₽`);
     

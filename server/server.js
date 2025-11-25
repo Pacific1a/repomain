@@ -1755,6 +1755,8 @@ app.get('/api/history', (req, res) => {
 // BALANCE API - Управление балансами игроков
 // ============================================
 
+const Database = require('better-sqlite3');
+const BOT_DB_PATH = path.join(__dirname, '..', 'autoshop', 'tgbot', 'data', 'database.db');
 const BALANCES_FILE = path.join(DATA_DIR, 'balances.json');
 
 // Инициализация файла балансов если его нет
@@ -1762,13 +1764,66 @@ if (!fs.existsSync(BALANCES_FILE)) {
   fs.writeFileSync(BALANCES_FILE, JSON.stringify({}, null, 2));
 }
 
+// Функция для получения баланса из базы данных бота
+function getBotBalance(telegramId) {
+  try {
+    if (!fs.existsSync(BOT_DB_PATH)) {
+      console.warn('⚠️ Bot database not found:', BOT_DB_PATH);
+      return null;
+    }
+    
+    const db = new Database(BOT_DB_PATH, { readonly: true });
+    const user = db.prepare('SELECT user_balance FROM storage_users WHERE user_id = ?').get(telegramId);
+    db.close();
+    
+    if (user) {
+      return {
+        rubles: parseFloat(user.user_balance) || 0,
+        chips: 0 // Бот не использует фишки, только рубли
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('❌ Error reading bot database:', error);
+    return null;
+  }
+}
+
+// Функция для обновления баланса в базе данных бота
+function updateBotBalance(telegramId, rubles) {
+  try {
+    if (!fs.existsSync(BOT_DB_PATH)) {
+      console.warn('⚠️ Bot database not found:', BOT_DB_PATH);
+      return false;
+    }
+    
+    const db = new Database(BOT_DB_PATH);
+    const stmt = db.prepare('UPDATE storage_users SET user_balance = ? WHERE user_id = ?');
+    const result = stmt.run(rubles, telegramId);
+    db.close();
+    
+    return result.changes > 0;
+  } catch (error) {
+    console.error('❌ Error updating bot database:', error);
+    return false;
+  }
+}
+
 // Получить баланс пользователя
 app.get('/api/balance/:telegramId', async (req, res) => {
   try {
     const { telegramId } = req.params;
     
+    // Приоритет 1: Читаем из базы данных бота (SQLite)
+    const botBalance = getBotBalance(telegramId);
+    if (botBalance !== null) {
+      console.log(`💰 Balance loaded from bot DB for ${telegramId}: ${botBalance.rubles}₽`);
+      res.json(botBalance);
+      return;
+    }
+    
+    // Приоритет 2: MongoDB
     if (User) {
-      // Используем MongoDB
       let user = await User.findOne({ telegramId });
       if (!user) {
         // Создаем нового пользователя с дефолтным балансом
@@ -1782,15 +1837,17 @@ app.get('/api/balance/:telegramId', async (req, res) => {
         });
       }
       res.json({
-        rubles: user.balance.coins || 0, // coins используем как rubles
+        rubles: user.balance.coins || 0,
         chips: user.balance.chips || 0
       });
-    } else {
-      // Используем JSON файл
-      const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
-      const userBalance = balances[telegramId] || { rubles: 0, chips: 0 };
-      res.json(userBalance);
+      return;
     }
+    
+    // Приоритет 3: JSON файл (fallback)
+    const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
+    const userBalance = balances[telegramId] || { rubles: 0, chips: 0 };
+    console.log(`💰 Balance loaded from JSON for ${telegramId}: ${userBalance.rubles}₽`);
+    res.json(userBalance);
   } catch (error) {
     console.error('❌ Error getting balance:', error);
     res.status(500).json({ error: 'Server error' });
@@ -1803,26 +1860,44 @@ app.post('/api/balance/:telegramId', async (req, res) => {
     const { telegramId } = req.params;
     const { rubles, chips } = req.body;
     
+    const finalRubles = parseFloat(rubles) || 0;
+    const finalChips = parseInt(chips) || 0;
+    
+    // Приоритет 1: Обновляем базу данных бота (SQLite)
+    if (fs.existsSync(BOT_DB_PATH)) {
+      const updated = updateBotBalance(telegramId, finalRubles);
+      if (updated) {
+        console.log(`💰 Balance updated in bot DB for ${telegramId}: ${finalRubles}₽`);
+        res.json({ rubles: finalRubles, chips: finalChips });
+        
+        // Уведомляем всех клиентов об обновлении через WebSocket
+        io.emit(`balance_updated_${telegramId}`, {
+          rubles: finalRubles,
+          chips: finalChips,
+          timestamp: Date.now()
+        });
+        return;
+      }
+    }
+    
+    // Приоритет 2: MongoDB
     if (User) {
-      // Используем MongoDB
       let user = await User.findOne({ telegramId });
       if (!user) {
         user = await User.create({
           telegramId,
           nickname: `User${telegramId.slice(-4)}`,
           balance: {
-            coins: parseFloat(rubles) || 0,
-            chips: parseInt(chips) || 0
+            coins: finalRubles,
+            chips: finalChips
           }
         });
       } else {
         if (rubles !== undefined && rubles !== null) {
-          user.balance.coins = parseFloat(rubles);
-          if (isNaN(user.balance.coins)) user.balance.coins = 0;
+          user.balance.coins = finalRubles;
         }
         if (chips !== undefined && chips !== null) {
-          user.balance.chips = parseInt(chips);
-          if (isNaN(user.balance.chips)) user.balance.chips = 0;
+          user.balance.chips = finalChips;
         }
         await user.save();
       }
@@ -1831,18 +1906,30 @@ app.post('/api/balance/:telegramId', async (req, res) => {
         rubles: user.balance.coins,
         chips: user.balance.chips
       });
-    } else {
-      // Используем JSON файл
-      const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
-      balances[telegramId] = {
-        rubles: parseFloat(rubles) || 0,
-        chips: parseInt(chips) || 0
-      };
-      fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
-      res.json(balances[telegramId]);
+      
+      // Уведомляем всех клиентов
+      io.emit(`balance_updated_${telegramId}`, {
+        rubles: user.balance.coins,
+        chips: user.balance.chips,
+        timestamp: Date.now()
+      });
+      return;
     }
     
-    console.log(`💰 Balance updated for ${telegramId}: ${rubles}₽, ${chips} chips`);
+    // Приоритет 3: JSON файл (fallback)
+    const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
+    balances[telegramId] = { rubles: finalRubles, chips: finalChips };
+    fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
+    
+    console.log(`💰 Balance updated in JSON for ${telegramId}: ${finalRubles}₽, ${finalChips} chips`);
+    res.json(balances[telegramId]);
+    
+    // Уведомляем всех клиентов
+    io.emit(`balance_updated_${telegramId}`, {
+      rubles: finalRubles,
+      chips: finalChips,
+      timestamp: Date.now()
+    });
   } catch (error) {
     console.error('❌ Error updating balance:', error);
     res.status(500).json({ error: 'Server error' });
@@ -1855,21 +1942,51 @@ app.post('/api/balance/:telegramId/add', async (req, res) => {
     const { telegramId } = req.params;
     const { rubles, chips } = req.body;
     
+    const addRubles = parseFloat(rubles) || 0;
+    const addChips = parseInt(chips) || 0;
+    
+    // Приоритет 1: Обновляем базу данных бота (SQLite)
+    if (fs.existsSync(BOT_DB_PATH)) {
+      const currentBalance = getBotBalance(telegramId);
+      if (currentBalance !== null) {
+        const newRubles = currentBalance.rubles + addRubles;
+        const updated = updateBotBalance(telegramId, newRubles);
+        if (updated) {
+          console.log(`➕ Balance added in bot DB for ${telegramId}: +${addRubles}₽ (total: ${newRubles}₽)`);
+          const finalBalance = { rubles: newRubles, chips: currentBalance.chips + addChips };
+          res.json(finalBalance);
+          
+          // Уведомляем всех клиентов
+          io.emit(`balance_updated_${telegramId}`, {
+            ...finalBalance,
+            amount: addRubles,
+            timestamp: Date.now(),
+            transaction: {
+              type: 'add',
+              amount: addRubles,
+              timestamp: Date.now()
+            }
+          });
+          return;
+        }
+      }
+    }
+    
+    // Приоритет 2: MongoDB
     if (User) {
-      // Используем MongoDB
       let user = await User.findOne({ telegramId });
       if (!user) {
         user = await User.create({
           telegramId,
           nickname: `User${telegramId.slice(-4)}`,
           balance: {
-            coins: parseFloat(rubles) || 0,
-            chips: parseInt(chips) || 0
+            coins: addRubles,
+            chips: addChips
           }
         });
       } else {
-        user.balance.coins = (user.balance.coins || 0) + (parseFloat(rubles) || 0);
-        user.balance.chips = (user.balance.chips || 0) + (parseInt(chips) || 0);
+        user.balance.coins = (user.balance.coins || 0) + addRubles;
+        user.balance.chips = (user.balance.chips || 0) + addChips;
         await user.save();
       }
       
@@ -1877,19 +1994,45 @@ app.post('/api/balance/:telegramId/add', async (req, res) => {
         rubles: user.balance.coins,
         chips: user.balance.chips
       });
-    } else {
-      // Используем JSON файл
-      const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
-      const currentBalance = balances[telegramId] || { rubles: 0, chips: 0 };
-      balances[telegramId] = {
-        rubles: currentBalance.rubles + (parseFloat(rubles) || 0),
-        chips: currentBalance.chips + (parseInt(chips) || 0)
-      };
-      fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
-      res.json(balances[telegramId]);
+      
+      // Уведомляем всех клиентов
+      io.emit(`balance_updated_${telegramId}`, {
+        rubles: user.balance.coins,
+        chips: user.balance.chips,
+        amount: addRubles,
+        timestamp: Date.now(),
+        transaction: {
+          type: 'add',
+          amount: addRubles,
+          timestamp: Date.now()
+        }
+      });
+      return;
     }
     
-    console.log(`➕ Balance added for ${telegramId}: +${rubles}₽, +${chips} chips`);
+    // Приоритет 3: JSON файл (fallback)
+    const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
+    const currentBalance = balances[telegramId] || { rubles: 0, chips: 0 };
+    balances[telegramId] = {
+      rubles: currentBalance.rubles + addRubles,
+      chips: currentBalance.chips + addChips
+    };
+    fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
+    
+    console.log(`➕ Balance added in JSON for ${telegramId}: +${addRubles}₽, +${addChips} chips`);
+    res.json(balances[telegramId]);
+    
+    // Уведомляем всех клиентов
+    io.emit(`balance_updated_${telegramId}`, {
+      ...balances[telegramId],
+      amount: addRubles,
+      timestamp: Date.now(),
+      transaction: {
+        type: 'add',
+        amount: addRubles,
+        timestamp: Date.now()
+      }
+    });
   } catch (error) {
     console.error('❌ Error adding balance:', error);
     res.status(500).json({ error: 'Server error' });

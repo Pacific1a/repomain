@@ -650,11 +650,11 @@ class SpeedCashGame {
                     return;
                 }
                 
-                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
+                if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(betAmount)) {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.GameBalanceAPI.placeBet(betAmount, 'rubles');
+                const success = window.BalanceAPI.subtractRubles(betAmount);
                 if (success) {
                     if (color === 'blue') {
                         this.currentBlueBet = betAmount;
@@ -702,8 +702,8 @@ class SpeedCashGame {
         if (!betAmount) return;
         
         // Возвращаем средства
-        if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(betAmount, 'rubles');
+        if (window.BalanceAPI) {
+            window.BalanceAPI.addRubles(betAmount);
         }
         
         // Сбрасываем ставку
@@ -729,8 +729,8 @@ class SpeedCashGame {
         const winnings = Math.floor(betAmount * multiplier);
         
         // Выплачиваем выигрыш
-        if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
+        if (window.BalanceAPI) {
+            window.BalanceAPI.addRubles(winnings);
         }
         
         // Сбрасываем ставку
@@ -1402,8 +1402,8 @@ class SpeedCashGame {
         }
         
         // Выплачиваем выигрыш через глобальный баланс
-        if (winnings > 0 && window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
+        if (winnings > 0 && window.BalanceAPI) {
+            window.BalanceAPI.addRubles(winnings);
             console.log(`Выплачен выигрыш: ${winnings} чипов`);
         }
         
@@ -1417,8 +1417,8 @@ class SpeedCashGame {
                     (this.finalBlueMultiplier || this.blueMultiplier) : 
                     (this.finalOrangeMultiplier || this.orangeMultiplier);
                 const singleWinnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
-                if (window.GameBalanceAPI) {
-                    window.GameBalanceAPI.payWinningsAndUpdate(singleWinnings, 'chips');
+                if (window.BalanceAPI) {
+                    window.BalanceAPI.addChips(singleWinnings);
                     console.log(`🎯 Single выигрыш: ${singleWinnings} chips (x${multiplier.toFixed(2)} × 1.5)`);
                 }
             } else {
@@ -1638,11 +1638,11 @@ class SpeedCashGame {
                     return;
                 }
                 
-                if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.singleBet, 'rubles')) {
+                if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(this.singleBet)) {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.GameBalanceAPI.placeBet(this.singleBet, 'rubles');
+                const success = window.BalanceAPI.subtractRubles(this.singleBet);
                 if (success) {
                     this.currentSingleBet = this.singleBet;
                     this.updateSingleButton('cancel', this.singleBet);
@@ -1690,8 +1690,8 @@ class SpeedCashGame {
         const winnings = Math.floor(this.currentSingleBet * multiplier * 1.5);
         
         // Выплачиваем выигрыш
-        if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(winnings, 'rubles');
+        if (window.BalanceAPI) {
+            window.BalanceAPI.addRubles(winnings);
         }
         
         this.currentSingleBet = null;
@@ -1711,8 +1711,8 @@ class SpeedCashGame {
 
     cancelSingleBet() {
         if (!this.currentSingleBet) return;
-        if (window.GameBalanceAPI) {
-            window.GameBalanceAPI.payWinningsAndUpdate(this.currentSingleBet, 'rubles');
+        if (window.BalanceAPI) {
+            window.BalanceAPI.addRubles(this.currentSingleBet);
         }
         this.currentSingleBet = null;
         this.updateSingleButton('bet', this.singleBet);

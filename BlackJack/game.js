@@ -406,7 +406,7 @@
     }
 
     waitForBalance() {
-      if (window.GlobalBalance && window.GlobalBalance.isReady) {
+      if (window.BalanceAPI && window.BalanceAPI.isReady) {
         this.updateBetBalanceUI();
       } else {
         setTimeout(() => this.waitForBalance(), 100);
@@ -414,9 +414,9 @@
     }
 
     updateBetBalanceUI() {
-      if (!window.GlobalBalance) return;
+      if (!window.BalanceAPI) return;
       
-      const balance = window.GlobalBalance.getChips();
+      const balance = window.BalanceAPI.getChips();
       if (el.betAmount) el.betAmount.textContent = String(this.bet);
       
       // Balance updates automatically via GlobalBalance
@@ -435,8 +435,8 @@
     }
 
     setBet(value) {
-      if (!window.GlobalBalance) return;
-      const balance = window.GlobalBalance.getChips();
+      if (!window.BalanceAPI) return;
+      const balance = window.BalanceAPI.getChips();
       this.bet = Math.max(10, Math.min(value, balance));
       this.updateBetBalanceUI();
     }
@@ -449,12 +449,12 @@
       if (!force && !this.roundOver) return;
       
       // Check balance (не списываем сразу, только проверяем)
-      if (!window.GameBalanceAPI) {
+      if (!window.BalanceAPI) {
         showResult('Balance API not ready');
         return;
       }
       
-      if (!window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
+      if (!window.BalanceAPI.hasEnoughRubles(this.bet)) {
         showResult('Недостаточно рублей');
         return;
       }
@@ -625,7 +625,7 @@
       if (this.roundOver || this.player.length !== 2 || this.hasActed) return;
       
       // Проверяем баланс для удвоения ставки (не списываем сразу)
-      if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(this.bet, 'rubles')) {
+      if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(this.bet)) {
         showResult("Недостаточно рублей для удвоения");
         return;
       }
@@ -690,14 +690,14 @@
       }
 
       // Обрабатываем баланс в зависимости от результата
-      if (window.GameBalanceAPI) {
+      if (window.BalanceAPI) {
         if (winAmount > 0) {
           // Выигрыш или push - добавляем выигрыш
-          window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
+          window.BalanceAPI.addRubles(winAmount);
           console.log(`💰 BlackJack ${outcome}: +${winAmount} rubles`);
         } else {
           // Проигрыш - списываем ставку
-          window.GameBalanceAPI.placeBet(this.bet, 'rubles');
+          window.BalanceAPI.subtractRubles(this.bet);
           console.log(`💸 BlackJack ${outcome}: -${this.bet} rubles`);
         }
       }

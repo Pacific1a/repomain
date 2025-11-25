@@ -274,12 +274,12 @@
     }
     
     // Проверка баланса (не списываем сразу, только проверяем)
-    if (!window.GameBalanceAPI) {
+    if (!window.BalanceAPI) {
       console.error('GameBalanceAPI не загружен');
       return false;
     }
     
-    if (!window.GameBalanceAPI.canPlaceBet(state.bet, 'rubles')) {
+    if (!window.BalanceAPI.hasEnoughRubles(state.bet)) {
       showNotification(`Недостаточно средств для ставки ${state.bet} rubles`);
       return false;
     }
@@ -333,8 +333,8 @@
     
     if (lost) {
       // Проигрыш - списываем ставку
-      if (window.GameBalanceAPI) {
-        window.GameBalanceAPI.placeBet(state.bet, 'rubles');
+      if (window.BalanceAPI) {
+        window.BalanceAPI.subtractRubles(state.bet);
         console.log(`💥 Mines: проигрыш, списано ${state.bet} rubles`);
       }
       
@@ -492,8 +492,8 @@
       const multi = currentMultiplier();
       const win = Math.floor(state.bet * multi);
       
-      if (window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinnings(win, 'rubles');
+      if (window.BalanceAPI) {
+        window.BalanceAPI.addRubles(win);
         console.log(`💰 Mines: выигрыш ${win} rubles (x${multi})`);
       }
       

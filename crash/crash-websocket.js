@@ -394,7 +394,7 @@
       // Обрабатываем ставки - списываем баланс для ВСЕХ зарезервированных ставок
       if (playerHasBet && !playerCashedOut) {
         // Списываем баланс независимо от того когда была сделана ставка
-        const success = await window.GameBalanceAPI.placeBet(playerBetAmount, 'rubles');
+        const success = await window.BalanceAPI.subtractRubles(playerBetAmount);
         if (!success) {
           // Если не хватает баланса - отменяем ставку
           showNotification('Недостаточно средств для активации ставки');
@@ -652,7 +652,7 @@
     }
     
     const winAmount = Math.floor(playerBetAmount * currentMultiplier);
-    await window.GameBalanceAPI.payWinnings(winAmount, 'rubles');
+    await window.BalanceAPI.addRubles(winAmount);
     
     playerCashedOut = true;
     betPlacedDuringFlight = false; // Сбрасываем флаг
@@ -684,7 +684,7 @@
           return;
         }
         
-        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
+        if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(betAmount)) {
           showNotification('Недостаточно средств');
           return;
         }
@@ -712,7 +712,7 @@
           return;
         }
         
-        if (!window.GameBalanceAPI || !window.GameBalanceAPI.canPlaceBet(betAmount, 'rubles')) {
+        if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(betAmount)) {
           showNotification('Недостаточно средств');
           return;
         }
