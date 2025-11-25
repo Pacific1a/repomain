@@ -1755,8 +1755,6 @@ app.get('/api/history', (req, res) => {
 // BALANCE API - Управление балансами игроков
 // ============================================
 
-const Database = require('better-sqlite3');
-const BOT_DB_PATH = path.join(__dirname, '..', 'autoshop', 'tgbot', 'data', 'database.db');
 const BALANCES_FILE = path.join(DATA_DIR, 'balances.json');
 
 // Инициализация файла балансов если его нет
@@ -1764,49 +1762,18 @@ if (!fs.existsSync(BALANCES_FILE)) {
   fs.writeFileSync(BALANCES_FILE, JSON.stringify({}, null, 2));
 }
 
-// Функция для получения баланса из базы данных бота
+// Функция для получения баланса из базы данных бота (заглушка)
+// На Render better-sqlite3 не работает из-за несовместимости архитектур
+// Используем JSON/MongoDB fallback
 function getBotBalance(telegramId) {
-  try {
-    if (!fs.existsSync(BOT_DB_PATH)) {
-      console.warn('⚠️ Bot database not found:', BOT_DB_PATH);
-      return null;
-    }
-    
-    const db = new Database(BOT_DB_PATH, { readonly: true });
-    const user = db.prepare('SELECT user_balance FROM storage_users WHERE user_id = ?').get(telegramId);
-    db.close();
-    
-    if (user) {
-      return {
-        rubles: parseFloat(user.user_balance) || 0,
-        chips: 0 // Бот не использует фишки, только рубли
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error('❌ Error reading bot database:', error);
-    return null;
-  }
+  console.log('⚠️ SQLite disabled on Render, using JSON/MongoDB fallback');
+  return null;
 }
 
-// Функция для обновления баланса в базе данных бота
+// Функция для обновления баланса в базе данных бота (заглушка)
 function updateBotBalance(telegramId, rubles) {
-  try {
-    if (!fs.existsSync(BOT_DB_PATH)) {
-      console.warn('⚠️ Bot database not found:', BOT_DB_PATH);
-      return false;
-    }
-    
-    const db = new Database(BOT_DB_PATH);
-    const stmt = db.prepare('UPDATE storage_users SET user_balance = ? WHERE user_id = ?');
-    const result = stmt.run(rubles, telegramId);
-    db.close();
-    
-    return result.changes > 0;
-  } catch (error) {
-    console.error('❌ Error updating bot database:', error);
-    return false;
-  }
+  console.log('⚠️ SQLite disabled on Render, using JSON/MongoDB fallback');
+  return false;
 }
 
 // Получить баланс пользователя
