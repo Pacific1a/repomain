@@ -135,8 +135,8 @@
                         this.balance.rubles = (this.balance.rubles || 0) + data.amount;
                         this.updateVisual();
                         
-                        // Показываем уведомление
-                        this.showNotification(`+${data.amount}₽`);
+                        // Уведомление отключено
+                        // this.showNotification(`+${data.amount}₽`);
                         
                         // Добавляем транзакцию
                         if (window.TransactionsList) {

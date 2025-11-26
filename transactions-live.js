@@ -246,8 +246,8 @@
             
             this.render();
             
-            // Показываем уведомление
-            this.showTransactionNotification(tx);
+            // Уведомление отключено
+            // this.showTransactionNotification(tx);
         }
         
         showTransactionNotification(tx) {
