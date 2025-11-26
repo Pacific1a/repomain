@@ -17,7 +17,9 @@ PATH_DATABASE = "tgbot/data/database.db"  # Путь к БД
 PATH_LOGS = "tgbot/data/logs.log"  # Путь к Логам
 
 # API сервера
-SERVER_API_URL = "https://server-bot-4.onrender.com"  # URL сервера для получения баланса
+# Локально используем localhost, на продакшене - URL с render.yaml
+import os
+SERVER_API_URL = os.getenv('SERVER_URL', 'http://localhost:3000')  # URL сервера для получения баланса
 
 
 # Получение администраторов бота

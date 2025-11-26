@@ -106,10 +106,10 @@
                 // Показываем сообщение о пустоте
                 const emptyBlock = document.createElement('div');
                 emptyBlock.className = 'transaction-2';
-                emptyBlock.style.cssText = 'padding: 20px; text-align: center; opacity: 0.7; color: #999;';
+                emptyBlock.style.cssText = 'padding: 20px; text-align: center; opacity: 0.7; color: #999; font-family: Montserrat, sans-serif;';
                 emptyBlock.innerHTML = `
-                    <div style="font-size: 16px;">История транзакций пуста</div>
-                    <div style="font-size: 14px; margin-top: 5px;">Пополните баланс или сыграйте в игру</div>
+                    <div style="font-size: 16px; font-family: Montserrat, sans-serif;">История транзакций пуста</div>
+                    <div style="font-size: 14px; margin-top: 5px; font-family: Montserrat, sans-serif;">Пополните баланс или сыграйте в игру</div>
                 `;
                 
                 // Вставляем после .frame-3

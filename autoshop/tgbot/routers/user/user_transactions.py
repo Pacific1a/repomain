@@ -265,27 +265,39 @@ async def update_miniapp_balance(user_id: int, amount: float):
     """Отправляет обновление баланса на сервер Mini App"""
     import aiohttp
     from tgbot.data.config import SERVER_API_URL
+    from tgbot.database.db_users import Userx
     
     # URL вашего сервера Mini App
     SERVER_URL = SERVER_API_URL
     
     try:
+        # Получаем актуальный баланс из базы бота
+        get_user = Userx.get(user_id=user_id)
+        if not get_user:
+            print(f"⚠️ Пользователь {user_id} не найден в БД")
+            return False
+        
+        total_rubles = get_user.user_balance
+        
         async with aiohttp.ClientSession() as session:
-            # Добавляем сумму к балансу
+            # Отправляем полный баланс на сервер (не добавляем, а устанавливаем)
             async with session.post(
-                f"{SERVER_URL}/api/balance/{user_id}/add",
-                json={"rubles": float(amount), "chips": 0},
+                f"{SERVER_URL}/api/balance/{user_id}",
+                json={"rubles": float(total_rubles), "chips": 0},
                 timeout=aiohttp.ClientTimeout(total=10)
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(f"✅ Баланс обновлен на сервере для {user_id}: {data['rubles']}₽")
+                    print(f"✅ Баланс синхронизирован на сервере для {user_id}: {data['rubles']}₽")
                     return True
                 else:
-                    print(f"❌ Failed to update Mini App balance: {response.status}")
+                    error_text = await response.text()
+                    print(f"❌ Failed to update Mini App balance: {response.status} - {error_text}")
                     return False
     except Exception as e:
         print(f"❌ Error updating Mini App balance: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 # Зачисление средств

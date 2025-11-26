@@ -1,8 +1,1 @@
-WARNING | 2025-11-26 06:43:37,469 | main.py:59 | BOT WAS STARTED
-ERROR | 2025-11-26 06:51:24,287 | dispatcher.py:219 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientOSError: [WinError 121] Превышен таймаут семафора
-WARNING | 2025-11-26 06:51:24,287 | dispatcher.py:221 | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8172657942)
-ERROR | 2025-11-26 06:52:56,146 | dispatcher.py:219 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
-WARNING | 2025-11-26 06:52:56,146 | dispatcher.py:221 | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8172657942)
-ERROR | 2025-11-26 07:36:55,202 | dispatcher.py:219 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
-WARNING | 2025-11-26 07:36:55,203 | dispatcher.py:221 | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8172657942)
-WARNING | 2025-11-26 07:36:55,464 | main.py:86 | Bot was stopped
+WARNING | 2025-11-26 09:10:57,187 | main.py:59 | BOT WAS STARTED
