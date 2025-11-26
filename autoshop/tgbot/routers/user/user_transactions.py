@@ -264,9 +264,10 @@ async def refill_check_qiwi(call: CallbackQuery, bot: Bot, state: FSM, arSession
 async def update_miniapp_balance(user_id: int, amount: float):
     """Отправляет обновление баланса на сервер Mini App"""
     import aiohttp
+    from tgbot.data.config import SERVER_API_URL
     
     # URL вашего сервера Mini App
-    SERVER_URL = "https://telegram-games-plkj.onrender.com"  # Измените на свой
+    SERVER_URL = SERVER_API_URL
     
     try:
         async with aiohttp.ClientSession() as session:
@@ -278,21 +279,7 @@ async def update_miniapp_balance(user_id: int, amount: float):
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    print(f"✅ Mini App balance updated for {user_id}: {data['rubles']}₽")
-                    
-                    # Отправляем уведомление о транзакции
-                    async with session.post(
-                        f"{SERVER_URL}/api/transaction/notify",
-                        json={
-                            "telegramId": str(user_id),
-                            "amount": float(amount),
-                            "method": "CactusPay"
-                        },
-                        timeout=aiohttp.ClientTimeout(total=10)
-                    ) as trans_response:
-                        if trans_response.status == 200:
-                            print(f"✅ Transaction notification sent for {user_id}")
-                    
+                    print(f"✅ Баланс обновлен на сервере для {user_id}: {data['rubles']}₽")
                     return True
                 else:
                     print(f"❌ Failed to update Mini App balance: {response.status}")

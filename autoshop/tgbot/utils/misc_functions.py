@@ -242,3 +242,36 @@ async def autosettings_unix():
         misc_profit_week=unix_week,
         misc_profit_month=unix_month,
     )
+
+
+# Получение баланса пользователя через API сервера
+async def get_balance_from_server(user_id: int, arSession: ARS) -> dict:
+    """
+    Получает актуальный баланс пользователя с сервера через API.
+    
+    Args:
+        user_id: Telegram ID пользователя
+        arSession: Асинхронная сессия для запросов
+        
+    Returns:
+        dict: {'rubles': float, 'chips': int} или None при ошибке
+    """
+    from tgbot.data.config import SERVER_API_URL
+    
+    try:
+        session = await arSession.get_session()
+        url = f"{SERVER_API_URL}/api/balance/{user_id}"
+        
+        async with session.get(url, timeout=10) as response:
+            if response.status == 200:
+                data = await response.json()
+                return {
+                    'rubles': float(data.get('rubles', 0)),
+                    'chips': int(data.get('chips', 0))
+                }
+            else:
+                print(f"❌ Ошибка получения баланса с сервера: HTTP {response.status}")
+                return None
+    except Exception as e:
+        print(f"❌ Ошибка при запросе баланса с сервера: {e}")
+        return None

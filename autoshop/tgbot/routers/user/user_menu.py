@@ -39,7 +39,7 @@ async def user_shop(message: Message, bot: Bot, state: FSM, arSession: ARS):
 async def user_profile(message: Message, bot: Bot, state: FSM, arSession: ARS):
     await state.clear()
 
-    await open_profile_user(bot, message.from_user.id)
+    await open_profile_user(bot, message.from_user.id, arSession)
 
 
 # Проверка товаров в наличии
@@ -124,7 +124,7 @@ async def user_profile_return(call: CallbackQuery, bot: Bot, state: FSM, arSessi
     await state.clear()
 
     await del_message(call.message)
-    await open_profile_user(bot, call.from_user.id)
+    await open_profile_user(bot, call.from_user.id, arSession)
 
 
 # Просмотр истории покупок
@@ -151,7 +151,7 @@ async def user_purchases(call: CallbackQuery, bot: Bot, state: FSM, arSession: A
 
             await asyncio.sleep(0.2)
 
-        await open_profile_user(bot, call.from_user.id)
+        await open_profile_user(bot, call.from_user.id, arSession)
     else:
         await call.answer("❗ У вас отсутствуют покупки", True)
 

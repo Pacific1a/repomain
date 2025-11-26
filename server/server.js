@@ -1763,6 +1763,9 @@ if (!fs.existsSync(BALANCES_FILE)) {
 }
 
 // Функция для получения баланса из базы данных бота (заглушка)
+// Путь к базе данных бота
+const BOT_DB_PATH = path.join(__dirname, '..', 'autoshop', 'tgbot', 'data', 'database.db');
+
 // На Render better-sqlite3 не работает из-за несовместимости архитектур
 // Используем JSON/MongoDB fallback
 function getBotBalance(telegramId) {

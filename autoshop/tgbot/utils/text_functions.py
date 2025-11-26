@@ -24,18 +24,29 @@ from tgbot.utils.misc.bot_models import ARS
 ################################################################################
 ################################# ПОЛЬЗОВАТЕЛЬ #################################
 # Открытие профиля пользователем
-async def open_profile_user(bot: Bot, user_id: Union[int, str]):
+async def open_profile_user(bot: Bot, user_id: Union[int, str], arSession: ARS = None):
     get_purchases = Purchasesx.gets(user_id=user_id)
     get_user = Userx.get(user_id=user_id)
 
     how_days = int(get_unix() - get_user.user_unix) // 60 // 60 // 24
     count_items = sum([purchase.purchase_count for purchase in get_purchases])
 
+    # Получаем актуальный баланс с сервера через API
+    balance = get_user.user_balance
+    if arSession is not None:
+        from tgbot.utils.misc_functions import get_balance_from_server
+        server_balance = await get_balance_from_server(user_id, arSession)
+        if server_balance is not None:
+            balance = server_balance['rubles']
+            print(f"✅ Баланс получен с сервера для {user_id}: {balance}₽")
+        else:
+            print(f"⚠️ Не удалось получить баланс с сервера, используем из БД: {balance}₽")
+
     send_text = ded(f"""
         <b>👤 Ваш профиль:</b>
         ➖➖➖➖➖➖➖➖➖➖
         🆔 ID: <code>{get_user.user_id}</code>
-        💰 Баланс: <code>{get_user.user_balance}₽</code>
+        💰 Баланс: <code>{balance}₽</code>
         🎁 Куплено товаров: <code>{count_items}шт</code>
 
         🕰 Регистрация: <code>{convert_date(get_user.user_unix, False, False)} ({convert_day(how_days)})</code>
