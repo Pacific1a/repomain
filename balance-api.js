@@ -72,9 +72,14 @@
         
         async loadBalance() {
             try {
+                console.log(`🔄 Загрузка баланса с сервера для ${this.telegramId}...`);
                 const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}`);
+                console.log(`📡 Ответ сервера: ${response.status}`);
+                
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('📦 Данные с сервера:', data);
+                    
                     this.balance = {
                         rubles: parseFloat(data.rubles) || 0,
                         chips: parseInt(data.chips) || 0
@@ -83,6 +88,8 @@
                     this.notifyCallbacks();
                     console.log('💰 Balance loaded from server:', this.balance);
                     return true;
+                } else {
+                    console.warn(`⚠️ Сервер вернул статус ${response.status}`);
                 }
             } catch (error) {
                 console.error('❌ Error loading balance:', error);
