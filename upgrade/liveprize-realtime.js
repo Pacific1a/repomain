@@ -310,6 +310,11 @@ class RealtimeLivePrizes {
     
     // Исправляем путь для данных из WebSocket
     fixImagePath(win) {
+        // Если путь уже абсолютный (начинается с http), не трогаем его
+        if (win.imagePath && win.imagePath.startsWith('http')) {
+            return win;
+        }
+        
         const currentPath = window.location.pathname;
         const isInUpgrade = currentPath.includes('/upgrade/') || 
                            currentPath.includes('/upgrade');

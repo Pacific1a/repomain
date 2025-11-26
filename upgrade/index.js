@@ -33,12 +33,25 @@ let ringOffsetDeg = 0; // сдвиг выигрышной зоны по круг
 let isSpinning = false; // защита от повторных кликов во время прокрутки
 let lastStopAngle = null; // последний нормализованный угол остановки стрелки [0..360)
 
+// Блокируем кнопку Upgrade при загрузке
+if (upgradeBtn) {
+  upgradeBtn.classList.add('disabled');
+}
+
 // Разрешаем ввод ставки без изменения структуры — делаем contenteditable
 if (betInputEl) {
   betInputEl.setAttribute('contenteditable', 'true');
   betInputEl.setAttribute('inputmode', 'decimal');
   // если в разметке оставили "0" — очищаем, чтобы работал плейсхолдер
   if (betInputEl.textContent.trim() === '0') betInputEl.textContent = '';
+  
+  // Блокируем Shift+Enter и Enter для предотвращения переносов
+  betInputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      betInputEl.blur(); // Убираем фокус при Enter
+    }
+  });
 }
 
 // Готовим .arrow к плавному вращению вокруг центра
@@ -292,14 +305,16 @@ betInputEl?.addEventListener('input', () => {
     sel.removeAllRanges();
     sel.addRange(range);
   }
-  // Если ввод изменился после Apply — снимаем фиксацию
+  // Если ввод изменился после Apply — снимаем фиксацию и блокируем Upgrade
   const currentVal = toNumber(cleaned);
   if (currentVal !== betAmount) {
     betApplied = false;
+    if (upgradeBtn) upgradeBtn.classList.add('disabled');
   }
   if (!cleaned || currentVal === 0) {
     betAmount = 0;
     betApplied = false;
+    if (upgradeBtn) upgradeBtn.classList.add('disabled');
   }
   refreshSummaryViews();
 });
@@ -322,7 +337,14 @@ applyBtn?.addEventListener('click', () => {
   }
   betAmount = inputAmount; // сохраняем чистую ставку (без x)
   betApplied = true;
+  
+  // Разблокируем кнопку Upgrade после успешного Apply
+  if (upgradeBtn) {
+    upgradeBtn.classList.remove('disabled');
+  }
+  
   refreshSummaryViews();
+  showToast('Ставка принята! Нажмите Upgrade');
 });
 
 // Расчёт шанса — чем больше ставка относительно баланса, тем меньше шанс
@@ -407,8 +429,20 @@ function spinArrowTo(finalAngle, onEndCb) {
 }
 
 // Кнопка Upgrade — считает шанс и крутит стрелку
-upgradeBtn?.addEventListener('click', () => {
+upgradeBtn?.addEventListener('click', async () => {
   if (isSpinning) { return; }
+  
+  // Проверяем, разблокирована ли кнопка
+  if (upgradeBtn.classList.contains('disabled')) {
+    showToast('Сначала нажмите Apply');
+    return;
+  }
+  
+  if (!betApplied) {
+    showToast('Сначала нажмите Apply');
+    return;
+  }
+  
   if (betAmount <= 0) {
     showToast('Нужно ввести и применить ставку');
     return;
@@ -440,8 +474,16 @@ upgradeBtn?.addEventListener('click', () => {
   }
 
   // Списываем ставку перед розыгрышем через глобальный API
-  if (window.GameBalanceAPI && !window.GameBalanceAPI.safeBet(betAmount, 'chips')) {
-    showToast('Недостаточно средств');
+  if (window.BalanceAPI) {
+    const success = await window.BalanceAPI.subtractBalance(betAmount, 0, 'chips', 'upgrade', 'Ставка в Upgrade');
+    if (!success) {
+      showToast('Недостаточно средств');
+      isSpinning = false;
+      document.querySelector('.upgrade-button')?.classList.remove('disabled');
+      return;
+    }
+  } else {
+    showToast('Система баланса не загружена');
     isSpinning = false;
     document.querySelector('.upgrade-button')?.classList.remove('disabled');
     return;
@@ -479,8 +521,8 @@ upgradeBtn?.addEventListener('click', () => {
     if (effectiveWin) {
       const m = getActiveMultiplier();
       const winAmount = betAmount * m;
-      if (window.GameBalanceAPI) {
-        window.GameBalanceAPI.payWinningsAndUpdate(winAmount, 'chips');
+      if (window.BalanceAPI) {
+        await window.BalanceAPI.addBalance(0, winAmount, 'upgrade', `Выигрыш x${m} в Upgrade`);
       }
       gameEl?.classList.add('win');
     } else {
@@ -491,6 +533,10 @@ upgradeBtn?.addEventListener('click', () => {
     if (betInputEl) betInputEl.textContent = '';
     betAmount = 0;
     betApplied = false;
+    
+    // Блокируем кнопку Upgrade до следующего Apply
+    if (upgradeBtn) upgradeBtn.classList.add('disabled');
+    
     refreshSummaryViews();
 
     // Для следующего раунда — поставить зелёную линию в одно из фиксированных положений: TOP / LEFT / BOTTOM

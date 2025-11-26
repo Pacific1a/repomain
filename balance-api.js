@@ -300,10 +300,10 @@
                     this.updateVisual();
                     this.notifyCallbacks();
                     
-                    // Показываем уведомление если была транзакция
-                    if (data.transaction && data.amount > 0) {
-                        this.showNotification(`+${data.amount}₽`);
-                    }
+                    // Уведомление отключено
+                    // if (data.transaction && data.amount > 0) {
+                    //     this.showNotification(`+${data.amount}₽`);
+                    // }
                 });
                 
                 this.socket.on('disconnect', () => {

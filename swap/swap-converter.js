@@ -117,12 +117,13 @@
             .rubles .text-wrapper-7,
             .tokens .text-wrapper-7 {
                 outline: none;
-                cursor: text;
-                user-select: text;
+                cursor: text !important;
+                user-select: text !important;
                 min-width: 50px;
                 max-width: 90px;
                 display: inline-block;
-                -webkit-user-select: text;
+                -webkit-user-select: text !important;
+                pointer-events: auto !important;
                 -moz-user-select: text;
                 -ms-user-select: text;
                 overflow: hidden;

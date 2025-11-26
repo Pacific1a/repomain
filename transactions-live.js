@@ -127,10 +127,10 @@
                 return;
             }
             
-            // Отображаем только последние 5 или все
+            // Отображаем только последние 2 или все
             const visibleTransactions = this.isExpanded 
                 ? this.transactions 
-                : this.transactions.slice(0, 5);
+                : this.transactions.slice(0, 2);
             
             // Создаем блоки транзакций
             const fragment = document.createDocumentFragment();
@@ -149,7 +149,7 @@
             }
             
             // Обновляем кнопку show
-            if (this.showButton && this.transactions.length > 5) {
+            if (this.showButton && this.transactions.length > 2) {
                 this.showButton.style.display = 'block';
                 const textElement = this.showButton.querySelector('.text-wrapper-9');
                 if (textElement) {
