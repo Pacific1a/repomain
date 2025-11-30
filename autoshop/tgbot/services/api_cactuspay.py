@@ -102,26 +102,45 @@ class CactusPayAPI:
             response_data = json.loads((await response.read()).decode())
             print(f"🔍 CactusPay check response: {response_data}")
             
-            pay_status      = 1
+            pay_status      = 1  # По умолчанию: ошибка
             pay_amount      = None
 
             # Проверяем формат ответа
-            if isinstance(response_data, dict):
-                # Проверяем статус
-                if 'status' in response_data and response_data['status']:
-                    pay_status = 2  # Pending
+            if isinstance(response_data, dict) and 'response' in response_data:
+                payment_info = response_data['response']
+                
+                if isinstance(payment_info, dict):
+                    payment_status = payment_info.get('status', '').upper()
+                    amount_str = payment_info.get('amount', '0')
                     
-                    # Вариант 1: {"response": {"status": "ACCEPT", "amount": 100}}
-                    if 'response' in response_data and isinstance(response_data['response'], dict):
-                        if response_data['response'].get('status') == "ACCEPT":
-                            pay_amount = int(float(response_data['response'].get('amount', 0)))
-                            pay_status = 0
-                    # Вариант 2: {"status": "ACCEPT", "amount": 100}
-                    elif response_data.get('status') == "ACCEPT":
-                        pay_amount = int(float(response_data.get('amount', 0)))
-                        pay_status = 0
+                    print(f"📊 Статус платежа: {payment_status}, Сумма: {amount_str}")
+                    
+                    # Обрабатываем разные статусы
+                    if payment_status == 'ACCEPT' or payment_status == 'PAID' or payment_status == 'SUCCESS':
+                        # Платеж успешно оплачен
+                        pay_amount = int(float(amount_str))
+                        pay_status = 0  # Успех
+                        print(f"✅ Платеж успешен: {pay_amount}₽")
+                    elif payment_status == 'WAIT' or payment_status == 'PENDING':
+                        # Платеж ожидает оплаты
+                        pay_status = 2  # Ожидание
+                        print(f"⏳ Платеж ожидает оплаты")
+                    elif payment_status == 'CANCEL' or payment_status == 'CANCELLED':
+                        # Платеж отменен
+                        pay_status = 4  # Отменен
+                        print(f"❌ Платеж отменен")
+                    else:
+                        # Неизвестный статус
+                        pay_status = 1  # Ошибка
+                        print(f"⚠️ Неизвестный статус: {payment_status}")
+                else:
+                    print(f"⚠️ response не является dict: {payment_info}")
+            else:
+                print(f"⚠️ Неожиданный формат ответа: {response_data}")
 
             return pay_status, pay_amount
         except Exception as e:
             print(f"❌ Error checking CactusPay payment: {e}")
+            import traceback
+            traceback.print_exc()
             return 1, None

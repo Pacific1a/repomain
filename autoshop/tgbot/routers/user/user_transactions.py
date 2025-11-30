@@ -162,6 +162,7 @@ async def refill_check_cactuspay(call: CallbackQuery, bot: Bot, state: FSM, arSe
     ).bill_check(pay_receipt)
 
     if pay_status == 0:
+        # Платеж успешно оплачен
         get_refill = Refillx.get(refill_receipt=pay_receipt)
 
         if get_refill is None:
@@ -176,11 +177,17 @@ async def refill_check_cactuspay(call: CallbackQuery, bot: Bot, state: FSM, arSe
         else:
             await call.answer("❗ Ваше пополнение уже зачислено.", True, cache_time=60)
     elif pay_status == 1:
+        # Ошибка при проверке
         await call.answer("❗️ Не удалось проверить платёж. Попробуйте позже", True, cache_time=5)
     elif pay_status == 2:
-        await call.answer("❗️ Платёж не был найден. Попробуйте позже", True, cache_time=5)
+        # Платеж ожидает оплаты
+        await call.answer("⏳ Платёж создан, но еще не оплачен. Пожалуйста, завершите оплату и проверьте снова.", True, cache_time=5)
     elif pay_status == 3:
+        # Неверная валюта
         await call.answer("❗️ Оплата была произведена не в рублях", True, cache_time=5)
+    elif pay_status == 4:
+        # Платеж отменен
+        await call.answer("❌ Платёж был отменен. Создайте новый платёж.", True, cache_time=5)
     else:
         await call.answer(f"❗ Неизвестная ошибка {pay_status}. Обратитесь в поддержку.", True, cache_time=5)
 
@@ -270,10 +277,8 @@ async def update_miniapp_balance(user_id: int, amount: float):
     # URL вашего сервера Mini App
     SERVER_URL = SERVER_API_URL
     
-    # Если сервер localhost и мы в тестовом режиме, пропускаем синхронизацию
-    if 'localhost' in SERVER_URL:
-        print(f"⚠️ Синхронизация с localhost пропущена (сервер не запущен)")
-        return True  # Не считаем это ошибкой
+    # Выводим URL для диагностики
+    print(f"🔄 Синхронизация баланса с {SERVER_URL} для пользователя {user_id}")
     
     try:
         # Получаем актуальный баланс из базы бота

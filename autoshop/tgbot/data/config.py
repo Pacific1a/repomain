@@ -17,9 +17,10 @@ PATH_DATABASE = "tgbot/data/database.db"  # Путь к БД
 PATH_LOGS = "tgbot/data/logs.log"  # Путь к Логам
 
 # API сервера
-# Локально используем localhost, на продакшене - URL с render.yaml
+# По умолчанию используем Render URL, можно переопределить через переменную окружения
 import os
-SERVER_API_URL = os.getenv('SERVER_URL', 'http://localhost:3000')  # URL сервера для получения баланса
+SERVER_API_URL = os.getenv('SERVER_URL', 'https://telegram-games-plkj.onrender.com')  # URL сервера для получения баланса
+print(f"📡 Используется SERVER_URL: {SERVER_API_URL}")
 
 
 # Получение администраторов бота
