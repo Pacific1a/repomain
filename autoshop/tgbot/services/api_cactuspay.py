@@ -72,12 +72,31 @@ class CactusPayAPI:
 
     # Генерация платежа
     async def bill(self, pay_amount: float) -> tuple[str, str, int]:
+        # Проверяем минимальную сумму CactusPay
+        if pay_amount < 100:
+            error_msg = ded(f"""
+                <b>❌ Ошибка создания платежа</b>
+                ➖➖➖➖➖➖➖➖➖➖
+                ▪️ CactusPay принимает платежи от 100₽
+                ▪️ Ваша сумма: <code>{pay_amount}₽</code>
+                ➖➖➖➖➖➖➖➖➖➖
+                💡 Пожалуйста, выберите сумму от 100₽
+            """)
+            return error_msg, None, None
+            
         bill_receipt    = gen_id()
         bill_url        = await self.get_payment_url(pay_amount, bill_receipt)
         
         if not bill_url:
             # Если не получили URL - возвращаем ошибку
-            return "❌ Ошибка создания платежа. Обратитесь в поддержку.", None, None
+            error_msg = ded(f"""
+                <b>❌ Ошибка создания платежа</b>
+                ➖➖➖➖➖➖➖➖➖➖
+                ▪️ Не удалось создать платеж
+                ▪️ Попробуйте позже или обратитесь в поддержку
+            """)
+            return error_msg, None, None
+            
         bill_message    = ded(f"""
             <b>💰 Пополнение баланса</b>
             ➖➖➖➖➖➖➖➖➖➖
@@ -92,7 +111,7 @@ class CactusPayAPI:
         return bill_message, bill_url, bill_receipt
 
     # Проверка платежа
-    async def bill_check(self, receipt: Union[str, int]) -> tuple[int, float]:
+    async def bill_check(self, receipt: Union[str, int]) -> tuple[int, float, str]:
 
         session         = await self.arSession.get_session()
         url             = f"https://lk.cactuspay.pro/api/?method=get"
@@ -104,6 +123,7 @@ class CactusPayAPI:
             
             pay_status      = 1  # По умолчанию: ошибка
             pay_amount      = None
+            payment_method  = None
 
             # Проверяем формат ответа
             if isinstance(response_data, dict) and 'response' in response_data:
@@ -113,14 +133,25 @@ class CactusPayAPI:
                     payment_status = payment_info.get('status', '').upper()
                     amount_str = payment_info.get('amount', '0')
                     
-                    print(f"📊 Статус платежа: {payment_status}, Сумма: {amount_str}")
+                    # Извлекаем информацию о методе оплаты
+                    # CactusPay может возвращать разные поля: method, bank, payment_method, wallet, card
+                    payment_method = (
+                        payment_info.get('bank') or 
+                        payment_info.get('method') or 
+                        payment_info.get('payment_method') or
+                        payment_info.get('wallet') or
+                        payment_info.get('card_type') or
+                        payment_info.get('service')
+                    )
+                    
+                    print(f"📊 Статус платежа: {payment_status}, Сумма: {amount_str}, Метод: {payment_method}")
                     
                     # Обрабатываем разные статусы
                     if payment_status == 'ACCEPT' or payment_status == 'PAID' or payment_status == 'SUCCESS':
                         # Платеж успешно оплачен
                         pay_amount = int(float(amount_str))
                         pay_status = 0  # Успех
-                        print(f"✅ Платеж успешен: {pay_amount}₽")
+                        print(f"✅ Платеж успешен: {pay_amount}₽ через {payment_method}")
                     elif payment_status == 'WAIT' or payment_status == 'PENDING':
                         # Платеж ожидает оплаты
                         pay_status = 2  # Ожидание
@@ -138,9 +169,9 @@ class CactusPayAPI:
             else:
                 print(f"⚠️ Неожиданный формат ответа: {response_data}")
 
-            return pay_status, pay_amount
+            return pay_status, pay_amount, payment_method
         except Exception as e:
             print(f"❌ Error checking CactusPay payment: {e}")
             import traceback
             traceback.print_exc()
-            return 1, None
+            return 1, None, None

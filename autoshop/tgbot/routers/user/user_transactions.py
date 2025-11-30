@@ -16,7 +16,7 @@ from tgbot.utils.const_functions import is_number, to_number, gen_id
 from tgbot.utils.misc.bot_models import FSM, ARS
 from tgbot.utils.misc_functions import send_admins
 
-min_refill_rub = 10  # Минимальная сумма пополнения в рублях
+min_refill_rub = 10  # Минимальная сумма пополнения в рублях (ограничение CactusPay: минимум 100₽, но ставим 10₽ для других способов)
 
 router = Router(name=__name__)
 
@@ -139,10 +139,17 @@ async def refill_amount_get(message: Message, bot: Bot, state: FSM, arSession: A
         ).bill(pay_amount)
 
     if bill_message:
-        await cache_message.edit_text(
-            bill_message,
-            reply_markup=refill_bill_finl(bill_link, bill_receipt, pay_method),
-        )
+        # Если bill_link равен None, значит произошла ошибка
+        if bill_link is None:
+            await cache_message.edit_text(
+                bill_message,
+                reply_markup=refill_open_finl(pay_method),
+            )
+        else:
+            await cache_message.edit_text(
+                bill_message,
+                reply_markup=refill_bill_finl(bill_link, bill_receipt, pay_method),
+            )
 
 
 ################################################################################
@@ -154,7 +161,7 @@ async def refill_check_cactuspay(call: CallbackQuery, bot: Bot, state: FSM, arSe
     pay_way         = call.data.split(":")[1]
     pay_receipt     = call.data.split(":")[2]
 
-    pay_status, pay_amount = await (
+    pay_status, pay_amount, payment_method = await (
         CactusPayAPI(
             bot=bot,
             arSession=arSession,
@@ -173,6 +180,7 @@ async def refill_check_cactuspay(call: CallbackQuery, bot: Bot, state: FSM, arSe
                 pay_amount=pay_amount,
                 pay_receipt=pay_receipt,
                 pay_comment=pay_receipt,
+                payment_method=payment_method,
             )
         else:
             await call.answer("❗ Ваше пополнение уже зачислено.", True, cache_time=60)
@@ -268,6 +276,35 @@ async def refill_check_qiwi(call: CallbackQuery, bot: Bot, state: FSM, arSession
 ################################################################################
 #################################### ПРОЧЕЕ ####################################
 # Обновление баланса на сервере Mini App
+async def create_transaction(user_id: int, amount: float, transaction_type: str, source: str, description: str):
+    """Создает транзакцию на сервере Mini App"""
+    import aiohttp
+    from tgbot.data.config import SERVER_API_URL
+    
+    SERVER_URL = SERVER_API_URL
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{SERVER_URL}/api/transactions/{user_id}",
+                json={
+                    "type": transaction_type,
+                    "amount": float(amount),
+                    "source": source,
+                    "description": description
+                },
+                timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                if response.status == 200:
+                    print(f"✅ Транзакция создана для {user_id}: {description}")
+                    return True
+                else:
+                    print(f"⚠️ Не удалось создать транзакцию: {response.status}")
+                    return False
+    except Exception as e:
+        print(f"⚠️ Ошибка создания транзакции (некритичная): {e}")
+        return False
+
 async def update_miniapp_balance(user_id: int, amount: float):
     """Отправляет обновление баланса на сервер Mini App (необязательная операция)"""
     import aiohttp
@@ -318,6 +355,7 @@ async def refill_success(
         pay_amount: float,
         pay_receipt: Union[str, int] = None,
         pay_comment: str = None,
+        payment_method: str = None,
 ):
     get_user = Userx.get(user_id=call.from_user.id)
 
@@ -325,6 +363,12 @@ async def refill_success(
         pay_receipt = gen_id()
     if pay_comment is None:
         pay_comment = ""
+
+    # Формируем описание метода оплаты
+    if payment_method:
+        method_description = f"CactusPay ({payment_method})"
+    else:
+        method_description = "CactusPay"
 
     Refillx.add(
         user_id=get_user.user_id,
@@ -342,6 +386,15 @@ async def refill_success(
     
     # ✅ ОБНОВЛЯЕМ БАЛАНС В MINI APP
     await update_miniapp_balance(call.from_user.id, pay_amount)
+    
+    # ✅ СОЗДАЕМ ТРАНЗАКЦИЮ НА СЕРВЕРЕ
+    await create_transaction(
+        call.from_user.id, 
+        pay_amount, 
+        'add', 
+        'bot', 
+        f"Пополнение через {method_description}"
+    )
 
     await call.message.edit_text(
         f"<b>💰 Вы пополнили баланс на сумму <code>{pay_amount}₽</code>. Удачи ❤️\n"

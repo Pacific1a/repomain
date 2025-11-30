@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 15px;
+  gap: 10px;
   padding: 15px 25px;
   position: relative;
   height: 100%;
@@ -23,8 +23,8 @@
 
 .profile .avatar {
   position: relative;
-  width: 88px;
-  height: 88px;
+  width: 80px;
+  height: 80px;
   border-radius: 44px;
   box-shadow:
     0px 1px 3px #bbbbbb1a, 0px 5px 5px #bbbbbb17, 0px 12px 7px #bbbbbb0d, 0px 21px 8px #bbbbbb03, 0px 33px 9px transparent;
@@ -101,7 +101,7 @@
 
 .profile .balance {
   display: flex;
-  height: 82px;
+  height: 60px;
   align-items: center;
   justify-content: space-between;
   padding: 19px;
@@ -399,7 +399,7 @@
   align-self: stretch;
   width: 100%;
   flex: 0 0 auto;
-  margin-bottom: 200px;
+  margin-bottom: 100px;
 }
 
 .profile .frame-3 {
