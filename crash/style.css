@@ -1566,7 +1566,7 @@
 .aviator .menu {
   z-index: 100;
   display: flex;
-  width: 370px;
+ width: 370px;
   height: 80px;
   align-items: center;
   justify-content: center;

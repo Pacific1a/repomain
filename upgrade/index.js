@@ -1,6 +1,8 @@
 // ==============================
 // ИНИЦИАЛИЗАЦИЯ ЭЛЕМЕНТОВ UI
 // ==============================
+console.log('🎮 Upgrade game loading...');
+
 const buttons = document.querySelectorAll('.multiplier-button > div');
 const betInputEl = document.querySelector('.element-5 .text-wrapper-18');
 const betAmountViewEl = document.querySelector('.bet-amount-desired .frame-2 .info-amount .text-wrapper-8');
@@ -19,9 +21,14 @@ const arrow = document.querySelector('.arrow');
 // Индикатор процента позиции на колесе (существующий 0% в разметке)
 const positionPercentEl = document.querySelector('.group-2 .text-wrapper-14');
 
+console.log('✅ UI elements initialized');
+console.log('🔍 Checking BalanceAPI:', window.BalanceAPI ? 'Found' : 'NOT FOUND');
+console.log('🔍 Apply button:', applyBtn ? 'Found' : 'NOT FOUND');
+console.log('🔍 Upgrade button:', upgradeBtn ? 'Found' : 'NOT FOUND');
+
 // Функция чтения баланса через глобальный API
 function getBalance() {
-  return window.GameBalanceAPI ? window.GameBalanceAPI.getBalance('chips') : 1000;
+  return window.BalanceAPI ? window.BalanceAPI.getBalance('chips') : 1000;
 }
 
 // Текущее состояние
@@ -320,32 +327,41 @@ betInputEl?.addEventListener('input', () => {
 });
 
 // Кнопка Apply — валидирует и «применяет» ставку (не меняем баланс, только фиксация)
-applyBtn?.addEventListener('click', () => {
-  const balance = getBalance();
-  const inputAmount = toNumber(betInputEl?.textContent || '0');
-  if (inputAmount <= 0) {
-    showToast('Введите ставку');
-    return;
-  }
-  if (inputAmount < 50) {
-    showToast('Минимальная ставка 50');
-    return;
-  }
-  if (inputAmount > balance) {
-    showToast('Недостаточно средств на балансе');
-    return;
-  }
-  betAmount = inputAmount; // сохраняем чистую ставку (без x)
-  betApplied = true;
-  
-  // Разблокируем кнопку Upgrade после успешного Apply
-  if (upgradeBtn) {
-    upgradeBtn.classList.remove('disabled');
-  }
-  
-  refreshSummaryViews();
-  showToast('Ставка принята! Нажмите Upgrade');
-});
+if (applyBtn) {
+  applyBtn.addEventListener('click', () => {
+    console.log('🟢 Apply button clicked');
+    const balance = getBalance();
+    const inputAmount = toNumber(betInputEl?.textContent || '0');
+    console.log(`💰 Balance: ${balance}, Input: ${inputAmount}`);
+    
+    if (inputAmount <= 0) {
+      showToast('Введите ставку');
+      return;
+    }
+    if (inputAmount < 50) {
+      showToast('Минимальная ставка 50');
+      return;
+    }
+    if (inputAmount > balance) {
+      showToast('Недостаточно средств на балансе');
+      return;
+    }
+    betAmount = inputAmount; // сохраняем чистую ставку (без x)
+    betApplied = true;
+    
+    // Разблокируем кнопку Upgrade после успешного Apply
+    if (upgradeBtn) {
+      upgradeBtn.classList.remove('disabled');
+      console.log('✅ Upgrade button unlocked');
+    }
+    
+    refreshSummaryViews();
+    showToast('Ставка принята! Нажмите Upgrade');
+  });
+  console.log('✅ Apply button listener attached');
+} else {
+  console.error('❌ Apply button not found!');
+}
 
 // Расчёт шанса — чем больше ставка относительно баланса, тем меньше шанс
 function getActiveMultiplier() {
@@ -429,19 +445,29 @@ function spinArrowTo(finalAngle, onEndCb) {
 }
 
 // Кнопка Upgrade — считает шанс и крутит стрелку
-upgradeBtn?.addEventListener('click', async () => {
-  if (isSpinning) { return; }
-  
-  // Проверяем, разблокирована ли кнопка
-  if (upgradeBtn.classList.contains('disabled')) {
-    showToast('Сначала нажмите Apply');
-    return;
-  }
-  
-  if (!betApplied) {
-    showToast('Сначала нажмите Apply');
-    return;
-  }
+if (upgradeBtn) {
+  upgradeBtn.addEventListener('click', async () => {
+    console.log('🔵 Upgrade button clicked');
+    
+    if (isSpinning) { 
+      console.log('⚠️ Already spinning');
+      return; 
+    }
+    
+    // Проверяем, разблокирована ли кнопка
+    if (upgradeBtn.classList.contains('disabled')) {
+      console.log('⚠️ Button is disabled');
+      showToast('Сначала нажмите Apply');
+      return;
+    }
+    
+    if (!betApplied) {
+      console.log('⚠️ Bet not applied');
+      showToast('Сначала нажмите Apply');
+      return;
+    }
+    
+    console.log('✅ Starting upgrade spin...');
   
   if (betAmount <= 0) {
     showToast('Нужно ввести и применить ставку');
@@ -504,7 +530,7 @@ upgradeBtn?.addEventListener('click', async () => {
     arrow.appendChild(hb);
   }
 
-  spinArrowTo(finalAngle, () => {
+  spinArrowTo(finalAngle, async () => {
     // По финальному углу определяем итог через порог шанса:
     // angleToPercent: верх=100, низ=0; Победа, если finalPercent >= (100 - chance)
     const TOP_CENTER = 90;
@@ -550,7 +576,12 @@ upgradeBtn?.addEventListener('click', async () => {
     // Запомним финальную позицию для следующего анти-повтора
     lastStopAngle = currentRotation; // уже нормализован в finalize()
   });
-});
+  });
+  console.log('✅ Upgrade button listener attached');
+} else {
+  console.error('❌ Upgrade button not found!');
+}
 
 // Первая инициализация отображений
 refreshSummaryViews(0);
+console.log('🎮 Upgrade game initialization complete');

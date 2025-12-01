@@ -1,0 +1,4 @@
+WARNING | 2025-11-30 19:16:55,157 | main.py:59 | BOT WAS STARTED
+ERROR | 2025-11-30 19:41:59,172 | dispatcher.py:219 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ServerDisconnectedError: Server disconnected
+WARNING | 2025-11-30 19:41:59,173 | dispatcher.py:221 | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8172657942)
+WARNING | 2025-11-30 19:41:59,427 | main.py:86 | Bot was stopped

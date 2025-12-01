@@ -516,7 +516,7 @@
 .game .black-jack {
   display: flex;
   flex-direction: column;
-  width: 330px;
+ width: 370px;
   align-items: flex-start;
   gap: 4px;
   position: relative;
@@ -543,7 +543,7 @@
 
 .game .group {
   position: relative;
-  width: 330px;
+ width: 370px;
   height: 110px;
   mix-blend-mode: lighten;
   aspect-ratio: 3;
@@ -553,7 +553,7 @@
 .game .menu {
   bottom: 10px;
   display: flex;
-  width: 370px;
+ width: 370px;
   height: 80px;
   align-items: center;
   justify-content: center;

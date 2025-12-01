@@ -3,7 +3,7 @@
     flex-direction: column;
     min-height: 100vh;
     align-items: center;
-    justify-content: space-between;
+    justify-content: start;
     gap: 20px;
     padding: 15px 25px;
     position: relative;
@@ -119,7 +119,7 @@
     position: relative;
     align-self: stretch;
     text-shadow: 0px 4px 4px #0000000d;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 24px;
@@ -183,7 +183,7 @@
     margin-top: -1px;
     text-align: left;
     text-shadow: 0px 0px 7px #ffffff38;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 14px;
@@ -225,7 +225,7 @@
   
   .refferal .text-wrapper-5 {
     margin-top: -1px;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #878788;
     font-size: 12px;
@@ -270,7 +270,7 @@
     height: 43.48%;
     top: 26.09%;
     left: 28%;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #292626;
     font-size: 11px;
@@ -292,7 +292,7 @@
     top: 0;
     left: 0;
     text-shadow: 0px 0px 7px #ffffff38;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 19px;
@@ -327,7 +327,7 @@
     flex: 1;
     margin-top: -1px;
     text-shadow: 0px 0px 7px #ffffff38;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 14px;
@@ -378,7 +378,7 @@
     text-align: center;
     letter-spacing: -0.5px;
     position: relative;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     line-height: normal;
   }
@@ -386,7 +386,7 @@
   .refferal .text-wrapper-10 {
     position: relative;
     flex: 1;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 20px;
@@ -408,7 +408,7 @@
     position: relative;
     flex: 1;
     margin-top: -1px;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #7c7c7d;
     font-size: 12px;
@@ -420,7 +420,7 @@
     position: relative;
     flex: 1;
     margin-top: -1px;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #7c7c7d;
     font-size: 12px;
@@ -478,7 +478,7 @@
     position: relative;
     align-self: stretch;
     margin-top: -1px;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #ffffff;
     font-size: 14px;
@@ -489,7 +489,7 @@
   .refferal .text-wrapper-14 {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     color: #848484;
     font-size: 12px;
@@ -520,7 +520,7 @@
     text-align: right;
     letter-spacing: -0.7px;
     position: relative;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat", Helvetica;
     font-weight: 600;
     line-height: normal;
   }
@@ -539,7 +539,7 @@
  .menu {
     display: flex
 ;
-    width: 370px;
+   width: 370px;
     height: 80px;
     align-items: center;
     justify-content: center;

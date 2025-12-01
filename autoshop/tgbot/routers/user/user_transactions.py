@@ -16,7 +16,7 @@ from tgbot.utils.const_functions import is_number, to_number, gen_id
 from tgbot.utils.misc.bot_models import FSM, ARS
 from tgbot.utils.misc_functions import send_admins
 
-min_refill_rub = 10  # Минимальная сумма пополнения в рублях (ограничение CactusPay: минимум 100₽, но ставим 10₽ для других способов)
+min_refill_rub = 100  # Минимальная сумма пополнения в рублях
 
 router = Router(name=__name__)
 

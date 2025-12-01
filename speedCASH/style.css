@@ -1047,7 +1047,7 @@
 
 .speed-cash .menu {
   display: flex;
-  width: 370px;
+ width: 370px;
   height: 80px;
   align-items: center;
   justify-content: center;
@@ -1322,5 +1322,5 @@
   gap: 5px;
 }
 .crash-section-2.plays{
-  width: 360px;
+ width: 370px;
 }

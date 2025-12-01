@@ -1598,7 +1598,7 @@ a:focus {
 .mines .menu {
   z-index: 2;
   display: flex;
-  width: 370px;
+ width: 370px;
   height: 80px;
   align-items: center;
   justify-content: center;
