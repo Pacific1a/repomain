@@ -315,48 +315,27 @@
             // Создаем карточки на основе шаблона
             this.referrals.forEach((referral) => {
                 const card = template.cloneNode(true);
-                card.style.display = 'flex'; // Показываем клон
+                card.style.display = 'flex';
                 
-                // Получаем никнейм
                 let nickname = 'User' + referral.userId.slice(-4);
-                if (window.PlayersSystem?.players[referral.userId]) {
-                    nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
-                }
+                try {
+                    if (window.PlayersSystem?.players && referral.userId in window.PlayersSystem.players) {
+                        nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
+                    }
+                } catch (e) {}
                 
-                // Обновляем аватар (первая буква)
                 const avatar = card.querySelector('.avatar-2');
-                if (avatar) {
-                    avatar.textContent = nickname.charAt(0).toUpperCase();
-                    avatar.style.cssText = `
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: bold;
-                        font-size: 20px;
-                    `;
-                }
+                if (avatar) avatar.textContent = nickname.charAt(0).toUpperCase();
                 
-                // Обновляем ник
                 const nicknameEl = card.querySelector('.text-wrapper-13');
-                if (nicknameEl) {
-                    nicknameEl.textContent = nickname;
-                }
+                if (nicknameEl) nicknameEl.textContent = nickname;
                 
-                // Обновляем сумму выигрыша
                 const winningsEl = card.querySelector('.text-wrapper-14');
-                if (winningsEl) {
-                    winningsEl.textContent = `Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
-                }
+                if (winningsEl) winningsEl.textContent = `Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
                 
-                // Обновляем вашу прибыль
                 const earningsEl = card.querySelector('.text-wrapper-15');
-                if (earningsEl) {
-                    earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
-                }
+                if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
                 
-                // Добавляем после шаблона
                 template.parentNode.insertBefore(card, template.nextSibling);
             });
         }
