@@ -154,6 +154,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
 
 # Тестовая команда для выдачи денег (только для админов)
 ADMIN_IDS = [1889923046]  # Добавьте свой Telegram ID
+SERVER_URL = "https://telegram-games-plkj.onrender.com"
 
 @router.message(Command("give10k"))
 async def give_10k_handler(message: Message):
