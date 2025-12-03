@@ -101,17 +101,12 @@
                     console.log('📊 Реферальные данные:', data);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
-                    // Загружаем никнеймы из PlayersSystem (безопасно)
-                    if (this.referrals.length > 0 && window.PlayersSystem?.players) {
+                    // Загружаем никнеймы из PlayersSystem
+                    if (this.referrals.length > 0) {
                         this.referrals.forEach(ref => {
-                            try {
-                                const player = window.PlayersSystem.players[ref.userId];
-                                if (player) {
-                                    ref.nickname = player.nickname;
-                                    ref.avatar = player.avatar;
-                                }
-                            } catch (error) {
-                                console.warn(`⚠️ Не удалось получить данные игрока ${ref.userId}:`, error);
+                            if (window.PlayersSystem?.players[ref.userId]) {
+                                ref.nickname = window.PlayersSystem.players[ref.userId].nickname;
+                                ref.avatar = window.PlayersSystem.players[ref.userId].avatar;
                             }
                         });
                     }
@@ -367,38 +362,16 @@
         }
         
         createCustomReferralCards(container) {
-            console.log('🎨 Создаём карточки программно');
-            
-            // Создаем карточки программно без зависимости от PlayersSystem
-            this.referrals.forEach((referral, index) => {
-                // Генерируем никнейм безопасно
+            // Создаем карточки если нет шаблона
+            this.referrals.forEach((referral) => {
                 let nickname = 'User' + referral.userId.slice(-4);
-                
-                // Пытаемся получить ник из PlayersSystem (безопасно)
-                try {
-                    if (window.PlayersSystem?.players && referral.userId in window.PlayersSystem.players) {
-                        const player = window.PlayersSystem.players[referral.userId];
-                        if (player && player.nickname) {
-                            nickname = player.nickname;
-                        }
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Не удалось получить ник из PlayersSystem для', referral.userId);
+                if (window.PlayersSystem?.players[referral.userId]) {
+                    nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
                 }
                 
                 const card = document.createElement('article');
                 card.className = 'refferal-info';
-                card.style.cssText = `
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 16px;
-                    margin-bottom: 12px;
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.05);
-                `;
-                
+                card.style.cssText = 'display: flex; margin-bottom: 10px;';
                 card.innerHTML = `
                     <div class="refferal-info-2" style="display: flex; align-items: center; gap: 12px; flex: 1;">
                         <div class="avatar-2" style="
@@ -412,35 +385,17 @@
                             color: white;
                             font-weight: bold;
                             font-size: 20px;
-                            font-family: 'Montserrat', sans-serif;
                         ">${nickname.charAt(0).toUpperCase()}</div>
-                        <div class="refferal-info-3" style="display: flex; flex-direction: column; gap: 4px;">
-                            <span class="text-wrapper-13" style="
-                                color: #fff;
-                                font-size: 14px;
-                                font-weight: 600;
-                                font-family: 'Montserrat', sans-serif;
-                            ">${nickname}</span>
-                            <span class="text-wrapper-14" style="
-                                color: #9aa0a6;
-                                font-size: 12px;
-                                font-family: 'Montserrat', sans-serif;
-                            ">Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽</span>
+                        <div class="refferal-info-3">
+                            <span class="text-wrapper-13" style="color: #fff; font-size: 14px; font-weight: 600;">${nickname}</span>
+                            <span class="text-wrapper-14" style="color: #9aa0a6; font-size: 12px;">Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽</span>
                         </div>
                     </div>
                     <div class="profit-amount" style="display: flex; align-items: center; gap: 5px;">
-                        <span class="text-wrapper-15" style="
-                            color: #667eea;
-                            font-size: 18px;
-                            font-weight: 700;
-                            font-family: 'Montserrat', sans-serif;
-                        ">${(referral.totalEarnings || 0).toFixed(2)}</span>
-                        <span style="color: #9aa0a6; font-size: 14px;">₽</span>
+                        <span class="text-wrapper-15" style="color: #667eea; font-size: 16px; font-weight: 600;">${(referral.totalEarnings || 0).toFixed(2)}</span>
                     </div>
                 `;
-                
                 container.appendChild(card);
-                console.log(`✅ Карточка ${index + 1} создана для ${nickname}`);
             });
         }
         
