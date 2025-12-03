@@ -257,9 +257,13 @@
             });
             
             // 2. Баланс в профиле (.text-wrapper-4)
+            // НЕ обновляем .text-wrapper-4 внутри .invite-button (там реферальная ссылка)
             const profileBalances = document.querySelectorAll('.text-wrapper-4');
             profileBalances.forEach(element => {
-                element.textContent = this.balance.rubles.toFixed(2);
+                // Пропускаем элементы внутри invite-button
+                if (!element.closest('.invite-button')) {
+                    element.textContent = this.balance.rubles.toFixed(2);
+                }
             });
             
             // 3. Любые другие элементы с data-balance атрибутом
