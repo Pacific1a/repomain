@@ -1,6 +1,6 @@
 # - *- coding: utf- 8 - *-
 from aiogram import Router, Bot, F
-from aiogram.filters import StateFilter
+from aiogram.filters import StateFilter, Command
 from aiogram.types import Message, CallbackQuery
 
 from tgbot.database.db_settings import Settingsx
