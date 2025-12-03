@@ -152,33 +152,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                 # Невалидный код - игнорируем
                 print(f"⚠️ Invalid referral code: {args} - {e}")
 
-# Тестовая команда для выдачи денег (только для админов)
-ADMIN_IDS = [1889923046]  # Добавьте свой Telegram ID
-SERVER_URL = "https://telegram-games-plkj.onrender.com"
 
-@router.message(Command("give10k"))
-async def give_10k_handler(message: Message):
-    """Тестовая команда для выдачи 10000₽"""
-    user_id = message.from_user.id
-    
-    if user_id not in ADMIN_IDS:
-        await message.answer("❌ У вас нет прав для использования этой команды.")
-        return
-    
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"{SERVER_URL}/api/balance/add",
-                json={"userId": str(user_id), "rubles": 10000, "chips": 0}
-            ) as response:
-                if response.status == 200:
-                    await message.answer("✅ Вам начислено 10,000₽!")
-                    print(f"💰 Test: Added 10k rubles to {user_id}")
-                else:
-                    await message.answer("❌ Ошибка при начислении средств.")
-    except Exception as error:
-        print(f"❌ Error adding test money: {error}")
-        await message.answer("❌ Произошла ошибка.")
 
     await message.answer(
         ded("""
