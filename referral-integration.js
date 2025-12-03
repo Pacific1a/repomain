@@ -62,7 +62,7 @@
         console.log('✅ Referral integration installed on GameBalanceAPI');
     }
     
-    // Перехват balance-api addMoney
+    // Перехват balance-api addMoney (для рублей и чипов)
     setTimeout(() => {
         if (window.balanceAPI) {
             const originalAddMoney = window.balanceAPI.addMoney.bind(window.balanceAPI);
@@ -72,14 +72,35 @@
                 
                 const result = await originalAddMoney(rubles, chips);
                 
-                if (result && chips > 0) {
-                    await trackWinning(window.balanceAPI.telegramId, chips, 'game');
+                // Начисляем от рублей или чипов (что больше)
+                const amount = Math.max(rubles || 0, chips || 0);
+                if (result && amount > 0) {
+                    await trackWinning(window.balanceAPI.telegramId, amount, 'game');
                 }
                 
                 return result;
             };
             
             console.log('✅ Referral integration installed on balanceAPI');
+        }
+        
+        // Перехват BalanceAPI.addRubles
+        if (window.BalanceAPI && window.BalanceAPI.addRubles) {
+            const originalAddRubles = window.BalanceAPI.addRubles.bind(window.BalanceAPI);
+            
+            window.BalanceAPI.addRubles = async function(amount, source = 'game', description = '') {
+                console.log(`💰 BalanceAPI.addRubles called: amount=${amount}, source=${source}`);
+                
+                const result = await originalAddRubles(amount, source, description);
+                
+                if (result && amount > 0) {
+                    await trackWinning(window.BalanceAPI.telegramId, amount, source);
+                }
+                
+                return result;
+            };
+            
+            console.log('✅ Referral integration installed on BalanceAPI.addRubles');
         }
     }, 1000);
 })();
