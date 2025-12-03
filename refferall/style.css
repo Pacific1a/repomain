@@ -463,6 +463,15 @@
     border-radius: 19.5px;
     box-shadow: 0px 0px 9px #bbbbbb1a;
     position: relative;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
     background: linear-gradient(
       180deg,
       rgba(125, 125, 125, 1) 0%,
