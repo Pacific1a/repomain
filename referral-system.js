@@ -134,7 +134,7 @@
             }
             
             // Генерируем ссылку (можно использовать t.me/your_bot?start=refXXX)
-            const botUsername = 'your_bot'; // ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
+            const botUsername = 'aasasdasdadsddasdbot'; // ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
             this.referralLink = `https://t.me/${botUsername}?start=ref${this.referralCode}`;
             
             // Обновляем текст кнопки

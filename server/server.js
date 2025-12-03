@@ -2109,7 +2109,7 @@ app.post('/api/transactions/:telegramId', async (req, res) => {
 // ============================================
 // Добавьте этот код в server.js
 
-const REFERRALS_FILE = path.join(__dirname, 'data', 'referrals.json');
+const REFERRALS_FILE = path.join(DATA_DIR, 'referrals.json');
 
 // Создаем файл если его нет
 if (!fs.existsSync(REFERRALS_FILE)) {
