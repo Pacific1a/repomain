@@ -323,19 +323,10 @@
                     nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
                 }
                 
-                // Обновляем аватар (первая буква)
+                // Обновляем аватар (первая буква) - стили берутся из CSS
                 const avatar = card.querySelector('.avatar-2');
                 if (avatar) {
                     avatar.textContent = nickname.charAt(0).toUpperCase();
-                    avatar.style.cssText = `
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: bold;
-                        font-size: 20px;
-                    `;
                 }
                 
                 // Обновляем ник
