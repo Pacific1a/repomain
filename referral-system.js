@@ -322,24 +322,41 @@
                 const card = template.cloneNode(true);
                 card.style.display = 'flex';
                 
-                let nickname = 'User' + referral.userId.slice(-4);
+                // Получаем ник (приоритет: сохраненный в реферале → PlayersSystem → дефолт)
+                let nickname = referral.nickname || 'User' + referral.userId.slice(-4);
+                
+                // Пытаемся получить из PlayersSystem
                 try {
                     if (window.PlayersSystem?.players && referral.userId in window.PlayersSystem.players) {
-                        nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
+                        const player = window.PlayersSystem.players[referral.userId];
+                        if (player?.nickname) {
+                            nickname = player.nickname;
+                        }
                     }
                 } catch (e) {}
                 
+                // Аватар - первая буква ника
                 const avatar = card.querySelector('.avatar-2');
-                if (avatar) avatar.textContent = nickname.charAt(0).toUpperCase();
+                if (avatar) {
+                    const firstChar = nickname.charAt(0).toUpperCase();
+                    avatar.textContent = firstChar;
+                }
                 
+                // Ник
                 const nicknameEl = card.querySelector('.text-wrapper-13');
                 if (nicknameEl) nicknameEl.textContent = nickname;
                 
+                // Сумма депозита
                 const winningsEl = card.querySelector('.text-wrapper-14');
-                if (winningsEl) winningsEl.textContent = `Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
+                if (winningsEl) {
+                    winningsEl.textContent = `Deposited | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
+                }
                 
+                // Ваша прибыль
                 const earningsEl = card.querySelector('.text-wrapper-15');
-                if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
+                if (earningsEl) {
+                    earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
+                }
                 
                 template.parentNode.insertBefore(card, template.nextSibling);
             });
