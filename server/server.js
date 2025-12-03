@@ -2332,9 +2332,9 @@ app.post('/api/referral/withdraw', async (req, res) => {
       return res.status(400).json({ error: 'Missing userId or amount' });
     }
     
-    // Минимальная сумма вывода 1000₽
-    if (amount < 1000) {
-      return res.status(400).json({ error: 'Minimum withdrawal amount is 1000₽' });
+    // Минимальная сумма вывода 1500₽
+    if (amount < 1500) {
+      return res.status(400).json({ error: 'Minimum withdrawal amount is 1500₽' });
     }
     
     const referrals = JSON.parse(fs.readFileSync(REFERRALS_FILE, 'utf8'));

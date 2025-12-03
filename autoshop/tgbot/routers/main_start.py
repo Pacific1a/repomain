@@ -154,7 +154,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
 # Тестовая команда для выдачи денег (только для админов)
 ADMIN_IDS = [1889923046]  # Добавьте свой Telegram ID
 
-@dp.message(Command("give10k"))
+@router.message(Command("give10k"))
 async def give_10k_handler(message: Message):
     """Тестовая команда для выдачи 10000₽"""
     user_id = message.from_user.id
