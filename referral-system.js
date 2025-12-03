@@ -274,92 +274,120 @@
                 return;
             }
             
-            // Ищем или создаем контейнер для карточек
-            let listContainer = container.querySelector('.referrals-list');
-            if (!listContainer) {
-                listContainer = document.createElement('div');
-                listContainer.className = 'referrals-list';
-                listContainer.style.cssText = `
-                    margin-top: 20px;
-                    max-height: 400px;
-                    overflow-y: auto;
-                `;
-                container.appendChild(listContainer);
-                console.log('✅ Создан контейнер .referrals-list');
-            }
+            // Удаляем все существующие карточки кроме шаблона
+            const existingCards = container.querySelectorAll('.refferal-info');
+            existingCards.forEach((card, index) => {
+                if (index > 0) { // Оставляем первую как шаблон
+                    card.remove();
+                }
+            });
             
-            // Очищаем старый список
-            listContainer.innerHTML = '';
-            
-            // Если рефералов нет
+            // Если рефералов нет - скрываем шаблон
+            const template = container.querySelector('.refferal-info');
             if (this.referrals.length === 0) {
                 console.log('ℹ️ Нет рефералов для отображения');
-                listContainer.innerHTML = `
-                    <div class="no-referrals" style="
-                        text-align: center;
-                        padding: 20px;
-                        color: #9aa0a6;
-                        font-size: 14px;
-                        font-family: 'Montserrat', sans-serif;
-                    ">
-                        Пока нет рефералов
-                    </div>
-                `;
+                if (template) {
+                    template.style.display = 'none';
+                }
                 return;
             }
             
             console.log('✅ Отображаем рефералов:', this.referrals);
             
-            // Добавляем карточки рефералов
-            this.referrals.forEach((referral, index) => {
-                const card = document.createElement('div');
-                card.className = 'refferal-card';
-                card.style.cssText = `
-                    background: rgba(0, 0, 0, 0.2);
-                    border-radius: 12px;
-                    padding: 12px;
-                    margin-bottom: 10px;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                `;
+            // Если нет шаблона - создаем структуру
+            if (!template) {
+                console.warn('⚠️ Шаблон .refferal-info не найден, создаем свой');
+                this.createCustomReferralCards(container);
+                return;
+            }
+            
+            // Скрываем шаблон
+            template.style.display = 'none';
+            
+            // Создаем карточки на основе шаблона
+            this.referrals.forEach((referral) => {
+                const card = template.cloneNode(true);
+                card.style.display = 'flex'; // Показываем клон
                 
-                // Получаем никнейм (если есть в PlayersSystem)
+                // Получаем никнейм
                 let nickname = 'User' + referral.userId.slice(-4);
                 if (window.PlayersSystem?.players[referral.userId]) {
                     nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
                 }
                 
-                card.innerHTML = `
-                    <div class="avatar-2" style="
-                        width: 40px;
-                        height: 40px;
-                        border-radius: 50%;
+                // Обновляем аватар (первая буква)
+                const avatar = card.querySelector('.avatar-2');
+                if (avatar) {
+                    avatar.textContent = nickname.charAt(0).toUpperCase();
+                    avatar.style.cssText = `
                         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        color: white;
                         font-weight: bold;
-                        flex-shrink: 0;
-                    ">
-                        ${nickname.charAt(0).toUpperCase()}
+                        font-size: 20px;
+                    `;
+                }
+                
+                // Обновляем ник
+                const nicknameEl = card.querySelector('.text-wrapper-13');
+                if (nicknameEl) {
+                    nicknameEl.textContent = nickname;
+                }
+                
+                // Обновляем сумму выигрыша
+                const winningsEl = card.querySelector('.text-wrapper-14');
+                if (winningsEl) {
+                    winningsEl.textContent = `Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
+                }
+                
+                // Обновляем вашу прибыль
+                const earningsEl = card.querySelector('.text-wrapper-15');
+                if (earningsEl) {
+                    earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
+                }
+                
+                // Добавляем после шаблона
+                template.parentNode.insertBefore(card, template.nextSibling);
+            });
+        }
+        
+        createCustomReferralCards(container) {
+            // Создаем карточки если нет шаблона
+            this.referrals.forEach((referral) => {
+                let nickname = 'User' + referral.userId.slice(-4);
+                if (window.PlayersSystem?.players[referral.userId]) {
+                    nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
+                }
+                
+                const card = document.createElement('article');
+                card.className = 'refferal-info';
+                card.style.cssText = 'display: flex; margin-bottom: 10px;';
+                card.innerHTML = `
+                    <div class="refferal-info-2" style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <div class="avatar-2" style="
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 20px;
+                        ">${nickname.charAt(0).toUpperCase()}</div>
+                        <div class="refferal-info-3">
+                            <span class="text-wrapper-13" style="color: #fff; font-size: 14px; font-weight: 600;">${nickname}</span>
+                            <span class="text-wrapper-14" style="color: #9aa0a6; font-size: 12px;">Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽</span>
+                        </div>
                     </div>
-                    <div class="refferal-details" style="flex: 1;">
-                        <div class="text-wrapper-13" style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">
-                            ${nickname}
-                        </div>
-                        <div class="stats" style="display: flex; gap: 12px; font-size: 12px;">
-                            <span class="text-wrapper-14" style="color: #9aa0a6;">
-                                Выиграл: ${(referral.totalWinnings || 0).toFixed(2)}₽
-                            </span>
-                            <span class="text-wrapper-15" style="color: #667eea;">
-                                Вам: ${(referral.totalEarnings || 0).toFixed(2)}₽
-                            </span>
-                        </div>
+                    <div class="profit-amount" style="display: flex; align-items: center; gap: 5px;">
+                        <span class="text-wrapper-15" style="color: #667eea; font-size: 16px; font-weight: 600;">${(referral.totalEarnings || 0).toFixed(2)}</span>
                     </div>
                 `;
-                listContainer.appendChild(card);
+                container.appendChild(card);
             });
         }
         
