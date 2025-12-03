@@ -99,6 +99,18 @@
                     this.referrals = data.referrals || [];
                     
                     console.log('📊 Реферальные данные:', data);
+                    console.log(`📊 Количество рефералов: ${this.referrals.length}`);
+                    
+                    // Загружаем никнеймы из PlayersSystem
+                    if (this.referrals.length > 0) {
+                        this.referrals.forEach(ref => {
+                            if (window.PlayersSystem?.players[ref.userId]) {
+                                ref.nickname = window.PlayersSystem.players[ref.userId].nickname;
+                                ref.avatar = window.PlayersSystem.players[ref.userId].avatar;
+                            }
+                        });
+                    }
+                    
                     this.updateUI();
                 }
             } catch (error) {
@@ -254,6 +266,8 @@
         }
         
         updateReferralsList() {
+            console.log(`🔄 Обновление списка рефералов: ${this.referrals.length} шт.`);
+            
             const container = document.querySelector('.invited-info');
             if (!container) {
                 console.warn('⚠️ Контейнер .invited-info не найден');
@@ -271,6 +285,7 @@
                     overflow-y: auto;
                 `;
                 container.appendChild(listContainer);
+                console.log('✅ Создан контейнер .referrals-list');
             }
             
             // Очищаем старый список
@@ -278,6 +293,7 @@
             
             // Если рефералов нет
             if (this.referrals.length === 0) {
+                console.log('ℹ️ Нет рефералов для отображения');
                 listContainer.innerHTML = `
                     <div class="no-referrals" style="
                         text-align: center;
@@ -291,6 +307,8 @@
                 `;
                 return;
             }
+            
+            console.log('✅ Отображаем рефералов:', this.referrals);
             
             // Добавляем карточки рефералов
             this.referrals.forEach((referral, index) => {
