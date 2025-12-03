@@ -123,6 +123,29 @@
             }
         }
         
+        async loadUserProfiles() {
+            console.log('👤 Загрузка профилей пользователей через Telegram Bot API...');
+            
+            for (const ref of this.referrals) {
+                try {
+                    // Запрос к нашему серверу, который получит данные через Bot API
+                    const response = await fetch(`${SERVER_URL}/api/telegram-user/${ref.userId}`);
+                    
+                    if (response.ok) {
+                        const userData = await response.json();
+                        if (userData.success) {
+                            ref.nickname = userData.first_name || userData.username || 'User' + ref.userId.slice(-4);
+                            ref.photo_url = userData.photo_url;
+                            console.log(`✅ Загружен профиль: ${ref.nickname}`);
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Не удалось загрузить профиль ${ref.userId}:`, error);
+                    ref.nickname = 'User' + ref.userId.slice(-4);
+                }
+            }
+        }
+        
         initializeUI() {
             // Кнопка "Пригласить"
             const inviteButton = document.querySelector('.invite-button');
@@ -322,21 +345,29 @@
                 const card = template.cloneNode(true);
                 card.style.display = 'flex';
                 
-                let nickname = 'User' + referral.userId.slice(-4);
-                try {
-                    if (window.PlayersSystem?.players && referral.userId in window.PlayersSystem.players) {
-                        nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
-                    }
-                } catch (e) {}
+                // Используем загруженный ник или дефолтный
+                const nickname = referral.nickname || 'User' + referral.userId.slice(-4);
                 
+                // Аватар
                 const avatar = card.querySelector('.avatar-2');
-                if (avatar) avatar.textContent = nickname.charAt(0).toUpperCase();
+                if (avatar) {
+                    if (referral.photo_url) {
+                        // Если есть фото - показываем картинку
+                        avatar.style.backgroundImage = `url(${referral.photo_url})`;
+                        avatar.style.backgroundSize = 'cover';
+                        avatar.style.backgroundPosition = 'center';
+                        avatar.textContent = '';
+                    } else {
+                        // Иначе - первая буква
+                        avatar.textContent = nickname.charAt(0).toUpperCase();
+                    }
+                }
                 
                 const nicknameEl = card.querySelector('.text-wrapper-13');
                 if (nicknameEl) nicknameEl.textContent = nickname;
                 
                 const winningsEl = card.querySelector('.text-wrapper-14');
-                if (winningsEl) winningsEl.textContent = `Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
+                if (winningsEl) winningsEl.textContent = `Deposited | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
                 
                 const earningsEl = card.querySelector('.text-wrapper-15');
                 if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
