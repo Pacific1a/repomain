@@ -249,16 +249,24 @@
         }
         
         updateUI() {
+            console.log('🔄 Обновление UI, рефералов:', this.referrals.length);
+            
             // Обновляем реферальный баланс
             const balanceEl = document.querySelector('.ref-balance .text-wrapper-7');
             if (balanceEl) {
                 balanceEl.textContent = this.referralBalance.toFixed(2);
+                console.log('✅ Обновлен реферальный баланс:', this.referralBalance);
+            } else {
+                console.warn('⚠️ Элемент .ref-balance .text-wrapper-7 не найден');
             }
             
             // Обновляем количество приглашенных
             const invitedAmountEl = document.querySelector('.invidet-amount .text-wrapper-9');
             if (invitedAmountEl) {
                 invitedAmountEl.textContent = this.referrals.length.toString();
+                console.log('✅ Обновлен счетчик рефералов:', this.referrals.length);
+            } else {
+                console.warn('⚠️ Элемент .invidet-amount .text-wrapper-9 не найден');
             }
             
             // Обновляем список рефералов
