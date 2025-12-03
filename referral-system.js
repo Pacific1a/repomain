@@ -101,19 +101,9 @@
                     console.log('📊 Реферальные данные:', data);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
-                    // Загружаем никнеймы из PlayersSystem (безопасно)
-                    if (this.referrals.length > 0 && window.PlayersSystem?.players) {
-                        this.referrals.forEach(ref => {
-                            try {
-                                if (ref.userId in window.PlayersSystem.players) {
-                                    const player = window.PlayersSystem.players[ref.userId];
-                                    if (player) {
-                                        ref.nickname = player.nickname;
-                                        ref.avatar = player.avatar;
-                                    }
-                                }
-                            } catch (e) {}
-                        });
+                    // Загружаем данные пользователей через Telegram Bot API
+                    if (this.referrals.length > 0) {
+                        await this.loadUserProfiles();
                     }
                     
                     this.updateUI();
