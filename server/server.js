@@ -2260,6 +2260,69 @@ app.post('/api/referral/add-earnings', async (req, res) => {
   }
 });
 
+// Получить данные пользователя Telegram
+app.get('/api/telegram-user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId' });
+    }
+    
+    // Получаем данные пользователя через Bot API
+    const botToken = process.env.BOT_TOKEN;
+    if (!botToken) {
+      console.warn('⚠️ BOT_TOKEN not found in environment');
+      return res.json({ success: false, message: 'Bot token not configured' });
+    }
+    
+    // Получаем профиль
+    const profileResponse = await fetch(`https://api.telegram.org/bot${botToken}/getChat?chat_id=${userId}`);
+    const profileData = await profileResponse.json();
+    
+    if (!profileData.ok) {
+      console.warn(`⚠️ Failed to get user profile for ${userId}:`, profileData);
+      return res.json({ success: false, message: 'User not found' });
+    }
+    
+    const user = profileData.result;
+    let photo_url = null;
+    
+    // Получаем аватарку
+    try {
+      const photosResponse = await fetch(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos?user_id=${userId}&limit=1`);
+      const photosData = await photosResponse.json();
+      
+      if (photosData.ok && photosData.result.total_count > 0) {
+        const fileId = photosData.result.photos[0][0].file_id;
+        
+        // Получаем путь к файлу
+        const fileResponse = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`);
+        const fileData = await fileResponse.json();
+        
+        if (fileData.ok) {
+          photo_url = `https://api.telegram.org/file/bot${botToken}/${fileData.result.file_path}`;
+        }
+      }
+    } catch (photoError) {
+      console.warn(`⚠️ Failed to get photo for ${userId}:`, photoError);
+    }
+    
+    res.json({
+      success: true,
+      user_id: userId,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      username: user.username,
+      photo_url: photo_url
+    });
+    
+  } catch (error) {
+    console.error('❌ Error getting telegram user:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Вывести средства с реферального баланса
 app.post('/api/referral/withdraw', async (req, res) => {
   try {
