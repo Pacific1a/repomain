@@ -189,6 +189,12 @@
     font-size: 14px;
     letter-spacing: -0.7px;
     line-height: normal;
+    
+    /* Сокращение длинной ссылки с троеточием */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
   }
   
   .refferal .copy-button {
