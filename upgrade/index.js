@@ -1,7 +1,4 @@
-// ==============================
-// ИНИЦИАЛИЗАЦИЯ ЭЛЕМЕНТОВ UI
-// ==============================
-console.log('🎮 Upgrade game loading...');
+
 
 const buttons = document.querySelectorAll('.multiplier-button > div');
 const betInputEl = document.querySelector('.element-5 .text-wrapper-18');
@@ -21,14 +18,11 @@ const arrow = document.querySelector('.arrow');
 // Индикатор процента позиции на колесе (существующий 0% в разметке)
 const positionPercentEl = document.querySelector('.group-2 .text-wrapper-14');
 
-console.log('✅ UI elements initialized');
-console.log('🔍 Checking BalanceAPI:', window.BalanceAPI ? 'Found' : 'NOT FOUND');
-console.log('🔍 Apply button:', applyBtn ? 'Found' : 'NOT FOUND');
-console.log('🔍 Upgrade button:', upgradeBtn ? 'Found' : 'NOT FOUND');
+
 
 // Функция чтения баланса через глобальный API
 function getBalance() {
-  return window.BalanceAPI ? window.BalanceAPI.getBalance('chips') : 1000;
+  return window.BalanceAPI ? window.BalanceAPI.getChips() : 1000;
 }
 
 // Текущее состояние
@@ -49,8 +43,28 @@ if (upgradeBtn) {
 if (betInputEl) {
   betInputEl.setAttribute('contenteditable', 'true');
   betInputEl.setAttribute('inputmode', 'decimal');
+  
+  // Для Telegram WebApp - делаем поле кликабельным
+  betInputEl.style.cursor = 'text';
+  betInputEl.style.userSelect = 'text';
+  betInputEl.style.webkitUserSelect = 'text';
+  
   // если в разметке оставили "0" — очищаем, чтобы работал плейсхолдер
   if (betInputEl.textContent.trim() === '0') betInputEl.textContent = '';
+  
+  // Фокус по клику - для мини-апп
+  betInputEl.addEventListener('click', () => {
+    console.log('🖱️ Input field clicked');
+    betInputEl.focus();
+  });
+  
+  // Очистка поля при фокусе (первый раз)
+  betInputEl.addEventListener('focus', () => {
+    console.log('🎯 Input field focused');
+    if (betInputEl.textContent.trim() === '0' || betInputEl.textContent.trim() === '') {
+      betInputEl.textContent = '';
+    }
+  });
   
   // Блокируем Shift+Enter и Enter для предотвращения переносов
   betInputEl.addEventListener('keydown', (e) => {
@@ -59,6 +73,8 @@ if (betInputEl) {
       betInputEl.blur(); // Убираем фокус при Enter
     }
   });
+  
+  console.log('✅ Bet input field initialized');
 }
 
 // Готовим .arrow к плавному вращению вокруг центра
@@ -75,13 +91,20 @@ if (arrow) {
       min-width: 20px;
       outline: none;
       caret-color: #fff;
+      cursor: text !important;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      -webkit-touch-callout: default !important;
     }
     .element-5 .text-wrapper-18:empty:before {
       content: '0';
       color: #9aa0a6;
       opacity: .6;
     }
-    .element-5 .text-wrapper-18:focus { outline: none; }
+    .element-5 .text-wrapper-18:focus { 
+      outline: none; 
+      background: rgba(255,255,255,0.05);
+    }
     /* Результат */
     .game.win .chance .p .text-wrapper-10 { color: #39ff95; }
     .game.lose .chance .p .text-wrapper-10 { color: #ff6767; }
@@ -300,6 +323,12 @@ betInputEl?.addEventListener('input', () => {
   } else if (parts.length === 2) {
     cleaned = parts[0] + '.' + parts[1];
   }
+  
+  // Ограничиваем длину до 5 символов (максимум 10000)
+  if (cleaned.length > 4) {
+    cleaned = cleaned.substring(0, 4);
+  }
+  
   // Запретить единственный ноль как значение — оставляем плейсхолдер
   if (cleaned === '0') cleaned = '';
   if (betInputEl.textContent !== cleaned) {
@@ -339,13 +368,25 @@ if (applyBtn) {
       return;
     }
     if (inputAmount < 50) {
-      showToast('Минимальная ставка 50');
+      showToast('Минимальная ставка 50₽');
       return;
     }
+    if (inputAmount > 1000) {
+      showToast('Максимальная ставка 1000₽');
+      return;
+    }
+    
+    // Проверка наличия фишек
+    if (balance <= 0) {
+      showToast('У вас нет фишек! Обменяйте рубли на фишки в разделе Swap');
+      return;
+    }
+    
     if (inputAmount > balance) {
-      showToast('Недостаточно средств на балансе');
+      showToast(`Недостаточно фишек. У вас: ${balance}`);
       return;
     }
+    
     betAmount = inputAmount; // сохраняем чистую ставку (без x)
     betApplied = true;
     
@@ -358,9 +399,9 @@ if (applyBtn) {
     refreshSummaryViews();
     showToast('Ставка принята! Нажмите Upgrade');
   });
-  console.log('✅ Apply button listener attached');
+  
 } else {
-  console.error('❌ Apply button not found!');
+ 
 }
 
 // Расчёт шанса — чем больше ставка относительно баланса, тем меньше шанс
@@ -447,27 +488,27 @@ function spinArrowTo(finalAngle, onEndCb) {
 // Кнопка Upgrade — считает шанс и крутит стрелку
 if (upgradeBtn) {
   upgradeBtn.addEventListener('click', async () => {
-    console.log('🔵 Upgrade button clicked');
+   
     
     if (isSpinning) { 
-      console.log('⚠️ Already spinning');
+      
       return; 
     }
     
     // Проверяем, разблокирована ли кнопка
     if (upgradeBtn.classList.contains('disabled')) {
-      console.log('⚠️ Button is disabled');
+    
       showToast('Сначала нажмите Apply');
       return;
     }
     
     if (!betApplied) {
-      console.log('⚠️ Bet not applied');
+     
       showToast('Сначала нажмите Apply');
       return;
     }
     
-    console.log('✅ Starting upgrade spin...');
+   
   
   if (betAmount <= 0) {
     showToast('Нужно ввести и применить ставку');
@@ -501,7 +542,7 @@ if (upgradeBtn) {
 
   // Списываем ставку перед розыгрышем через глобальный API
   if (window.BalanceAPI) {
-    const success = await window.BalanceAPI.subtractBalance(betAmount, 0, 'chips', 'upgrade', 'Ставка в Upgrade');
+    const success = await window.BalanceAPI.subtractChips(betAmount, 'upgrade', 'Ставка в Upgrade');
     if (!success) {
       showToast('Недостаточно средств');
       isSpinning = false;
@@ -548,7 +589,7 @@ if (upgradeBtn) {
       const m = getActiveMultiplier();
       const winAmount = betAmount * m;
       if (window.BalanceAPI) {
-        await window.BalanceAPI.addBalance(0, winAmount, 'upgrade', `Выигрыш x${m} в Upgrade`);
+        await window.BalanceAPI.addChips(winAmount, 'upgrade', `Выигрыш x${m} в Upgrade`);
       }
       gameEl?.classList.add('win');
     } else {
@@ -577,11 +618,11 @@ if (upgradeBtn) {
     lastStopAngle = currentRotation; // уже нормализован в finalize()
   });
   });
-  console.log('✅ Upgrade button listener attached');
+ 
 } else {
   console.error('❌ Upgrade button not found!');
 }
 
 // Первая инициализация отображений
 refreshSummaryViews(0);
-console.log('🎮 Upgrade game initialization complete');
+

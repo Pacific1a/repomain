@@ -196,13 +196,13 @@ class RealtimeLivePrizes {
         
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             serverUrl = 'http://localhost:3000';
-            console.log('🔧 Development mode - connecting to local server');
+         
         } else {
             serverUrl = 'https://telegram-games-plkj.onrender.com';
-            console.log('🌐 Production mode - connecting to Render server');
+          
         }
         
-        console.log('🔌 Connecting to Socket.IO:', serverUrl + '/live-prizes');
+      
         
         try {
             // Используем Socket.IO вместо нативного WebSocket
@@ -214,7 +214,7 @@ class RealtimeLivePrizes {
             });
             
             this.ws.on('connect', () => {
-                console.log('✅ Socket.IO connected');
+               
                 this.reconnectDelay = 3000;
                 this.reconnectAttempts = 0;
             });
@@ -235,7 +235,7 @@ class RealtimeLivePrizes {
             });
             
             this.ws.on('disconnect', (reason) => {
-                console.log('❌ Socket.IO disconnected:', reason);
+               
                 if (reason === 'io server disconnect') {
                     // Переподключаемся если сервер отключил
                     this.ws.connect();
@@ -384,6 +384,6 @@ class RealtimeLivePrizes {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         window.LivePrizes = new RealtimeLivePrizes();
-        console.log('✅ Realtime Live Prizes initialized');
+       
     }, 300);
 });

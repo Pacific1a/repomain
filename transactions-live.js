@@ -18,13 +18,13 @@
         }
         
         async init() {
-            console.log('📜 Transactions List initializing...');
+         
             
             // Ждем загрузки BalanceAPI
             await this.waitForBalanceAPI();
             
             this.telegramId = window.BalanceAPI.telegramId;
-            console.log('✅ Telegram ID:', this.telegramId);
+           
             
             // Ждем загрузки DOM
             if (document.readyState === 'loading') {
@@ -55,12 +55,12 @@
                 return;
             }
             
-            console.log('✅ Transaction container found');
+          
             
             // Удаляем статичные блоки
             const staticBlocks = this.container.querySelectorAll('.transaction-2');
             staticBlocks.forEach(block => block.remove());
-            console.log(`🗑️ Removed ${staticBlocks.length} static transaction blocks`);
+          
             
             // Находим кнопку show
             this.showButton = this.container.querySelector('.show-button');
@@ -82,7 +82,6 @@
                 if (response.ok) {
                     this.transactions = await response.json();
                     this.render();
-                    console.log(`✅ Loaded ${this.transactions.length} transactions`);
                 } else {
                     console.warn('⚠️ No transactions found');
                     this.transactions = [];
@@ -291,17 +290,15 @@
             
             // Слушаем новые транзакции
             socket.on(`transaction_added_${this.telegramId}`, (tx) => {
-                console.log('📝 New transaction received:', tx);
+                
                 this.addTransaction(tx);
             });
             
-            console.log('✅ WebSocket listening for transactions');
+  
         }
     }
     
     // Создаем глобальный экземпляр
     window.TransactionsList = new TransactionsList();
-    
-    console.log('📜 Transactions List loaded!');
     
 })();
