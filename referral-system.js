@@ -323,10 +323,19 @@
                     nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
                 }
                 
-                // Обновляем аватар (первая буква) - стили берутся из CSS
+                // Обновляем аватар (первая буква)
                 const avatar = card.querySelector('.avatar-2');
                 if (avatar) {
                     avatar.textContent = nickname.charAt(0).toUpperCase();
+                    avatar.style.cssText = `
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: bold;
+                        font-size: 20px;
+                    `;
                 }
                 
                 // Обновляем ник
@@ -352,7 +361,43 @@
             });
         }
         
-
+        createCustomReferralCards(container) {
+            // Создаем карточки если нет шаблона
+            this.referrals.forEach((referral) => {
+                let nickname = 'User' + referral.userId.slice(-4);
+                if (window.PlayersSystem?.players[referral.userId]) {
+                    nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
+                }
+                
+                const card = document.createElement('article');
+                card.className = 'refferal-info';
+                card.style.cssText = 'display: flex; margin-bottom: 10px;';
+                card.innerHTML = `
+                    <div class="refferal-info-2" style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <div class="avatar-2" style="
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-weight: bold;
+                            font-size: 20px;
+                        ">${nickname.charAt(0).toUpperCase()}</div>
+                        <div class="refferal-info-3">
+                            <span class="text-wrapper-13" style="color: #fff; font-size: 14px; font-weight: 600;">${nickname}</span>
+                            <span class="text-wrapper-14" style="color: #9aa0a6; font-size: 12px;">Выиграл | ${(referral.totalWinnings || 0).toFixed(2)}₽</span>
+                        </div>
+                    </div>
+                    <div class="profit-amount" style="display: flex; align-items: center; gap: 5px;">
+                        <span class="text-wrapper-15" style="color: #667eea; font-size: 16px; font-weight: 600;">${(referral.totalEarnings || 0).toFixed(2)}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
         
         showNotification(message) {
             // Используем функцию showToast если она есть
