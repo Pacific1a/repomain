@@ -6,26 +6,34 @@
 (function() {
     'use strict';
     
-    // Оригинальный метод addChips из BalanceAPI
+    // Функция для начисления профита рефереру
+    const trackWinning = async (userId, amount, source) => {
+        console.log(`🎰 Win detected: ${amount} from ${source}`);
+        
+        if (window.ReferralSystem) {
+            try {
+                await window.ReferralSystem.addReferralEarnings(userId, amount);
+                console.log(`✅ Referral bonus processed for ${userId}`);
+            } catch (e) {
+                console.error('❌ Referral bonus error:', e);
+            }
+        } else {
+            console.warn('⚠️ ReferralSystem not loaded');
+        }
+    };
+    
+    // Перехват BalanceAPI.addChips
     if (window.BalanceAPI) {
         const originalAddChips = window.BalanceAPI.addChips.bind(window.BalanceAPI);
         
-        // Переопределяем метод для отслеживания выигрышей
         window.BalanceAPI.addChips = async function(amount, source = 'game', description = '') {
-            // Вызываем оригинальный метод
+            console.log(`💰 BalanceAPI.addChips called: amount=${amount}, source=${source}`);
+            
             const result = await originalAddChips(amount, source, description);
             
-            // Если это выигрыш в игре - начисляем процент рефереру
-            if (result && source && ['upgrade', 'crash', 'roll', 'mines', 'blackjack', 'speedcash'].includes(source)) {
-                console.log(`🎰 Win detected: ${amount} chips from ${source}`);
-                
-                // Начисляем процент рефереру
-                if (window.ReferralSystem) {
-                    await window.ReferralSystem.addReferralEarnings(
-                        window.BalanceAPI.telegramId,
-                        amount
-                    );
-                }
+            // Если это выигрыш - начисляем
+            if (result && amount > 0) {
+                await trackWinning(window.BalanceAPI.telegramId, amount, source);
             }
             
             return result;
@@ -34,23 +42,18 @@
         console.log('✅ Referral integration installed on BalanceAPI');
     }
     
-    // Также можно добавить интеграцию с GameBalanceAPI если он используется
+    // Перехват GameBalanceAPI.addBalance
     if (window.GameBalanceAPI) {
         const originalAddBalance = window.GameBalanceAPI.addBalance.bind(window.GameBalanceAPI);
         
         window.GameBalanceAPI.addBalance = async function(rubles, chips, source = 'game', description = '') {
+            console.log(`💰 GameBalanceAPI.addBalance called: rubles=${rubles}, chips=${chips}, source=${source}`);
+            
             const result = await originalAddBalance(rubles, chips, source, description);
             
-            // Начисляем процент только от фишек при выигрыше
-            if (result && chips > 0 && source && ['upgrade', 'crash', 'roll', 'mines', 'blackjack', 'speedcash'].includes(source)) {
-                console.log(`🎰 Win detected: ${chips} chips from ${source}`);
-                
-                if (window.ReferralSystem) {
-                    await window.ReferralSystem.addReferralEarnings(
-                        window.GameBalanceAPI.telegramId,
-                        chips
-                    );
-                }
+            // Начисляем от фишек
+            if (result && chips > 0) {
+                await trackWinning(window.GameBalanceAPI.telegramId, chips, source);
             }
             
             return result;
@@ -58,6 +61,27 @@
         
         console.log('✅ Referral integration installed on GameBalanceAPI');
     }
+    
+    // Перехват balance-api addMoney
+    setTimeout(() => {
+        if (window.balanceAPI) {
+            const originalAddMoney = window.balanceAPI.addMoney.bind(window.balanceAPI);
+            
+            window.balanceAPI.addMoney = async function(rubles, chips) {
+                console.log(`💰 balanceAPI.addMoney called: rubles=${rubles}, chips=${chips}`);
+                
+                const result = await originalAddMoney(rubles, chips);
+                
+                if (result && chips > 0) {
+                    await trackWinning(window.balanceAPI.telegramId, chips, 'game');
+                }
+                
+                return result;
+            };
+            
+            console.log('✅ Referral integration installed on balanceAPI');
+        }
+    }, 1000);
 })();
 
 // Добавляем глобальную функцию для ручного начисления процентов
