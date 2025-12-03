@@ -2,6 +2,7 @@
 from aiogram import Router, Bot, F
 from aiogram.filters import StateFilter, Command
 from aiogram.types import Message, CallbackQuery
+import aiohttp
 
 from tgbot.database.db_settings import Settingsx
 from tgbot.keyboards.inline_user import user_support_finl
