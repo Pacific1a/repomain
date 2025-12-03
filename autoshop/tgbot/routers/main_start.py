@@ -141,6 +141,8 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                         "Ваш друг будет получать 10% от ваших выигрышей."
                                     )
                                     print(f"✅ Referral registered: {user_id} -> {referrer_id}")
+                                elif result.get('message') == 'Already referred':
+                                    await message.answer("ℹ️ Вы уже зарегистрированы по реферальной ссылке ранее.")
                         except Exception as e:
                             print(f"❌ Error registering referral: {e}")
                 else:
