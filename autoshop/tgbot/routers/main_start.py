@@ -120,7 +120,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                 if referrer_id != user_id:
                     # Отправляем на сервер для регистрации
                     import aiohttp
-                    SERVER_URL = "https://bot-websocket-server.onrender.com"
+                    SERVER_URL = "https://telegram-games-plkj.onrender.com"
                     
                     async with aiohttp.ClientSession() as session:
                         try:
