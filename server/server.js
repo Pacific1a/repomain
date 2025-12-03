@@ -2146,10 +2146,20 @@ app.get('/api/referral/:telegramId', async (req, res) => {
 // Зарегистрировать реферала
 app.post('/api/referral/register', async (req, res) => {
   try {
-    const { userId, referrerId } = req.body;
+    let { userId, referrerId } = req.body;
     
     if (!userId || !referrerId) {
       return res.status(400).json({ error: 'Missing userId or referrerId' });
+    }
+    
+    // Если referrerId приходит в формате base36 (короткий код) - декодируем
+    if (referrerId.length < 8 && /^[A-Z0-9]+$/i.test(referrerId)) {
+      try {
+        referrerId = String(parseInt(referrerId, 36));
+        console.log(`🔄 Decoded base36 code to ID: ${referrerId}`);
+      } catch (e) {
+        console.log(`⚠️ Failed to decode referrer code: ${referrerId}`);
+      }
     }
     
     // Проверяем, не пытается ли пользователь пригласить сам себя

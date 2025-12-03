@@ -133,36 +133,53 @@
                 this.referralCode = this.telegramId;
             }
             
-            // Генерируем ссылку (можно использовать t.me/your_bot?start=refXXX)
-            const botUsername = 'aasasdasdadsddasdbot'; // ЗАМЕНИТЕ НА ИМЯ ВАШЕГО БОТА
-            this.referralLink = `https://t.me/${botUsername}?start=ref${this.referralCode}`;
+            // Генерируем короткий код (base36 - короче и красивее)
+            const shortCode = parseInt(this.referralCode).toString(36).toUpperCase();
             
-            // Обновляем текст кнопки
-            const textWrapper = document.querySelector('.invite-button .text-wrapper-4');
-            if (textWrapper) {
-                textWrapper.textContent = this.referralLink;
-                console.log('🔗 Реферальная ссылка:', this.referralLink);
+            // Генерируем ссылку
+            const botUsername = 'aasasdasdadsddasdbot'; // ИМЯ ВАШЕГО БОТА
+            this.referralLink = `https://t.me/${botUsername}?start=${shortCode}`;
+            
+            // Обновляем текст в кнопке invite-button
+            const inviteButton = document.querySelector('.invite-button .text-wrapper-4');
+            if (inviteButton) {
+                inviteButton.textContent = this.referralLink;
             }
             
-            this.showNotification('Реферальная ссылка создана! Нажмите кнопку копирования');
+            console.log('🔗 Реферальная ссылка:', this.referralLink, 'код:', shortCode);
+            this.showNotification('Ссылка создана! Нажмите "Copy" для копирования');
         }
-        
+
         async copyReferralLink() {
             if (!this.referralLink) {
                 this.generateReferralLink();
+                return;
             }
             
             try {
                 // Копируем в буфер обмена
                 await navigator.clipboard.writeText(this.referralLink);
-                this.showNotification('Ссылка скопирована!');
+                this.showNotification('✅ Ссылка скопирована!');
                 console.log('✅ Ссылка скопирована');
             } catch (error) {
                 // Fallback для Telegram WebApp
                 if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.showAlert(`Ваша ссылка: ${this.referralLink}`);
+                    window.Telegram.WebApp.showPopup({
+                        title: 'Ваша реферальная ссылка',
+                        message: this.referralLink,
+                        buttons: [{type: 'close'}]
+                    });
+                } else {
+                    // Fallback для браузера
+                    const input = document.createElement('input');
+                    input.value = this.referralLink;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(input);
+                    this.showNotification('✅ Ссылка скопирована!');
                 }
-                console.error('❌ Ошибка копирования:', error);
+                console.log('✅ Ссылка скопирована (fallback)');
             }
         }
         
@@ -238,52 +255,94 @@
         
         updateReferralsList() {
             const container = document.querySelector('.invited-info');
-            if (!container) return;
-            
-            // Удаляем старые элементы (кроме первого - это шаблон)
-            const oldItems = container.querySelectorAll('.refferal-info:not(:first-child)');
-            oldItems.forEach(item => item.remove());
-            
-            // Получаем шаблон
-            const template = container.querySelector('.refferal-info');
-            if (!template) return;
-            
-            // Создаем элементы для каждого реферала
-            this.referrals.forEach((referral, index) => {
-                const item = template.cloneNode(true);
-                
-                // Аватар
-                const avatar = item.querySelector('.avatar-2');
-                if (avatar && referral.avatar) {
-                    avatar.style.backgroundImage = `url(${referral.avatar})`;
-                }
-                
-                // Ник
-                const nickname = item.querySelector('.text-wrapper-13');
-                if (nickname) {
-                    nickname.textContent = referral.nickname || `User${referral.userId.slice(-4)}`;
-                }
-                
-                // Сумма выигрыша
-                const winAmount = item.querySelector('.text-wrapper-14');
-                if (winAmount) {
-                    winAmount.textContent = `${(referral.totalWinnings || 0).toFixed(2)}₽`;
-                }
-                
-                // Ваша прибыль (10% от выигрышей)
-                const profitAmount = item.querySelector('.text-wrapper-15');
-                if (profitAmount) {
-                    const profit = (referral.totalWinnings || 0) * 0.10;
-                    profitAmount.textContent = `+${profit.toFixed(2)}₽`;
-                }
-                
-                container.appendChild(item);
-            });
-            
-            // Удаляем шаблон, если есть рефералы
-            if (this.referrals.length > 0) {
-                template.style.display = 'none';
+            if (!container) {
+                console.warn('⚠️ Контейнер .invited-info не найден');
+                return;
             }
+            
+            // Ищем или создаем контейнер для карточек
+            let listContainer = container.querySelector('.referrals-list');
+            if (!listContainer) {
+                listContainer = document.createElement('div');
+                listContainer.className = 'referrals-list';
+                listContainer.style.cssText = `
+                    margin-top: 20px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                `;
+                container.appendChild(listContainer);
+            }
+            
+            // Очищаем старый список
+            listContainer.innerHTML = '';
+            
+            // Если рефералов нет
+            if (this.referrals.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="no-referrals" style="
+                        text-align: center;
+                        padding: 20px;
+                        color: #9aa0a6;
+                        font-size: 14px;
+                        font-family: 'Montserrat', sans-serif;
+                    ">
+                        Пока нет рефералов
+                    </div>
+                `;
+                return;
+            }
+            
+            // Добавляем карточки рефералов
+            this.referrals.forEach((referral, index) => {
+                const card = document.createElement('div');
+                card.className = 'refferal-card';
+                card.style.cssText = `
+                    background: rgba(0, 0, 0, 0.2);
+                    border-radius: 12px;
+                    padding: 12px;
+                    margin-bottom: 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                `;
+                
+                // Получаем никнейм (если есть в PlayersSystem)
+                let nickname = 'User' + referral.userId.slice(-4);
+                if (window.PlayersSystem?.players[referral.userId]) {
+                    nickname = window.PlayersSystem.players[referral.userId].nickname || nickname;
+                }
+                
+                card.innerHTML = `
+                    <div class="avatar-2" style="
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: bold;
+                        flex-shrink: 0;
+                    ">
+                        ${nickname.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="refferal-details" style="flex: 1;">
+                        <div class="text-wrapper-13" style="color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 4px;">
+                            ${nickname}
+                        </div>
+                        <div class="stats" style="display: flex; gap: 12px; font-size: 12px;">
+                            <span class="text-wrapper-14" style="color: #9aa0a6;">
+                                Выиграл: ${(referral.totalWinnings || 0).toFixed(2)}₽
+                            </span>
+                            <span class="text-wrapper-15" style="color: #667eea;">
+                                Вам: ${(referral.totalEarnings || 0).toFixed(2)}₽
+                            </span>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
         }
         
         showNotification(message) {

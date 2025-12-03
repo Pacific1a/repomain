@@ -97,10 +97,57 @@ async def filter_refill_callback(call: CallbackQuery, bot: Bot, state: FSM, arSe
 
 ################################################################################
 #################################### ПРОЧЕЕ ####################################
-# Открытие главного меню
-@router.message(F.text.in_(('🔙 Главное меню', '/start')))
+# Открытие главного меню  
+@router.message(F.text.regexp(r'^(/start|🔙 Главное меню)'))
 async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
     await state.clear()
+    
+    # Обработка реферальной ссылки
+    if message.text.startswith('/start'):
+        parts = message.text.split(maxsplit=1)
+        
+        if len(parts) > 1:  # Есть параметр
+            args = parts[1].strip()
+            
+            try:
+                # Декодируем короткий код base36 в telegram ID
+                referrer_id = str(int(args, 36))
+                user_id = str(message.from_user.id)
+                
+                print(f"🔍 Referral link detected: code={args}, decoded={referrer_id}, user={user_id}")
+                
+                # Проверяем, что пользователь не пытается пригласить сам себя
+                if referrer_id != user_id:
+                    # Отправляем на сервер для регистрации
+                    import aiohttp
+                    SERVER_URL = "https://bot-websocket-server.onrender.com"
+                    
+                    async with aiohttp.ClientSession() as session:
+                        try:
+                            async with session.post(
+                                f"{SERVER_URL}/api/referral/register",
+                                json={
+                                    "userId": user_id,
+                                    "referrerId": referrer_id
+                                },
+                                timeout=aiohttp.ClientTimeout(total=10)
+                            ) as resp:
+                                result = await resp.json()
+                                print(f"📡 Server response: {result}")
+                                
+                                if resp.status == 200 and result.get('success'):
+                                    await message.answer(
+                                        "🎁 Вы перешли по реферальной ссылке!\n"
+                                        "Ваш друг будет получать 10% от ваших выигрышей."
+                                    )
+                                    print(f"✅ Referral registered: {user_id} -> {referrer_id}")
+                        except Exception as e:
+                            print(f"❌ Error registering referral: {e}")
+                else:
+                    print(f"⚠️ User tried to refer themselves: {user_id}")
+            except ValueError as e:
+                # Невалидный код - игнорируем
+                print(f"⚠️ Invalid referral code: {args} - {e}")
 
     await message.answer(
         ded("""
