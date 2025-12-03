@@ -48,7 +48,7 @@ Ctrl + Shift + R  (жесткое обновление)
 ### 5. Выполните команды в Console:
 
 Вставьте каждую строку и нажмите Enter:
-
+dasd
 ```javascript
 // 1. Проверка системы
 window.ReferralSystem
