@@ -101,12 +101,17 @@
                     console.log('📊 Реферальные данные:', data);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
-                    // Загружаем никнеймы из PlayersSystem
-                    if (this.referrals.length > 0) {
+                    // Загружаем никнеймы из PlayersSystem (безопасно)
+                    if (this.referrals.length > 0 && window.PlayersSystem?.players) {
                         this.referrals.forEach(ref => {
-                            if (window.PlayersSystem?.players[ref.userId]) {
-                                ref.nickname = window.PlayersSystem.players[ref.userId].nickname;
-                                ref.avatar = window.PlayersSystem.players[ref.userId].avatar;
+                            try {
+                                const player = window.PlayersSystem.players[ref.userId];
+                                if (player) {
+                                    ref.nickname = player.nickname;
+                                    ref.avatar = player.avatar;
+                                }
+                            } catch (error) {
+                                console.warn(`⚠️ Не удалось получить данные игрока ${ref.userId}:`, error);
                             }
                         });
                     }
