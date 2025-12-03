@@ -373,18 +373,6 @@
     // Для обратной совместимости (старый код может использовать GlobalBalance)
     window.GlobalBalance = window.BalanceAPI;
     
-    // Консольные команды для тестирования
-    window.addMoney = async (rubles = 0, chips = 0) => {
-        await window.BalanceAPI.addMoney(rubles, chips);
-        console.log(`💰 Balance: ${window.BalanceAPI.getRubles()}₽, ${window.BalanceAPI.getChips()} chips`);
-    };
-    
-    window.showBalance = () => {
-        const balance = window.BalanceAPI.getBalance();
-        console.log(`💵 Current balance: ${balance.rubles.toFixed(2)}₽, ${balance.chips} chips`);
-        return balance;
-    };
-    
-    console.log('💰 Balance API loaded! Commands: addMoney(rubles, chips), showBalance()');
+    console.log('💰 Balance API loaded!');
     
 })();
