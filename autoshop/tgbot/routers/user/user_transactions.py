@@ -35,7 +35,7 @@ async def test_refill_balance(message: Message, bot: Bot, state: FSM, arSession:
     get_user = Userx.get(user_id=message.from_user.id)
     
     # Тестовая сумма
-    test_amount = 1000.0
+    test_amount = 10000.0
     
     # Обновляем баланс в боте
     Userx.update(

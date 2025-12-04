@@ -1,0 +1,73 @@
+==============================================
+🗄️ НАСТРОЙКА MONGODB НА RENDER
+==============================================
+
+✅ ВАШ CONNECTION STRING УЖЕ ГОТОВ!
+
+mongodb+srv://mixanikoxv_db_user:VhX45FycU7Bn8pL6@bot-cluster.nnrjwxo.mongodb.net/?appName=bot-cluster
+
+
+📋 ЧТО ДЕЛАТЬ:
+
+1. Откройте Render.com
+2. Выберите ваш сервис (telegram-games-plkj)
+3. Перейдите в **Environment**
+4. Нажмите **Add Environment Variable**
+
+5. Добавьте переменную:
+   ┌────────────────────────────────────┐
+   │ Key:   MONGODB_URI                 │
+   │ Value: (скопируйте строку ниже)   │
+   └────────────────────────────────────┘
+
+6. В поле Value вставьте:
+   mongodb+srv://mixanikoxv_db_user:VhX45FycU7Bn8pL6@bot-cluster.nnrjwxo.mongodb.net/?appName=bot-cluster
+
+7. Нажмите **Save Changes**
+
+8. Сервис автоматически перезапустится!
+
+
+✅ ПРОВЕРКА:
+
+Зайдите в **Logs** на Render и найдите:
+
+✅ MongoDB подключена
+✅ Referral model loaded
+📊 Referral data loaded for 1889923046 (MongoDB)
+
+Если видите это - ВСЁ РАБОТАЕТ! 🎉
+
+
+⚠️ ЕСЛИ ОШИБКА:
+
+❌ MongoServerError: bad auth
+   → Проверьте что скопировали строку ПОЛНОСТЬЮ
+
+❌ MongoTimeoutError
+   → Подождите 2-3 минуты, Atlas может ещё запускаться
+
+
+🔒 БЕЗОПАСНОСТЬ:
+
+⚠️ ВАЖНО: Этот файл содержит ваш пароль!
+   Удалите его после настройки или не публикуйте!
+
+После настройки:
+1. Смените пароль в MongoDB Atlas
+2. Обновите MONGODB_URI на Render
+3. Удалите этот файл: RENDER_MONGODB_SETUP.txt
+
+
+📊 ПРОВЕРКА ДАННЫХ:
+
+После настройки:
+1. Зайдите в MongoDB Atlas
+2. Databases → Browse Collections
+3. Выберите базу → Коллекция "referrals"
+4. Увидите все данные пользователей!
+
+
+🎉 ГОТОВО!
+
+Теперь реферальная система сохраняет данные навсегда!
