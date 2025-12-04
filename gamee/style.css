@@ -5,6 +5,7 @@
   justify-content: start;
   gap: 30px;
   position: relative;
+  background: radial-gradient(50% 50% at 60% 93%, rgba(172, 0, 39, 0.22) 0%, rgba(172, 0, 39, 0) 100%), linear-gradient(0deg, rgba(21, 20, 20, 1) 0%, rgba(21, 20, 20, 1) 100%);
 }
 
 .game .header {
