@@ -423,12 +423,12 @@
 
   function selectRandomPrize(prizes) {
     const weights = prizes.map(prize => {
-      if (prize >= 3000) return 0.5;
-      if (prize >= 2000) return 1;
-      if (prize >= 1000) return 5;
-      if (prize >= 500) return 15;
-      if (prize >= 300) return 40;
-      return 80;
+      if (prize >= 3000) return 0.3;   // было 0.5
+      if (prize >= 2000) return 0.7;   // было 1
+      if (prize >= 1000) return 2;     // было 5
+      if (prize >= 500) return 5;      // было 15
+      if (prize >= 300) return 30;     // было 40
+      return 120;                       // было 80
     });
 
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);

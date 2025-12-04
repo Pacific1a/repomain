@@ -900,10 +900,10 @@ io.on('connection', (socket) => {
     // Выбираем победителя по весам (боты имеют +30% шанс)
     const totalBets = gameState.players.reduce((sum, p) => sum + p.bet, 0);
     
-    // Рассчитываем взвешенные ставки (боты +30%)
+    // Рассчитываем взвешенные ставки (боты +50%, было +30%)
     const weightedBets = gameState.players.map(p => {
       const isBot = p.isBot || String(p.userId).startsWith('bot_');
-      const weight = isBot ? p.bet * 1.3 : p.bet; // +30% для ботов
+      const weight = isBot ? p.bet * 1.5 : p.bet; // +50% для ботов
       return { player: p, weight };
     });
     
