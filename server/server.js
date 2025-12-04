@@ -2293,27 +2293,33 @@ app.post('/api/referral/withdraw', async (req, res) => {
         amount: result.transferred,
         source: 'referral',
         description: `Вывод с реферального баланса (комиссия ${result.commission.toFixed(2)}₽)`,
-      timestamp: Date.now(),
-      date: new Date().toISOString()
-    });
-    fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
-    
-    console.log(`💸 Withdrawal: ${amount}₽ from referral balance, ${amountToTransfer}₽ to main (commission: ${commission}₽)`);
-    
-    // Уведомляем через WebSocket
-    io.emit(`balance_updated_${userId}`, {
-      rubles: balances[userId].rubles,
-      chips: balances[userId].chips
-    });
-    
-    res.json({
-      success: true,
-      withdrawn: amount,
-      commission: commission,
-      received: amountToTransfer,
-      newReferralBalance: userRef.referralBalance,
-      newMainBalance: balances[userId].rubles
-    });
+        timestamp: Date.now(),
+        date: new Date().toISOString()
+      });
+      fs.writeFileSync(TRANSACTIONS_FILE, JSON.stringify(transactions, null, 2));
+      
+      console.log(`💸 Withdrawal: ${result.withdrawn}₽ from referral balance, ${result.transferred}₽ to main (commission: ${result.commission}₽)`);
+      
+      // Уведомляем через WebSocket
+      io.emit(`balance_updated_${userId}`, {
+        rubles: balances[userId].rubles,
+        chips: balances[userId].chips
+      });
+      
+      res.json({
+        success: true,
+        withdrawn: result.withdrawn,
+        commission: result.commission,
+        transferred: result.transferred,
+        newReferralBalance: result.newBalance,
+        newMainBalance: balances[userId].rubles
+      });
+    } else {
+      if (result.error) {
+        return res.status(400).json({ error: result.error });
+      }
+      res.json(result);
+    }
   } catch (error) {
     console.error('❌ Error withdrawing:', error);
     res.status(500).json({ error: 'Server error' });
