@@ -2172,47 +2172,27 @@ app.post('/api/referral/add-earnings', async (req, res) => {
       return res.status(400).json({ error: 'Missing userId or amount' });
     }
     
-    const referrals = JSON.parse(fs.readFileSync(REFERRALS_FILE, 'utf8'));
+    const result = await referralDB.addReferralEarnings(userId, amount);
     
-    // Находим, кто привел этого пользователя
-    let referrerId = null;
-    for (const [refId, refData] of Object.entries(referrals)) {
-      const referral = refData.referrals.find(ref => ref.userId === userId);
-      if (referral) {
-        referrerId = refId;
-        
-        // Обновляем статистику реферала
-        referral.totalWinnings = (referral.totalWinnings || 0) + amount;
-        
-        // Начисляем 10% рефереру
-        const commission = amount * 0.10;
-        refData.referralBalance = (refData.referralBalance || 0) + commission;
-        refData.totalEarnings = (refData.totalEarnings || 0) + commission;
-        referral.totalEarnings = (referral.totalEarnings || 0) + commission;
-        
-        fs.writeFileSync(REFERRALS_FILE, JSON.stringify(referrals, null, 2));
-        
-        console.log(`💰 Added ${commission}₽ to referrer ${referrerId} from ${userId}'s win ${amount}₽`);
-        
-        // Отправляем через WebSocket
-        io.emit(`referral_earnings_${referrerId}`, {
-          userId: userId,
-          amount: commission,
-          totalBalance: refData.referralBalance
-        });
-        
-        res.json({ 
-          success: true, 
-          referrerId: referrerId,
-          commission: commission,
-          referralBalance: refData.referralBalance
-        });
-        return;
-      }
+    if (result.success) {
+      console.log(`💰 Added ${result.commission}₽ to referrer ${result.referrerId} from ${userId}'s win ${amount}₽`);
+      
+      // Отправляем через WebSocket
+      io.emit(`referral_earnings_${result.referrerId}`, {
+        userId: userId,
+        amount: result.commission,
+        totalBalance: result.newBalance
+      });
+      
+      res.json({ 
+        success: true, 
+        referrerId: result.referrerId,
+        commission: result.commission,
+        referralBalance: result.newBalance
+      });
+    } else {
+      res.json(result);
     }
-    
-    // Реферер не найден
-    res.json({ success: false, message: 'No referrer found' });
   } catch (error) {
     console.error('❌ Error adding earnings:', error);
     res.status(500).json({ error: 'Server error' });
@@ -2291,51 +2271,28 @@ app.post('/api/referral/withdraw', async (req, res) => {
       return res.status(400).json({ error: 'Missing userId or amount' });
     }
     
-    // Минимальная сумма вывода 1500₽
-    if (amount < 1500) {
-      return res.status(400).json({ error: 'Minimum withdrawal amount is 1500₽' });
-    }
+    const result = await referralDB.withdrawReferralBalance(userId, amount);
     
-    const referrals = JSON.parse(fs.readFileSync(REFERRALS_FILE, 'utf8'));
-    
-    if (!referrals[userId]) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    const userRef = referrals[userId];
-    
-    if (userRef.referralBalance < amount) {
-      return res.status(400).json({ error: 'Insufficient balance' });
-    }
-    
-    // Рассчитываем комиссию 5%
-    const commission = amount * 0.05;
-    const amountToTransfer = amount - commission;
-    
-    // Списываем с реферального баланса
-    userRef.referralBalance -= amount;
-    
-    fs.writeFileSync(REFERRALS_FILE, JSON.stringify(referrals, null, 2));
-    
-    // Добавляем на основной баланс
-    const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
-    if (!balances[userId]) {
-      balances[userId] = { rubles: 0, chips: 0 };
-    }
-    balances[userId].rubles += amountToTransfer;
-    fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
-    
-    // Создаем транзакцию
-    const transactions = JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8'));
-    if (!transactions[userId]) {
-      transactions[userId] = [];
-    }
-    transactions[userId].push({
-      id: Date.now().toString(),
-      type: 'add',
-      amount: amountToTransfer,
-      source: 'referral',
-      description: `Вывод с реферального баланса (комиссия ${commission.toFixed(2)}₽)`,
+    if (result.success) {
+      // Добавляем на основной баланс
+      const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
+      if (!balances[userId]) {
+        balances[userId] = { rubles: 0, chips: 0 };
+      }
+      balances[userId].rubles += result.transferred;
+      fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
+      
+      // Создаем транзакцию
+      const transactions = JSON.parse(fs.readFileSync(TRANSACTIONS_FILE, 'utf8'));
+      if (!transactions[userId]) {
+        transactions[userId] = [];
+      }
+      transactions[userId].push({
+        id: Date.now().toString(),
+        type: 'add',
+        amount: result.transferred,
+        source: 'referral',
+        description: `Вывод с реферального баланса (комиссия ${result.commission.toFixed(2)}₽)`,
       timestamp: Date.now(),
       date: new Date().toISOString()
     });
