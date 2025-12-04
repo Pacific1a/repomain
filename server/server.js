@@ -2122,21 +2122,9 @@ if (!fs.existsSync(REFERRALS_FILE)) {
 app.get('/api/referral/:telegramId', async (req, res) => {
   try {
     const { telegramId } = req.params;
-    
-    const referrals = JSON.parse(fs.readFileSync(REFERRALS_FILE, 'utf8'));
-    
-    if (!referrals[telegramId]) {
-      referrals[telegramId] = {
-        referralCode: telegramId,
-        referralBalance: 0,
-        referrals: [],
-        totalEarnings: 0
-      };
-      fs.writeFileSync(REFERRALS_FILE, JSON.stringify(referrals, null, 2));
-    }
-    
-    res.json(referrals[telegramId]);
-    console.log(`📊 Referral data loaded for ${telegramId}`);
+    const data = await referralDB.getReferralData(telegramId);
+    res.json(data);
+    console.log(`📊 Referral data loaded for ${telegramId} (${referralDB.isMongoAvailable() ? 'MongoDB' : 'JSON'})`);
   } catch (error) {
     console.error('❌ Error loading referral data:', error);
     res.status(500).json({ error: 'Server error' });
@@ -2167,37 +2155,8 @@ app.post('/api/referral/register', async (req, res) => {
       return res.status(400).json({ error: 'Cannot refer yourself' });
     }
     
-    const referrals = JSON.parse(fs.readFileSync(REFERRALS_FILE, 'utf8'));
-    
-    // Инициализируем данные реферера если их нет
-    if (!referrals[referrerId]) {
-      referrals[referrerId] = {
-        referralCode: referrerId,
-        referralBalance: 0,
-        referrals: [],
-        totalEarnings: 0
-      };
-    }
-    
-    // Проверяем, не зарегистрирован ли уже этот пользователь
-    const alreadyReferred = referrals[referrerId].referrals.some(ref => ref.userId === userId);
-    
-    if (!alreadyReferred) {
-      // Добавляем реферала
-      referrals[referrerId].referrals.push({
-        userId: userId,
-        registeredAt: Date.now(),
-        totalWinnings: 0,
-        totalEarnings: 0
-      });
-      
-      fs.writeFileSync(REFERRALS_FILE, JSON.stringify(referrals, null, 2));
-      
-      console.log(`✅ User ${userId} registered by referrer ${referrerId}`);
-      res.json({ success: true, referrerId: referrerId });
-    } else {
-      res.json({ success: false, message: 'Already referred' });
-    }
+    const result = await referralDB.registerReferral(userId, referrerId);
+    res.json(result);
   } catch (error) {
     console.error('❌ Error registering referral:', error);
     res.status(500).json({ error: 'Server error' });
