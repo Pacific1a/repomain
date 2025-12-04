@@ -1171,20 +1171,20 @@ io.on('connection', (socket) => {
   function generateWeightedCrashPoint() {
     const rand = Math.random();
     
-    // 75% - низкие множители (1.15, 1.22, 1.32, 1.45, 1.56)
-    if (rand < 0.75) {
-      const lowMultipliers = [1.15, 1.22, 1.32, 1.45, 1.56];
+    // 85% - низкие множители (1.10, 1.15, 1.22, 1.28, 1.35) - УМЕНЬШЕНО
+    if (rand < 0.85) {
+      const lowMultipliers = [1.10, 1.15, 1.22, 1.28, 1.35];
       const randomLow = lowMultipliers[Math.floor(Math.random() * lowMultipliers.length)];
-      // Добавляем небольшой разброс ±0.05
-      return randomLow + (Math.random() - 0.5) * 0.1;
+      // Добавляем небольшой разброс ±0.03
+      return randomLow + (Math.random() - 0.5) * 0.06;
     }
-    // 20% - средние множители (1.6-2.0)
-    else if (rand < 0.95) {
-      return 1.6 + Math.random() * 0.4;
+    // 13% - средние множители (1.4-1.8) - УМЕНЬШЕНО
+    else if (rand < 0.98) {
+      return 1.4 + Math.random() * 0.4;
     }
-    // 5% - высокие множители (>2.0, до 3.5)
+    // 2% - высокие множители (>1.8, до 2.5) - УМЕНЬШЕНО
     else {
-      return 2.0 + Math.random() * 1.5;
+      return 1.8 + Math.random() * 0.7;
     }
   }
   
@@ -1371,16 +1371,16 @@ io.on('connection', (socket) => {
     // Генерируем случайную длительность гонки (5-15 секунд)
     gameState.raceDuration = 5000 + Math.random() * 10000; // 5-15 секунд
     
-    // Определяем задержанную машину (ВСЕГДА хотя бы одна задержана)
+    // Определяем задержанную машину (чаще обе задерживаются)
     const rand = Math.random();
-    if (rand < 0.015) {
-      // 1.5% - обе задержаны
+    if (rand < 0.10) {
+      // 10% - обе задержаны (было 1.5%)
       gameState.delayedCar = 'both';
-    } else if (rand < 0.5) {
-      // 48.5% - blue задержана, orange уезжает
+    } else if (rand < 0.55) {
+      // 45% - blue задержана, orange уезжает
       gameState.delayedCar = 'blue';
     } else {
-      // 50% - orange задержана, blue уезжает
+      // 45% - orange задержана, blue уезжает
       gameState.delayedCar = 'orange';
     }
     

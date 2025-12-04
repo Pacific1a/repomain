@@ -414,9 +414,9 @@ function getActiveMultiplier() {
 function calculateChance(bet, _balIgnored) {
   // Шанс зависит ТОЛЬКО от абсолютного размера ставки и выбранного множителя
   const m = getActiveMultiplier();
-  // База по множителю
-  const baseMap = { 1.5: 66.6667, 2: 50, 3: 33.3333, 5: 20, 10: 10, 20: 5 };
-  const base = baseMap[m] ?? (100 / m);
+  // База по множителю (УМЕНЬШЕНО для усложнения)
+  const baseMap = { 1.5: 55, 2: 40, 3: 25, 5: 15, 10: 8, 20: 4 };
+  const base = baseMap[m] ?? (80 / m);
   const stake = Math.max(0, Number(bet) || 0);
   // Плавное убывание: при ставке = SOFT_CAP шанс ≈ base/2; при 0 — = base; при большой ставке → к 1
   const SOFT_CAP = 500; // настроечный параметр, при необходимости изменим
