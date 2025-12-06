@@ -1,4 +1,4 @@
-/* Preloader - спиннер загрузки */
+/* Preloader - из папки loader, адаптированный для overlay */
 
 #page-preloader {
   display: none;
@@ -9,8 +9,6 @@
   height: 100%;
   background-color: #151414;
   z-index: 999999;
-  justify-content: center;
-  align-items: center;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -24,23 +22,50 @@
   transition: opacity 0.4s ease;
 }
 
-/* Контейнер спиннера */
-.preloader-spinner {
-  display: flex;
+/* Стили из loader/style.css */
+.loading {
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 22px;
+  width: 100%;
+  height: 100vh;
+  padding: 21px 62px;
+  position: relative;
+  background-color: #151414;
+}
+
+.loading .token {
+  position: relative;
+  align-self: stretch;
+  width: 100%;
+  max-width: 298px;
+  height: auto;
+  object-fit: contain;
+}
+
+.loading .load-icon {
+  display: flex;
+  flex-direction: column;
+  height: 62px;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
+  padding: 10px;
+  position: relative;
+  align-self: stretch;
+  width: 100%;
 }
 
-/* SVG спиннер */
-.preloader-spinner svg {
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
+.loading .icon {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  animation: spin 1.2s linear infinite;
 }
 
-/* Анимация вращения */
+/* Анимация вращения спиннера */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -52,8 +77,8 @@
 
 /* Убираем мерцание на мобильных */
 #page-preloader,
-.preloader-spinner,
-.preloader-spinner svg {
+.loading,
+.loading .icon {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -webkit-transform: translateZ(0);
