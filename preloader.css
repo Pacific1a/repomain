@@ -1,0 +1,79 @@
+/* Preloader - спиннер загрузки */
+
+#page-preloader {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #151414;
+  z-index: 999999;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#page-preloader.active {
+  opacity: 1;
+}
+
+#page-preloader.fade-out {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* Контейнер спиннера */
+.preloader-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* SVG спиннер */
+.preloader-spinner svg {
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+/* Анимация вращения */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Убираем мерцание на мобильных */
+#page-preloader,
+.preloader-spinner,
+.preloader-spinner svg {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Плавное появление контента после загрузки */
+body.preloading {
+  overflow: hidden;
+}
+
+body:not(.preloading) {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.95;
+  }
+  to {
+    opacity: 1;
+  }
+}
