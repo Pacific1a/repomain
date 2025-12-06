@@ -97,6 +97,9 @@
     height: 50px;
     margin-top: -4.00px;
     margin-bottom: -4.00px;
+}
+
+.loading .load-icon svg {
     animation: spin 1.2s linear infinite;
 }
 
