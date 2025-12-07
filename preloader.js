@@ -5,7 +5,7 @@
   'use strict';
 
   const STORAGE_KEY = 'mainPageLoaded';
-  const SPINNER_MIN_DURATION = 800; // Минимальное время показа спиннера (мс)
+  const SPINNER_MIN_DURATION = 10000; // Минимальное время показа спиннера (10 секунд)
 
   // Проверяем - была ли уже загрузка в этой сессии
   function wasLoadedInSession() {

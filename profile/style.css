@@ -121,6 +121,7 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
+  width: 50%;
   flex: 1;
   flex-grow: 1;
   display: flex;
@@ -293,7 +294,7 @@
   width: 329px;
   height: 66px;
   top: 0;
-  left: 0;
+  right: 40px;
 }
 
 .profile .frame {
