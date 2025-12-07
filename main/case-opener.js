@@ -190,8 +190,15 @@
       prizes.forEach(prize => {
         const img = document.createElement('img');
         const prizeData = getPrizeImages(prize, isChipsCase);
+        
+        // Фиксируем размеры для предотвращения CLS
+        img.width = 110;
+        img.height = 110;
         img.src = prizeData.preview;
         img.alt = isChipsCase ? `${prize} chips` : `${prize}₽`;
+        img.loading = 'eager'; // Загружаем сразу (критичный контент)
+        img.decoding = 'async';
+        
         itemPreview.appendChild(img);
       });
     }
@@ -257,11 +264,17 @@
     duplicated.forEach(prize => {
       const img = document.createElement('img');
       const prizeData = getPrizeImages(prize, currentCase.isChipsCase);
+      
+      // Фиксируем размеры для предотвращения CLS
+      img.width = 110;
+      img.height = 110;
       img.src = prizeData.spin;
       img.alt = currentCase.isChipsCase ? `${prize} chips` : `${prize}₽`;
       img.dataset.value = prize;
-      img.dataset.color = prizeData.color; // Добавляем цвет в data-атрибут
+      img.dataset.color = prizeData.color;
       img.loading = 'lazy';
+      img.decoding = 'async';
+      
       fragment.appendChild(img);
     });
     container.appendChild(fragment);
@@ -503,8 +516,15 @@
     
     winItem.innerHTML = '';
     const winImg = document.createElement('img');
+    
+    // Фиксируем размеры для предотвращения CLS
+    winImg.width = 110;
+    winImg.height = 110;
     winImg.src = winImagePath;
     winImg.alt = `WIN ${wonPrize}₽`;
+    winImg.loading = 'eager';
+    winImg.decoding = 'async';
+    
     winItem.appendChild(winImg);
     
     console.log('🏆 Showing win:', wonPrize + '₽', window.winningColor);

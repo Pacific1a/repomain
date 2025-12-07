@@ -237,6 +237,7 @@
   position: relative;
   align-self: stretch;
   width: 100%;
+  height: 60px;
   flex: 0 0 auto;
   border-radius: 12px;
   background: linear-gradient(
@@ -1719,17 +1720,21 @@
   display: grid;
   grid-template-columns: repeat(3, 3fr);
   gap: 10px;
+  /* Фиксируем минимальную высоту для предотвращения CLS */
+  min-height: 240px;
 }
 
 /* Изображения в превью возможных призов - размер 110x110px */
 .item-preview-item img {
   width: 110px;
   height: 110px;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   position: relative;
   z-index: 2;
   transition: all 0.3s ease;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  display: block;
 }
 
 .item-preview-item img:hover {
