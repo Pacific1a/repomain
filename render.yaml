@@ -4,9 +4,7 @@ services:
     env: node
     rootDir: .
     buildCommand: cd server && npm install
-    startCommand: cd server && node server.js
+    startCommand: node server/server.js
     envVars:
       - key: NODE_ENV
         value: production
-      - key: SERVER_URL
-        value: https://server-bot-4.onrender.com

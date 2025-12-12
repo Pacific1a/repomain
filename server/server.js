@@ -115,23 +115,23 @@ app.use(cors());
 app.use(express.json());
 
 // Раздаем статические файлы (фронтенд)
-// Пробуем разные пути в зависимости от окружения
-const possiblePaths = [
-  path.join(__dirname, '..'), // Локально
-  '/opt/render/project/src', // Render
-  process.cwd(), // Текущая директория
-];
+// Определяем корневую директорию проекта
+const projectRoot = path.join(__dirname, '..');
+console.log('🔍 __dirname:', __dirname);
+console.log('🔍 process.cwd():', process.cwd());
+console.log('🔍 Project root:', projectRoot);
 
-let staticPath = possiblePaths[0];
-for (const p of possiblePaths) {
-  if (fs.existsSync(path.join(p, 'index.html'))) {
-    staticPath = p;
-    break;
-  }
+// Проверяем существование index.html
+const indexPath = path.join(projectRoot, 'index.html');
+if (fs.existsSync(indexPath)) {
+  console.log('✅ Found index.html at:', indexPath);
+} else {
+  console.warn('⚠️ index.html not found at:', indexPath);
 }
 
-console.log('📁 Статические файлы из:', staticPath);
-app.use(express.static(staticPath));
+// Раздаем статические файлы из корня проекта
+app.use(express.static(projectRoot));
+console.log('📁 Статические файлы раздаются из:', projectRoot);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -2372,6 +2372,23 @@ function scheduleBotSpawn() {
     }
   }, botCheckInterval);
 }
+
+// Fallback для SPA - все неизвестные маршруты возвращают index.html
+// Это должно быть после всех API маршрутов
+app.get('*', (req, res) => {
+  // Если запрос к API - возвращаем 404
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  // Для всех остальных маршрутов отдаем index.html
+  const indexHtmlPath = path.join(projectRoot, 'index.html');
+  if (fs.existsSync(indexHtmlPath)) {
+    res.sendFile(indexHtmlPath);
+  } else {
+    res.status(404).send('index.html not found');
+  }
+});
 
 // Запуск сервера
 const PORT = process.env.PORT || 3000;
