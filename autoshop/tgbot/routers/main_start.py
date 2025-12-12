@@ -3,7 +3,9 @@ from aiogram import Router, Bot, F
 from aiogram.filters import StateFilter, Command
 from aiogram.types import Message, CallbackQuery
 import aiohttp
+import asyncio
 
+from tgbot.data.config import SERVER_API_URL
 from tgbot.database.db_settings import Settingsx
 from tgbot.keyboards.inline_user import user_support_finl
 from tgbot.keyboards.reply_main import menu_frep
@@ -111,30 +113,51 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
             args = parts[1].strip()
             
             try:
-                # Декодируем короткий код base36 в telegram ID
-                referrer_id = str(int(args, 36))
-                user_id = str(message.from_user.id)
+                # Убираем префикс 'ref_' если есть
+                referral_code = args
+                if args.startswith('ref_'):
+                    referral_code = args[4:]  # Убираем 'ref_'
                 
-                print(f"🔍 Referral link detected: code={args}, decoded={referrer_id}, user={user_id}")
+                # Проверяем формат кода
+                # Формат может быть: ${userId}_${timestamp}${random} (например: 3_MJ3FLZNWEE3U9)
+                # Или просто base36 от userId (например: 1OKI95B)
+                if '_' in referral_code:
+                    # Формат ${userId}_${timestamp}${random} - извлекаем userId
+                    referrer_id = referral_code.split('_')[0]
+                    print(f"🔍 Referral link detected: full_code={args}, extracted_user_id={referrer_id}, new_user={message.from_user.id}")
+                else:
+                    # Формат base36 - декодируем
+                    referrer_id = str(int(referral_code, 36))
+                    print(f"🔍 Referral link detected: code={args}, decoded_user_id={referrer_id}, new_user={message.from_user.id}")
+                
+                user_id = str(message.from_user.id)
                 
                 # Проверяем, что пользователь не пытается пригласить сам себя
                 if referrer_id != user_id:
                     # Отправляем на сервер для регистрации
-                    import aiohttp
-                    SERVER_URL = "https://telegram-games-plkj.onrender.com"
-                    
                     async with aiohttp.ClientSession() as session:
                         try:
                             async with session.post(
-                                f"{SERVER_URL}/api/referral/register",
+                                f"{SERVER_API_URL}/api/referral/register",
                                 json={
                                     "userId": user_id,
                                     "referrerId": referrer_id
                                 },
                                 timeout=aiohttp.ClientTimeout(total=10)
                             ) as resp:
-                                result = await resp.json()
-                                print(f"📡 Server response: {result}")
+                                print(f"📡 Server response status: {resp.status}")
+                                
+                                # Читаем ответ как текст сначала для отладки
+                                response_text = await resp.text()
+                                print(f"📡 Server response text: {response_text[:200]}")
+                                
+                                try:
+                                    import json
+                                    result = json.loads(response_text)
+                                except Exception as json_err:
+                                    print(f"❌ Error parsing JSON response: {json_err}")
+                                    print(f"Response was: {response_text}")
+                                    return
                                 
                                 if resp.status == 200 and result.get('success'):
                                     await message.answer(
@@ -144,8 +167,14 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                     print(f"✅ Referral registered: {user_id} -> {referrer_id}")
                                 elif result.get('message') == 'Already referred':
                                     await message.answer("ℹ️ Вы уже зарегистрированы по реферальной ссылке ранее.")
+                                else:
+                                    print(f"⚠️ Unexpected response: status={resp.status}, result={result}")
+                        except aiohttp.ClientError as e:
+                            print(f"❌ Network error registering referral: {type(e).__name__}: {str(e)}")
+                        except asyncio.TimeoutError:
+                            print(f"❌ Timeout registering referral - server did not respond in 10 seconds")
                         except Exception as e:
-                            print(f"❌ Error registering referral: {e}")
+                            print(f"❌ Error registering referral: {type(e).__name__}: {str(e)}")
                 else:
                     print(f"⚠️ User tried to refer themselves: {user_id}")
             except ValueError as e:
