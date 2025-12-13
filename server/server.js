@@ -123,15 +123,26 @@ console.log('🔍 Project root:', projectRoot);
 
 // Проверяем существование index.html
 const indexPath = path.join(projectRoot, 'index.html');
+const siteIndexPath = path.join(projectRoot, 'site', 'index.html');
 if (fs.existsSync(indexPath)) {
-  console.log('✅ Found index.html at:', indexPath);
+  console.log('✅ Found bot index.html at:', indexPath);
 } else {
-  console.warn('⚠️ index.html not found at:', indexPath);
+  console.warn('⚠️ Bot index.html not found at:', indexPath);
+}
+if (fs.existsSync(siteIndexPath)) {
+  console.log('✅ Found partner site index.html at:', siteIndexPath);
+} else {
+  console.warn('⚠️ Partner site index.html not found at:', siteIndexPath);
 }
 
-// Раздаем статические файлы из корня проекта
+// Настройка маршрутов для двух сайтов
+// 1. Сайт партнеров доступен по /partner/
+app.use('/partner', express.static(path.join(projectRoot, 'site')));
+console.log('📁 Сайт партнеров раздается из:', path.join(projectRoot, 'site'));
+
+// 2. Остальные статические файлы из корня (бот)
 app.use(express.static(projectRoot));
-console.log('📁 Статические файлы раздаются из:', projectRoot);
+console.log('📁 Статические файлы бота раздаются из:', projectRoot);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -1699,10 +1710,10 @@ async function saveGameHistory(room, gameResult) {
 
 // ============ REST API ============
 
-// Главная страница
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'));
-});
+// Главная страница - ЗАКОММЕНТИРОВАН, используется express.static + fallback
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, '..', 'index.html'));
+// });
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
@@ -2373,7 +2384,7 @@ function scheduleBotSpawn() {
   }, botCheckInterval);
 }
 
-// Fallback для SPA - все неизвестные маршруты возвращают index.html
+// Fallback для SPA - все неизвестные маршруты возвращают соответствующий index.html
 // Это должно быть после всех API маршрутов
 app.get('*', (req, res) => {
   // Если запрос к API - возвращаем 404
@@ -2381,7 +2392,15 @@ app.get('*', (req, res) => {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
-  // Для всех остальных маршрутов отдаем index.html
+  // Если запрос к сайту партнеров - отдаем site/index.html
+  if (req.path.startsWith('/partner')) {
+    const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
+    if (fs.existsSync(siteIndexHtmlPath)) {
+      return res.sendFile(siteIndexHtmlPath);
+    }
+  }
+  
+  // Для всех остальных маршрутов отдаем корневой index.html (бот)
   const indexHtmlPath = path.join(projectRoot, 'index.html');
   if (fs.existsSync(indexHtmlPath)) {
     res.sendFile(indexHtmlPath);
