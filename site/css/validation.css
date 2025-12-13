@@ -1,0 +1,110 @@
+/* ============================================
+   Стили для валидации форм
+   ============================================ */
+
+/* Анимация появления ошибки */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Сообщение об ошибке валидации */
+.validation-error-message {
+    color: #ff4444;
+    font-size: 12px;
+    margin-top: 5px;
+    animation: fadeIn 0.3s ease-in-out;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+/* Поле с ошибкой */
+input.validation-error,
+input[style*="border: 2px solid rgb(255, 68, 68)"] {
+    border: 2px solid #ff4444 !important;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.5) !important;
+    animation: shake 0.3s ease-in-out;
+}
+
+/* Анимация тряски для полей с ошибкой */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Успешная валидация */
+input.validation-success {
+    border: 2px solid #4CAF50 !important;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Стили для 2FA полей при ошибке */
+.withdrawal-auth-step .code.validation-error {
+    border-color: #ff4444 !important;
+    background-color: rgba(255, 68, 68, 0.1);
+}
+
+/* ============================================
+   Стили для свитчера автовывода
+   ============================================ */
+
+.auto_cons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.switch_sts {
+    width: 50px;
+    height: 26px;
+    background-color: #e0e0e0;
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.switch_sts:hover {
+    background-color: #d0d0d0;
+}
+
+.switch {
+    width: 22px;
+    height: 22px;
+    background-color: #353333;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Активное состояние свитчера */
+.switch_sts[data-active="true"] {
+    background-color: rgba(76, 175, 80, 0.3) !important;
+}
+
+.switch_sts[data-active="true"] .switch {
+    transform: translateX(24px);
+    background-color: #4CAF50;
+}
+
+.auto_cons span {
+    user-select: none;
+    cursor: pointer;
+}
