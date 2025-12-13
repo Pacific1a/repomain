@@ -137,11 +137,16 @@ if (fs.existsSync(siteIndexPath)) {
 
 // Настройка маршрутов для двух сайтов
 // 1. Сайт партнеров доступен по /partner/
-app.use('/partner', express.static(path.join(projectRoot, 'site')));
+app.use('/partner', express.static(path.join(projectRoot, 'site'), {
+  index: 'index.html',
+  fallthrough: true
+}));
 console.log('📁 Сайт партнеров раздается из:', path.join(projectRoot, 'site'));
 
 // 2. Остальные статические файлы из корня (бот)
-app.use(express.static(projectRoot));
+app.use(express.static(projectRoot, {
+  index: 'index.html'
+}));
 console.log('📁 Статические файлы бота раздаются из:', projectRoot);
 
 // Rate limiting
