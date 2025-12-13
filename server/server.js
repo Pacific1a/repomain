@@ -135,12 +135,12 @@ if (fs.existsSync(siteIndexPath)) {
   console.warn('⚠️ Partner site index.html not found at:', siteIndexPath);
 }
 
-// Настройка маршрутов для двух сайтов
+// Настройка маршрутов для двух сайтов (ПОМЕНЯНЫ МЕСТАМИ!)
 
-// 1a. Явный маршрут для /partner/ (главная страница сайта партнеров)
-app.get(['/partner', '/partner/'], (req, res) => {
+// 1. ГЛАВНАЯ СТРАНИЦА → Сайт партнеров (для SEO!)
+app.get('/', (req, res) => {
   const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
-  console.log('📄 Запрос к /partner/ - отдаем:', siteIndexHtmlPath);
+  console.log('📄 Главная / → Сайт партнеров:', siteIndexHtmlPath);
   if (fs.existsSync(siteIndexHtmlPath)) {
     res.sendFile(siteIndexHtmlPath);
   } else {
@@ -149,13 +149,30 @@ app.get(['/partner', '/partner/'], (req, res) => {
   }
 });
 
-// 1b. Статические файлы сайта партнеров (CSS, JS, images)
-app.use('/partner', express.static(path.join(projectRoot, 'site')));
-console.log('📁 Сайт партнеров раздается из:', path.join(projectRoot, 'site'));
+// 2. Статические файлы сайта партнеров (CSS, JS, images)
+app.use(express.static(path.join(projectRoot, 'site')));
+console.log('📁 Сайт партнеров (главная) раздается из:', path.join(projectRoot, 'site'));
 
-// 2. Остальные статические файлы из корня (бот)
-app.use(express.static(projectRoot));
-console.log('📁 Статические файлы бота раздаются из:', projectRoot);
+// 3. БОТ на /bot/
+app.get('/bot', (req, res) => {
+  res.redirect('/bot/');
+});
+
+app.get('/bot/', (req, res) => {
+  const botIndexPath = path.join(projectRoot, 'index.html');
+  console.log('📄 Запрос к /bot/ → Бот:', botIndexPath);
+  if (fs.existsSync(botIndexPath)) {
+    res.sendFile(botIndexPath);
+  } else {
+    res.status(404).send('Bot not found');
+  }
+});
+
+// Статические файлы бота на /bot/
+app.use('/bot', express.static(projectRoot, {
+  index: false // Не автоматически отдавать index.html
+}));
+console.log('📁 Бот раздается из /bot/:', projectRoot);
 
 // Rate limiting
 const limiter = rateLimit({
