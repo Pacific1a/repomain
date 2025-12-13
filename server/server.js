@@ -136,17 +136,25 @@ if (fs.existsSync(siteIndexPath)) {
 }
 
 // Настройка маршрутов для двух сайтов
-// 1. Сайт партнеров доступен по /partner/
-app.use('/partner', express.static(path.join(projectRoot, 'site'), {
-  index: 'index.html',
-  fallthrough: true
-}));
+
+// 1a. Явный маршрут для /partner/ (главная страница сайта партнеров)
+app.get(['/partner', '/partner/'], (req, res) => {
+  const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
+  console.log('📄 Запрос к /partner/ - отдаем:', siteIndexHtmlPath);
+  if (fs.existsSync(siteIndexHtmlPath)) {
+    res.sendFile(siteIndexHtmlPath);
+  } else {
+    console.error('❌ site/index.html не найден!');
+    res.status(404).send('Partner site not found');
+  }
+});
+
+// 1b. Статические файлы сайта партнеров (CSS, JS, images)
+app.use('/partner', express.static(path.join(projectRoot, 'site')));
 console.log('📁 Сайт партнеров раздается из:', path.join(projectRoot, 'site'));
 
 // 2. Остальные статические файлы из корня (бот)
-app.use(express.static(projectRoot, {
-  index: 'index.html'
-}));
+app.use(express.static(projectRoot));
 console.log('📁 Статические файлы бота раздаются из:', projectRoot);
 
 // Rate limiting
@@ -2389,23 +2397,15 @@ function scheduleBotSpawn() {
   }, botCheckInterval);
 }
 
-// Fallback для SPA - все неизвестные маршруты возвращают соответствующий index.html
-// Это должно быть после всех API маршрутов
+// Fallback для SPA - все неизвестные маршруты возвращают index.html бота
+// Это должно быть после всех API маршрутов и явных маршрутов
 app.get('*', (req, res) => {
   // Если запрос к API - возвращаем 404
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
-  // Если запрос к сайту партнеров - отдаем site/index.html
-  if (req.path.startsWith('/partner')) {
-    const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
-    if (fs.existsSync(siteIndexHtmlPath)) {
-      return res.sendFile(siteIndexHtmlPath);
-    }
-  }
-  
-  // Для всех остальных маршрутов отдаем корневой index.html (бот)
+  // Для всех остальных маршрутов (кроме /partner/* который обработан выше) отдаем корневой index.html (бот)
   const indexHtmlPath = path.join(projectRoot, 'index.html');
   if (fs.existsSync(indexHtmlPath)) {
     res.sendFile(indexHtmlPath);
