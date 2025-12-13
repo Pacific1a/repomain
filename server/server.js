@@ -137,23 +137,7 @@ if (fs.existsSync(siteIndexPath)) {
 
 // Настройка маршрутов для двух сайтов (ПОМЕНЯНЫ МЕСТАМИ!)
 
-// 1. ГЛАВНАЯ СТРАНИЦА → Сайт партнеров (для SEO!)
-app.get('/', (req, res) => {
-  const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
-  console.log('📄 Главная / → Сайт партнеров:', siteIndexHtmlPath);
-  if (fs.existsSync(siteIndexHtmlPath)) {
-    res.sendFile(siteIndexHtmlPath);
-  } else {
-    console.error('❌ site/index.html не найден!');
-    res.status(404).send('Partner site not found');
-  }
-});
-
-// 2. Статические файлы сайта партнеров (CSS, JS, images)
-app.use(express.static(path.join(projectRoot, 'site')));
-console.log('📁 Сайт партнеров (главная) раздается из:', path.join(projectRoot, 'site'));
-
-// 3. БОТ на /bot/
+// 1. БОТ на /bot/ (ВАЖНО: должен быть ПЕРВЫМ, до static сайта!)
 app.get('/bot', (req, res) => {
   res.redirect('/bot/');
 });
@@ -173,6 +157,22 @@ app.use('/bot', express.static(projectRoot, {
   index: false // Не автоматически отдавать index.html
 }));
 console.log('📁 Бот раздается из /bot/:', projectRoot);
+
+// 2. ГЛАВНАЯ СТРАНИЦА → Сайт партнеров (для SEO!)
+app.get('/', (req, res) => {
+  const siteIndexHtmlPath = path.join(projectRoot, 'site', 'index.html');
+  console.log('📄 Главная / → Сайт партнеров:', siteIndexHtmlPath);
+  if (fs.existsSync(siteIndexHtmlPath)) {
+    res.sendFile(siteIndexHtmlPath);
+  } else {
+    console.error('❌ site/index.html не найден!');
+    res.status(404).send('Partner site not found');
+  }
+});
+
+// 3. Статические файлы сайта партнеров (CSS, JS, images) - ПОСЛЕ /bot/
+app.use(express.static(path.join(projectRoot, 'site')));
+console.log('📁 Сайт партнеров (главная) раздается из:', path.join(projectRoot, 'site'));
 
 // Rate limiting
 const limiter = rateLimit({
