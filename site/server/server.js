@@ -82,11 +82,22 @@ const videoUpload = multer({
     }
 });
 
-const db = new sqlite3.Database('./database.db', (err) => {
+// Путь к базе данных (persistent storage)
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'data', 'database.db');
+
+// Создаем папку data если её нет
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+    console.log('📁 Created data directory:', dataDir);
+}
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
-        console.error('Error opening database:', err);
+        console.error('❌ Error opening database:', err);
+        process.exit(1);
     } else {
-        console.log('Connected to SQLite database');
+        console.log('✅ Connected to SQLite database at:', dbPath);
         initDatabase();
     }
 });

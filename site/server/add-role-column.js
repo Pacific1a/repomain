@@ -1,12 +1,15 @@
 // Добавление колонки role в существующую базу
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-const db = new sqlite3.Database('./database.db', (err) => {
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, 'data', 'database.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Error opening database:', err);
         process.exit(1);
     }
-    console.log('Connected to database');
+    console.log('Connected to database at:', dbPath);
 });
 
 db.run(`ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'`, (err) => {
