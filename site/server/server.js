@@ -664,6 +664,10 @@ app.get('/api/2fa/status', authMiddleware, (req, res) => {
             return res.status(500).json({ success: false, message: 'Ошибка базы данных' });
         }
         
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Пользователь не найден' });
+        }
+        
         res.json({
             success: true,
             enabled: !!user.twofa_enabled
@@ -884,14 +888,26 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
         
         if (existing) {
             console.log(`ℹ️ Referral already exists: ${userId} → ${partner.id}`);
+            
+            // ВАЖНО: Даже если реферал уже зарегистрирован, увеличиваем clicks (повторный переход)
+            const updateStats = db.prepare(`
+                UPDATE referral_stats 
+                SET clicks = clicks + 1 
+                WHERE user_id = ?
+            `);
+            
+            updateStats.run(partner.id);
+            
+            console.log(`✅ Partner stats updated (repeat visit): partner_id=${partner.id}, clicks+1`);
+            
             return res.json({ 
                 success: true, 
-                message: 'Referral already registered',
+                message: 'Referral already registered, click counted',
                 alreadyExists: true
             });
         }
         
-        // Регистрируем реферала
+        // Регистрируем НОВОГО реферала
         const stmt = db.prepare(`
             INSERT INTO referrals (partner_id, referral_user_id, clicks, first_deposits, deposits, earnings, created_at)
             VALUES (?, ?, 1, 0, 0, 0, datetime('now'))
