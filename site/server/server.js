@@ -899,7 +899,17 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
         
         const result = stmt.run(partner.id, userId);
         
+        // Обновляем статистику партнёра (увеличиваем clicks)
+        const updateStats = db.prepare(`
+            UPDATE referral_stats 
+            SET clicks = clicks + 1 
+            WHERE user_id = ?
+        `);
+        
+        updateStats.run(partner.id);
+        
         console.log(`✅ Referral registered: ${userId} → partner ${partner.id}, clicks=1`);
+        console.log(`✅ Partner stats updated: partner_id=${partner.id}, clicks+1`);
         
         res.json({ 
             success: true, 

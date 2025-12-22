@@ -165,7 +165,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                 if resp.status == 200 and result.get('success'):
                                     await message.answer(
                                         "🎁 Вы перешли по реферальной ссылке!\n"
-                                        "Ваш друг будет получать 10% от ваших выигрышей."
+                                        "Ваш партнёр будет получать 10% от ваших проигрышей."
                                     )
                                     print(f"✅ Referral registered: {user_id} -> {referrer_id}")
                                 elif result.get('message') == 'Already referred':

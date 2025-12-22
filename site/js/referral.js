@@ -50,6 +50,11 @@ class ReferralManager {
                 
                 // Обновляем UI
                 this.updateStats();
+                
+                // Обновляем график (если есть функция updateChartWithRealData)
+                if (typeof window.updateChartWithRealData === 'function') {
+                    window.updateChartWithRealData(this.stats);
+                }
             }
         } catch (error) {
             console.error('❌ Ошибка загрузки реферальных данных:', error);
@@ -67,7 +72,7 @@ class ReferralManager {
         const botUsername = window.BOT_USERNAME || 'aasasdasdadsddasdbot';
         
         if (botUsername === 'YOUR_BOT_USERNAME') {
-            console.warn('⚠️ BOT_USERNAME не установлен! Установите window.BOT_USERNAME = "your_bot_name"');
+            console.warn('⚠️ BOT_USERNAME не установлен! Установите window.BOT_USERNAME = "aasasdasdadsddasdbot"');
         }
         
         // Генерируем короткий код

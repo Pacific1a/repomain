@@ -444,6 +444,24 @@
             resizeCanvas();
         }
         
+        // Глобальная функция для обновления графика с реальными данными
+        window.updateChartWithRealData = function(stats) {
+            console.log('📊 Обновление графика с реальными данными:', stats);
+            
+            // Обновляем последнюю точку на графике (сегодня)
+            const lastIndex = chartData.datasets.visits.length - 1;
+            
+            chartData.datasets.visits[lastIndex] = stats.clicks || 0;
+            chartData.datasets.firstDeposits[lastIndex] = stats.firstDeposits || 0;
+            chartData.datasets.deposits[lastIndex] = parseFloat(stats.totalDeposits) || 0;
+            chartData.datasets.income[lastIndex] = parseFloat(stats.earnings) || 0;
+            
+            // Перерисовываем график
+            drawChart();
+            
+            console.log('✅ График обновлен');
+        };
+        
         // Функция обновления карточек статистики
         function updateStatsCards() {
             // Вычисляем суммарные значения

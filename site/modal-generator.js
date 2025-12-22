@@ -363,7 +363,13 @@ const ModalGenerator = {
                         <span>Рекомендуем использовать Google Authenticator</span>
                     </div>
                     <div class="auth_qr">
-                        <img src="QR_Code_example.png" alt="qr" width="300px">
+                        <!-- QR code будет генерироваться динамически -->
+                        <div id="qr-code-container" style="display: flex; justify-content: center; margin: 20px 0;">
+                            <div style="text-align: center;">
+                                <p style="color: #666; font-size: 14px;">QR-код для быстрого доступа</p>
+                                <canvas id="qr-code-canvas" width="300" height="300" style="border: 1px solid #ddd; border-radius: 8px;"></canvas>
+                            </div>
+                        </div>
                     </div>
                     <div class="input_code">
                         <input type="text" placeholder="ABCDEFGH12345678" />
