@@ -64,7 +64,7 @@ class ReferralManager {
         
         // Получаем имя бота из config или используем дефолтное
         // TODO: Установить правильное имя бота в window.BOT_USERNAME
-        const botUsername = window.BOT_USERNAME || 'YOUR_BOT_USERNAME';
+        const botUsername = window.BOT_USERNAME || 'aasasdasdadsddasdbot';
         
         if (botUsername === 'YOUR_BOT_USERNAME') {
             console.warn('⚠️ BOT_USERNAME не установлен! Установите window.BOT_USERNAME = "your_bot_name"');

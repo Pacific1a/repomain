@@ -4,7 +4,7 @@
 
 // Имя Telegram бота (без @)
 // Получить можно у @BotFather
-window.BOT_USERNAME = 'YOUR_BOT_USERNAME';  // TODO: Замените на имя вашего бота
+window.BOT_USERNAME = 'aasasdasdadsddasdbot';  // TODO: Замените на имя вашего бота
 
 // Например:
 // window.BOT_USERNAME = 'duogames_bot';
