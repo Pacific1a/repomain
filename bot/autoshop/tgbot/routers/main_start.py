@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 import aiohttp
 import asyncio
 
-from tgbot.data.config import SERVER_API_URL
+from tgbot.data.config import SERVER_API_URL, PARTNER_API_SECRET
 from tgbot.database.db_settings import Settingsx
 from tgbot.keyboards.inline_user import user_support_finl
 from tgbot.keyboards.reply_main import menu_frep
@@ -142,6 +142,9 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                 json={
                                     "userId": user_id,
                                     "referrerId": referrer_id
+                                },
+                                headers={
+                                    'X-API-Secret': PARTNER_API_SECRET
                                 },
                                 timeout=aiohttp.ClientTimeout(total=10)
                             ) as resp:

@@ -143,7 +143,15 @@ class ReferralManager {
     updateStats() {
         console.log('🔄 Обновление статистики:', this.stats);
         
-        // Обновляем карточки статистики
+        // Обновляем detail-value элементы (новая структура)
+        this.updateDetailValue('.visits-value', this.stats.clicks || 0);
+        this.updateDetailValue('.clients-value', this.stats.firstDeposits || 0);
+        this.updateDetailValue('.deposits-value', this.stats.deposits || 0);
+        this.updateDetailValue('.amount-value', `${this.stats.totalDeposits || 0}₽`);
+        this.updateDetailValue('.cost-value', `${this.stats.costPerClick || 0}₽`);
+        this.updateDetailValue('.income-value', `${this.stats.avgIncomePerPlayer || 0}₽`);
+        
+        // Обновляем карточки статистики (старая структура, если есть)
         const statCards = document.querySelectorAll('.stat-card');
         
         if (statCards.length >= 2) {
@@ -161,6 +169,14 @@ class ReferralManager {
         }
         
         console.log('✅ Статистика обновлена');
+    }
+    
+    updateDetailValue(selector, value) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            el.textContent = value;
+            console.log(`✅ Обновлено ${selector} = ${value}`);
+        });
     }
     
     updateStatRow(card, index, label, value) {
