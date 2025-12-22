@@ -30,6 +30,7 @@
   }
   
   .loading .div {
+    width: 100%;
     position: relative;
     align-self: stretch;
     font-family: "Montserrat-Medium", Helvetica;
@@ -139,6 +140,7 @@
   }
   
   .loading .div {
+    width: 100%;
     position: relative;
     align-self: stretch;
     font-family: "Montserrat-Medium", Helvetica;
@@ -150,7 +152,17 @@
     line-height: normal;
     margin: 0;
   }
-  
+  .auth{
+    position: relative;
+    align-self: stretch;
+    font-family: "Montserrat-Medium", Helvetica;
+    font-weight: 500;
+    color: #c5c5c5;
+    font-size: 15px;
+    text-align: center;
+    line-height: normal;
+    margin: 0;
+  }
   .loading .load-icon {
     display: flex;
     flex-direction: column;

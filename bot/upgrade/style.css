@@ -10,6 +10,7 @@
 }
 
 .upgrade .header {
+  padding: 5px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -44,17 +45,10 @@
   );
 }
 
-.upgrade .nickname {
-  position: relative;
-  width: 78px;
-  height: 19px;
-}
+
 
 .upgrade .text-wrapper {
-  position: absolute;
-  width: 78px;
-  top: -1px;
-  left: 0;
+
   text-shadow: 0px 0px 7px #ffffff38;
   background: linear-gradient(
     90deg,
@@ -70,7 +64,6 @@
   color: transparent;
   font-size: 15px;
   letter-spacing: -0.75px;
-  line-height: normal;
 }
 
 .upgrade .add-funds {
@@ -96,7 +89,6 @@
 .upgrade .div {
   position: relative;
   width: 78px;
-  height: 16.54px;
   margin-top: -0.77px;
   text-shadow: 0px 0px 7px #ffffff38;
   font-family: "Montserrat", Helvetica;
@@ -266,7 +258,7 @@
 }
 
 .upgrade .circle {
-  top: 5px;
+  top: 0px;
   position: relative;
   width: 4px;
   height: 4px;
@@ -452,7 +444,6 @@
   text-align: center;
   letter-spacing: -0.65px;
   font-family: "Montserrat", Helvetica;
-  line-height: normal;
 }
 
 .upgrade .frame-3 {
@@ -489,7 +480,7 @@
 .upgrade .info-amount-2 {
   display: flex;
   width: 92px;
-  height: 31px;
+  height: 30px;
   align-items: center;
   justify-content: flex-end;
   padding: 6px;
@@ -866,7 +857,6 @@
   font-size: 14px;
   text-align: center;
   letter-spacing: 0;
-  line-height: normal;
   position: relative;
   flex: 1;
 }
@@ -942,7 +932,6 @@
   font-size: 13px;
   text-align: center;
   letter-spacing: -0.65px;
-  line-height: normal;
 }
 
 .upgrade .element-5 {
@@ -960,7 +949,6 @@
   letter-spacing: -0.70px;
   text-decoration: underline;
   font-family: "Montserrat", Helvetica;
-  line-height: normal;
 }
 
 .upgrade .apply-button {
@@ -968,7 +956,6 @@
   box-sizing: border-box;
   display: flex;
   width: 148px;
-  height: 44px;
   align-items: center;
   justify-content: center;
   padding: 12px;
@@ -999,7 +986,6 @@
   font-size: 14px;
   text-align: center;
   letter-spacing: -0.70px;
-  line-height: normal;
 }
 
 .upgrade .upgrade-button {
@@ -1039,207 +1025,38 @@
   font-size: 15px;
   text-align: center;
   letter-spacing: 0;
-  line-height: normal;
 }
 
-.upgrade .menu {
-  position: fixed;
-  bottom: 10px;
-  display: flex;
- width: 370px;
-  height: 80px;
-  align-items: center;
-  justify-content: center;
-  gap: 30px;
-  background-color: #96969633;
-  border-radius: 17px;
-  backdrop-filter: blur(9px) brightness(100%);
-  -webkit-backdrop-filter: blur(9px) brightness(100%);
-}
 
-.upgrade .select {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  left: 69px;
-}
 
-.upgrade .main {
-  display: flex;
-  flex-direction: column;
-  width: 34.87px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-}
 
-.upgrade .mask-group {
-  position: relative;
-  width: 19px;
-  height: 19px;
-}
 
-.upgrade .text-wrapper-21 {
-  position: relative;
-  align-self: stretch;
-  font-family: "Montserrat", Helvetica;
-  font-weight: 600;
-  color: #ffffffe6;
-  font-size: 14px;
-  letter-spacing: -0.70px;
-  line-height: normal;
-}
 
-.upgrade .div-2 {
-  display: flex;
-  flex-direction: column;
-  width: 60px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-  align-self: stretch;
-}
 
-.upgrade .icon-3 {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  background-image: url("https://raw.githubusercontent.com/Pacific1a/img/8b90f6c37d5e886868f770ce9ad4325333934d48/imgALL/vector-9.svg");
-  background-size: 100% 100%;
-}
 
-.upgrade .text-wrapper-22 {
-  position: relative;
-  align-self: stretch;
-  font-family: "Montserrat", Helvetica;
-  font-weight: 600;
-  color: #ffffffe6;
-  font-size: 14px;
-  letter-spacing: -0.56px;
-  line-height: normal;
-}
 
-.upgrade .game-2 {
-  display: flex;
-  flex-direction: column;
-  width: 42px;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  align-self: stretch;
-}
 
-.upgrade .icon-4 {
-  position: relative;
-  width: 28px;
-  height: 29.87px;
-  background-image: url("https://raw.githubusercontent.com/Pacific1a/img/8b90f6c37d5e886868f770ce9ad4325333934d48/imgALL/vector-10.svg");
-  background-size: 100% 100%;
-}
 
-.upgrade .text-wrapper-23 {
-  position: relative;
-  align-self: stretch;
-  height: 18.13px;
-  font-family: "Montserrat", Helvetica;
-  font-weight: 600;
-  color: #ffffffe6;
-  font-size: 14px;
-  letter-spacing: -0.56px;
-  line-height: normal;
-}
 
-.upgrade .swap {
-  display: flex;
-  flex-direction: column;
-  width: 38px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-  align-self: stretch;
-}
 
-.upgrade .overlap-group-wrapper {
-  position: relative;
-  width: 22.92px;
-  height: 19.37px;
-}
 
-.upgrade .overlap-group-4 {
-  position: relative;
-  width: 23px;
-  height: 19px;
-}
 
-.upgrade .vector-2 {
-  position: absolute;
-  width: 21px;
-  height: 10px;
-  top: 0;
-  left: 2px;
-}
 
-.upgrade .vector-3 {
-  position: absolute;
-  width: 21px;
-  height: 10px;
-  top: 9px;
-  left: 0;
-}
 
-.upgrade .profile {
-  display: flex;
-  flex-direction: column;
-  width: 46px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: relative;
-  align-self: stretch;
-}
 
-.upgrade .icon-5 {
-  position: relative;
-  width: 22px;
-  height: 22px;
-}
 
-.upgrade .vector-4 {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  top: 1px;
-  left: 6px;
-}
-
-.upgrade .vector-5 {
-  position: absolute;
-  width: 15px;
-  height: 9px;
-  top: 13px;
-  left: 3px;
-}
 
 .group-ico-1{
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 5px;
-}
-.balance-1{
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: end;
-  color: #c2c2c2;
-    font-size: 15px;
+      display: flex
+;
+    align-items: center;
+    justify-content: end;
+    color: #C3C3C3;
+    gap: 5px;
     font-family: "Montserrat", Helvetica;
     font-weight: 600;
+    font-size: 15px;
     letter-spacing: 0;
-    line-height: normal;
     white-space: nowrap;
 }
 .group-ico-1 span{
@@ -1248,6 +1065,54 @@
   font-family: "Montserrat", Helvetica;
   font-weight: 600;
   letter-spacing: 0;
-  line-height: normal;
   white-space: nowrap;
 }
+
+.menu{
+  background-color: rgb(151, 151, 151, 20%);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  width: 360px;
+  height: 80px;
+  bottom: 10px;
+  border-radius: 17px;
+}
+.navigate{
+  display: flex;
+  align-items: center;
+  justify-content: space-around; 
+  height: 100%;
+  width: 100%;
+}
+.navigate-item{
+  height: 100%;
+  width: 100%;
+    display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+.navigate-item span{
+  font-family: "Montserrat", Helvetica;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+.navigate a{
+  height: 100%;
+}
+.tops{
+  position: relative;
+  top: -4px;
+}
+.select {
+  width: 74px;
+  height: 80px;
+  left: 70px;
+  z-index: -1;
+  border-radius: 14px;
+  position: absolute;
+  top: 0;
+}
+
+
