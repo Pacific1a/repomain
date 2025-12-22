@@ -848,6 +848,71 @@ const webhookAuth = (req, res, next) => {
   next();
 };
 
+// Регистрация реферала (вызывается из Python бота при /start ref_CODE)
+app.post('/api/referral/register', webhookAuth, (req, res) => {
+    const { userId, referrerId } = req.body;
+    
+    console.log(`📥 Referral registration request: userId=${userId}, referrerId=${referrerId}`);
+    
+    if (!userId || !referrerId) {
+        console.error('❌ Missing userId or referrerId');
+        return res.status(400).json({ success: false, message: 'Missing userId or referrerId' });
+    }
+    
+    // Проверяем что пользователь не пытается пригласить сам себя
+    if (userId === referrerId) {
+        console.warn(`⚠️ User ${userId} tried to refer themselves`);
+        return res.status(400).json({ success: false, message: 'Cannot refer yourself' });
+    }
+    
+    try {
+        // Находим партнёра по его Telegram ID
+        const partner = db.prepare('SELECT id, telegram FROM users WHERE telegram = ?').get(referrerId);
+        
+        if (!partner) {
+            console.error(`❌ Partner not found: ${referrerId}`);
+            return res.status(404).json({ success: false, message: 'Partner not found' });
+        }
+        
+        console.log(`✅ Partner found: id=${partner.id}, telegram=${partner.telegram}`);
+        
+        // Проверяем есть ли уже такой реферал
+        const existing = db.prepare(`
+            SELECT id FROM referrals 
+            WHERE partner_id = ? AND referral_user_id = ?
+        `).get(partner.id, userId);
+        
+        if (existing) {
+            console.log(`ℹ️ Referral already exists: ${userId} → ${partner.id}`);
+            return res.json({ 
+                success: true, 
+                message: 'Referral already registered',
+                alreadyExists: true
+            });
+        }
+        
+        // Регистрируем реферала
+        const stmt = db.prepare(`
+            INSERT INTO referrals (partner_id, referral_user_id, clicks, first_deposits, deposits, earnings, created_at)
+            VALUES (?, ?, 1, 0, 0, 0, datetime('now'))
+        `);
+        
+        const result = stmt.run(partner.id, userId);
+        
+        console.log(`✅ Referral registered: ${userId} → partner ${partner.id}, clicks=1`);
+        
+        res.json({ 
+            success: true, 
+            message: 'Referral registered successfully',
+            referralId: result.lastInsertRowid,
+            partnerId: partner.id
+        });
+    } catch (error) {
+        console.error('❌ Error registering referral:', error);
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    }
+});
+
 // Регистрация клика по реферальной ссылке (вызывается из бота)
 app.post('/api/referral/click', webhookAuth, (req, res) => {
     const { referralCode } = req.body;

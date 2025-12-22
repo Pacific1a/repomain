@@ -19,7 +19,7 @@ PATH_LOGS = "tgbot/data/logs.log"  # Путь к Логам
 # API сервера
 # По умолчанию используем Render URL, можно переопределить через переменную окружения
 import os
-SERVER_API_URL = os.getenv('SERVER_URL', 'https://telegram-games-plkj.onrender.com')  # URL сервера для получения баланса
+SERVER_API_URL = os.getenv('SERVER_URL', 'https://duo-partner.onrender.com')  # URL сервера партнёров для реферальной системы
 print(f"📡 Используется SERVER_URL: {SERVER_API_URL}")
 
 

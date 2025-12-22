@@ -62,8 +62,13 @@ class ReferralManager {
             return;
         }
         
-        // Получаем имя бота из пользователя или используем дефолтное
-        const botUsername = window.BOT_USERNAME || 'aasasdasdadsddasdbot';
+        // Получаем имя бота из config или используем дефолтное
+        // TODO: Установить правильное имя бота в window.BOT_USERNAME
+        const botUsername = window.BOT_USERNAME || 'YOUR_BOT_USERNAME';
+        
+        if (botUsername === 'YOUR_BOT_USERNAME') {
+            console.warn('⚠️ BOT_USERNAME не установлен! Установите window.BOT_USERNAME = "your_bot_name"');
+        }
         
         // Генерируем короткий код
         const shortCode = this.referralCode;
@@ -100,9 +105,13 @@ class ReferralManager {
         const copyButtons = document.querySelectorAll('.ref_program .btn_parnters button, .sub_partner .btn_parnters button');
         
         copyButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                this.copyReferralLink();
-            });
+            // Проверяем что обработчик ещё не навешан
+            if (!button.dataset.handlerAttached) {
+                button.addEventListener('click', () => {
+                    this.copyReferralLink();
+                });
+                button.dataset.handlerAttached = 'true';
+            }
         });
         
         console.log('✅ UI настроен');

@@ -1,7 +1,1 @@
-WARNING | 2025-12-13 03:32:36,867 | main.py:59 | BOT WAS STARTED
-ERROR | 2025-12-13 04:19:05,917 | dispatcher.py:225 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
-WARNING | 2025-12-13 04:19:07,058 | dispatcher.py:227 | Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8172657942)
-ERROR | 2025-12-13 04:19:08,062 | dispatcher.py:225 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Сетевая папка недоступна. За информацией о разрешении проблем в сети обратитесь к справочной системе Windows]
-WARNING | 2025-12-13 04:19:08,063 | dispatcher.py:227 | Sleep for 1.305829 seconds and try again... (tryings = 1, bot id = 8172657942)
-ERROR | 2025-12-13 04:19:09,370 | dispatcher.py:225 | Failed to fetch updates - TelegramNetworkError: HTTP Client says - ClientConnectorError: Cannot connect to host api.telegram.org:443 ssl:default [Сетевая папка недоступна. За информацией о разрешении проблем в сети обратитесь к справочной системе Windows]
-WARNING | 2025-12-13 04:19:09,371 | dispatcher.py:227 | Sleep for 1.526979 seconds and try again... (tryings = 2, bot id = 8172657942)
+WARNING | 2025-12-22 14:17:06,713 | main.py:59 | BOT WAS STARTED
