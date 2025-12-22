@@ -1,12 +1,16 @@
 // Определяем API URL в зависимости от того, откуда открыт сайт
 const API_BASE_URL = (() => {
     const host = window.location.hostname;
-    // Если localhost или пусто (file://) - используем localhost
+    const protocol = window.location.protocol;
+    
+    // Если localhost или пусто (file://) - используем localhost с портом 10000
     if (!host || host === 'localhost' || host === '127.0.0.1') {
-        return 'http://localhost:3000/api';
+        return 'http://localhost:10000/api';
     }
-    // Иначе используем текущий хост (для локальной сети или продакшн)
-    return `http://${host}:3000/api`;
+    
+    // Для продакшена (Render) - используем тот же протокол и домен БЕЗ порта
+    // Render автоматически проксирует запросы на правильный порт
+    return `${protocol}//${host}/api`;
 })();
 
 class API {
