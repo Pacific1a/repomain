@@ -100,10 +100,17 @@ cd /var/www/duo/site/server
 npm install
 log_success "Зависимости Node.js установлены"
 
-# 11. Установка зависимостей Python
-log_info "Установка зависимостей Python..."
+# 11. Установка зависимостей Python (с виртуальным окружением)
+log_info "Создание виртуального окружения для Python..."
 cd /var/www/duo/bot/autoshop
-pip3 install -r requirements.txt
+python3 -m venv venv
+log_success "Виртуальное окружение создано"
+
+log_info "Установка зависимостей Python..."
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+deactivate
 log_success "Зависимости Python установлены"
 
 # 12. Создание директории для базы данных
@@ -190,10 +197,10 @@ pm2 save
 pm2 startup systemd -u root --hp /root
 log_success "Сайт запущен"
 
-# 18. Запуск Python бота через PM2
+# 18. Запуск Python бота через PM2 (с виртуальным окружением)
 log_info "Запуск Python бота через PM2..."
 cd /var/www/duo/bot/autoshop
-pm2 start "python3 bot.py" --name duo-bot
+pm2 start "venv/bin/python bot.py" --name duo-bot
 pm2 save
 log_success "Бот запущен"
 
