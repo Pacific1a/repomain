@@ -24,7 +24,10 @@ ssh root@77.239.125.70
 ```bash
 pm2 status
 ```
-
+cd /var/www/duo/bot/autoshop
+     source venv/bin/activate
+     python main.py
+     
 ### Перезапуск всего:
 
 ```bash
