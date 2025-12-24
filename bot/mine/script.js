@@ -332,10 +332,10 @@
     setInGame(false);
     
     if (lost) {
-      // Проигрыш - списываем ставку
+      // Проигрыш - списываем ставку С ТРЕКИНГОМ РЕФЕРАЛЬНОЙ СИСТЕМЫ
       if (window.BalanceAPI) {
-        window.BalanceAPI.subtractRubles(state.bet);
-        console.log(`💥 Mines: проигрыш, списано ${state.bet} rubles`);
+        window.BalanceAPI.subtractRubles(state.bet, 'game', `Проигрыш в Mines`, 'mine');
+        console.log(`💥 Mines: проигрыш, списано ${state.bet} rubles (с трекингом реферальной системы)`);
       }
       
       // Анимация уже отработала в onCellClick

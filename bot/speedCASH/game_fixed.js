@@ -654,7 +654,8 @@ class SpeedCashGame {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.BalanceAPI.subtractRubles(betAmount);
+                // Списываем баланс с трекингом реферальной системы (speedcash)
+                const success = window.BalanceAPI.subtractRubles(betAmount, 'game', `Ставка на ${color === 'blue' ? 'синюю' : 'оранжевую'} машину`, 'speedcash');
                 if (success) {
                     if (color === 'blue') {
                         this.currentBlueBet = betAmount;
@@ -1642,7 +1643,8 @@ class SpeedCashGame {
                     this.showNotification('Недостаточно средств');
                     return;
                 }
-                const success = window.BalanceAPI.subtractRubles(this.singleBet);
+                // Списываем баланс с трекингом реферальной системы (speedcash single)
+                const success = window.BalanceAPI.subtractRubles(this.singleBet, 'game', `Single ставка на ${this.singleSelectedCar === 'blue' ? 'синюю' : 'оранжевую'} машину`, 'speedcash');
                 if (success) {
                     this.currentSingleBet = this.singleBet;
                     this.updateSingleButton('cancel', this.singleBet);

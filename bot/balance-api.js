@@ -6,8 +6,8 @@
     
     // Автоматически определяем URL сервера
     const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3000'
-        : (window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com');
+        ? 'http://localhost:3001'
+        : (window.GAME_SERVER_URL || window.location.origin);
     
     class BalanceAPI {
         constructor() {
@@ -176,13 +176,40 @@
             }
         }
         
-        async subtractRubles(amount, source = 'game', description = '') {
+        async subtractRubles(amount, source = 'game', description = '', gameType = null) {
             const newRubles = this.balance.rubles - amount;
             if (newRubles < 0) {
                 console.warn('⚠️ Insufficient balance');
                 return false;
             }
             
+            // Если передан gameType, используем специальный эндпоинт для отслеживания проигрышей
+            if (gameType) {
+                try {
+                    const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}/subtract`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount, gameType })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.balance = {
+                            rubles: parseFloat(data.rubles) || 0,
+                            chips: parseInt(data.chips) || 0
+                        };
+                        this.updateVisual();
+                        this.notifyCallbacks();
+                        console.log(`➖ Loss tracked: ${amount}₽ in ${gameType}`);
+                        await this.saveTransaction('subtract', amount, source, description || `Проигрыш в ${gameType}: ${amount}₽`);
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('❌ Error subtracting with tracking:', error);
+                }
+            }
+            
+            // Стандартное списание без трекинга
             const result = await this.updateBalance(newRubles, this.balance.chips);
             if (result) {
                 await this.saveTransaction('subtract', amount, source, description || `Списание ${amount}₽`);

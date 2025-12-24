@@ -1613,12 +1613,25 @@ io.on('connection', (socket) => {
   });
   
   // Результат игры blackjack
-  socket.on('blackjack_result', ({ game, userId, nickname, photoUrl, bet, win, isWinner, multiplier }) => {
+  socket.on('blackjack_result', async ({ game, userId, nickname, photoUrl, bet, win, isWinner, multiplier }) => {
     if (game !== 'blackjack') return;
     
     const gameState = globalGames.blackjack;
     
     console.log(`🃏 BlackJack результат:`, { nickname, bet, win, isWinner, multiplier });
+    
+    // ✨ REFERRAL: Отслеживание проигрышей в BlackJack
+    if (!isWinner && bet > 0) {
+      // Проверяем что это не бот
+      if (!String(userId).startsWith('bot_')) {
+        try {
+          await tracker.handleLoss(userId, bet, 'blackjack');
+          console.log(`📉 Loss tracked: ${userId} - ${bet}₽ in BlackJack`);
+        } catch (error) {
+          console.error('❌ Error tracking loss:', error);
+        }
+      }
+    }
     
     // Добавляем в историю
     gameState.history.unshift({
@@ -1983,6 +1996,95 @@ app.post('/api/balance/:telegramId', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error updating balance:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Списать средства с баланса (для игровых проигрышей)
+app.post('/api/balance/:telegramId/subtract', async (req, res) => {
+  try {
+    const { telegramId } = req.params;
+    const { amount, gameType } = req.body;
+    
+    const lossAmount = parseFloat(amount) || 0;
+    
+    if (lossAmount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
+    }
+    
+    // ✨ REFERRAL: Отслеживание проигрыша в игре
+    try {
+      await tracker.handleLoss(telegramId, lossAmount, gameType || 'mine');
+      console.log(`📉 Loss tracked: ${telegramId} - ${lossAmount}₽ in ${gameType || 'mine'}`);
+    } catch (error) {
+      console.error('❌ Error tracking loss:', error);
+    }
+    
+    // Получаем текущий баланс и вычитаем
+    let currentBalance = null;
+    
+    // Приоритет 1: База данных бота (SQLite)
+    if (fs.existsSync(BOT_DB_PATH)) {
+      currentBalance = getBotBalance(telegramId);
+      if (currentBalance !== null) {
+        const newRubles = Math.max(0, currentBalance.rubles - lossAmount);
+        const updated = updateBotBalance(telegramId, newRubles);
+        if (updated) {
+          console.log(`➖ Balance subtracted in bot DB for ${telegramId}: -${lossAmount}₽ (new: ${newRubles}₽)`);
+          const finalBalance = { rubles: newRubles, chips: currentBalance.chips };
+          res.json(finalBalance);
+          
+          // Уведомляем всех клиентов
+          io.emit(`balance_updated_${telegramId}`, {
+            ...finalBalance,
+            timestamp: Date.now()
+          });
+          return;
+        }
+      }
+    }
+    
+    // Приоритет 2: MongoDB
+    if (User) {
+      let user = await User.findOne({ telegramId });
+      if (user) {
+        user.balance.coins = Math.max(0, (user.balance.coins || 0) - lossAmount);
+        await user.save();
+        
+        const finalBalance = {
+          rubles: user.balance.coins,
+          chips: user.balance.chips
+        };
+        res.json(finalBalance);
+        
+        // Уведомляем всех клиентов
+        io.emit(`balance_updated_${telegramId}`, {
+          ...finalBalance,
+          timestamp: Date.now()
+        });
+        return;
+      }
+    }
+    
+    // Приоритет 3: JSON файл (fallback)
+    const balances = JSON.parse(fs.readFileSync(BALANCES_FILE, 'utf8'));
+    const currentRubles = balances[telegramId]?.rubles || 0;
+    balances[telegramId] = { 
+      rubles: Math.max(0, currentRubles - lossAmount), 
+      chips: balances[telegramId]?.chips || 0 
+    };
+    fs.writeFileSync(BALANCES_FILE, JSON.stringify(balances, null, 2));
+    
+    console.log(`➖ Balance subtracted in JSON for ${telegramId}: -${lossAmount}₽`);
+    res.json(balances[telegramId]);
+    
+    // Уведомляем всех клиентов
+    io.emit(`balance_updated_${telegramId}`, {
+      ...balances[telegramId],
+      timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('❌ Error subtracting balance:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
