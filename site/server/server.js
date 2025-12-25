@@ -904,8 +904,8 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
                 }
                 
                 // Регистрируем НОВОГО реферала
-                db.run(`INSERT INTO referrals (partner_id, referral_user_id, clicks, first_deposits, deposits, earnings, created_at)
-                        VALUES (?, ?, 1, 0, 0, 0, datetime('now'))`,
+                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, total_earnings, deposits_count)
+                        VALUES (?, ?, 0, 0, 0, 0)`,
                     [partner.id, userId],
                     function(err) {
                         if (err) {
