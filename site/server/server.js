@@ -829,21 +829,39 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
         return res.status(400).json({ success: false, message: 'Cannot refer yourself' });
     }
     
-    try {
-        // Находим партнёра по реферальному коду или ID
-        let partner;
+    // Находим партнёра по реферальному коду или ID (асинхронно для sqlite3)
+    const findPartner = (callback) => {
         if (referrerId && referrerId.includes('_')) {
             // Передан полный код типа "1_MJIBVR2D5DA9M"
-            const stats = db.prepare('SELECT user_id FROM referral_stats WHERE referral_code = ?').get(referrerId);
-            if (stats) {
-                partner = db.prepare('SELECT id, telegram FROM users WHERE id = ?').get(stats.user_id);
-            }
+            db.get('SELECT user_id FROM referral_stats WHERE referral_code = ?', [referrerId], (err, stats) => {
+                if (err) return callback(err);
+                if (!stats) return callback(null, null);
+                
+                db.get('SELECT id, telegram FROM users WHERE id = ?', [stats.user_id], (err, partner) => {
+                    if (err) return callback(err);
+                    callback(null, partner);
+                });
+            });
         } else if (referrerId) {
             // Передан только ID партнёра
-            const stats = db.prepare('SELECT user_id FROM referral_stats WHERE user_id = ?').get(referrerId);
-            if (stats) {
-                partner = db.prepare('SELECT id, telegram FROM users WHERE id = ?').get(stats.user_id);
-            }
+            db.get('SELECT user_id FROM referral_stats WHERE user_id = ?', [referrerId], (err, stats) => {
+                if (err) return callback(err);
+                if (!stats) return callback(null, null);
+                
+                db.get('SELECT id, telegram FROM users WHERE id = ?', [stats.user_id], (err, partner) => {
+                    if (err) return callback(err);
+                    callback(null, partner);
+                });
+            });
+        } else {
+            callback(null, null);
+        }
+    };
+    
+    findPartner((err, partner) => {
+        if (err) {
+            console.error('❌ Error finding partner:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
         }
         
         if (!partner) {
@@ -854,62 +872,74 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
         console.log(`✅ Partner found: id=${partner.id}, telegram=${partner.telegram}`);
         
         // Проверяем есть ли уже такой реферал
-        const existing = db.prepare(`
-            SELECT id FROM referrals 
-            WHERE partner_id = ? AND referral_user_id = ?
-        `).get(partner.id, userId);
+        db.get(`SELECT id FROM referrals WHERE partner_id = ? AND referral_user_id = ?`,
+            [partner.id, userId],
+            (err, existing) => {
         
-        if (existing) {
-            console.log(`ℹ️ Referral already exists: ${userId} → ${partner.id}`);
-            
-            // ВАЖНО: Даже если реферал уже зарегистрирован, увеличиваем clicks (повторный переход)
-            const updateStats = db.prepare(`
-                UPDATE referral_stats 
-                SET clicks = clicks + 1 
-                WHERE user_id = ?
-            `);
-            
-            updateStats.run(partner.id);
-            
-            console.log(`✅ Partner stats updated (repeat visit): partner_id=${partner.id}, clicks+1`);
-            
-            return res.json({ 
-                success: true, 
-                message: 'Referral already registered, click counted',
-                alreadyExists: true
-            });
-        }
-        
-        // Регистрируем НОВОГО реферала
-        const stmt = db.prepare(`
-            INSERT INTO referrals (partner_id, referral_user_id, clicks, first_deposits, deposits, earnings, created_at)
-            VALUES (?, ?, 1, 0, 0, 0, datetime('now'))
-        `);
-        
-        const result = stmt.run(partner.id, userId);
-        
-        // Обновляем статистику партнёра (увеличиваем clicks)
-        const updateStats = db.prepare(`
-            UPDATE referral_stats 
-            SET clicks = clicks + 1 
-            WHERE user_id = ?
-        `);
-        
-        updateStats.run(partner.id);
-        
-        console.log(`✅ Referral registered: ${userId} → partner ${partner.id}, clicks=1`);
-        console.log(`✅ Partner stats updated: partner_id=${partner.id}, clicks+1`);
-        
-        res.json({ 
-            success: true, 
-            message: 'Referral registered successfully',
-            referralId: result.lastInsertRowid,
-            partnerId: partner.id
-        });
-    } catch (error) {
-        console.error('❌ Error registering referral:', error);
-        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
-    }
+                if (err) {
+                    console.error('❌ Error checking existing referral:', err);
+                    return res.status(500).json({ success: false, message: 'Database error' });
+                }
+                
+                if (existing) {
+                    console.log(`ℹ️ Referral already exists: ${userId} → ${partner.id}`);
+                    
+                    // ВАЖНО: Даже если реферал уже зарегистрирован, увеличиваем clicks (повторный переход)
+                    db.run('UPDATE referral_stats SET clicks = clicks + 1 WHERE user_id = ?',
+                        [partner.id],
+                        (err) => {
+                            if (err) {
+                                console.error('❌ Error updating stats:', err);
+                            } else {
+                                console.log(`✅ Partner stats updated (repeat visit): partner_id=${partner.id}, clicks+1`);
+                            }
+                        }
+                    );
+                    
+                    return res.json({ 
+                        success: true, 
+                        message: 'Referral already registered, click counted',
+                        alreadyExists: true
+                    });
+                }
+                
+                // Регистрируем НОВОГО реферала
+                db.run(`INSERT INTO referrals (partner_id, referral_user_id, clicks, first_deposits, deposits, earnings, created_at)
+                        VALUES (?, ?, 1, 0, 0, 0, datetime('now'))`,
+                    [partner.id, userId],
+                    function(err) {
+                        if (err) {
+                            console.error('❌ Error inserting referral:', err);
+                            return res.status(500).json({ success: false, message: 'Database error' });
+                        }
+                        
+                        const referralId = this.lastID;
+                        
+                        // Обновляем статистику партнёра (увеличиваем clicks)
+                        db.run('UPDATE referral_stats SET clicks = clicks + 1 WHERE user_id = ?',
+                            [partner.id],
+                            (err) => {
+                                if (err) {
+                                    console.error('❌ Error updating stats:', err);
+                                } else {
+                                    console.log(`✅ Partner stats updated: partner_id=${partner.id}, clicks+1`);
+                                }
+                            }
+                        );
+                        
+                        console.log(`✅ Referral registered: ${userId} → partner ${partner.id}, clicks=1`);
+                        
+                        res.json({ 
+                            success: true, 
+                            message: 'Referral registered successfully',
+                            referralId: referralId,
+                            partnerId: partner.id
+                        });
+                    }
+                );
+            }
+        );
+    });
 });
 
 // Регистрация клика по реферальной ссылке (вызывается из бота)
