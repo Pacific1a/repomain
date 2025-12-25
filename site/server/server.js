@@ -830,8 +830,21 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
     }
     
     try {
-        // Находим партнёра по его Telegram ID
-        const partner = db.prepare('SELECT id, telegram FROM users WHERE telegram = ?').get(referrerId);
+        // Находим партнёра по реферальному коду или ID
+        let partner;
+        if (referrerId && referrerId.includes('_')) {
+            // Передан полный код типа "1_MJIBVR2D5DA9M"
+            const stats = db.prepare('SELECT user_id FROM referral_stats WHERE referral_code = ?').get(referrerId);
+            if (stats) {
+                partner = db.prepare('SELECT id, telegram FROM users WHERE id = ?').get(stats.user_id);
+            }
+        } else if (referrerId) {
+            // Передан только ID партнёра
+            const stats = db.prepare('SELECT user_id FROM referral_stats WHERE user_id = ?').get(referrerId);
+            if (stats) {
+                partner = db.prepare('SELECT id, telegram FROM users WHERE id = ?').get(stats.user_id);
+            }
+        }
         
         if (!partner) {
             console.error(`❌ Partner not found: ${referrerId}`);
