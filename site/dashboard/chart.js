@@ -1,5 +1,5 @@
 // ============================================
-// СТАТИСТИКА С CHART.JS
+// ГРАФИК СТАТИСТИКИ С CHART.JS + DATE-PICKER
 // ============================================
 
 (function() {
@@ -12,6 +12,15 @@
     }
 
     let myChart = null;
+    let currentPeriod = 'week';
+
+    // Цвета из скриншота
+    const colors = {
+        income: '#E84C3D',       // Красный
+        deposits: '#5DCCBA',     // Зелёный/бирюзовый
+        visits: '#DDDDDD',       // Серый/белый
+        firstDeposits: '#E8B84D' // Жёлтый/оранжевый
+    };
 
     function initChart() {
         const canvas = document.getElementById('statisticsChart');
@@ -21,50 +30,33 @@
         }
 
         const ctx = canvas.getContext('2d');
-        
-        // Тестовые данные для графика
-        const chartData = {
-            labels: ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'],
-            datasets: {
-                income: [0, 0, 0, 0, 0, 0, 0],
-                deposits: [0, 0, 0, 0, 0, 0, 0],
-                visits: [0, 0, 0, 0, 0, 0, 0],
-                firstDeposits: [0, 0, 0, 0, 0, 0, 0]
-            }
-        };
-
-        const colors = {
-            income: '#E84C3D',
-            deposits: '#5DCCBA',
-            visits: '#DDDDDD',
-            firstDeposits: '#E8B84D'
-        };
 
         // Конфигурация Chart.js
         const config = {
             type: 'line',
             data: {
-                labels: chartData.labels,
+                labels: ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'],
                 datasets: [
                     {
                         label: 'Доход',
-                        data: chartData.datasets.income,
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         borderColor: colors.income,
-                        backgroundColor: colors.income + '20',
+                        backgroundColor: colors.income + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
                         pointHoverRadius: 7,
                         pointBackgroundColor: colors.income,
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
-                        tension: 0.4, // Плавные линии
-                        fill: true
+                        tension: 0.4,
+                        fill: false,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Депозиты',
-                        data: chartData.datasets.deposits,
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         borderColor: colors.deposits,
-                        backgroundColor: colors.deposits + '20',
+                        backgroundColor: colors.deposits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
                         pointHoverRadius: 7,
@@ -72,13 +64,14 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         tension: 0.4,
-                        fill: true
+                        fill: false,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Первые депозиты',
-                        data: chartData.datasets.firstDeposits,
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         borderColor: colors.firstDeposits,
-                        backgroundColor: colors.firstDeposits + '20',
+                        backgroundColor: colors.firstDeposits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
                         pointHoverRadius: 7,
@@ -86,13 +79,14 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         tension: 0.4,
-                        fill: true
+                        fill: false,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Переходы',
-                        data: chartData.datasets.visits,
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         borderColor: colors.visits,
-                        backgroundColor: colors.visits + '20',
+                        backgroundColor: colors.visits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
                         pointHoverRadius: 7,
@@ -100,7 +94,8 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         tension: 0.4,
-                        fill: true
+                        fill: false,
+                        yAxisID: 'y'
                     }
                 ]
             },
@@ -113,7 +108,7 @@
                 },
                 plugins: {
                     legend: {
-                        display: false // Используем свою легенду
+                        display: false
                     },
                     tooltip: {
                         backgroundColor: 'rgba(33, 26, 26, 0.95)',
@@ -130,11 +125,11 @@
                                     label += ': ';
                                 }
                                 if (context.parsed.y !== null) {
-                                    // Форматируем в зависимости от типа данных
-                                    if (context.datasetIndex < 3) {
-                                        label += context.parsed.y + '₽';
+                                    // Форматируем
+                                    if (context.datasetIndex === 3) {
+                                        label += Math.round(context.parsed.y);
                                     } else {
-                                        label += context.parsed.y;
+                                        label += Math.round(context.parsed.y) + '₽';
                                     }
                                 }
                                 return label;
@@ -167,6 +162,9 @@
                             font: {
                                 size: 12,
                                 family: 'Inter, sans-serif'
+                            },
+                            callback: function(value) {
+                                return Math.round(value);
                             }
                         }
                     }
@@ -177,11 +175,12 @@
         // Создаём график
         myChart = new Chart(ctx, config);
 
-        // Обработка кликов на легенду
+        // Настройка обработчиков
         setupLegendHandlers();
+        setupDatePicker();
         
-        // Загрузка реальных данных
-        loadChartData();
+        // Загрузка данных
+        loadChartData(currentPeriod);
     }
 
     function setupLegendHandlers() {
@@ -203,43 +202,125 @@
         });
     }
 
-    async function loadChartData() {
+    function setupDatePicker() {
+        const datePicker = document.querySelector('.date-picker');
+        const dateSelect = document.querySelector('.date_select');
+        const dateOptions = document.querySelectorAll('.date_select > div');
+        
+        if (datePicker && dateSelect) {
+            datePicker.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isVisible = dateSelect.style.display === 'flex';
+                dateSelect.style.display = isVisible ? 'none' : 'flex';
+            });
+            
+            document.addEventListener('click', function() {
+                dateSelect.style.display = 'none';
+            });
+            
+            dateSelect.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+        
+        dateOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                dateOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    opt.classList.add('non_active');
+                });
+                
+                this.classList.add('active');
+                this.classList.remove('non_active');
+                
+                const datePickerSpan = datePicker.querySelector('span');
+                if (datePickerSpan) {
+                    datePickerSpan.textContent = this.textContent;
+                }
+                
+                const period = this.className.split(' ')[0];
+                currentPeriod = period;
+                loadChartData(period);
+                
+                dateSelect.style.display = 'none';
+            });
+        });
+    }
+
+    async function loadChartData(period) {
         try {
             const partnerId = localStorage.getItem('userId');
-            if (!partnerId) return;
+            if (!partnerId) {
+                console.log('Partner ID не найден');
+                return;
+            }
 
-            const response = await fetch(`/api/referral/partner/stats?partnerId=${partnerId}`);
-            if (!response.ok) return;
+            const response = await fetch(`/api/referral/partner/stats?partnerId=${partnerId}&period=${period}`);
+            if (!response.ok) {
+                console.error('Ошибка загрузки статистики:', response.status);
+                return;
+            }
 
             const stats = await response.json();
             
-            if (stats && stats.dailyStats) {
-                updateChartData(stats.dailyStats);
+            if (stats) {
+                updateChartWithStats(stats, period);
+                updateStatsCards(stats);
             }
         } catch (error) {
             console.error('Ошибка загрузки данных графика:', error);
         }
     }
 
-    function updateChartData(dailyStats) {
-        if (!myChart || !dailyStats || dailyStats.length === 0) return;
+    function updateChartWithStats(stats, period) {
+        if (!myChart) return;
 
-        const labels = [];
-        const income = [];
-        const deposits = [];
-        const firstDeposits = [];
-        const visits = [];
+        let labels = [];
+        let income = [];
+        let deposits = [];
+        let firstDeposits = [];
+        let visits = [];
 
-        dailyStats.forEach(day => {
-            const date = new Date(day.date);
-            const formattedDate = date.getDate() + ' ' + getMonthName(date.getMonth());
+        if (stats.dailyStats && stats.dailyStats.length > 0) {
+            // Данные по дням
+            stats.dailyStats.forEach(day => {
+                const date = new Date(day.date);
+                const formattedDate = date.getDate() + ' ' + getMonthName(date.getMonth());
+                
+                labels.push(formattedDate);
+                income.push(day.earnings || 0);
+                deposits.push(day.total_deposits || 0);
+                firstDeposits.push(day.first_deposits || 0);
+                visits.push(day.clicks || 0);
+            });
+        } else {
+            // Используем дефолтные метки в зависимости от периода
+            switch(period) {
+                case 'today':
+                case 'yesterday':
+                    labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
+                    break;
+                case 'week':
+                    labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
+                    break;
+                case 'month':
+                case 'last_month':
+                    labels = ['1-5', '6-10', '11-15', '16-20', '21-25', '26-30'];
+                    break;
+                case 'all_time':
+                    labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
+                    break;
+                default:
+                    labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
+            }
             
-            labels.push(formattedDate);
-            income.push(day.earnings || 0);
-            deposits.push(day.deposits || 0);
-            firstDeposits.push(day.first_deposits || 0);
-            visits.push(day.clicks || 0);
-        });
+            // Заполняем нулями
+            const length = labels.length;
+            income = new Array(length).fill(0);
+            deposits = new Array(length).fill(0);
+            firstDeposits = new Array(length).fill(0);
+            visits = new Array(length).fill(0);
+        }
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = income;
@@ -250,15 +331,36 @@
         myChart.update();
     }
 
+    function updateStatsCards(stats) {
+        // Обновление карточек статистики
+        const incomeEl = document.querySelector('.stat-value-income');
+        const depositsEl = document.querySelector('.stat-value-deposits');
+        const clicksEl = document.querySelector('.stat-value-clicks');
+        const firstDepositsEl = document.querySelector('.stat-value-first-deposits');
+
+        if (incomeEl && stats.totalEarnings !== undefined) {
+            incomeEl.textContent = Math.round(stats.totalEarnings) + '₽';
+        }
+        if (depositsEl && stats.totalDeposits !== undefined) {
+            depositsEl.textContent = Math.round(stats.totalDeposits) + '₽';
+        }
+        if (clicksEl && stats.totalClicks !== undefined) {
+            clicksEl.textContent = stats.totalClicks;
+        }
+        if (firstDepositsEl && stats.totalFirstDeposits !== undefined) {
+            firstDepositsEl.textContent = stats.totalFirstDeposits;
+        }
+    }
+
     function getMonthName(month) {
         const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
         return months[month];
     }
 
-    // Expose functions globally if needed
+    // Expose functions globally
     window.chartUtils = {
-        updateChartData: updateChartData,
-        loadChartData: loadChartData
+        loadChartData: loadChartData,
+        updateStatsCards: updateStatsCards
     };
 
 })();
