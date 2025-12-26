@@ -71,12 +71,21 @@
                     pointHoverRadius: 7,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 3
+                    pointHoverBorderWidth: 3,
+                    clip: false // НЕ ОБРЕЗАТЬ точки на краях графика!
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 10,
+                        left: 5,
+                        right: 5
+                    }
+                },
                 interaction: {
                     mode: 'index',
                     intersect: false
@@ -142,7 +151,6 @@
                         beginAtZero: true, // Начинать с нуля
                         min: 0, // Минимум 0
                         max: 200, // ФИКСИРОВАННЫЙ МАКСИМУМ 200!
-                        grace: '5%', // Небольшой отступ сверху и снизу для красоты
                         grid: {
                             color: 'rgba(193, 172, 172, 0.1)',
                             lineWidth: 1
@@ -153,12 +161,14 @@
                                 size: 12,
                                 family: 'Inter, sans-serif'
                             },
+                            stepSize: 50, // Шаг 50 (0, 50, 100, 150, 200)
                             callback: function(value) {
-                                // Показываем только целые числа
-                                if (value % 1 !== 0) return '';
-                                return Math.round(value);
-                            },
-                            stepSize: 50 // Шаг 50 (0, 50, 100, 150, 200)
+                                // Показываем только значения 0, 50, 100, 150, 200
+                                if (value === 0 || value === 50 || value === 100 || value === 150 || value === 200) {
+                                    return value;
+                                }
+                                return '';
+                            }
                         }
                     }
                 }
