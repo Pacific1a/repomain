@@ -422,8 +422,23 @@
                     datePickerSpan.textContent = this.textContent;
                 }
                 
-                const period = this.className.split(' ')[0];
+                const periodClass = this.className.split(' ')[0];
+                
+                // Маппинг классов HTML на period для API
+                const periodMap = {
+                    'today': 'week',
+                    'yesterday': 'week',
+                    'week': 'week',
+                    'month': 'month',
+                    'last_month': 'month',
+                    'all_time': 'year'
+                };
+                
+                const period = periodMap[periodClass] || 'week';
                 currentPeriod = period;
+                
+                console.log('📅 Period changed:', { periodClass, apiPeriod: period });
+                
                 loadChartData(period);
                 
                 dateSelect.style.display = 'none';
@@ -499,30 +514,6 @@
             income.push(dayData.earnings || 0);
         });
 
-        // КУМУЛЯТИВНЫЕ ДАННЫЕ - показываем накопленные значения!
-        // Каждая точка = сумма всех предыдущих + текущая
-        const cumulativeIncome = [];
-        const cumulativeDeposits = [];
-        const cumulativeFirstDeposits = [];
-        const cumulativeVisits = [];
-        
-        let sumIncome = 0;
-        let sumDeposits = 0;
-        let sumFirstDeposits = 0;
-        let sumVisits = 0;
-        
-        for (let i = 0; i < income.length; i++) {
-            sumIncome += income[i];
-            sumDeposits += deposits[i];
-            sumFirstDeposits += firstDeposits[i];
-            sumVisits += visits[i];
-            
-            cumulativeIncome.push(sumIncome);
-            cumulativeDeposits.push(sumDeposits);
-            cumulativeFirstDeposits.push(sumFirstDeposits);
-            cumulativeVisits.push(sumVisits);
-        }
-        
         // Сохраняем ежедневные данные для tooltip
         currentDailyData = {
             income: income,
@@ -533,21 +524,18 @@
         
         console.log('📊 Chart Timeline Data:', {
             dates: labels,
-            daily: currentDailyData,
-            cumulative: {
-                income: cumulativeIncome,
-                deposits: cumulativeDeposits,
-                firstDeposits: cumulativeFirstDeposits,
-                visits: cumulativeVisits
-            }
+            income: income,
+            deposits: deposits,
+            firstDeposits: firstDeposits,
+            visits: visits
         });
 
-        // Обновляем график кумулятивными данными
+        // Обновляем график РЕАЛЬНЫМИ данными (не кумулятивными!)
         myChart.data.labels = labels;
-        myChart.data.datasets[0].data = cumulativeIncome;
-        myChart.data.datasets[1].data = cumulativeDeposits;
-        myChart.data.datasets[2].data = cumulativeFirstDeposits;
-        myChart.data.datasets[3].data = cumulativeVisits;
+        myChart.data.datasets[0].data = income;
+        myChart.data.datasets[1].data = deposits;
+        myChart.data.datasets[2].data = firstDeposits;
+        myChart.data.datasets[3].data = visits;
 
         myChart.update();
     }
