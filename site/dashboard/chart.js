@@ -58,6 +58,7 @@
                         pointHoverBorderWidth: 3,
                         pointHitRadius: 10,
                         tension: 0.4,
+                        cubicInterpolationMode: 'monotone',
                         fill: false,
                         yAxisID: 'y'
                     },
@@ -75,6 +76,7 @@
                         pointHoverBorderWidth: 3,
                         pointHitRadius: 10,
                         tension: 0.4,
+                        cubicInterpolationMode: 'monotone',
                         fill: false,
                         yAxisID: 'y'
                     },
@@ -92,6 +94,7 @@
                         pointHoverBorderWidth: 3,
                         pointHitRadius: 10,
                         tension: 0.4,
+                        cubicInterpolationMode: 'monotone',
                         fill: false,
                         yAxisID: 'y'
                     },
@@ -109,6 +112,7 @@
                         pointHoverBorderWidth: 3,
                         pointHitRadius: 10,
                         tension: 0.4,
+                        cubicInterpolationMode: 'monotone',
                         fill: false,
                         yAxisID: 'y'
                     }
@@ -117,6 +121,23 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeInOutQuart',
+                    onComplete: function() {
+                        // После завершения анимации запускаем плавное колебание
+                        if (!this.animationComplete) {
+                            this.animationComplete = true;
+                        }
+                    }
+                },
+                transitions: {
+                    active: {
+                        animation: {
+                            duration: 400
+                        }
+                    }
+                },
                 interaction: {
                     mode: 'point',
                     intersect: true
@@ -149,21 +170,28 @@
                         usePointStyle: true,
                         callbacks: {
                             title: function(context) {
-                                // Показываем дату + название метрики
+                                // Показываем только дату
                                 return context[0].label;
                             },
                             label: function(context) {
+                                let label = context.dataset.label || '';
+                                
                                 if (context.parsed.y !== null) {
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    
                                     // Форматируем в зависимости от типа
                                     if (context.datasetIndex === 3) {
                                         // Переходы - без рублей
-                                        return Math.round(context.parsed.y).toLocaleString('ru-RU');
+                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU');
                                     } else {
                                         // Деньги - с рублями
-                                        return Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
+                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
                                     }
                                 }
-                                return '';
+                                
+                                return label;
                             }
                         }
                     }
