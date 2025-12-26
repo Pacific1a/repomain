@@ -379,16 +379,44 @@
 
         const length = labels.length;
         
-        // Равномерно распределяем значения по точкам
-        const earningsPerPoint = totalEarnings / length;
-        const depositsPerPoint = totalDeposits / length;
-        const firstDepositsPerPoint = totalFirstDeposits / length;
-        const clicksPerPoint = totalClicks / length;
+        // Создаём реалистичные данные с волнами как на примере
+        function generateWavyData(total, pointsCount) {
+            if (total === 0) return new Array(pointsCount).fill(0);
+            
+            const data = [];
+            const baseValue = total / pointsCount; // Средняя высота
+            
+            for (let i = 0; i < pointsCount; i++) {
+                const progress = i / (pointsCount - 1); // От 0 до 1
+                
+                // Создаём волну с тремя факторами:
+                // 1. Общий рост (прогресс к итоговому значению)
+                const growthTrend = total * (0.3 + progress * 0.7); // От 30% до 100%
+                
+                // 2. Случайное колебание ±25%
+                const randomWave = (Math.random() - 0.5) * baseValue * 0.5;
+                
+                // 3. Синусоидальная волна для плавности
+                const sineWave = Math.sin(i * 0.8) * baseValue * 0.3;
+                
+                let value = growthTrend + randomWave + sineWave;
+                
+                // Последняя точка точно равна total
+                if (i === pointsCount - 1) {
+                    value = total;
+                }
+                
+                // Не уходим в минус
+                data.push(Math.max(0, value));
+            }
+            
+            return data;
+        }
 
-        income = new Array(length).fill(0).map((_, i) => earningsPerPoint * (i + 1));
-        deposits = new Array(length).fill(0).map((_, i) => depositsPerPoint * (i + 1));
-        firstDeposits = new Array(length).fill(0).map((_, i) => firstDepositsPerPoint * (i + 1));
-        visits = new Array(length).fill(0).map((_, i) => clicksPerPoint * (i + 1));
+        income = generateWavyData(totalEarnings, length);
+        deposits = generateWavyData(totalDeposits, length);
+        firstDeposits = generateWavyData(totalFirstDeposits, length);
+        visits = generateWavyData(totalClicks, length);
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = income;
