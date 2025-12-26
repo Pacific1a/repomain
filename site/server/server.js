@@ -814,6 +814,8 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
     
     // Определяем дату начала периода
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Сбрасываем время на начало дня
+    
     let daysBack = 7; // по умолчанию неделя
     
     switch(period) {
@@ -824,7 +826,8 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
         case 'year': daysBack = 365; break;
     }
     
-    const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+    // Начинаем с (daysBack - 1) дней назад, чтобы последний день был СЕГОДНЯ!
+    const startDate = new Date(now.getTime() - (daysBack - 1) * 24 * 60 * 60 * 1000);
     const startDateStr = startDate.toISOString();
     
     // Получаем events за период
@@ -912,21 +915,21 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
                     });
                 }
                 
-                // Показываем ВСЮ статистику на ПЕРВОЙ точке
-                const firstDate = dateLabels[0];
-                if (firstDate && timeline[firstDate]) {
-                    timeline[firstDate].clicks = stats.clicks || 0;
-                    timeline[firstDate].firstDeposits = stats.first_deposits || 0;
-                    timeline[firstDate].depositsAmount = stats.total_deposits || 0;
-                    timeline[firstDate].earnings = stats.earnings || 0;
+                // Показываем ВСЮ статистику на ПОСЛЕДНЕЙ точке (СЕГОДНЯ!)
+                const lastDate = dateLabels[dateLabels.length - 1];
+                if (lastDate && timeline[lastDate]) {
+                    timeline[lastDate].clicks = stats.clicks || 0;
+                    timeline[lastDate].firstDeposits = stats.first_deposits || 0;
+                    timeline[lastDate].depositsAmount = stats.total_deposits || 0;
+                    timeline[lastDate].earnings = stats.earnings || 0;
                 }
                 
                 console.log('✅ Fallback data applied:', {
                     clicks: stats.clicks,
                     firstDeposits: stats.first_deposits,
                     earnings: stats.earnings,
-                    firstDate: dateLabels[0],
-                    timelineFirstPoint: timeline[dateLabels[0]]
+                    lastDate: lastDate,
+                    timelineLastPoint: timeline[lastDate]
                 });
                 
                 res.json({
