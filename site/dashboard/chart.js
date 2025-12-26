@@ -14,6 +14,8 @@
     let myChart = null;
     let currentPeriod = 'week';
     let currentStats = null; // Хранит текущие статистики для пересчёта при скрытии линий
+    let currentOffsetMap = {}; // Хранит текущие offset для tooltip
+    let currentBaseLift = 3; // Хранит текущий baseLift для tooltip
 
     // Цвета из скриншота
     const colors = {
@@ -178,6 +180,21 @@
                                 let label = context.dataset.label || '';
                                 
                                 if (context.parsed.y !== null) {
+                                    // ВЫЧИТАЕМ OFFSET И BASELIFT ЧТОБЫ ПОКАЗАТЬ РЕАЛЬНОЕ ЗНАЧЕНИЕ!
+                                    let realValue = context.parsed.y;
+                                    
+                                    // Определяем имя метрики по индексу dataset
+                                    const metricNames = ['income', 'deposits', 'firstDeposits', 'visits'];
+                                    const metricName = metricNames[context.datasetIndex];
+                                    
+                                    // Вычитаем baseLift и offset
+                                    if (currentOffsetMap[metricName] !== undefined) {
+                                        realValue = realValue - currentBaseLift - currentOffsetMap[metricName];
+                                    }
+                                    
+                                    // Не показываем отрицательные значения
+                                    realValue = Math.max(0, realValue);
+                                    
                                     if (label) {
                                         label += ': ';
                                     }
@@ -185,10 +202,10 @@
                                     // Форматируем в зависимости от типа
                                     if (context.datasetIndex === 3) {
                                         // Переходы - без рублей
-                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU');
+                                        label += Math.round(realValue).toLocaleString('ru-RU');
                                     } else {
                                         // Деньги - с рублями
-                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
+                                        label += Math.round(realValue).toLocaleString('ru-RU') + '₽';
                                     }
                                 }
                                 
@@ -330,6 +347,9 @@
                 offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
             }
         });
+        
+        // Сохраняем offsetMap для использования в tooltip
+        currentOffsetMap = { ...offsetMap };
 
         console.log('🔄 Recalculate Chart (after legend click):', {
             visibleMetrics: visibleMetrics.map(m => m.name),
@@ -515,6 +535,9 @@
                 offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
             }
         });
+        
+        // Сохраняем offsetMap для использования в tooltip
+        currentOffsetMap = { ...offsetMap };
         
         console.log('📊 Chart Debug:', {
             maxValue,
