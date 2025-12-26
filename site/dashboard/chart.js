@@ -140,9 +140,9 @@
                     },
                     y: {
                         beginAtZero: false, // НЕ начинать с самого низа!
-                        min: 0,
-                        suggestedMax: 150, // СТАНДАРТНОЕ ЗНАЧЕНИЕ 0-150
-                        grace: '5%', // Отступ сверху 5%
+                        min: -10, // ПОДНИМАЕМ НОЛЬ! (визуально будет отступ снизу)
+                        max: 200, // ФИКСИРОВАННЫЙ МАКСИМУМ 200!
+                        grace: '0%', // Без дополнительного отступа
                         grid: {
                             color: 'rgba(193, 172, 172, 0.1)',
                             lineWidth: 1
@@ -154,10 +154,12 @@
                                 family: 'Inter, sans-serif'
                             },
                             callback: function(value) {
+                                // Не показываем отрицательные значения!
+                                if (value < 0) return '';
                                 if (value % 1 !== 0) return '';
                                 return Math.round(value);
                             },
-                            stepSize: 30 // Шаг 30 (0, 30, 60, 90, 120, 150)
+                            stepSize: 50 // Шаг 50 (0, 50, 100, 150, 200)
                         }
                     }
                 }
