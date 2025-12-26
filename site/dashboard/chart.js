@@ -71,44 +71,32 @@
         function drawChart() {
             ctx.clearRect(0, 0, width, height);
             
-            // Вычисляем максимум для stacked данных
-            const stackedData = calculateStackedData();
-            const maxValue = stackedData.maxValue > 0 ? stackedData.maxValue : 100;
-            const minValue = 0;
+            // Находим максимальные значения для каждой метрики
+            const maxValues = {};
+            Object.keys(chartData.datasets).forEach(key => {
+                const max = Math.max(...chartData.datasets[key]);
+                maxValues[key] = max > 0 ? max : 1;
+            });
             
-            drawGrid(maxValue);
+            drawGrid(100); // Рисуем сетку с фиксированным масштабом
             
-            // Рисуем области снизу вверх (stacked)
+            // Рисуем линии с отступами
             const order = ['income', 'deposits', 'firstDeposits', 'visits'];
-            order.forEach(key => {
-                if (lineVisibility[key]) {
-                    drawStackedArea(stackedData.layers[key], chartData.colors[key], maxValue, minValue);
-                }
+            const visibleLines = order.filter(key => lineVisibility[key]);
+            const laneHeight = chartHeight / (visibleLines.length + 1); // +1 для отступов
+            
+            visibleLines.forEach((key, index) => {
+                drawSeparatedLine(
+                    chartData.datasets[key], 
+                    chartData.colors[key], 
+                    maxValues[key],
+                    index,
+                    laneHeight,
+                    visibleLines.length
+                );
             });
             
             drawXLabels();
-        }
-        
-        function calculateStackedData() {
-            const order = ['income', 'deposits', 'firstDeposits', 'visits'];
-            const layers = {};
-            const accumulated = new Array(chartData.labels.length).fill(0);
-            let maxValue = 0;
-            
-            order.forEach(key => {
-                if (lineVisibility[key]) {
-                    layers[key] = chartData.datasets[key].map((value, index) => {
-                        const bottom = accumulated[index];
-                        accumulated[index] += value;
-                        maxValue = Math.max(maxValue, accumulated[index]);
-                        return { bottom, top: accumulated[index], value };
-                    });
-                } else {
-                    layers[key] = chartData.datasets[key].map(() => ({ bottom: 0, top: 0, value: 0 }));
-                }
-            });
-            
-            return { layers, maxValue };
         }
 
         function drawGrid(maxValue) {
@@ -133,57 +121,37 @@
             }
         }
 
-        function drawStackedArea(layerData, color, maxValue, minValue) {
-            const valueRange = maxValue - minValue;
-            const topPoints = [];
-            const bottomPoints = [];
+        function drawSeparatedLine(data, color, maxValue, laneIndex, laneHeight, totalLanes) {
+            const points = [];
             
-            layerData.forEach((data, index) => {
-                const x = padding.left + (chartWidth / (layerData.length - 1)) * index;
+            // Вычисляем центр дорожки для этой линии
+            const laneCenterY = padding.top + (laneIndex + 1) * (chartHeight / (totalLanes + 1));
+            const maxAmplitude = laneHeight * 0.4; // 40% высоты дорожки для амплитуды линии
+            
+            data.forEach((value, index) => {
+                const x = padding.left + (chartWidth / (data.length - 1)) * index;
                 
-                const normalizedTop = (data.top - minValue) / valueRange;
-                const yTop = padding.top + chartHeight - (normalizedTop * chartHeight);
+                // Нормализуем значение от 0 до 1
+                const normalized = value / maxValue;
                 
-                const normalizedBottom = (data.bottom - minValue) / valueRange;
-                const yBottom = padding.top + chartHeight - (normalizedBottom * chartHeight);
+                // Вычисляем Y: центр дорожки ± амплитуда
+                const y = laneCenterY - (normalized * maxAmplitude);
                 
-                topPoints.push({ x, y: yTop, value: data.value });
-                bottomPoints.push({ x, y: yBottom });
+                points.push({ x, y, value });
             });
             
-            // Рисуем заполненную область с прозрачностью
-            ctx.fillStyle = color + '40'; // Добавляем прозрачность (40 = 25%)
-            ctx.beginPath();
-            
-            // Верхняя линия
-            topPoints.forEach((point, index) => {
-                if (index === 0) {
-                    ctx.moveTo(point.x, point.y);
-                } else {
-                    ctx.lineTo(point.x, point.y);
-                }
-            });
-            
-            // Нижняя линия (в обратном порядке)
-            for (let i = bottomPoints.length - 1; i >= 0; i--) {
-                ctx.lineTo(bottomPoints[i].x, bottomPoints[i].y);
-            }
-            
-            ctx.closePath();
-            ctx.fill();
-            
-            // Рисуем верхнюю линию с тенью
+            // Рисуем линию с тенью
             ctx.shadowColor = color;
-            ctx.shadowBlur = 6;
-            ctx.shadowOffsetY = 1;
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 2;
             
             ctx.strokeStyle = color;
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = 3;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             
             ctx.beginPath();
-            topPoints.forEach((point, index) => {
+            points.forEach((point, index) => {
                 if (index === 0) {
                     ctx.moveTo(point.x, point.y);
                 } else {
@@ -197,24 +165,24 @@
             ctx.shadowBlur = 0;
             ctx.shadowOffsetY = 0;
             
-            // Рисуем точки на верхней линии
-            topPoints.forEach(point => {
+            // Рисуем точки
+            points.forEach(point => {
                 // Тень точки
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
                 ctx.beginPath();
-                ctx.arc(point.x + 0.5, point.y + 1.5, 5, 0, Math.PI * 2);
+                ctx.arc(point.x + 1, point.y + 2, 6, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Внешняя точка
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+                ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Внутренняя точка
                 ctx.fillStyle = '#211A1A';
                 ctx.beginPath();
-                ctx.arc(point.x, point.y, 2.5, 0, Math.PI * 2);
+                ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.fillStyle = color;
