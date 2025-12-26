@@ -363,12 +363,9 @@
         const length = myChart.data.labels.length;
         
         function generateWavyData(total, pointsCount, offsetValue) {
-            // Если метрика = 0, показываем 0 (не фейковые данные!)
-            if (total === 0) {
-                return new Array(pointsCount).fill(0);
-            }
-            
-            // ПОКАЗЫВАЕМ РЕАЛЬНОЕ ЗНАЧЕНИЕ на всех точках + offset для разделения
+            // ВАЖНО: Даже если метрика = 0, показываем baseLift + offset
+            // чтобы линии не накладывались друг на друга!
+            // Tooltip вычтет offset и покажет реальное 0
             const actualValue = total + baseLift + offsetValue;
             return new Array(pointsCount).fill(actualValue);
         }
@@ -554,13 +551,9 @@
         
         // АКТУАЛЬНЫЕ ДАННЫЕ БЕЗ ВОЛН - показываем реальные значения!
         function generateWavyData(total, pointsCount, offsetValue) {
-            // ВАЖНО: Если метрика = 0, показываем 0 (не фейковые данные!)
-            if (total === 0) {
-                return new Array(pointsCount).fill(0);
-            }
-            
-            // ПОКАЗЫВАЕМ РЕАЛЬНОЕ ЗНАЧЕНИЕ на всех точках + offset для разделения
-            // Если переходов = 2, то все точки показывают 2 (не 15!)
+            // ВАЖНО: Даже если метрика = 0, показываем baseLift + offset
+            // чтобы линии не накладывались друг на друга!
+            // Tooltip вычтет offset и покажет реальное 0
             const actualValue = total + baseLift + offsetValue;
             return new Array(pointsCount).fill(actualValue);
         }
