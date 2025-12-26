@@ -262,7 +262,7 @@
 
     async function loadChartData(period) {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('authToken');
             if (!token) {
                 console.error('Токен не найден в localStorage');
                 return;
