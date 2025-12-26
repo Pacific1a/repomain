@@ -343,8 +343,9 @@
         const length = myChart.data.labels.length;
         
         function generateWavyData(total, pointsCount, offsetValue) {
+            // Если метрика = 0, показываем 0 (не фейковые данные!)
             if (total === 0) {
-                return new Array(pointsCount).fill(baseLift + offsetValue);
+                return new Array(pointsCount).fill(0);
             }
             
             const data = [];
@@ -352,9 +353,11 @@
             
             for (let i = 0; i < pointsCount; i++) {
                 const progress = i / (pointsCount - 1);
-                const growthTrend = total * (0.3 + progress * 0.7);
-                const randomWave = (Math.random() - 0.5) * baseValue * 0.5;
-                const sineWave = Math.sin(i * 0.8) * baseValue * 0.3;
+                
+                // УМЕНЬШАЕМ ВОЛНЫ - делаем график более прямым
+                const growthTrend = total * (0.5 + progress * 0.5);
+                const randomWave = (Math.random() - 0.5) * baseValue * 0.2;
+                const sineWave = Math.sin(i * 0.8) * baseValue * 0.15;
                 
                 let value = growthTrend + randomWave + sineWave;
                 
@@ -544,11 +547,11 @@
             offsetMap
         });
         
-        // Создаём реалистичные данные с волнами + offset для разделения линий
+        // Создаём реалистичные данные с минимальными волнами + offset для разделения линий
         function generateWavyData(total, pointsCount, offsetValue) {
-            // ВАЖНО: Если метрика = 0, показываем линию на baseLift (чуть выше нуля)
+            // ВАЖНО: Если метрика = 0, показываем 0 (не фейковые данные!)
             if (total === 0) {
-                return new Array(pointsCount).fill(baseLift + offsetValue);
+                return new Array(pointsCount).fill(0);
             }
             
             const data = [];
@@ -557,15 +560,15 @@
             for (let i = 0; i < pointsCount; i++) {
                 const progress = i / (pointsCount - 1); // От 0 до 1
                 
-                // Создаём волну с тремя факторами:
-                // 1. Общий рост (прогресс к итоговому значению)
-                const growthTrend = total * (0.3 + progress * 0.7); // От 30% до 100%
+                // УМЕНЬШАЕМ ВОЛНЫ - делаем график более прямым как курс акций
+                // 1. Общий рост (прогресс к итоговому значению) - более плавный
+                const growthTrend = total * (0.5 + progress * 0.5); // От 50% до 100%
                 
-                // 2. Случайное колебание ±25%
-                const randomWave = (Math.random() - 0.5) * baseValue * 0.5;
+                // 2. Случайное колебание УМЕНЬШЕНО: ±10% вместо ±25%
+                const randomWave = (Math.random() - 0.5) * baseValue * 0.2;
                 
-                // 3. Синусоидальная волна для плавности
-                const sineWave = Math.sin(i * 0.8) * baseValue * 0.3;
+                // 3. Синусоидальная волна УМЕНЬШЕНА вдвое
+                const sineWave = Math.sin(i * 0.8) * baseValue * 0.15;
                 
                 let value = growthTrend + randomWave + sineWave;
                 
