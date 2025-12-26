@@ -363,11 +363,23 @@
         const length = myChart.data.labels.length;
         
         function generateWavyData(total, pointsCount, offsetValue) {
-            // ВАЖНО: Даже если метрика = 0, показываем baseLift + offset
-            // чтобы линии не накладывались друг на друга!
-            // Tooltip вычтет offset и покажет реальное 0
-            const actualValue = total + baseLift + offsetValue;
-            return new Array(pointsCount).fill(actualValue);
+            const array = [];
+            
+            // Начальная позиция (левый угол): baseLift + offset
+            // Конечная позиция (правый угол): baseLift + offset + total
+            const startValue = baseLift + offsetValue;
+            const endValue = baseLift + offsetValue + total;
+            
+            for (let i = 0; i < pointsCount; i++) {
+                // Прогресс от 0.0 (начало) до 1.0 (конец)
+                const progress = pointsCount === 1 ? 1 : i / (pointsCount - 1);
+                
+                // Линейная интерполяция от startValue до endValue
+                const value = startValue + (total * progress);
+                array.push(value);
+            }
+            
+            return array;
         }
 
         // Обновляем данные для всех datasets с новыми offset
@@ -549,13 +561,25 @@
             offsetMap
         });
         
-        // АКТУАЛЬНЫЕ ДАННЫЕ БЕЗ ВОЛН - показываем реальные значения!
+        // ДИАГОНАЛЬНЫЕ ЛИНИИ - начинаются с угла и поднимаются вверх!
         function generateWavyData(total, pointsCount, offsetValue) {
-            // ВАЖНО: Даже если метрика = 0, показываем baseLift + offset
-            // чтобы линии не накладывались друг на друга!
-            // Tooltip вычтет offset и покажет реальное 0
-            const actualValue = total + baseLift + offsetValue;
-            return new Array(pointsCount).fill(actualValue);
+            const array = [];
+            
+            // Начальная позиция (левый угол): baseLift + offset
+            // Конечная позиция (правый угол): baseLift + offset + total
+            const startValue = baseLift + offsetValue;
+            const endValue = baseLift + offsetValue + total;
+            
+            for (let i = 0; i < pointsCount; i++) {
+                // Прогресс от 0.0 (начало) до 1.0 (конец)
+                const progress = pointsCount === 1 ? 1 : i / (pointsCount - 1);
+                
+                // Линейная интерполяция от startValue до endValue
+                const value = startValue + (total * progress);
+                array.push(value);
+            }
+            
+            return array;
         }
 
         // Создаём данные с ДИНАМИЧЕСКИМ offset (по отсортированным значениям)
