@@ -128,8 +128,7 @@
                 scales: {
                     x: {
                         grid: {
-                            color: 'rgba(193, 172, 172, 0.1)',
-                            lineWidth: 1
+                            display: false // УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ!
                         },
                         ticks: {
                             color: '#9B8585',
@@ -250,6 +249,15 @@
             data.push(cumulative);
         });
 
+        console.log('📊 extractMetricData:', {
+            metric: metric,
+            firstDate: dates[0],
+            lastDate: dates[dates.length - 1],
+            firstValue: timeline.timeline[dates[0]],
+            data: data,
+            cumulative: cumulative
+        });
+
         return data;
     }
 
@@ -336,6 +344,14 @@
 
             const statsData = await statsResponse.json();
             const timeline = await timelineResponse.json();
+            
+            console.log('🔍 API Response:', {
+                stats: statsData.stats,
+                timeline: timeline.timeline,
+                dates: timeline.dates,
+                sampleDate: timeline.dates[0],
+                sampleData: timeline.timeline[timeline.dates[0]]
+            });
             
             if (statsData && statsData.stats && timeline && timeline.timeline) {
                 timelineData = timeline; // Сохраняем для переключения метрик
