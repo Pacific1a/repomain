@@ -737,6 +737,17 @@ db.run(`CREATE TABLE IF NOT EXISTS referrals (
     FOREIGN KEY (partner_id) REFERENCES users(id)
 )`);
 
+// Создание таблицы для временных событий (timeline)
+db.run(`CREATE TABLE IF NOT EXISTS referral_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    partner_id INTEGER NOT NULL,
+    referral_user_id TEXT,
+    event_type TEXT NOT NULL,
+    amount REAL DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (partner_id) REFERENCES users(id)
+)`);
+
 // Получение реферальной статистики партнера
 app.get('/api/referral/partner/stats', authMiddleware, (req, res) => {
     const userId = req.userId;
@@ -791,6 +802,93 @@ app.get('/api/referral/partner/stats', authMiddleware, (req, res) => {
                 }
             });
         }
+    });
+});
+
+// Получение временной статистики (timeline) для графика
+app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
+    const userId = req.userId;
+    const period = req.query.period || 'week'; // week, month, 3months, 6months, year
+    
+    // Определяем дату начала периода
+    const now = new Date();
+    let daysBack = 7; // по умолчанию неделя
+    
+    switch(period) {
+        case 'week': daysBack = 7; break;
+        case 'month': daysBack = 30; break;
+        case '3months': daysBack = 90; break;
+        case '6months': daysBack = 180; break;
+        case 'year': daysBack = 365; break;
+    }
+    
+    const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+    const startDateStr = startDate.toISOString();
+    
+    // Получаем events за период
+    db.all(`
+        SELECT 
+            DATE(created_at) as date,
+            event_type,
+            COUNT(*) as count,
+            SUM(amount) as total_amount
+        FROM referral_events
+        WHERE partner_id = ? AND created_at >= ?
+        GROUP BY DATE(created_at), event_type
+        ORDER BY date ASC
+    `, [userId, startDateStr], (err, events) => {
+        if (err) {
+            console.error('❌ Error fetching timeline:', err);
+            return res.status(500).json({ success: false, message: 'Database error' });
+        }
+        
+        // Создаём структуру данных по датам
+        const timeline = {};
+        const dateLabels = [];
+        
+        // Генерируем все даты в периоде
+        for (let i = 0; i < daysBack; i++) {
+            const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+            const dateKey = date.toISOString().split('T')[0];
+            dateLabels.push(dateKey);
+            timeline[dateKey] = {
+                clicks: 0,
+                firstDeposits: 0,
+                deposits: 0,
+                depositsAmount: 0,
+                earnings: 0
+            };
+        }
+        
+        // Заполняем данными из events
+        events.forEach(event => {
+            if (timeline[event.date]) {
+                switch(event.event_type) {
+                    case 'click':
+                        timeline[event.date].clicks += event.count;
+                        break;
+                    case 'first_deposit':
+                        timeline[event.date].firstDeposits += event.count;
+                        timeline[event.date].deposits += event.count;
+                        timeline[event.date].depositsAmount += event.total_amount || 0;
+                        break;
+                    case 'deposit':
+                        timeline[event.date].deposits += event.count;
+                        timeline[event.date].depositsAmount += event.total_amount || 0;
+                        break;
+                    case 'earning':
+                        timeline[event.date].earnings += event.total_amount || 0;
+                        break;
+                }
+            }
+        });
+        
+        res.json({
+            success: true,
+            period: period,
+            timeline: timeline,
+            dates: dateLabels
+        });
     });
 });
 
@@ -892,6 +990,14 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
                                 console.error('❌ Error updating stats:', err);
                             } else {
                                 console.log(`✅ Partner stats updated (repeat visit): partner_id=${partner.id}, clicks+1`);
+                                
+                                // Сохраняем событие в timeline
+                                db.run('INSERT INTO referral_events (partner_id, referral_user_id, event_type) VALUES (?, ?, ?)',
+                                    [partner.id, userId, 'click'],
+                                    (err) => {
+                                        if (err) console.error('❌ Error saving click event:', err);
+                                    }
+                                );
                             }
                         }
                     );
@@ -923,6 +1029,14 @@ app.post('/api/referral/register', webhookAuth, (req, res) => {
                                     console.error('❌ Error updating stats:', err);
                                 } else {
                                     console.log(`✅ Partner stats updated: partner_id=${partner.id}, clicks+1`);
+                                    
+                                    // Сохраняем событие в timeline
+                                    db.run('INSERT INTO referral_events (partner_id, referral_user_id, event_type) VALUES (?, ?, ?)',
+                                        [partner.id, userId, 'click'],
+                                        (err) => {
+                                            if (err) console.error('❌ Error saving click event:', err);
+                                        }
+                                    );
                                 }
                             }
                         );
@@ -1009,6 +1123,14 @@ app.post('/api/referral/register-referral', webhookAuth, (req, res) => {
                                     console.error('Ошибка обновления статистики:', err);
                                 }
                                 
+                                // Сохраняем событие first_deposit в timeline
+                                db.run('INSERT INTO referral_events (partner_id, referral_user_id, event_type, amount) VALUES (?, ?, ?, ?)',
+                                    [partnerId, referralUserId, 'first_deposit', depositAmount || 0],
+                                    (err) => {
+                                        if (err) console.error('❌ Error saving first_deposit event:', err);
+                                    }
+                                );
+                                
                                 console.log(`✅ Реферал зарегистрирован: ${referralUserId} -> Партнер: ${partnerId}`);
                                 
                                 res.json({ success: true, message: 'Реферал зарегистрирован' });
@@ -1047,6 +1169,14 @@ app.post('/api/referral/add-earnings', webhookAuth, (req, res) => {
                 if (err) {
                     return res.status(500).json({ success: false, message: 'Ошибка начисления' });
                 }
+                
+                // Сохраняем событие earning в timeline
+                db.run('INSERT INTO referral_events (partner_id, referral_user_id, event_type, amount) VALUES (?, ?, ?, ?)',
+                    [partnerId, referralUserId, 'earning', earnings],
+                    (err) => {
+                        if (err) console.error('❌ Error saving earning event:', err);
+                    }
+                );
                 
                 // Обновляем данные реферала
                 db.run(`UPDATE referrals 

@@ -13,9 +13,7 @@
 
     let myChart = null;
     let currentPeriod = 'week';
-    let currentStats = null; // Хранит текущие статистики для пересчёта при скрытии линий
-    let currentOffsetMap = {}; // Хранит текущие offset для tooltip
-    let currentBaseLift = 3; // Хранит текущий baseLift для tooltip
+    let currentDailyData = null; // Хранит ЕЖЕДНЕВНЫЕ данные (не кумулятивные) для tooltip
 
     // Цвета из скриншота
     const colors = {
@@ -179,21 +177,19 @@
                             label: function(context) {
                                 let label = context.dataset.label || '';
                                 
-                                if (context.parsed.y !== null) {
-                                    // ВЫЧИТАЕМ OFFSET И BASELIFT ЧТОБЫ ПОКАЗАТЬ РЕАЛЬНОЕ ЗНАЧЕНИЕ!
-                                    let realValue = context.parsed.y;
+                                if (context.parsed.y !== null && currentDailyData) {
+                                    // Берём ЕЖЕДНЕВНОЕ значение из currentDailyData (не кумулятивное!)
+                                    const pointIndex = context.dataIndex;
+                                    let realValue = 0;
                                     
-                                    // Определяем имя метрики по индексу dataset
+                                    // Определяем метрику по индексу dataset
                                     const metricNames = ['income', 'deposits', 'firstDeposits', 'visits'];
                                     const metricName = metricNames[context.datasetIndex];
                                     
-                                    // Вычитаем baseLift и offset
-                                    if (currentOffsetMap[metricName] !== undefined) {
-                                        realValue = realValue - currentBaseLift - currentOffsetMap[metricName];
+                                    // Получаем реальное значение за ЭТОТ день
+                                    if (currentDailyData[metricName] && currentDailyData[metricName][pointIndex] !== undefined) {
+                                        realValue = currentDailyData[metricName][pointIndex];
                                     }
-                                    
-                                    // Не показываем отрицательные значения
-                                    realValue = Math.max(0, realValue);
                                     
                                     if (label) {
                                         label += ': ';
@@ -443,156 +439,115 @@
                 return;
             }
 
-            const response = await fetch(`/api/referral/partner/stats`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Запрашиваем ОЬЕИХ API: общую статистику И timeline
+            const [statsResponse, timelineResponse] = await Promise.all([
+                fetch(`/api/referral/partner/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }),
+                fetch(`/api/referral/partner/stats/timeline?period=${period}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+            ]);
 
-            if (!response.ok) {
-                console.error('Ошибка загрузки статистики:', response.status);
+            if (!statsResponse.ok || !timelineResponse.ok) {
+                console.error('Ошибка загрузки статистики:', statsResponse.status, timelineResponse.status);
                 return;
             }
 
-            const data = await response.json();
+            const statsData = await statsResponse.json();
+            const timelineData = await timelineResponse.json();
             
-            if (data && data.stats) {
-                updateChartWithStats(data.stats, period);
-                updateStatsCards(data.stats);
+            if (statsData && statsData.stats && timelineData && timelineData.timeline) {
+                updateChartWithTimeline(timelineData, period);
+                updateStatsCards(statsData.stats);
             }
         } catch (error) {
             console.error('Ошибка загрузки данных графика:', error);
         }
     }
 
-    function updateChartWithStats(stats, period) {
+    function updateChartWithTimeline(timelineData, period) {
         if (!myChart) return;
 
-        // Сохраняем текущие stats для пересчёта при клике на легенду
-        currentStats = stats;
+        const timeline = timelineData.timeline;
+        const dates = timelineData.dates;
 
-        let labels = [];
-        let income = [];
-        let deposits = [];
-        let firstDeposits = [];
-        let visits = [];
+        // Форматируем даты для отображения
+        const labels = dates.map(dateStr => {
+            const date = new Date(dateStr);
+            const day = date.getDate();
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            const month = monthNames[date.getMonth()];
+            return `${day} ${month}`;
+        });
 
-        // Создаём метки в зависимости от периода (ВСЕГДА 7 ТОЧЕК)
-        switch(period) {
-            case 'today':
-            case 'yesterday':
-                labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
-                break;
-            case 'week':
-                labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
-                break;
-            case 'month':
-            case 'last_month':
-                labels = ['1-4', '5-8', '9-12', '13-16', '17-20', '21-24', '25-30'];
-                break;
-            case 'all_time':
-                labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
-                break;
-            default:
-                labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
+        // Извлекаем РЕАЛЬНЫЕ данные для каждой даты
+        const income = [];
+        const deposits = [];
+        const firstDeposits = [];
+        const visits = [];
+
+        dates.forEach(dateStr => {
+            const dayData = timeline[dateStr];
+            visits.push(dayData.clicks || 0);
+            firstDeposits.push(dayData.firstDeposits || 0);
+            deposits.push(dayData.depositsAmount || 0);
+            income.push(dayData.earnings || 0);
+        });
+
+        // КУМУЛЯТИВНЫЕ ДАННЫЕ - показываем накопленные значения!
+        // Каждая точка = сумма всех предыдущих + текущая
+        const cumulativeIncome = [];
+        const cumulativeDeposits = [];
+        const cumulativeFirstDeposits = [];
+        const cumulativeVisits = [];
+        
+        let sumIncome = 0;
+        let sumDeposits = 0;
+        let sumFirstDeposits = 0;
+        let sumVisits = 0;
+        
+        for (let i = 0; i < income.length; i++) {
+            sumIncome += income[i];
+            sumDeposits += deposits[i];
+            sumFirstDeposits += firstDeposits[i];
+            sumVisits += visits[i];
+            
+            cumulativeIncome.push(sumIncome);
+            cumulativeDeposits.push(sumDeposits);
+            cumulativeFirstDeposits.push(sumFirstDeposits);
+            cumulativeVisits.push(sumVisits);
         }
-
-        // Показываем общую статистику на всех точках
-        const totalEarnings = parseFloat(stats.earnings) || 0;
-        const totalDeposits = parseFloat(stats.totalDeposits) || 0;
-        const totalFirstDeposits = parseInt(stats.firstDeposits) || 0;
-        const totalClicks = parseInt(stats.clicks) || 0;
-
-        const length = labels.length;
         
-        // Находим максимальное значение среди всех метрик для расчёта offset
-        const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
+        // Сохраняем ежедневные данные для tooltip
+        currentDailyData = {
+            income: income,
+            deposits: deposits,
+            firstDeposits: firstDeposits,
+            visits: visits
+        };
         
-        // НОВАЯ ЛОГИКА: ОБЩЕЕ расстояние между ВСЕМИ линиями = 10px (не по 10px на каждую!)
-        // Базовый лифт: поднимаем все линии на 3px вверх, чтобы нижняя не была совсем внизу
-        const baseLift = 3;
-        
-        // Общее расстояние между всеми линиями
-        const totalSpacing = 10;
-        
-        const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
-        
-        // ДИНАМИЧЕСКАЯ СОРТИРОВКА: У кого значение больше — тот выше!
-        const metrics = [
-            { name: 'income', label: 'Доход', value: totalEarnings, datasetIndex: 0 },
-            { name: 'deposits', label: 'Депозиты', value: totalDeposits, datasetIndex: 1 },
-            { name: 'firstDeposits', label: 'Первые депозиты', value: totalFirstDeposits, datasetIndex: 2 },
-            { name: 'visits', label: 'Переходы', value: totalClicks, datasetIndex: 3 }
-        ];
-        
-        // Сортируем по значению: меньшие внизу, большие вверху
-        metrics.sort((a, b) => a.value - b.value);
-        
-        // Присваиваем offset: ОБЩЕЕ расстояние 10px делим на все линии
-        // Если 4 линии: 0, 3.33, 6.66, 10
-        // Если 3 линии: 0, 5, 10
-        // Если 2 линии: 0, 10
-        const offsetMap = {};
-        const lineCount = metrics.length;
-        
-        metrics.forEach((metric, index) => {
-            if (lineCount === 1) {
-                // Одна линия - в центре
-                offsetMap[metric.name] = totalSpacing / 2;
-            } else {
-                // Распределяем равномерно: index / (lineCount - 1) * totalSpacing
-                offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
+        console.log('📊 Chart Timeline Data:', {
+            dates: labels,
+            daily: currentDailyData,
+            cumulative: {
+                income: cumulativeIncome,
+                deposits: cumulativeDeposits,
+                firstDeposits: cumulativeFirstDeposits,
+                visits: cumulativeVisits
             }
         });
-        
-        // Сохраняем offsetMap для использования в tooltip
-        currentOffsetMap = { ...offsetMap };
-        
-        console.log('📊 Chart Debug:', {
-            maxValue,
-            totalSpacing,
-            baseLift,
-            lineCount,
-            totalEarnings,
-            totalDeposits,
-            totalFirstDeposits,
-            totalClicks,
-            sortedMetrics: metrics.map(m => `${m.label}: ${m.value} (offset: ${offsetMap[m.name].toFixed(2)}px + ${baseLift}px lift)`),
-            offsetMap
-        });
-        
-        // ДИАГОНАЛЬНЫЕ ЛИНИИ - начинаются с угла и поднимаются вверх!
-        function generateWavyData(total, pointsCount, offsetValue) {
-            const array = [];
-            
-            // Начальная позиция (левый угол): baseLift + offset
-            // Конечная позиция (правый угол): baseLift + offset + total
-            const startValue = baseLift + offsetValue;
-            const endValue = baseLift + offsetValue + total;
-            
-            for (let i = 0; i < pointsCount; i++) {
-                // Прогресс от 0.0 (начало) до 1.0 (конец)
-                const progress = pointsCount === 1 ? 1 : i / (pointsCount - 1);
-                
-                // Линейная интерполяция от startValue до endValue
-                const value = startValue + (total * progress);
-                array.push(value);
-            }
-            
-            return array;
-        }
 
-        // Создаём данные с ДИНАМИЧЕСКИМ offset (по отсортированным значениям)
-        income = generateWavyData(totalEarnings, length, offsetMap.income);
-        deposits = generateWavyData(totalDeposits, length, offsetMap.deposits);
-        firstDeposits = generateWavyData(totalFirstDeposits, length, offsetMap.firstDeposits);
-        visits = generateWavyData(totalClicks, length, offsetMap.visits);
-
+        // Обновляем график кумулятивными данными
         myChart.data.labels = labels;
-        myChart.data.datasets[0].data = income;
-        myChart.data.datasets[1].data = deposits;
-        myChart.data.datasets[2].data = firstDeposits;
-        myChart.data.datasets[3].data = visits;
+        myChart.data.datasets[0].data = cumulativeIncome;
+        myChart.data.datasets[1].data = cumulativeDeposits;
+        myChart.data.datasets[2].data = cumulativeFirstDeposits;
+        myChart.data.datasets[3].data = cumulativeVisits;
 
         myChart.update();
     }
