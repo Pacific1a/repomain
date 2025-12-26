@@ -21,7 +21,7 @@
     <script src="../js/admin.js?v=8" defer></script>
     <script src="js/script.js?v=9" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="chart.js?v=37"></script>
+    <script src="chart.js?v=38"></script>
     <script src="../modal-generator.js"></script>
     <script src="../modal-handler.js"></script>
 </head>
@@ -213,23 +213,24 @@
                 </div>
 
                 <div class="chart-container">
-                    <div class="chart-legend">
-                        <div class="legend-item-new active" data-line="income">
-                            <span class="legend-dot" style="background: #E84C3D;"></span>
-                            <span class="legend-text">Доход</span>
-                        </div>
-                        <div class="legend-item-new active" data-line="deposits">
-                            <span class="legend-dot" style="background: #5DCCBA;"></span>
-                            <span class="legend-text">Депозиты</span>
-                        </div>
-                        <div class="legend-item-new active" data-line="visits">
-                            <span class="legend-dot" style="background: #DDDDDD;"></span>
-                            <span class="legend-text">Переходы</span>
-                        </div>
-                        <div class="legend-item-new active" data-line="firstDeposits">
-                            <span class="legend-dot" style="background: #E8B84D;"></span>
-                            <span class="legend-text">Первые депозиты</span>
-                        </div>
+                    <!-- Кнопки выбора метрики (как у курсов валют - одна линия за раз) -->
+                    <div class="chart-legend metric-selector">
+                        <button class="metric-btn active" data-metric="visits">
+                            <span class="metric-dot" style="background: #DDDDDD;"></span>
+                            <span class="metric-text">Переходы</span>
+                        </button>
+                        <button class="metric-btn" data-metric="income">
+                            <span class="metric-dot" style="background: #E84C3D;"></span>
+                            <span class="metric-text">Доход</span>
+                        </button>
+                        <button class="metric-btn" data-metric="deposits">
+                            <span class="metric-dot" style="background: #5DCCBA;"></span>
+                            <span class="metric-text">Депозиты</span>
+                        </button>
+                        <button class="metric-btn" data-metric="firstDeposits">
+                            <span class="metric-dot" style="background: #E8B84D;"></span>
+                            <span class="metric-text">Первые депозиты</span>
+                        </button>
                     </div>
                     
                     <div class="chart-canvas-wrapper">

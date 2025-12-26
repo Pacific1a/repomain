@@ -1,156 +1,90 @@
-// ============================================
-// ГРАФИК СТАТИСТИКИ С CHART.JS + DATE-PICKER
-// ============================================
+// ГРАФИК КАК У КУРСОВ ВАЛЮТ - ОДНА ЛИНИЯ С GRADIENT FILL
 
 (function() {
     'use strict';
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initChart);
-    } else {
-        initChart();
-    }
-
     let myChart = null;
     let currentPeriod = 'week';
-    let currentDailyData = null; // Хранит ЕЖЕДНЕВНЫЕ данные (не кумулятивные) для tooltip
+    let currentMetric = 'visits'; // По умолчанию - Переходы
+    let timelineData = null; // Храним данные timeline
 
-    // Цвета из скриншота
-    const colors = {
-        income: '#E84C3D',       // Красный
-        deposits: '#5DCCBA',     // Зелёный/бирюзовый
-        visits: '#DDDDDD',       // Серый/белый
-        firstDeposits: '#E8B84D' // Жёлтый/оранжевый
+    // Цвета и конфигурация метрик
+    const metrics = {
+        visits: {
+            label: 'Переходы',
+            color: '#DDDDDD',
+            gradient: ['rgba(221, 221, 221, 0.3)', 'rgba(221, 221, 221, 0)']
+        },
+        income: {
+            label: 'Доход',
+            color: '#E84C3D',
+            gradient: ['rgba(232, 76, 61, 0.3)', 'rgba(232, 76, 61, 0)']
+        },
+        deposits: {
+            label: 'Депозиты',
+            color: '#5DCCBA',
+            gradient: ['rgba(93, 204, 186, 0.3)', 'rgba(93, 204, 186, 0)']
+        },
+        firstDeposits: {
+            label: 'Первые депозиты',
+            color: '#E8B84D',
+            gradient: ['rgba(232, 184, 77, 0.3)', 'rgba(232, 184, 77, 0)']
+        }
     };
 
     function initChart() {
-        // Проверяем что Chart.js загружен
         if (typeof Chart === 'undefined') {
             console.error('Chart.js не загружен!');
-            setTimeout(initChart, 100); // Пробуем ещё раз через 100ms
+            setTimeout(initChart, 100);
             return;
         }
 
         const canvas = document.getElementById('statisticsChart');
         if (!canvas) {
-            console.error('Canvas элемент не найден!');
+            console.error('Canvas не найден!');
             return;
         }
 
         const ctx = canvas.getContext('2d');
 
-        // Конфигурация Chart.js
+        // Создаём gradient для fill
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, metrics[currentMetric].gradient[0]);
+        gradient.addColorStop(1, metrics[currentMetric].gradient[1]);
+
         const config = {
             type: 'line',
             data: {
-                labels: ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'],
-                datasets: [
-                    {
-                        label: 'Доход',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: colors.income,
-                        backgroundColor: colors.income + '25',
-                        borderWidth: 2.5,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: colors.income,
-                        pointBorderColor: colors.income,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 15,
-                        tension: 0.4,
-                        cubicInterpolationMode: 'monotone',
-                        fill: false,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Депозиты',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: colors.deposits,
-                        backgroundColor: colors.deposits + '25',
-                        borderWidth: 2.5,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: colors.deposits,
-                        pointBorderColor: colors.deposits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 15,
-                        tension: 0.4,
-                        cubicInterpolationMode: 'monotone',
-                        fill: false,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Первые депозиты',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: colors.firstDeposits,
-                        backgroundColor: colors.firstDeposits + '25',
-                        borderWidth: 2.5,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: colors.firstDeposits,
-                        pointBorderColor: colors.firstDeposits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 15,
-                        tension: 0.4,
-                        cubicInterpolationMode: 'monotone',
-                        fill: false,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Переходы',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: colors.visits,
-                        backgroundColor: colors.visits + '25',
-                        borderWidth: 2.5,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                        pointBackgroundColor: colors.visits,
-                        pointBorderColor: colors.visits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 15,
-                        tension: 0.4,
-                        cubicInterpolationMode: 'monotone',
-                        fill: false,
-                        yAxisID: 'y'
-                    }
-                ]
+                labels: [],
+                datasets: [{
+                    label: metrics[currentMetric].label,
+                    data: [],
+                    borderColor: metrics[currentMetric].color,
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    fill: true, // ВАЖНО: заполнение под линией!
+                    tension: 0.4, // Плавные изгибы
+                    pointRadius: 0, // Точки скрыты
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: metrics[currentMetric].color,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                animation: {
-                    duration: 1500,
-                    easing: 'easeInOutQuart',
-                    onComplete: function() {
-                        // После завершения анимации запускаем плавное колебание
-                        if (!this.animationComplete) {
-                            this.animationComplete = true;
-                        }
-                    }
-                },
-                transitions: {
-                    active: {
-                        animation: {
-                            duration: 400
-                        }
-                    }
-                },
                 interaction: {
-                    mode: 'point',
-                    intersect: true
+                    mode: 'index',
+                    intersect: false
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        display: false // Легенда скрыта (используем кнопки)
                     },
                     tooltip: {
-                        enabled: true,
-                        mode: 'point',
-                        intersect: true,
+                        mode: 'index',
+                        intersect: false,
                         backgroundColor: 'rgba(33, 26, 26, 0.95)',
                         titleColor: '#C1ACAC',
                         titleFont: {
@@ -171,40 +105,18 @@
                         usePointStyle: true,
                         callbacks: {
                             title: function(context) {
-                                // Показываем только дату
                                 return context[0].label;
                             },
                             label: function(context) {
                                 let label = context.dataset.label || '';
-                                
-                                if (context.parsed.y !== null && currentDailyData) {
-                                    // Берём ЕЖЕДНЕВНОЕ значение из currentDailyData (не кумулятивное!)
-                                    const pointIndex = context.dataIndex;
-                                    let realValue = 0;
-                                    
-                                    // Определяем метрику по индексу dataset
-                                    const metricNames = ['income', 'deposits', 'firstDeposits', 'visits'];
-                                    const metricName = metricNames[context.datasetIndex];
-                                    
-                                    // Получаем реальное значение за ЭТОТ день
-                                    if (currentDailyData[metricName] && currentDailyData[metricName][pointIndex] !== undefined) {
-                                        realValue = currentDailyData[metricName][pointIndex];
-                                    }
-                                    
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    
-                                    // Форматируем в зависимости от типа
-                                    if (context.datasetIndex === 3) {
-                                        // Переходы - без рублей
-                                        label += Math.round(realValue).toLocaleString('ru-RU');
+                                if (context.parsed.y !== null) {
+                                    label += ': ';
+                                    if (currentMetric === 'visits' || currentMetric === 'firstDeposits') {
+                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU');
                                     } else {
-                                        // Деньги - с рублями
-                                        label += Math.round(realValue).toLocaleString('ru-RU') + '₽';
+                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
                                     }
                                 }
-                                
                                 return label;
                             }
                         }
@@ -227,7 +139,6 @@
                     y: {
                         beginAtZero: true,
                         min: 0,
-                        suggestedMax: 100,
                         grace: '10%',
                         grid: {
                             color: 'rgba(193, 172, 172, 0.1)',
@@ -240,17 +151,8 @@
                                 family: 'Inter, sans-serif'
                             },
                             callback: function(value) {
-                                // Не показываем дробные значения
                                 if (value % 1 !== 0) return '';
                                 return Math.round(value);
-                            },
-                            stepSize: function(context) {
-                                // Минимальный шаг 100 если данные небольшие
-                                const max = context.chart.scales.y.max;
-                                if (max <= 10) return 5;
-                                if (max <= 100) return 20;
-                                if (max <= 500) return 100;
-                                return null; // Авто
                             }
                         }
                     }
@@ -258,131 +160,91 @@
             }
         };
 
-        // Создаём график
         myChart = new Chart(ctx, config);
 
         // Настройка обработчиков
-        setupLegendHandlers();
+        setupMetricButtons();
         setupDatePicker();
         
         // Загрузка данных
         loadChartData(currentPeriod);
     }
 
-    function setupLegendHandlers() {
-        const legendItems = document.querySelectorAll('.legend-item-new');
+    function setupMetricButtons() {
+        const metricBtns = document.querySelectorAll('.metric-btn');
         
-        legendItems.forEach((item, index) => {
-            item.addEventListener('click', function() {
-                const datasetIndex = index;
-                const meta = myChart.getDatasetMeta(datasetIndex);
+        metricBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Убираем active со всех кнопок
+                metricBtns.forEach(b => b.classList.remove('active'));
                 
-                // Toggle visibility
-                meta.hidden = meta.hidden === null ? !myChart.data.datasets[datasetIndex].hidden : null;
+                // Добавляем active к текущей
+                this.classList.add('active');
                 
-                // Toggle inactive class (добавляем когда скрыто, убираем когда показано)
-                if (meta.hidden) {
-                    item.classList.add('inactive');
-                    item.classList.remove('active');
-                } else {
-                    item.classList.remove('inactive');
-                    item.classList.add('active');
-                }
+                // Меняем текущую метрику
+                currentMetric = this.dataset.metric;
                 
-                // ПЕРЕСЧИТЫВАЕМ OFFSET ДЛЯ ВИДИМЫХ ЛИНИЙ
-                // Когда скрываем линии, остальные опускаются вниз
-                if (currentStats) {
-                    recalculateChartData();
-                }
+                console.log('📊 Metric changed:', currentMetric);
                 
-                myChart.update();
+                // Обновляем график
+                updateChartMetric();
             });
         });
     }
 
-    function recalculateChartData() {
-        if (!myChart || !currentStats) return;
+    function updateChartMetric() {
+        if (!myChart || !timelineData) return;
 
-        const stats = currentStats;
-        const totalEarnings = parseFloat(stats.earnings) || 0;
-        const totalDeposits = parseFloat(stats.totalDeposits) || 0;
-        const totalFirstDeposits = parseInt(stats.firstDeposits) || 0;
-        const totalClicks = parseInt(stats.clicks) || 0;
-
-        // Определяем какие datasets видимы
-        const visibleMetrics = [];
+        const metric = metrics[currentMetric];
+        const ctx = myChart.canvas.getContext('2d');
         
-        if (!myChart.getDatasetMeta(0).hidden) {
-            visibleMetrics.push({ name: 'income', value: totalEarnings, index: 0 });
-        }
-        if (!myChart.getDatasetMeta(1).hidden) {
-            visibleMetrics.push({ name: 'deposits', value: totalDeposits, index: 1 });
-        }
-        if (!myChart.getDatasetMeta(2).hidden) {
-            visibleMetrics.push({ name: 'firstDeposits', value: totalFirstDeposits, index: 2 });
-        }
-        if (!myChart.getDatasetMeta(3).hidden) {
-            visibleMetrics.push({ name: 'visits', value: totalClicks, index: 3 });
-        }
+        // Создаём новый gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, metric.gradient[0]);
+        gradient.addColorStop(1, metric.gradient[1]);
 
-        // Сортируем ТОЛЬКО ВИДИМЫЕ метрики по значению
-        visibleMetrics.sort((a, b) => a.value - b.value);
-
-        // НОВАЯ ЛОГИКА: ОБЩЕЕ расстояние между ВСЕМИ линиями = 10px
-        const baseLift = 3;
-        const totalSpacing = 10;
-        const lineCount = visibleMetrics.length;
-
-        // Создаём карту offset для видимых линий
-        const offsetMap = { income: 0, deposits: 0, firstDeposits: 0, visits: 0 };
+        // Обновляем dataset
+        myChart.data.datasets[0].label = metric.label;
+        myChart.data.datasets[0].borderColor = metric.color;
+        myChart.data.datasets[0].backgroundColor = gradient;
+        myChart.data.datasets[0].pointHoverBackgroundColor = metric.color;
         
-        visibleMetrics.forEach((metric, index) => {
-            if (lineCount === 1) {
-                offsetMap[metric.name] = totalSpacing / 2;
-            } else {
-                offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
+        // Обновляем данные
+        const data = extractMetricData(timelineData, currentMetric);
+        myChart.data.datasets[0].data = data;
+        
+        myChart.update();
+    }
+
+    function extractMetricData(timeline, metric) {
+        const dates = timeline.dates;
+        const data = [];
+        let cumulative = 0; // КУМУЛЯТИВНОЕ НАКОПЛЕНИЕ (как у курсов валют!)
+
+        dates.forEach(dateStr => {
+            const dayData = timeline.timeline[dateStr];
+            let value = 0;
+
+            switch(metric) {
+                case 'visits':
+                    value = dayData.clicks || 0;
+                    break;
+                case 'income':
+                    value = dayData.earnings || 0;
+                    break;
+                case 'deposits':
+                    value = dayData.depositsAmount || 0;
+                    break;
+                case 'firstDeposits':
+                    value = dayData.firstDeposits || 0;
+                    break;
             }
-        });
-        
-        // Сохраняем offsetMap для использования в tooltip
-        currentOffsetMap = { ...offsetMap };
 
-        console.log('🔄 Recalculate Chart (after legend click):', {
-            visibleMetrics: visibleMetrics.map(m => m.name),
-            lineCount,
-            offsetMap,
-            totalSpacing,
-            baseLift
+            cumulative += value; // Накапливаем!
+            data.push(cumulative);
         });
 
-        // Генерируем данные с новыми offset
-        const length = myChart.data.labels.length;
-        
-        function generateWavyData(total, pointsCount, offsetValue) {
-            const array = [];
-            
-            // Начальная позиция (левый угол): baseLift + offset
-            // Конечная позиция (правый угол): baseLift + offset + total
-            const startValue = baseLift + offsetValue;
-            const endValue = baseLift + offsetValue + total;
-            
-            for (let i = 0; i < pointsCount; i++) {
-                // Прогресс от 0.0 (начало) до 1.0 (конец)
-                const progress = pointsCount === 1 ? 1 : i / (pointsCount - 1);
-                
-                // Линейная интерполяция от startValue до endValue
-                const value = startValue + (total * progress);
-                array.push(value);
-            }
-            
-            return array;
-        }
-
-        // Обновляем данные для всех datasets с новыми offset
-        myChart.data.datasets[0].data = generateWavyData(totalEarnings, length, offsetMap.income);
-        myChart.data.datasets[1].data = generateWavyData(totalDeposits, length, offsetMap.deposits);
-        myChart.data.datasets[2].data = generateWavyData(totalFirstDeposits, length, offsetMap.firstDeposits);
-        myChart.data.datasets[3].data = generateWavyData(totalClicks, length, offsetMap.visits);
+        return data;
     }
 
     function setupDatePicker() {
@@ -416,7 +278,6 @@
                 this.classList.add('active');
                 this.classList.remove('non_active');
                 
-                // Обновляем текст date-picker
                 const datePickerSpan = datePicker.querySelector('#datepicker-label');
                 if (datePickerSpan) {
                     datePickerSpan.textContent = this.textContent;
@@ -424,7 +285,6 @@
                 
                 const periodClass = this.className.split(' ')[0];
                 
-                // Маппинг классов HTML на period для API
                 const periodMap = {
                     'today': 'week',
                     'yesterday': 'week',
@@ -450,49 +310,42 @@
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                console.error('Токен не найден в localStorage');
+                console.error('Токен не найден');
                 return;
             }
 
-            // Запрашиваем ОЬЕИХ API: общую статистику И timeline
             const [statsResponse, timelineResponse] = await Promise.all([
                 fetch(`/api/referral/partner/stats`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 }),
                 fetch(`/api/referral/partner/stats/timeline?period=${period}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
 
             if (!statsResponse.ok || !timelineResponse.ok) {
-                console.error('Ошибка загрузки статистики:', statsResponse.status, timelineResponse.status);
+                console.error('Ошибка загрузки данных');
                 return;
             }
 
             const statsData = await statsResponse.json();
-            const timelineData = await timelineResponse.json();
+            const timeline = await timelineResponse.json();
             
-            if (statsData && statsData.stats && timelineData && timelineData.timeline) {
-                updateChartWithTimeline(timelineData, period);
+            if (statsData && statsData.stats && timeline && timeline.timeline) {
+                timelineData = timeline; // Сохраняем для переключения метрик
+                updateChartWithTimeline(timeline);
                 updateStatsCards(statsData.stats);
             }
         } catch (error) {
-            console.error('Ошибка загрузки данных графика:', error);
+            console.error('Ошибка загрузки данных:', error);
         }
     }
 
-    function updateChartWithTimeline(timelineData, period) {
+    function updateChartWithTimeline(timeline) {
         if (!myChart) return;
 
-        const timeline = timelineData.timeline;
-        const dates = timelineData.dates;
-
-        // Форматируем даты для отображения
-        const labels = dates.map(dateStr => {
+        // Форматируем даты
+        const labels = timeline.dates.map(dateStr => {
             const date = new Date(dateStr);
             const day = date.getDate();
             const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
@@ -500,61 +353,36 @@
             return `${day} ${month}`;
         });
 
-        // Извлекаем РЕАЛЬНЫЕ данные для каждой даты
-        const income = [];
-        const deposits = [];
-        const firstDeposits = [];
-        const visits = [];
+        // Извлекаем данные для текущей метрики
+        const data = extractMetricData(timeline, currentMetric);
 
-        dates.forEach(dateStr => {
-            const dayData = timeline[dateStr];
-            visits.push(dayData.clicks || 0);
-            firstDeposits.push(dayData.firstDeposits || 0);
-            deposits.push(dayData.depositsAmount || 0);
-            income.push(dayData.earnings || 0);
+        console.log('📊 Chart updated:', {
+            metric: currentMetric,
+            labels: labels,
+            data: data
         });
 
-        // Сохраняем ежедневные данные для tooltip
-        currentDailyData = {
-            income: income,
-            deposits: deposits,
-            firstDeposits: firstDeposits,
-            visits: visits
-        };
-        
-        console.log('📊 Chart Timeline Data:', {
-            dates: labels,
-            income: income,
-            deposits: deposits,
-            firstDeposits: firstDeposits,
-            visits: visits
-        });
-
-        // Обновляем график РЕАЛЬНЫМИ данными (не кумулятивными!)
         myChart.data.labels = labels;
-        myChart.data.datasets[0].data = income;
-        myChart.data.datasets[1].data = deposits;
-        myChart.data.datasets[2].data = firstDeposits;
-        myChart.data.datasets[3].data = visits;
-
+        myChart.data.datasets[0].data = data;
         myChart.update();
     }
 
     function updateStatsCards(stats) {
-        // Карточки статистики уже обновляются через script.js
-        // Просто логируем для отладки
-        console.log('Статистика загружена:', stats);
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 6) {
+            statValues[0].textContent = stats.clicks || 0;
+            statValues[1].textContent = stats.firstDeposits || 0;
+            statValues[2].textContent = stats.deposits || 0;
+            statValues[3].textContent = (parseFloat(stats.totalDeposits) || 0).toFixed(2) + '₽';
+            statValues[4].textContent = (parseFloat(stats.costPerClick) || 0).toFixed(2) + '₽';
+            statValues[5].textContent = (parseFloat(stats.earnings) || 0).toFixed(2) + '₽';
+        }
     }
 
-    function getMonthName(month) {
-        const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-        return months[month];
+    // Запуск при загрузке
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChart);
+    } else {
+        initChart();
     }
-
-    // Expose functions globally
-    window.chartUtils = {
-        loadChartData: loadChartData,
-        updateStatsCards: updateStatsCards
-    };
-
 })();
