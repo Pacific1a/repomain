@@ -23,6 +23,13 @@
     };
 
     function initChart() {
+        // Проверяем что Chart.js загружен
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js не загружен!');
+            setTimeout(initChart, 100); // Пробуем ещё раз через 100ms
+            return;
+        }
+
         const canvas = document.getElementById('statisticsChart');
         if (!canvas) {
             console.error('Canvas элемент не найден!');
