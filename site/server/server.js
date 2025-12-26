@@ -810,6 +810,8 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
     const userId = req.userId;
     const period = req.query.period || 'week'; // week, month, 3months, 6months, year
     
+    console.log('📊 Timeline API called:', { userId, period });
+    
     // Определяем дату начала периода
     const now = new Date();
     let daysBack = 7; // по умолчанию неделя
@@ -883,6 +885,8 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
             }
         });
         
+        console.log('📊 Events found:', events.length);
+        
         // ВАЖНО: Если events пустая, берём ОБЩУЮ статистику из referral_stats
         // и показываем её на ПЕРВОЙ точке графика (для старых данных)
         if (events.length === 0) {
@@ -910,7 +914,9 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
                 console.log('✅ Fallback data applied:', {
                     clicks: stats.clicks,
                     firstDeposits: stats.first_deposits,
-                    earnings: stats.earnings
+                    earnings: stats.earnings,
+                    firstDate: dateLabels[0],
+                    timelineFirstPoint: timeline[dateLabels[0]]
                 });
                 
                 res.json({
@@ -921,6 +927,7 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
                 });
             });
         } else {
+            console.log('📊 Using events data (not fallback)');
             res.json({
                 success: true,
                 period: period,
