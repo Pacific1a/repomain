@@ -212,6 +212,9 @@
                     },
                     y: {
                         beginAtZero: true,
+                        min: 0,
+                        suggestedMax: 100,
+                        grace: '10%',
                         grid: {
                             color: 'rgba(193, 172, 172, 0.1)',
                             lineWidth: 1
@@ -223,7 +226,17 @@
                                 family: 'Inter, sans-serif'
                             },
                             callback: function(value) {
+                                // Не показываем дробные значения
+                                if (value % 1 !== 0) return '';
                                 return Math.round(value);
+                            },
+                            stepSize: function(context) {
+                                // Минимальный шаг 100 если данные небольшие
+                                const max = context.chart.scales.y.max;
+                                if (max <= 10) return 5;
+                                if (max <= 100) return 20;
+                                if (max <= 500) return 100;
+                                return null; // Авто
                             }
                         }
                     }
@@ -298,7 +311,8 @@
                 this.classList.add('active');
                 this.classList.remove('non_active');
                 
-                const datePickerSpan = datePicker.querySelector('span');
+                // Обновляем текст date-picker
+                const datePickerSpan = datePicker.querySelector('#datepicker-label');
                 if (datePickerSpan) {
                     datePickerSpan.textContent = this.textContent;
                 }
