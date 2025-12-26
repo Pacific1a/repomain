@@ -71,38 +71,49 @@
         function drawChart() {
             ctx.clearRect(0, 0, width, height);
             
-            // Находим максимальные значения для каждой метрики
-            const maxValues = {};
-            Object.keys(chartData.datasets).forEach(key => {
-                const max = Math.max(...chartData.datasets[key]);
-                maxValues[key] = max > 0 ? max : 1;
-            });
+            // Вычисляем stacked данные (области складываются)
+            const stackedData = calculateStackedData();
+            const maxValue = stackedData.maxValue > 0 ? stackedData.maxValue : 100;
             
-            const allValues = [];
-            Object.keys(chartData.datasets).forEach(key => {
-                if (lineVisibility[key]) {
-                    allValues.push(...chartData.datasets[key]);
-                }
-            });
-            const globalMax = allValues.length > 0 ? Math.max(...allValues) : 100;
+            drawGrid(maxValue);
             
-            drawGrid(globalMax);
-            
-            // Рисуем линии снизу вверх с фиксированным отступом 12px
+            // Рисуем stacked области снизу вверх
             const order = ['income', 'deposits', 'firstDeposits', 'visits'];
-            const visibleLines = order.filter(key => lineVisibility[key]);
-            
-            visibleLines.forEach((key, index) => {
-                drawSeparatedLine(
-                    chartData.datasets[key], 
-                    chartData.colors[key], 
-                    globalMax,
-                    index,
-                    visibleLines.length
-                );
+            order.forEach(key => {
+                if (lineVisibility[key]) {
+                    drawSmoothStackedArea(
+                        stackedData.layers[key], 
+                        chartData.colors[key],
+                        maxValue
+                    );
+                }
             });
             
             drawXLabels();
+        }
+        
+        function calculateStackedData() {
+            const order = ['income', 'deposits', 'firstDeposits', 'visits'];
+            const layers = {};
+            const accumulated = new Array(chartData.labels.length).fill(0);
+            let maxValue = 0;
+            
+            order.forEach(key => {
+                if (lineVisibility[key]) {
+                    layers[key] = chartData.datasets[key].map((value, index) => {
+                        const bottom = accumulated[index];
+                        accumulated[index] += value;
+                        maxValue = Math.max(maxValue, accumulated[index]);
+                        return { bottom, top: accumulated[index], value };
+                    });
+                } else {
+                    layers[key] = chartData.datasets[key].map(() => ({ 
+                        bottom: 0, top: 0, value: 0 
+                    }));
+                }
+            });
+            
+            return { layers, maxValue };
         }
 
         function drawGrid(maxValue) {
@@ -127,72 +138,103 @@
             }
         }
 
-        function drawSeparatedLine(data, color, maxValue, lineIndex, totalLines) {
-            const points = [];
-            const lineOffset = lineIndex * 12; // 12px отступ для каждой следующей линии
+        function drawSmoothStackedArea(layerData, color, maxValue) {
+            const valueRange = maxValue;
+            const topPoints = [];
+            const bottomPoints = [];
             
-            data.forEach((value, index) => {
-                const x = padding.left + (chartWidth / (data.length - 1)) * index;
+            // Вычисляем координаты точек
+            layerData.forEach((data, index) => {
+                const x = padding.left + (chartWidth / (layerData.length - 1)) * index;
                 
-                // Нормализуем значение от 0 до maxValue
-                const normalizedValue = value / maxValue;
+                const normalizedTop = data.top / valueRange;
+                const yTop = padding.top + chartHeight - (normalizedTop * chartHeight);
                 
-                // Y идёт снизу вверх + отступ для этой линии
-                const y = padding.top + chartHeight - (normalizedValue * chartHeight) - lineOffset;
+                const normalizedBottom = data.bottom / valueRange;
+                const yBottom = padding.top + chartHeight - (normalizedBottom * chartHeight);
                 
-                points.push({ x, y, value });
+                topPoints.push({ x, y: yTop, value: data.value });
+                bottomPoints.push({ x, y: yBottom });
             });
             
             // Сохраняем точки для tooltip
             if (!window.chartPoints) window.chartPoints = {};
-            window.chartPoints[color] = points;
+            window.chartPoints[color] = topPoints;
             
-            // Рисуем линию с тенью
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 8;
-            ctx.shadowOffsetY = 2;
+            // Рисуем заполненную область с gradient
+            const gradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+            gradient.addColorStop(0, color + '50'); // 50 = ~30% прозрачность сверху
+            gradient.addColorStop(1, color + '20'); // 20 = ~12% прозрачность снизу
             
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            
+            // Плавная верхняя линия (smooth curve)
+            if (topPoints.length > 0) {
+                ctx.moveTo(topPoints[0].x, topPoints[0].y);
+                
+                for (let i = 0; i < topPoints.length - 1; i++) {
+                    const current = topPoints[i];
+                    const next = topPoints[i + 1];
+                    const controlX = (current.x + next.x) / 2;
+                    
+                    ctx.quadraticCurveTo(current.x, current.y, controlX, (current.y + next.y) / 2);
+                }
+                
+                // Последняя точка
+                const lastTop = topPoints[topPoints.length - 1];
+                ctx.lineTo(lastTop.x, lastTop.y);
+            }
+            
+            // Нижняя линия (обратно)
+            for (let i = bottomPoints.length - 1; i >= 0; i--) {
+                ctx.lineTo(bottomPoints[i].x, bottomPoints[i].y);
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+            
+            // Рисуем контурную линию поверх
             ctx.strokeStyle = color;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.5;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             
             ctx.beginPath();
-            points.forEach((point, index) => {
-                if (index === 0) {
-                    ctx.moveTo(point.x, point.y);
-                } else {
-                    ctx.lineTo(point.x, point.y);
+            if (topPoints.length > 0) {
+                ctx.moveTo(topPoints[0].x, topPoints[0].y);
+                
+                for (let i = 0; i < topPoints.length - 1; i++) {
+                    const current = topPoints[i];
+                    const next = topPoints[i + 1];
+                    const controlX = (current.x + next.x) / 2;
+                    
+                    ctx.quadraticCurveTo(current.x, current.y, controlX, (current.y + next.y) / 2);
                 }
-            });
+                
+                ctx.lineTo(topPoints[topPoints.length - 1].x, topPoints[topPoints.length - 1].y);
+            }
             ctx.stroke();
             
-            // Убираем тень
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-            
-            // Рисуем точки
-            points.forEach(point => {
+            // Рисуем точки на верхней линии
+            topPoints.forEach(point => {
                 // Тень точки
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                 ctx.beginPath();
-                ctx.arc(point.x + 1, point.y + 2, 6, 0, Math.PI * 2);
+                ctx.arc(point.x + 0.5, point.y + 1, 5, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Внешняя точка
                 ctx.fillStyle = color;
                 ctx.beginPath();
-                ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+                ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
                 ctx.fill();
                 
                 // Внутренняя точка
                 ctx.fillStyle = '#211A1A';
                 ctx.beginPath();
-                ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+                ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
                 ctx.fill();
-                
-                ctx.fillStyle = color;
                 ctx.beginPath();
                 ctx.arc(point.x, point.y, 1.5, 0, Math.PI * 2);
                 ctx.fill();
