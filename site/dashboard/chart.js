@@ -396,8 +396,10 @@
         // Находим максимальное значение среди всех метрик для расчёта offset
         const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
         
-        // Если все значения 0 или очень маленькие, используем базовый offset
-        const baseOffset = maxValue > 0 ? maxValue * 0.08 : 5;
+        // Умный offset: минимум 10 единиц между линиями, чтобы они не слипались
+        // Когда данные маленькие (0-10) → offset = 10
+        // Когда данные большие (100+) → offset = 8% от макс значения
+        const baseOffset = Math.max(maxValue * 0.08, 10);
         
         console.log('📊 Chart Debug:', {
             maxValue,
@@ -405,7 +407,13 @@
             totalEarnings,
             totalDeposits,
             totalFirstDeposits,
-            totalClicks
+            totalClicks,
+            linePositions: {
+                visits: 0,
+                firstDeposits: baseOffset * 1,
+                deposits: baseOffset * 2,
+                income: baseOffset * 3
+            }
         });
         
         // Создаём реалистичные данные с волнами + offset для разделения линий
