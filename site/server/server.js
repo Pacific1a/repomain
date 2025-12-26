@@ -887,10 +887,20 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
         
         console.log('📊 Events found:', events.length);
         
-        // ВАЖНО: Если events пустая, берём ОБЩУЮ статистику из referral_stats
-        // и показываем её на ПЕРВОЙ точке графика (для старых данных)
-        if (events.length === 0) {
-            console.log('⚠️ No events found, using fallback to referral_stats');
+        // Проверяем есть ли хоть ОДНО ненулевое значение в timeline
+        let hasAnyData = false;
+        for (const date in timeline) {
+            const day = timeline[date];
+            if (day.clicks > 0 || day.firstDeposits > 0 || day.earnings > 0 || day.depositsAmount > 0) {
+                hasAnyData = true;
+                break;
+            }
+        }
+        
+        // ВАЖНО: Если events пустая ИЛИ timeline полностью пустой, 
+        // берём ОБЩУЮ статистику из referral_stats и показываем её на ПЕРВОЙ точке
+        if (events.length === 0 || !hasAnyData) {
+            console.log('⚠️ No events found or timeline empty, using fallback to referral_stats');
             
             db.get('SELECT * FROM referral_stats WHERE user_id = ?', [userId], (err, stats) => {
                 if (err || !stats) {
