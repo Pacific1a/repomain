@@ -262,7 +262,18 @@
 
     async function loadChartData(period) {
         try {
-            const response = await fetch(`/api/referral/partner/stats`);
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('Токен не найден в localStorage');
+                return;
+            }
+
+            const response = await fetch(`/api/referral/partner/stats`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
             if (!response.ok) {
                 console.error('Ошибка загрузки статистики:', response.status);
                 return;
