@@ -50,12 +50,12 @@
                         borderColor: colors.income,
                         backgroundColor: colors.income + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.income,
-                        pointBorderColor: '#211A1A',
-                        pointBorderWidth: 2,
-                        pointHoverBorderWidth: 3,
+                        pointBorderColor: colors.income,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 0,
                         pointHitRadius: 10,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -68,12 +68,12 @@
                         borderColor: colors.deposits,
                         backgroundColor: colors.deposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.deposits,
-                        pointBorderColor: '#211A1A',
-                        pointBorderWidth: 2,
-                        pointHoverBorderWidth: 3,
+                        pointBorderColor: colors.deposits,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 0,
                         pointHitRadius: 10,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -86,12 +86,12 @@
                         borderColor: colors.firstDeposits,
                         backgroundColor: colors.firstDeposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.firstDeposits,
-                        pointBorderColor: '#211A1A',
-                        pointBorderWidth: 2,
-                        pointHoverBorderWidth: 3,
+                        pointBorderColor: colors.firstDeposits,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 0,
                         pointHitRadius: 10,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -104,12 +104,12 @@
                         borderColor: colors.visits,
                         backgroundColor: colors.visits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 8,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.visits,
-                        pointBorderColor: '#211A1A',
-                        pointBorderWidth: 2,
-                        pointHoverBorderWidth: 3,
+                        pointBorderColor: colors.visits,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 0,
                         pointHitRadius: 10,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -365,7 +365,7 @@
         let firstDeposits = [];
         let visits = [];
 
-        // Создаём метки в зависимости от периода
+        // Создаём метки в зависимости от периода (ВСЕГДА 7 ТОЧЕК)
         switch(period) {
             case 'today':
             case 'yesterday':
@@ -376,10 +376,10 @@
                 break;
             case 'month':
             case 'last_month':
-                labels = ['1-5', '6-10', '11-15', '16-20', '21-25', '26-30'];
+                labels = ['1-4', '5-8', '9-12', '13-16', '17-20', '21-24', '25-30'];
                 break;
             case 'all_time':
-                labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
+                labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
                 break;
             default:
                 labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
