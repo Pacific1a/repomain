@@ -50,13 +50,13 @@
                         borderColor: colors.income,
                         backgroundColor: colors.income + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: colors.income,
                         pointBorderColor: colors.income,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 10,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 1,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
                         fill: false,
@@ -68,13 +68,13 @@
                         borderColor: colors.deposits,
                         backgroundColor: colors.deposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: colors.deposits,
                         pointBorderColor: colors.deposits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 10,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 1,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
                         fill: false,
@@ -86,13 +86,13 @@
                         borderColor: colors.firstDeposits,
                         backgroundColor: colors.firstDeposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: colors.firstDeposits,
                         pointBorderColor: colors.firstDeposits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 10,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 1,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
                         fill: false,
@@ -104,13 +104,13 @@
                         borderColor: colors.visits,
                         backgroundColor: colors.visits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
                         pointBackgroundColor: colors.visits,
                         pointBorderColor: colors.visits,
-                        pointBorderWidth: 1,
-                        pointHoverBorderWidth: 2,
-                        pointHitRadius: 10,
+                        pointBorderWidth: 0,
+                        pointHoverBorderWidth: 1,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
                         fill: false,
@@ -396,10 +396,12 @@
         // Находим максимальное значение среди всех метрик для расчёта offset
         const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
         
-        // Умный offset: минимум 10 единиц между линиями, чтобы они не слипались
-        // Когда данные маленькие (0-10) → offset = 10
+        // Умный offset: минимум 5 единиц между линиями, чтобы они не слипались
+        // Когда данные маленькие (0-10) → offset = 5
         // Когда данные большие (100+) → offset = 8% от макс значения
-        const baseOffset = Math.max(maxValue * 0.08, 10);
+        // НО если ВСЕ метрики = 0, то offset = 0 (не показываем пустые линии)
+        const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
+        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 5) : 0;
         
         console.log('📊 Chart Debug:', {
             maxValue,
@@ -420,7 +422,11 @@
         function generateWavyData(total, pointsCount, offsetMultiplier = 0) {
             const offset = baseOffset * offsetMultiplier; // Вертикальное смещение
             
-            if (total === 0 && offset === 0) return new Array(pointsCount).fill(0);
+            // ВАЖНО: Если метрика = 0, показываем ровно 0 (НЕ offset!)
+            // Иначе на графике будут линии при нулевой статистике
+            if (total === 0) {
+                return new Array(pointsCount).fill(0);
+            }
             
             const data = [];
             const baseValue = total / pointsCount; // Средняя высота
