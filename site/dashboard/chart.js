@@ -61,14 +61,17 @@
                     data: [],
                     borderColor: metrics[currentMetric].color,
                     backgroundColor: gradient,
-                    borderWidth: 2,
+                    borderWidth: 3, // ТОЛЩЕ ЛИНИЯ!
                     fill: true, // ВАЖНО: заполнение под линией!
                     tension: 0.4, // Плавные изгибы
-                    pointRadius: 0, // Точки скрыты
-                    pointHoverRadius: 6,
+                    pointRadius: 4, // ТОЧКИ ВИДНЫ СРАЗУ!
+                    pointBackgroundColor: metrics[currentMetric].color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 7,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
@@ -137,9 +140,10 @@
                         }
                     },
                     y: {
-                        beginAtZero: true,
+                        beginAtZero: false, // НЕ начинать с самого низа!
                         min: 0,
-                        grace: '10%',
+                        suggestedMax: 150, // СТАНДАРТНОЕ ЗНАЧЕНИЕ 0-150
+                        grace: '5%', // Отступ сверху 5%
                         grid: {
                             color: 'rgba(193, 172, 172, 0.1)',
                             lineWidth: 1
@@ -153,7 +157,8 @@
                             callback: function(value) {
                                 if (value % 1 !== 0) return '';
                                 return Math.round(value);
-                            }
+                            },
+                            stepSize: 30 // Шаг 30 (0, 30, 60, 90, 120, 150)
                         }
                     }
                 }
@@ -207,6 +212,7 @@
         myChart.data.datasets[0].label = metric.label;
         myChart.data.datasets[0].borderColor = metric.color;
         myChart.data.datasets[0].backgroundColor = gradient;
+        myChart.data.datasets[0].pointBackgroundColor = metric.color; // Цвет точек!
         myChart.data.datasets[0].pointHoverBackgroundColor = metric.color;
         
         // Обновляем данные
