@@ -56,7 +56,7 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         pointHoverBorderWidth: 3,
-                        pointHitRadius: 15,
+                        pointHitRadius: 10,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -73,7 +73,7 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         pointHoverBorderWidth: 3,
-                        pointHitRadius: 15,
+                        pointHitRadius: 10,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -90,7 +90,7 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         pointHoverBorderWidth: 3,
-                        pointHitRadius: 15,
+                        pointHitRadius: 10,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -107,7 +107,7 @@
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
                         pointHoverBorderWidth: 3,
-                        pointHitRadius: 15,
+                        pointHitRadius: 10,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -118,9 +118,8 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
-                    mode: 'nearest',
-                    intersect: false,
-                    axis: 'x'
+                    mode: 'point',
+                    intersect: true
                 },
                 plugins: {
                     legend: {
@@ -128,8 +127,8 @@
                     },
                     tooltip: {
                         enabled: true,
-                        mode: 'nearest',
-                        intersect: false,
+                        mode: 'point',
+                        intersect: true,
                         backgroundColor: 'rgba(33, 26, 26, 0.95)',
                         titleColor: '#C1ACAC',
                         titleFont: {
@@ -150,24 +149,21 @@
                         usePointStyle: true,
                         callbacks: {
                             title: function(context) {
-                                return context[0].label || '';
+                                // Показываем дату + название метрики
+                                return context[0].label;
                             },
                             label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
                                 if (context.parsed.y !== null) {
                                     // Форматируем в зависимости от типа
                                     if (context.datasetIndex === 3) {
                                         // Переходы - без рублей
-                                        label += Math.round(context.parsed.y);
+                                        return Math.round(context.parsed.y).toLocaleString('ru-RU');
                                     } else {
                                         // Деньги - с рублями
-                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
+                                        return Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
                                     }
                                 }
-                                return label;
+                                return '';
                             }
                         }
                     }
