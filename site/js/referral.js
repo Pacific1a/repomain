@@ -97,8 +97,9 @@ class ReferralManager {
                 input.setAttribute('readonly', true);
                 input.style.cursor = 'pointer';
                 
-                // При клике на input - копируем
-                input.addEventListener('click', () => {
+                // При клике на input - копируем (и останавливаем всплытие события!)
+                input.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Останавливаем всплытие чтобы не открывать окно повторно
                     this.copyReferralLink();
                 });
             }

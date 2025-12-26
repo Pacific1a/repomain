@@ -348,27 +348,9 @@
                 return new Array(pointsCount).fill(0);
             }
             
-            const data = [];
-            const baseValue = total / pointsCount;
-            
-            for (let i = 0; i < pointsCount; i++) {
-                const progress = i / (pointsCount - 1);
-                
-                // УМЕНЬШАЕМ ВОЛНЫ - делаем график более прямым
-                const growthTrend = total * (0.5 + progress * 0.5);
-                const randomWave = (Math.random() - 0.5) * baseValue * 0.2;
-                const sineWave = Math.sin(i * 0.8) * baseValue * 0.15;
-                
-                let value = growthTrend + randomWave + sineWave;
-                
-                if (i === pointsCount - 1) {
-                    value = total;
-                }
-                
-                data.push(Math.max(0, value + baseLift + offsetValue));
-            }
-            
-            return data;
+            // ПОКАЗЫВАЕМ РЕАЛЬНОЕ ЗНАЧЕНИЕ на всех точках + offset для разделения
+            const actualValue = total + baseLift + offsetValue;
+            return new Array(pointsCount).fill(actualValue);
         }
 
         // Обновляем данные для всех datasets с новыми offset
@@ -547,41 +529,17 @@
             offsetMap
         });
         
-        // Создаём реалистичные данные с минимальными волнами + offset для разделения линий
+        // АКТУАЛЬНЫЕ ДАННЫЕ БЕЗ ВОЛН - показываем реальные значения!
         function generateWavyData(total, pointsCount, offsetValue) {
             // ВАЖНО: Если метрика = 0, показываем 0 (не фейковые данные!)
             if (total === 0) {
                 return new Array(pointsCount).fill(0);
             }
             
-            const data = [];
-            const baseValue = total / pointsCount; // Средняя высота
-            
-            for (let i = 0; i < pointsCount; i++) {
-                const progress = i / (pointsCount - 1); // От 0 до 1
-                
-                // УМЕНЬШАЕМ ВОЛНЫ - делаем график более прямым как курс акций
-                // 1. Общий рост (прогресс к итоговому значению) - более плавный
-                const growthTrend = total * (0.5 + progress * 0.5); // От 50% до 100%
-                
-                // 2. Случайное колебание УМЕНЬШЕНО: ±10% вместо ±25%
-                const randomWave = (Math.random() - 0.5) * baseValue * 0.2;
-                
-                // 3. Синусоидальная волна УМЕНЬШЕНА вдвое
-                const sineWave = Math.sin(i * 0.8) * baseValue * 0.15;
-                
-                let value = growthTrend + randomWave + sineWave;
-                
-                // Последняя точка точно равна total
-                if (i === pointsCount - 1) {
-                    value = total;
-                }
-                
-                // Добавляем baseLift + offset для разделения линий
-                data.push(Math.max(0, value + baseLift + offsetValue));
-            }
-            
-            return data;
+            // ПОКАЗЫВАЕМ РЕАЛЬНОЕ ЗНАЧЕНИЕ на всех точках + offset для разделения
+            // Если переходов = 2, то все точки показывают 2 (не 15!)
+            const actualValue = total + baseLift + offsetValue;
+            return new Array(pointsCount).fill(actualValue);
         }
 
         // Создаём данные с ДИНАМИЧЕСКИМ offset (по отсортированным значениям)
