@@ -13,6 +13,7 @@
 
     let myChart = null;
     let currentPeriod = 'week';
+    let currentStats = null; // Хранит текущие статистики для пересчёта при скрытии линий
 
     // Цвета из скриншота
     const colors = {
@@ -275,9 +276,96 @@
                     item.classList.add('active');
                 }
                 
+                // ПЕРЕСЧИТЫВАЕМ OFFSET ДЛЯ ВИДИМЫХ ЛИНИЙ
+                // Когда скрываем линии, остальные опускаются вниз
+                if (currentStats) {
+                    recalculateChartData();
+                }
+                
                 myChart.update();
             });
         });
+    }
+
+    function recalculateChartData() {
+        if (!myChart || !currentStats) return;
+
+        const stats = currentStats;
+        const totalEarnings = parseFloat(stats.earnings) || 0;
+        const totalDeposits = parseFloat(stats.totalDeposits) || 0;
+        const totalFirstDeposits = parseInt(stats.firstDeposits) || 0;
+        const totalClicks = parseInt(stats.clicks) || 0;
+
+        // Определяем какие datasets видимы
+        const visibleMetrics = [];
+        
+        if (!myChart.getDatasetMeta(0).hidden) {
+            visibleMetrics.push({ name: 'income', value: totalEarnings, index: 0 });
+        }
+        if (!myChart.getDatasetMeta(1).hidden) {
+            visibleMetrics.push({ name: 'deposits', value: totalDeposits, index: 1 });
+        }
+        if (!myChart.getDatasetMeta(2).hidden) {
+            visibleMetrics.push({ name: 'firstDeposits', value: totalFirstDeposits, index: 2 });
+        }
+        if (!myChart.getDatasetMeta(3).hidden) {
+            visibleMetrics.push({ name: 'visits', value: totalClicks, index: 3 });
+        }
+
+        // Сортируем ТОЛЬКО ВИДИМЫЕ метрики по значению
+        visibleMetrics.sort((a, b) => a.value - b.value);
+
+        // Присваиваем offset только видимым линиям
+        const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
+        const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
+        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 10) : 0;
+
+        // Создаём карту offset для видимых линий
+        const offsetMap = { income: 0, deposits: 0, firstDeposits: 0, visits: 0 };
+        visibleMetrics.forEach((metric, index) => {
+            offsetMap[metric.name] = index;
+        });
+
+        console.log('🔄 Recalculate Chart (after legend click):', {
+            visibleMetrics: visibleMetrics.map(m => m.name),
+            offsetMap,
+            baseOffset
+        });
+
+        // Генерируем данные с новыми offset
+        const length = myChart.data.labels.length;
+        
+        function generateWavyData(total, pointsCount, offsetValue) {
+            if (total === 0) {
+                return new Array(pointsCount).fill(0);
+            }
+            
+            const data = [];
+            const baseValue = total / pointsCount;
+            
+            for (let i = 0; i < pointsCount; i++) {
+                const progress = i / (pointsCount - 1);
+                const growthTrend = total * (0.3 + progress * 0.7);
+                const randomWave = (Math.random() - 0.5) * baseValue * 0.5;
+                const sineWave = Math.sin(i * 0.8) * baseValue * 0.3;
+                
+                let value = growthTrend + randomWave + sineWave;
+                
+                if (i === pointsCount - 1) {
+                    value = total;
+                }
+                
+                data.push(Math.max(0, value + offsetValue));
+            }
+            
+            return data;
+        }
+
+        // Обновляем данные для всех datasets с новыми offset
+        myChart.data.datasets[0].data = generateWavyData(totalEarnings, length, baseOffset * offsetMap.income);
+        myChart.data.datasets[1].data = generateWavyData(totalDeposits, length, baseOffset * offsetMap.deposits);
+        myChart.data.datasets[2].data = generateWavyData(totalFirstDeposits, length, baseOffset * offsetMap.firstDeposits);
+        myChart.data.datasets[3].data = generateWavyData(totalClicks, length, baseOffset * offsetMap.visits);
     }
 
     function setupDatePicker() {
@@ -359,6 +447,9 @@
     function updateChartWithStats(stats, period) {
         if (!myChart) return;
 
+        // Сохраняем текущие stats для пересчёта при клике на легенду
+        currentStats = stats;
+
         let labels = [];
         let income = [];
         let deposits = [];
@@ -396,12 +487,29 @@
         // Находим максимальное значение среди всех метрик для расчёта offset
         const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
         
-        // Умный offset: минимум 5 единиц между линиями, чтобы они не слипались
-        // Когда данные маленькие (0-10) → offset = 5
-        // Когда данные большие (100+) → offset = 8% от макс значения
+        // Умный offset: минимум 10 единиц между линиями (вернули обратно!)
+        // Когда данные маленькие (0-125) → offset = 10
+        // Когда данные большие (125+) → offset = 8% от макс значения
         // НО если ВСЕ метрики = 0, то offset = 0 (не показываем пустые линии)
         const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
-        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 5) : 0;
+        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 10) : 0;
+        
+        // ДИНАМИЧЕСКАЯ СОРТИРОВКА: У кого значение больше — тот выше!
+        const metrics = [
+            { name: 'income', label: 'Доход', value: totalEarnings, datasetIndex: 0 },
+            { name: 'deposits', label: 'Депозиты', value: totalDeposits, datasetIndex: 1 },
+            { name: 'firstDeposits', label: 'Первые депозиты', value: totalFirstDeposits, datasetIndex: 2 },
+            { name: 'visits', label: 'Переходы', value: totalClicks, datasetIndex: 3 }
+        ];
+        
+        // Сортируем по значению: меньшие внизу, большие вверху
+        metrics.sort((a, b) => a.value - b.value);
+        
+        // Присваиваем offset: первый (самый маленький) = 0, второй = 1×offset, и т.д.
+        const offsetMap = {};
+        metrics.forEach((metric, index) => {
+            offsetMap[metric.name] = index;
+        });
         
         console.log('📊 Chart Debug:', {
             maxValue,
@@ -410,12 +518,8 @@
             totalDeposits,
             totalFirstDeposits,
             totalClicks,
-            linePositions: {
-                visits: 0,
-                firstDeposits: baseOffset * 1,
-                deposits: baseOffset * 2,
-                income: baseOffset * 3
-            }
+            sortedMetrics: metrics.map(m => `${m.label}: ${m.value} (offset: ${offsetMap[m.name]}×${baseOffset})`),
+            offsetMap
         });
         
         // Создаём реалистичные данные с волнами + offset для разделения линий
@@ -458,14 +562,11 @@
             return data;
         }
 
-        // Создаём данные с разными offset для визуального разделения
-        // Нижняя линия (0x offset) - Переходы (серая)
-        // Средние линии (1x, 2x offset) - Первые депозиты, Депозиты
-        // Верхняя линия (3x offset) - Доход (красная)
-        visits = generateWavyData(totalClicks, length, 0);           // Нижняя
-        firstDeposits = generateWavyData(totalFirstDeposits, length, 1); // +1x offset
-        deposits = generateWavyData(totalDeposits, length, 2);        // +2x offset
-        income = generateWavyData(totalEarnings, length, 3);          // +3x offset (верхняя)
+        // Создаём данные с ДИНАМИЧЕСКИМ offset (по отсортированным значениям)
+        income = generateWavyData(totalEarnings, length, offsetMap.income);
+        deposits = generateWavyData(totalDeposits, length, offsetMap.deposits);
+        firstDeposits = generateWavyData(totalFirstDeposits, length, offsetMap.firstDeposits);
+        visits = generateWavyData(totalClicks, length, offsetMap.visits);
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = income;
