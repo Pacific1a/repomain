@@ -399,6 +399,15 @@
         // Если все значения 0 или очень маленькие, используем базовый offset
         const baseOffset = maxValue > 0 ? maxValue * 0.08 : 5;
         
+        console.log('📊 Chart Debug:', {
+            maxValue,
+            baseOffset,
+            totalEarnings,
+            totalDeposits,
+            totalFirstDeposits,
+            totalClicks
+        });
+        
         // Создаём реалистичные данные с волнами + offset для разделения линий
         function generateWavyData(total, pointsCount, offsetMultiplier = 0) {
             const offset = baseOffset * offsetMultiplier; // Вертикальное смещение
