@@ -51,12 +51,12 @@
                         borderColor: colors.income,
                         backgroundColor: colors.income + '25',
                         borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.income,
                         pointBorderColor: colors.income,
-                        pointBorderWidth: 0,
-                        pointHoverBorderWidth: 1,
+                        pointBorderWidth: 1,
+                        pointHoverBorderWidth: 2,
                         pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -69,12 +69,12 @@
                         borderColor: colors.deposits,
                         backgroundColor: colors.deposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.deposits,
                         pointBorderColor: colors.deposits,
-                        pointBorderWidth: 0,
-                        pointHoverBorderWidth: 1,
+                        pointBorderWidth: 1,
+                        pointHoverBorderWidth: 2,
                         pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -87,12 +87,12 @@
                         borderColor: colors.firstDeposits,
                         backgroundColor: colors.firstDeposits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.firstDeposits,
                         pointBorderColor: colors.firstDeposits,
-                        pointBorderWidth: 0,
-                        pointHoverBorderWidth: 1,
+                        pointBorderWidth: 1,
+                        pointHoverBorderWidth: 2,
                         pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -105,12 +105,12 @@
                         borderColor: colors.visits,
                         backgroundColor: colors.visits + '25',
                         borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
                         pointBackgroundColor: colors.visits,
                         pointBorderColor: colors.visits,
-                        pointBorderWidth: 0,
-                        pointHoverBorderWidth: 1,
+                        pointBorderWidth: 1,
+                        pointHoverBorderWidth: 2,
                         pointHitRadius: 15,
                         tension: 0.4,
                         cubicInterpolationMode: 'monotone',
@@ -315,21 +315,28 @@
         // Сортируем ТОЛЬКО ВИДИМЫЕ метрики по значению
         visibleMetrics.sort((a, b) => a.value - b.value);
 
-        // Присваиваем offset только видимым линиям
-        const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
-        const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
-        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 10) : 0;
+        // НОВАЯ ЛОГИКА: ОБЩЕЕ расстояние между ВСЕМИ линиями = 10px
+        const baseLift = 3;
+        const totalSpacing = 10;
+        const lineCount = visibleMetrics.length;
 
         // Создаём карту offset для видимых линий
         const offsetMap = { income: 0, deposits: 0, firstDeposits: 0, visits: 0 };
+        
         visibleMetrics.forEach((metric, index) => {
-            offsetMap[metric.name] = index;
+            if (lineCount === 1) {
+                offsetMap[metric.name] = totalSpacing / 2;
+            } else {
+                offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
+            }
         });
 
         console.log('🔄 Recalculate Chart (after legend click):', {
             visibleMetrics: visibleMetrics.map(m => m.name),
+            lineCount,
             offsetMap,
-            baseOffset
+            totalSpacing,
+            baseLift
         });
 
         // Генерируем данные с новыми offset
@@ -337,7 +344,7 @@
         
         function generateWavyData(total, pointsCount, offsetValue) {
             if (total === 0) {
-                return new Array(pointsCount).fill(0);
+                return new Array(pointsCount).fill(baseLift + offsetValue);
             }
             
             const data = [];
@@ -355,17 +362,17 @@
                     value = total;
                 }
                 
-                data.push(Math.max(0, value + offsetValue));
+                data.push(Math.max(0, value + baseLift + offsetValue));
             }
             
             return data;
         }
 
         // Обновляем данные для всех datasets с новыми offset
-        myChart.data.datasets[0].data = generateWavyData(totalEarnings, length, baseOffset * offsetMap.income);
-        myChart.data.datasets[1].data = generateWavyData(totalDeposits, length, baseOffset * offsetMap.deposits);
-        myChart.data.datasets[2].data = generateWavyData(totalFirstDeposits, length, baseOffset * offsetMap.firstDeposits);
-        myChart.data.datasets[3].data = generateWavyData(totalClicks, length, baseOffset * offsetMap.visits);
+        myChart.data.datasets[0].data = generateWavyData(totalEarnings, length, offsetMap.income);
+        myChart.data.datasets[1].data = generateWavyData(totalDeposits, length, offsetMap.deposits);
+        myChart.data.datasets[2].data = generateWavyData(totalFirstDeposits, length, offsetMap.firstDeposits);
+        myChart.data.datasets[3].data = generateWavyData(totalClicks, length, offsetMap.visits);
     }
 
     function setupDatePicker() {
@@ -487,12 +494,14 @@
         // Находим максимальное значение среди всех метрик для расчёта offset
         const maxValue = Math.max(totalEarnings, totalDeposits, totalFirstDeposits, totalClicks);
         
-        // Умный offset: минимум 10 единиц между линиями (вернули обратно!)
-        // Когда данные маленькие (0-125) → offset = 10
-        // Когда данные большие (125+) → offset = 8% от макс значения
-        // НО если ВСЕ метрики = 0, то offset = 0 (не показываем пустые линии)
+        // НОВАЯ ЛОГИКА: ОБЩЕЕ расстояние между ВСЕМИ линиями = 10px (не по 10px на каждую!)
+        // Базовый лифт: поднимаем все линии на 3px вверх, чтобы нижняя не была совсем внизу
+        const baseLift = 3;
+        
+        // Общее расстояние между всеми линиями
+        const totalSpacing = 10;
+        
         const hasAnyData = totalEarnings > 0 || totalDeposits > 0 || totalFirstDeposits > 0 || totalClicks > 0;
-        const baseOffset = hasAnyData ? Math.max(maxValue * 0.08, 10) : 0;
         
         // ДИНАМИЧЕСКАЯ СОРТИРОВКА: У кого значение больше — тот выше!
         const metrics = [
@@ -505,31 +514,41 @@
         // Сортируем по значению: меньшие внизу, большие вверху
         metrics.sort((a, b) => a.value - b.value);
         
-        // Присваиваем offset: первый (самый маленький) = 0, второй = 1×offset, и т.д.
+        // Присваиваем offset: ОБЩЕЕ расстояние 10px делим на все линии
+        // Если 4 линии: 0, 3.33, 6.66, 10
+        // Если 3 линии: 0, 5, 10
+        // Если 2 линии: 0, 10
         const offsetMap = {};
+        const lineCount = metrics.length;
+        
         metrics.forEach((metric, index) => {
-            offsetMap[metric.name] = index;
+            if (lineCount === 1) {
+                // Одна линия - в центре
+                offsetMap[metric.name] = totalSpacing / 2;
+            } else {
+                // Распределяем равномерно: index / (lineCount - 1) * totalSpacing
+                offsetMap[metric.name] = (index / (lineCount - 1)) * totalSpacing;
+            }
         });
         
         console.log('📊 Chart Debug:', {
             maxValue,
-            baseOffset,
+            totalSpacing,
+            baseLift,
+            lineCount,
             totalEarnings,
             totalDeposits,
             totalFirstDeposits,
             totalClicks,
-            sortedMetrics: metrics.map(m => `${m.label}: ${m.value} (offset: ${offsetMap[m.name]}×${baseOffset})`),
+            sortedMetrics: metrics.map(m => `${m.label}: ${m.value} (offset: ${offsetMap[m.name].toFixed(2)}px + ${baseLift}px lift)`),
             offsetMap
         });
         
         // Создаём реалистичные данные с волнами + offset для разделения линий
-        function generateWavyData(total, pointsCount, offsetMultiplier = 0) {
-            const offset = baseOffset * offsetMultiplier; // Вертикальное смещение
-            
-            // ВАЖНО: Если метрика = 0, показываем ровно 0 (НЕ offset!)
-            // Иначе на графике будут линии при нулевой статистике
+        function generateWavyData(total, pointsCount, offsetValue) {
+            // ВАЖНО: Если метрика = 0, показываем линию на baseLift (чуть выше нуля)
             if (total === 0) {
-                return new Array(pointsCount).fill(0);
+                return new Array(pointsCount).fill(baseLift + offsetValue);
             }
             
             const data = [];
@@ -555,8 +574,8 @@
                     value = total;
                 }
                 
-                // Добавляем offset для разделения линий + не уходим в минус
-                data.push(Math.max(0, value + offset));
+                // Добавляем baseLift + offset для разделения линий
+                data.push(Math.max(0, value + baseLift + offsetValue));
             }
             
             return data;
