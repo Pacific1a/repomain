@@ -51,10 +51,12 @@
                         backgroundColor: colors.income + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: colors.income,
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -66,10 +68,12 @@
                         backgroundColor: colors.deposits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: colors.deposits,
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -81,10 +85,12 @@
                         backgroundColor: colors.firstDeposits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: colors.firstDeposits,
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -96,10 +102,12 @@
                         backgroundColor: colors.visits + '25',
                         borderWidth: 2.5,
                         pointRadius: 5,
-                        pointHoverRadius: 7,
+                        pointHoverRadius: 8,
                         pointBackgroundColor: colors.visits,
                         pointBorderColor: '#211A1A',
                         pointBorderWidth: 2,
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15,
                         tension: 0.4,
                         fill: false,
                         yAxisID: 'y'
@@ -110,33 +118,53 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
-                    mode: 'index',
+                    mode: 'nearest',
                     intersect: false,
+                    axis: 'x'
                 },
                 plugins: {
                     legend: {
                         display: false
                     },
                     tooltip: {
+                        enabled: true,
+                        mode: 'nearest',
+                        intersect: false,
                         backgroundColor: 'rgba(33, 26, 26, 0.95)',
                         titleColor: '#C1ACAC',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold',
+                            family: 'Inter, sans-serif'
+                        },
                         bodyColor: '#C1ACAC',
+                        bodyFont: {
+                            size: 13,
+                            family: 'Inter, sans-serif'
+                        },
                         borderColor: '#625252',
                         borderWidth: 1,
                         padding: 12,
                         displayColors: true,
+                        boxPadding: 6,
+                        usePointStyle: true,
                         callbacks: {
+                            title: function(context) {
+                                return context[0].label || '';
+                            },
                             label: function(context) {
                                 let label = context.dataset.label || '';
                                 if (label) {
                                     label += ': ';
                                 }
                                 if (context.parsed.y !== null) {
-                                    // Форматируем
+                                    // Форматируем в зависимости от типа
                                     if (context.datasetIndex === 3) {
+                                        // Переходы - без рублей
                                         label += Math.round(context.parsed.y);
                                     } else {
-                                        label += Math.round(context.parsed.y) + '₽';
+                                        // Деньги - с рублями
+                                        label += Math.round(context.parsed.y).toLocaleString('ru-RU') + '₽';
                                     }
                                 }
                                 return label;
