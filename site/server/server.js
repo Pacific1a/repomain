@@ -883,12 +883,51 @@ app.get('/api/referral/partner/stats/timeline', authMiddleware, (req, res) => {
             }
         });
         
-        res.json({
-            success: true,
-            period: period,
-            timeline: timeline,
-            dates: dateLabels
-        });
+        // ВАЖНО: Если events пустая, берём ОБЩУЮ статистику из referral_stats
+        // и показываем её на ПЕРВОЙ точке графика (для старых данных)
+        if (events.length === 0) {
+            console.log('⚠️ No events found, using fallback to referral_stats');
+            
+            db.get('SELECT * FROM referral_stats WHERE user_id = ?', [userId], (err, stats) => {
+                if (err || !stats) {
+                    return res.json({
+                        success: true,
+                        period: period,
+                        timeline: timeline,
+                        dates: dateLabels
+                    });
+                }
+                
+                // Показываем ВСЮ статистику на ПЕРВОЙ точке
+                const firstDate = dateLabels[0];
+                if (firstDate && timeline[firstDate]) {
+                    timeline[firstDate].clicks = stats.clicks || 0;
+                    timeline[firstDate].firstDeposits = stats.first_deposits || 0;
+                    timeline[firstDate].depositsAmount = stats.total_deposits || 0;
+                    timeline[firstDate].earnings = stats.earnings || 0;
+                }
+                
+                console.log('✅ Fallback data applied:', {
+                    clicks: stats.clicks,
+                    firstDeposits: stats.first_deposits,
+                    earnings: stats.earnings
+                });
+                
+                res.json({
+                    success: true,
+                    period: period,
+                    timeline: timeline,
+                    dates: dateLabels
+                });
+            });
+        } else {
+            res.json({
+                success: true,
+                period: period,
+                timeline: timeline,
+                dates: dateLabels
+            });
+        }
     });
 });
 
