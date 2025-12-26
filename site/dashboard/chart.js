@@ -201,8 +201,14 @@
                 // Toggle visibility
                 meta.hidden = meta.hidden === null ? !myChart.data.datasets[datasetIndex].hidden : null;
                 
-                // Toggle active class
-                item.classList.toggle('active');
+                // Toggle inactive class (добавляем когда скрыто, убираем когда показано)
+                if (meta.hidden) {
+                    item.classList.add('inactive');
+                    item.classList.remove('active');
+                } else {
+                    item.classList.remove('inactive');
+                    item.classList.add('active');
+                }
                 
                 myChart.update();
             });
@@ -256,23 +262,17 @@
 
     async function loadChartData(period) {
         try {
-            const partnerId = localStorage.getItem('userId');
-            if (!partnerId) {
-                console.log('Partner ID не найден');
-                return;
-            }
-
-            const response = await fetch(`/api/referral/partner/stats?partnerId=${partnerId}&period=${period}`);
+            const response = await fetch(`/api/referral/partner/stats`);
             if (!response.ok) {
                 console.error('Ошибка загрузки статистики:', response.status);
                 return;
             }
 
-            const stats = await response.json();
+            const data = await response.json();
             
-            if (stats) {
-                updateChartWithStats(stats, period);
-                updateStatsCards(stats);
+            if (data && data.stats) {
+                updateChartWithStats(data.stats, period);
+                updateStatsCards(data.stats);
             }
         } catch (error) {
             console.error('Ошибка загрузки данных графика:', error);
@@ -288,46 +288,44 @@
         let firstDeposits = [];
         let visits = [];
 
-        if (stats.dailyStats && stats.dailyStats.length > 0) {
-            // Данные по дням
-            stats.dailyStats.forEach(day => {
-                const date = new Date(day.date);
-                const formattedDate = date.getDate() + ' ' + getMonthName(date.getMonth());
-                
-                labels.push(formattedDate);
-                income.push(day.earnings || 0);
-                deposits.push(day.total_deposits || 0);
-                firstDeposits.push(day.first_deposits || 0);
-                visits.push(day.clicks || 0);
-            });
-        } else {
-            // Используем дефолтные метки в зависимости от периода
-            switch(period) {
-                case 'today':
-                case 'yesterday':
-                    labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
-                    break;
-                case 'week':
-                    labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
-                    break;
-                case 'month':
-                case 'last_month':
-                    labels = ['1-5', '6-10', '11-15', '16-20', '21-25', '26-30'];
-                    break;
-                case 'all_time':
-                    labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
-                    break;
-                default:
-                    labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
-            }
-            
-            // Заполняем нулями
-            const length = labels.length;
-            income = new Array(length).fill(0);
-            deposits = new Array(length).fill(0);
-            firstDeposits = new Array(length).fill(0);
-            visits = new Array(length).fill(0);
+        // Создаём метки в зависимости от периода
+        switch(period) {
+            case 'today':
+            case 'yesterday':
+                labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'];
+                break;
+            case 'week':
+                labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
+                break;
+            case 'month':
+            case 'last_month':
+                labels = ['1-5', '6-10', '11-15', '16-20', '21-25', '26-30'];
+                break;
+            case 'all_time':
+                labels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
+                break;
+            default:
+                labels = ['10 Дек', '11 Дек', '12 Дек', '13 Дек', '14 Дек', '15 Дек', '16 Дек'];
         }
+
+        // Показываем общую статистику на всех точках
+        const totalEarnings = parseFloat(stats.earnings) || 0;
+        const totalDeposits = parseFloat(stats.totalDeposits) || 0;
+        const totalFirstDeposits = parseInt(stats.firstDeposits) || 0;
+        const totalClicks = parseInt(stats.clicks) || 0;
+
+        const length = labels.length;
+        
+        // Равномерно распределяем значения по точкам
+        const earningsPerPoint = totalEarnings / length;
+        const depositsPerPoint = totalDeposits / length;
+        const firstDepositsPerPoint = totalFirstDeposits / length;
+        const clicksPerPoint = totalClicks / length;
+
+        income = new Array(length).fill(0).map((_, i) => earningsPerPoint * (i + 1));
+        deposits = new Array(length).fill(0).map((_, i) => depositsPerPoint * (i + 1));
+        firstDeposits = new Array(length).fill(0).map((_, i) => firstDepositsPerPoint * (i + 1));
+        visits = new Array(length).fill(0).map((_, i) => clicksPerPoint * (i + 1));
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = income;
@@ -339,24 +337,9 @@
     }
 
     function updateStatsCards(stats) {
-        // Обновление карточек статистики
-        const incomeEl = document.querySelector('.stat-value-income');
-        const depositsEl = document.querySelector('.stat-value-deposits');
-        const clicksEl = document.querySelector('.stat-value-clicks');
-        const firstDepositsEl = document.querySelector('.stat-value-first-deposits');
-
-        if (incomeEl && stats.totalEarnings !== undefined) {
-            incomeEl.textContent = Math.round(stats.totalEarnings) + '₽';
-        }
-        if (depositsEl && stats.totalDeposits !== undefined) {
-            depositsEl.textContent = Math.round(stats.totalDeposits) + '₽';
-        }
-        if (clicksEl && stats.totalClicks !== undefined) {
-            clicksEl.textContent = stats.totalClicks;
-        }
-        if (firstDepositsEl && stats.totalFirstDeposits !== undefined) {
-            firstDepositsEl.textContent = stats.totalFirstDeposits;
-        }
+        // Карточки статистики уже обновляются через script.js
+        // Просто логируем для отладки
+        console.log('Статистика загружена:', stats);
     }
 
     function getMonthName(month) {
