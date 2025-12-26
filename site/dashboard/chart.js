@@ -78,20 +78,26 @@
                 maxValues[key] = max > 0 ? max : 1;
             });
             
-            drawGrid(100); // Рисуем сетку с фиксированным масштабом
+            const allValues = [];
+            Object.keys(chartData.datasets).forEach(key => {
+                if (lineVisibility[key]) {
+                    allValues.push(...chartData.datasets[key]);
+                }
+            });
+            const globalMax = allValues.length > 0 ? Math.max(...allValues) : 100;
             
-            // Рисуем линии с отступами
+            drawGrid(globalMax);
+            
+            // Рисуем линии снизу вверх с фиксированным отступом 12px
             const order = ['income', 'deposits', 'firstDeposits', 'visits'];
             const visibleLines = order.filter(key => lineVisibility[key]);
-            const laneHeight = chartHeight / (visibleLines.length + 1); // +1 для отступов
             
             visibleLines.forEach((key, index) => {
                 drawSeparatedLine(
                     chartData.datasets[key], 
                     chartData.colors[key], 
-                    maxValues[key],
+                    globalMax,
                     index,
-                    laneHeight,
                     visibleLines.length
                 );
             });
@@ -121,24 +127,25 @@
             }
         }
 
-        function drawSeparatedLine(data, color, maxValue, laneIndex, laneHeight, totalLanes) {
+        function drawSeparatedLine(data, color, maxValue, lineIndex, totalLines) {
             const points = [];
-            
-            // Вычисляем центр дорожки для этой линии
-            const laneCenterY = padding.top + (laneIndex + 1) * (chartHeight / (totalLanes + 1));
-            const maxAmplitude = laneHeight * 0.4; // 40% высоты дорожки для амплитуды линии
+            const lineOffset = lineIndex * 12; // 12px отступ для каждой следующей линии
             
             data.forEach((value, index) => {
                 const x = padding.left + (chartWidth / (data.length - 1)) * index;
                 
-                // Нормализуем значение от 0 до 1
-                const normalized = value / maxValue;
+                // Нормализуем значение от 0 до maxValue
+                const normalizedValue = value / maxValue;
                 
-                // Вычисляем Y: центр дорожки ± амплитуда
-                const y = laneCenterY - (normalized * maxAmplitude);
+                // Y идёт снизу вверх + отступ для этой линии
+                const y = padding.top + chartHeight - (normalizedValue * chartHeight) - lineOffset;
                 
                 points.push({ x, y, value });
             });
+            
+            // Сохраняем точки для tooltip
+            if (!window.chartPoints) window.chartPoints = {};
+            window.chartPoints[color] = points;
             
             // Рисуем линию с тенью
             ctx.shadowColor = color;
@@ -269,40 +276,44 @@
             }
         });
 
-        // Курсор pointer при наведении на точки
+        // Курсор pointer при наведении на точки + клик для показа tooltip
+        let hoveredPointIndex = null;
+        
         canvas.addEventListener('mousemove', function(e) {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             
             let onPoint = false;
+            hoveredPointIndex = null;
             
-            // Проверяем близость к точкам
-            chartData.labels.forEach((label, index) => {
-                const pointX = padding.left + (chartWidth / (chartData.labels.length - 1)) * index;
-                
-                Object.keys(chartData.datasets).forEach(key => {
-                    if (lineVisibility[key]) {
-                        const value = chartData.datasets[key][index];
-                        const allValues = [];
-                        Object.keys(chartData.datasets).forEach(k => {
-                            if (lineVisibility[k]) allValues.push(...chartData.datasets[k]);
-                        });
-                        const maxValue = Math.max(...allValues);
-                        const normalizedValue = value / maxValue;
-                        const pointY = padding.top + chartHeight - (normalizedValue * chartHeight);
+            // Проверяем близость к точкам используя сохранённые координаты
+            if (window.chartPoints) {
+                Object.keys(window.chartPoints).forEach(color => {
+                    const points = window.chartPoints[color];
+                    points.forEach((point, index) => {
+                        const distance = Math.sqrt(Math.pow(mouseX - point.x, 2) + Math.pow(mouseY - point.y, 2));
                         
-                        const distance = Math.sqrt(Math.pow(mouseX - pointX, 2) + Math.pow(mouseY - pointY, 2));
-                        
-                        // Радиус 35 пикселей для наведения
-                        if (distance <= 35) {
+                        // Радиус 15 пикселей для наведения
+                        if (distance <= 15) {
                             onPoint = true;
+                            hoveredPointIndex = index;
                         }
-                    }
+                    });
                 });
-            });
+            }
             
             canvas.style.cursor = onPoint ? 'pointer' : 'default';
+        });
+        
+        // Клик для показа tooltip
+        canvas.addEventListener('click', function(e) {
+            if (hoveredPointIndex !== null) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                showDateDetails(hoveredPointIndex, mouseX, mouseY);
+            }
         });
 
         function showDateDetails(index, pointX, pointY) {
