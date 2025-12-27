@@ -1178,9 +1178,9 @@ app.post('/api/referral/register-referral', webhookAuth, (req, res) => {
                 }
                 
                 // Добавляем реферала
-                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, deposits_count) 
-                        VALUES (?, ?, ?, ?, 1)`,
-                    [partnerId, referralUserId, depositAmount || 0, depositAmount || 0],
+                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount) 
+                        VALUES (?, ?, ?)`,
+                    [partnerId, referralUserId, depositAmount || 0],
                     function(err) {
                         if (err) {
                             return res.status(500).json({ success: false, message: 'Ошибка регистрации' });
