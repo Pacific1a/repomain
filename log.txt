@@ -1,0 +1,49 @@
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+*** System restart required ***
+Last login: Sat Dec 27 16:56:43 2025 from 198.163.192.188
+root@duos:~# sed -i '170d' /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
+root@duos:~# sed -i '170 a\                                    return'     /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
+root@duos:~# sed -i '170 a\                                    return'     /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
+root@duos:~# sed -n '167,175p' /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
+                                        "� Вы перешли по реферальной ссылке!\n"
+                                        "Ваш партнёр будет получать 60% от ваших проигрышей."
+                                    )
+                                    return  # Остановить выполнение, чтобы не показывать "Бот готов к использованию"
+                                    return
+                                    return
+                                elif result.get('message') == 'Already referred':
+                                    await message.answer("ℹ️ Вы уже зарегистрированы по реферальной ссылке ранее.")
+                                else:
+root@duos:~# grep -n "total_deposits" /var/www/duo/site/server/server.js | head -10
+158:                    db.run('INSERT INTO referral_stats (user_id, telegram, referral_code, clicks, first_deposits, total_deposits, earnings) VALUES (?, ?, ?, 0, 0, 0, 0)',
+737:    total_deposits REAL DEFAULT 0,
+749:    total_deposits REAL DEFAULT 0,
+805:            const avgIncomePerPlayer = stats.first_deposits > 0 ? (stats.total_deposits / stats.first_deposits).toFixed(2) : 0;
+814:                    totalDeposits: parseFloat(stats.total_deposits).toFixed(2),
+939:                    timeline[lastDate].depositsAmount = stats.total_deposits || 0;
+1088:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, total_earnings, deposits_count)
+1181:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, deposits_count)
+1193:                                    total_deposits = total_deposits + ?
+1298:                SET total_deposits = total_deposits + ?,
+root@duos:~# grep -n "INSERT INTO referrals" /var/www/duo/site/server/server.js -A 5
+1088:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, total_earnings, deposits_count)
+1089-                        VALUES (?, ?, 0, 0, 0, 0)`,
+1090-                    [partner.id, userId],
+1091-                    function(err) {
+1092-                        if (err) {
+1093-                            console.error('❌ Error inserting referral:', err);
+--
+1181:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, deposits_count)
+1182-                        VALUES (?, ?, ?, ?, 1)`,
+1183-                    [partnerId, referralUserId, depositAmount || 0, depositAmount || 0],
+1184-                    function(err) {
+1185-                        if (err) {
+1186-                            return res.status(500).json({ success: false, message: 'Ошибка регистрации' });
+root@duos:~#
