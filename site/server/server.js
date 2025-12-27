@@ -151,21 +151,37 @@ app.post('/api/register', [
                         return res.status(500).json({ success: false, message: 'Ошибка регистрации' });
                     }
                     
-                    const token = jwt.sign({ userId: this.lastID }, JWT_SECRET, { expiresIn: '7d' });
+                    const userId = this.lastID;
+                    const referralCode = generateReferralCode(userId);
                     
-                    res.json({
-                        success: true,
-                        message: 'Регистрация успешна',
-                        token,
-                        user: {
-                            id: this.lastID,
-                            email,
-                            login,
-                            telegram: telegram || '',
-                            balance: 0,
-                            role: 'user'
+                    // Создаём запись в referral_stats для нового партнёра
+                    db.run('INSERT INTO referral_stats (user_id, telegram, referral_code, clicks, first_deposits, total_deposits, earnings) VALUES (?, ?, ?, 0, 0, 0, 0)',
+                        [userId, telegram || null, referralCode],
+                        function(err) {
+                            if (err) {
+                                console.error('❌ Error creating referral_stats:', err);
+                            } else {
+                                console.log(`✅ Referral stats created for user ${userId}: code=${referralCode}`);
+                            }
+                            
+                            const token = jwt.sign({ userId: userId }, JWT_SECRET, { expiresIn: '7d' });
+                            
+                            res.json({
+                                success: true,
+                                message: 'Регистрация успешна',
+                                token,
+                                referralCode: referralCode,
+                                user: {
+                                    id: userId,
+                                    email,
+                                    login,
+                                    telegram: telegram || '',
+                                    balance: 0,
+                                    role: 'user'
+                                }
+                            });
                         }
-                    });
+                    );
                 }
             );
         });
