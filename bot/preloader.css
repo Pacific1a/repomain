@@ -30,7 +30,7 @@
 
 /* style.css - ПОЛНОСТЬЮ */
 .loading {
-    display: flex !important; /* КРИТИЧНО: показываем сразу */
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -39,57 +39,43 @@
     position: relative;
     background-color: #151414;
     min-height: 100vh;
-    height: 100%;
     width: 100%;
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 1;
 }
 
 .loading .token {
     position: relative;
     width: 100%;
-    max-width: 298px; /* Фиксированная ширина из SVG */
+    max-width: 100%;
     height: auto;
-    aspect-ratio: 298 / 331; /* Точное соотношение из SVG */
+    aspect-ratio: 1 / 1;
     object-fit: contain;
-    /* Оптимизация: предзагрузка SVG */
-    will-change: transform;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .text-wrapper {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+    font-family: "Montserrat-SemiBold", Helvetica;
     font-weight: 600;
-    color: #ffffff !important;
+    color: #ffffff;
     font-size: 16px;
     text-align: center;
     letter-spacing: -0.80px;
     line-height: normal;
     margin: 0;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .div {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
+    font-family: "Montserrat-Medium", Helvetica;
     font-weight: 500;
     width: 100%;
-    color: #555555 !important;
+    color: #555555;
     font-size: 14px;
     text-align: center;
     letter-spacing: -0.70px;
     line-height: normal;
     margin: 0;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .load-icon {
@@ -103,8 +89,6 @@
     position: relative;
     align-self: stretch;
     width: 100%;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .icon {
@@ -113,8 +97,6 @@
     height: 50px;
     margin-top: -4.00px;
     margin-bottom: -4.00px;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .load-icon svg {
@@ -124,15 +106,13 @@
 .loading .authentication {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
+    font-family: "Montserrat-Medium", Helvetica;
     font-weight: 500;
-    color: #c5c5c5 !important;
+    color: #c5c5c5;
     font-size: 15px;
     text-align: center;
     line-height: normal;
     margin: 0;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .span {
@@ -147,8 +127,6 @@
     position: relative;
     width: 298px;
     height: 21px;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 .loading .text-wrapper-3 {
@@ -157,16 +135,14 @@
     height: 100%;
     top: 0;
     left: 0;
-    font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+    font-family: "Montserrat-SemiBold", Helvetica;
     font-weight: 600;
-    color: #ffffff !important;
+    color: #ffffff;
     font-size: 17px;
     text-align: center;
     letter-spacing: 0;
     line-height: normal;
     margin: 0;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
@@ -179,15 +155,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #151414 !important;
-  z-index: 999999 !important;
-  opacity: 1 !important; /* Сразу видимый */
-  visibility: visible !important;
+  background-color: #151414;
+  z-index: 999999;
+  opacity: 1; /* Сразу видимый */
   transition: none; /* Без анимации при появлении */
   overflow: hidden;
   align-items: center;
   justify-content: center;
-  pointer-events: all;
 }
 
 #page-preloader.fade-out {
@@ -200,24 +174,17 @@
   display: none !important;
 }
 
-/* КРИТИЧНО: Скрываем контент казино пока грузится */
+/* КРИТИЧНО: Скрываем контент пока грузится */
 body:not(.loaded) #app,
+body:not(.loaded) .div,
 body:not(.loaded) .overlap-group-wrapper {
   visibility: hidden !important;
   opacity: 0 !important;
 }
 
-/* НЕ прячем сам прелоадер и его содержимое! */
-#page-preloader,
-#page-preloader *,
-#page-preloader .loading,
-#page-preloader .loading * {
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* Когда всё загружено - показываем контент казино */
+/* Когда всё загружено - показываем контент */
 body.loaded #app,
+body.loaded .div,
 body.loaded .overlap-group-wrapper {
   visibility: visible !important;
   opacity: 1 !important;
