@@ -44,7 +44,6 @@
 
 .loading .token {
     position: relative;
-    align-self: stretch;
     width: 100%;
     max-width: 100%;
     height: auto;
@@ -147,8 +146,10 @@
 }
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
+
+/* КРИТИЧНО: Прелоадер показывается СРАЗУ, без задержки */
 #page-preloader {
-  display: none;
+  display: flex !important; /* Показываем сразу при загрузке */
   position: fixed;
   top: 0;
   left: 0;
@@ -156,18 +157,38 @@
   height: 100%;
   background-color: #151414;
   z-index: 999999;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 1; /* Сразу видимый */
+  transition: none; /* Без анимации при появлении */
   overflow: hidden;
-}
-
-#page-preloader.active {
-  opacity: 1;
+  align-items: center;
+  justify-content: center;
 }
 
 #page-preloader.fade-out {
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+#page-preloader.hidden {
+  display: none !important;
+}
+
+/* КРИТИЧНО: Скрываем контент пока грузится */
+body:not(.loaded) #app,
+body:not(.loaded) .div,
+body:not(.loaded) .overlap-group-wrapper {
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Когда всё загружено - показываем контент */
+body.loaded #app,
+body.loaded .div,
+body.loaded .overlap-group-wrapper {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition: opacity 0.3s ease;
 }
 
 /* Анимация спиннера */
@@ -188,8 +209,13 @@
   backface-visibility: hidden;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  will-change: transform;
 }
 
-body.preloading {
-  overflow: hidden;
+/* Блокируем скролл и взаимодействие пока грузится */
+body:not(.loaded) {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
 }
