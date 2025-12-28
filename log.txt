@@ -1,49 +1,239 @@
-Expanded Security Maintenance for Applications is not enabled.
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
 
-0 updates can be applied immediately.
+PS C:\Windows\system32> cd C:\Users\dev_fenomen\Desktop\duo\bot
+PS C:\Users\dev_fenomen\Desktop\duo\bot> python download_prize_images.py
+============================================================
+DOWNLOADING PRIZE IMAGES LOCALLY
+============================================================
 
-Enable ESM Apps to receive additional future security updates.
-See https://ubuntu.com/esm or run: sudo pro status
+Destination: C:\Users\dev_fenomen\Desktop\duo\bot\main\prizes
 
+Generating prize URLs...
+Total images to download: 210
 
-*** System restart required ***
-Last login: Sat Dec 27 16:56:43 2025 from 198.163.192.188
-root@duos:~# sed -i '170d' /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
-root@duos:~# sed -i '170 a\                                    return'     /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
-root@duos:~# sed -i '170 a\                                    return'     /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
-root@duos:~# sed -n '167,175p' /var/www/duo/bot/autoshop/tgbot/routers/main_start.py
-                                        "� Вы перешли по реферальной ссылке!\n"
-                                        "Ваш партнёр будет получать 60% от ваших проигрышей."
-                                    )
-                                    return  # Остановить выполнение, чтобы не показывать "Бот готов к использованию"
-                                    return
-                                    return
-                                elif result.get('message') == 'Already referred':
-                                    await message.answer("ℹ️ Вы уже зарегистрированы по реферальной ссылке ранее.")
-                                else:
-root@duos:~# grep -n "total_deposits" /var/www/duo/site/server/server.js | head -10
-158:                    db.run('INSERT INTO referral_stats (user_id, telegram, referral_code, clicks, first_deposits, total_deposits, earnings) VALUES (?, ?, ?, 0, 0, 0, 0)',
-737:    total_deposits REAL DEFAULT 0,
-749:    total_deposits REAL DEFAULT 0,
-805:            const avgIncomePerPlayer = stats.first_deposits > 0 ? (stats.total_deposits / stats.first_deposits).toFixed(2) : 0;
-814:                    totalDeposits: parseFloat(stats.total_deposits).toFixed(2),
-939:                    timeline[lastDate].depositsAmount = stats.total_deposits || 0;
-1088:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, total_earnings, deposits_count)
-1181:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, deposits_count)
-1193:                                    total_deposits = total_deposits + ?
-1298:                SET total_deposits = total_deposits + ?,
-root@duos:~# grep -n "INSERT INTO referrals" /var/www/duo/site/server/server.js -A 5
-1088:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, total_earnings, deposits_count)
-1089-                        VALUES (?, ?, 0, 0, 0, 0)`,
-1090-                    [partner.id, userId],
-1091-                    function(err) {
-1092-                        if (err) {
-1093-                            console.error('❌ Error inserting referral:', err);
---
-1181:                db.run(`INSERT INTO referrals (partner_id, referral_user_id, first_deposit_amount, total_deposits, deposits_count)
-1182-                        VALUES (?, ?, ?, ?, 1)`,
-1183-                    [partnerId, referralUserId, depositAmount || 0, depositAmount || 0],
-1184-                    function(err) {
-1185-                        if (err) {
-1186-                            return res.status(500).json({ success: false, message: 'Ошибка регистрации' });
-root@duos:~#
+Starting download...
+
+[1/210] Downloaded: Case-tokens/red/5000-r-red.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/5000-r-red.png: HTTP Error 404: Not Found
+[3/210] Downloaded: win-tokens/red/5000-r-red.png
+[4/210] Downloaded: Case-tokens/blue/4000-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/4000-r-blue.png: HTTP Error 404: Not Found
+[6/210] Downloaded: win-tokens/blue/4000-r-blue.png
+[7/210] Downloaded: Case-tokens/blue/3000-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/3000-r-blue.png: HTTP Error 404: Not Found
+[9/210] Downloaded: win-tokens/blue/3000-r-blue.png
+[10/210] Downloaded: Case-tokens/red/2500-r-red.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/2500-r-red.png: HTTP Error 404: Not Found
+[12/210] Downloaded: win-tokens/red/2500-r-red.png
+[13/210] Downloaded: Case-tokens/blue/2500-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/2500-r-blue.png: HTTP Error 404: Not Found
+[15/210] Downloaded: win-tokens/blue/2500-r-blue.png
+[16/210] Downloaded: Case-tokens/red/2000-r-red.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/2000-r-red.png: HTTP Error 404: Not Found
+[18/210] Downloaded: win-tokens/red/2000-r-red.png
+[19/210] Downloaded: Case-tokens/blue/2000-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/2000-r-blue.png: HTTP Error 404: Not Found
+[21/210] Downloaded: win-tokens/blue/2000-r-blue.png
+[22/210] Downloaded: Case-tokens/purple/2000-r-purple.png
+[23/210] Downloaded: prewiew-tokens/purple/2000-r-puple.png
+[24/210] Downloaded: win-tokens/purple/2000-r-purple.png
+[25/210] Downloaded: Case-tokens/red/1500-r-red.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/1500-r-red.png: HTTP Error 404: Not Found
+[27/210] Downloaded: win-tokens/red/1500-r-red.png
+[28/210] Downloaded: Case-tokens/blue/1500-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/1500-r-blue.png: HTTP Error 404: Not Found
+[30/210] Downloaded: win-tokens/blue/1500-r-blue.png
+[31/210] Downloaded: Case-tokens/purple/1500-r-purple.png
+[32/210] Downloaded: prewiew-tokens/purple/1500-r-puple.png
+[33/210] Downloaded: win-tokens/purple/1500-r-purple.png
+[34/210] Downloaded: Case-tokens/yellow/1000-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/1000-r-yellow.png: HTTP Error 404: Not Found
+[36/210] Downloaded: win-tokens/yellow/1000-r-yellow.png
+[37/210] Downloaded: Case-tokens/blue/1000-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/1000-r-blue.png: HTTP Error 404: Not Found
+[39/210] Downloaded: win-tokens/blue/1000-r-blue.png
+[40/210] Downloaded: Case-tokens/purple/1000-r-purple.png
+[41/210] Downloaded: prewiew-tokens/purple/1000-r-puple.png
+[42/210] Downloaded: win-tokens/purple/1000-r-purple.png
+[43/210] Downloaded: Case-tokens/yellow/888-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/888-r-yellow.png: HTTP Error 404: Not Found
+[45/210] Downloaded: win-tokens/yellow/888-r-yellow.png
+[46/210] Downloaded: Case-tokens/blue/888-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/888-r-blue.png: HTTP Error 404: Not Found
+[48/210] Downloaded: win-tokens/blue/888-r-blue.png
+[49/210] Downloaded: Case-tokens/purple/888-r-purple.png
+[50/210] Downloaded: prewiew-tokens/purple/888-r-puple.png
+[51/210] Downloaded: win-tokens/purple/888-r-purple.png
+[52/210] Downloaded: Case-tokens/yellow/777-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/777-r-yellow.png: HTTP Error 404: Not Found
+[54/210] Downloaded: win-tokens/yellow/777-r-yellow.png
+[55/210] Downloaded: Case-tokens/blue/777-r-blue.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/777-r-blue.png: HTTP Error 404: Not Found
+[57/210] Downloaded: win-tokens/blue/777-r-blue.png
+[58/210] Downloaded: Case-tokens/purple/777-r-purple.png
+[59/210] Downloaded: prewiew-tokens/purple/777-r-puple.png
+[60/210] Downloaded: win-tokens/purple/777-r-purple.png
+[61/210] Downloaded: Case-tokens/yellow/700-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/700-r-yellow.png: HTTP Error 404: Not Found
+[63/210] Downloaded: win-tokens/yellow/700-r-yellow.png
+[64/210] Downloaded: Case-tokens/gray/700-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/700-r-gray.png: HTTP Error 404: Not Found
+[66/210] Downloaded: win-tokens/gray/700-r-gray.png
+[67/210] Downloaded: Case-tokens/purple/700-r-purple.png
+[68/210] Downloaded: prewiew-tokens/purple/700-r-puple.png
+[69/210] Downloaded: win-tokens/purple/700-r-purple.png
+[70/210] Downloaded: Case-tokens/yellow/500-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/500-r-yellow.png: HTTP Error 404: Not Found
+[72/210] Downloaded: win-tokens/yellow/500-r-yellow.png
+[73/210] Downloaded: Case-tokens/gray/500-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/500-r-gray.png: HTTP Error 404: Not Found
+[75/210] Downloaded: win-tokens/gray/500-r-gray.png
+[76/210] Downloaded: Case-tokens/purple/500-r-purple.png
+[77/210] Downloaded: prewiew-tokens/purple/500-r-puple.png
+[78/210] Downloaded: win-tokens/purple/500-r-purple.png
+[79/210] Downloaded: Case-tokens/yellow/400-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/400-r-yellow.png: HTTP Error 404: Not Found
+[81/210] Downloaded: win-tokens/yellow/400-r-yellow.png
+[82/210] Downloaded: Case-tokens/gray/400-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/400-r-gray.png: HTTP Error 404: Not Found
+[84/210] Downloaded: win-tokens/gray/400-r-gray.png
+[85/210] Downloaded: Case-tokens/purple/400-r-purple.png
+[86/210] Downloaded: prewiew-tokens/purple/400-r-puple.png
+[87/210] Downloaded: win-tokens/purple/400-r-purple.png
+[88/210] Downloaded: Case-tokens/yellow/350-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/350-r-yellow.png: HTTP Error 404: Not Found
+[90/210] Downloaded: win-tokens/yellow/350-r-yellow.png
+[91/210] Downloaded: Case-tokens/gray/350-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/350-r-gray.png: HTTP Error 404: Not Found
+[93/210] Downloaded: win-tokens/gray/350-r-gray.png
+[94/210] Downloaded: Case-tokens/yellow/300-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/300-r-yellow.png: HTTP Error 404: Not Found
+[96/210] Downloaded: win-tokens/yellow/300-r-yellow.png
+[97/210] Downloaded: Case-tokens/gray/300-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/300-r-gray.png: HTTP Error 404: Not Found
+[99/210] Downloaded: win-tokens/gray/300-r-gray.png
+[100/210] Downloaded: Case-tokens/yellow/250-r-yellow.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/250-r-yellow.png: HTTP Error 404: Not Found
+[102/210] Downloaded: win-tokens/yellow/250-r-yellow.png
+[103/210] Downloaded: Case-tokens/gray/250-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/250-r-gray.png: HTTP Error 404: Not Found
+[105/210] Downloaded: win-tokens/gray/250-r-gray.png
+[106/210] Downloaded: Case-tokens/gray/200-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/200-r-gray.png: HTTP Error 404: Not Found
+[108/210] Downloaded: win-tokens/gray/200-r-gray.png
+[109/210] Downloaded: Case-tokens/gray/150-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/150-r-gray.png: HTTP Error 404: Not Found
+[111/210] Downloaded: win-tokens/gray/150-r-gray.png
+[112/210] Downloaded: Case-tokens/gray/100-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/100-r-gray.png: HTTP Error 404: Not Found
+[114/210] Downloaded: win-tokens/gray/100-r-gray.png
+[115/210] Downloaded: Case-tokens/gray/50-r-gray.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/50-r-gray.png: HTTP Error 404: Not Found
+[117/210] Downloaded: win-tokens/gray/50-r-gray.png
+[118/210] Downloaded: Chips-case/red/5005-chips-red.png
+[119/210] Downloaded: preview-chips/5005-chips-red-preview.png
+[120/210] Downloaded: Win-chips/5005-chips-red.png
+[121/210] Downloaded: Chips-case/red/4004-chips-red.png
+[122/210] Downloaded: preview-chips/4004-chips-red-preview.png
+[123/210] Downloaded: Win-chips/4004-chips-red.png
+[124/210] Downloaded: Chips-case/blue/3003-chips-blue.png
+[125/210] Downloaded: preview-chips/3003-chips-blue-preview.png
+[126/210] Downloaded: Win-chips/3003-chips-blue.png
+[127/210] Downloaded: Chips-case/red/3003-chips-red.png
+[128/210] Downloaded: preview-chips/3003-chips-red-preview.png
+[129/210] Downloaded: Win-chips/3003-chips-red.png
+[130/210] Downloaded: Chips-case/blue/2505-chips-blue.png
+[131/210] Downloaded: preview-chips/2505-chips-blue-preview.png
+[132/210] Downloaded: Win-chips/2505-chips-blue.png
+[133/210] Downloaded: Chips-case/purple/2505-chips-purple.png
+[134/210] Downloaded: preview-chips/2505-chips-purple-preview.png
+[135/210] Downloaded: Win-chips/2505-chips-purple.png
+[136/210] Downloaded: Chips-case/red/2505-chips-red.png
+[137/210] Downloaded: preview-chips/2505-chips-red-preview.png
+[138/210] Downloaded: Win-chips/2505-chips-red.png
+[139/210] Downloaded: Chips-case/blue/2002-chips-blue.png
+[140/210] Downloaded: preview-chips/2002-chips-blue-preview.png
+[141/210] Downloaded: Win-chips/2002-chips-blue.png
+[142/210] Downloaded: Chips-case/purple/2002-chips-purple.png
+[143/210] Downloaded: preview-chips/2002-chips-purple-preview.png
+[144/210] Downloaded: Win-chips/2002-chips-purple.png
+[145/210] Downloaded: Chips-case/red/2002-chips-red.png
+[146/210] Downloaded: preview-chips/2002-chips-red-preview.png
+[147/210] Downloaded: Win-chips/2002-chips-red.png
+[148/210] Downloaded: Chips-case/blue/1505-chips-blue.png
+[149/210] Downloaded: preview-chips/1505-chips-blue-preview.png
+[150/210] Downloaded: Win-chips/1505-chips-blue.png
+[151/210] Downloaded: Chips-case/blue/1001-chips-blue.png
+[152/210] Downloaded: preview-chips/1001-chips-blue-preview.png
+[153/210] Downloaded: Win-chips/1001-chips-blue.png
+[154/210] Downloaded: Chips-case/purple/1001-chips-purple.png
+[155/210] Downloaded: preview-chips/1001-chips-purple-preview.png
+[156/210] Downloaded: Win-chips/1001-chips-purple.png
+[157/210] Downloaded: Chips-case/yellow/1001-chips-yellow.png
+[158/210] Downloaded: preview-chips/1001-chips-yellow-preview.png
+[159/210] Downloaded: Win-chips/1001-chips-yellow.png
+[160/210] Downloaded: Chips-case/purple/880-chips-purple.png
+[161/210] Downloaded: preview-chips/880-chips-purple-preview.png
+[162/210] Downloaded: Win-chips/880-chips-purple.png
+[163/210] Downloaded: Chips-case/purple/777-chips-purple.png
+[164/210] Downloaded: preview-chips/777-chips-purple-preview.png
+[165/210] Downloaded: Win-chips/777-chips-purple.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/Chips-case/yellow/777-chips-yellow.png: HTTP Error 404: Not Found
+[167/210] Downloaded: preview-chips/777-chips-yellow-preview.png
+[168/210] Downloaded: Win-chips/777-chips-yellow.png
+[169/210] Downloaded: Chips-case/purple/707-chips-purple.png
+[170/210] Downloaded: preview-chips/707-chips-purple-preview.png
+[171/210] Downloaded: Win-chips/707-chips-purple.png
+[172/210] Downloaded: Chips-case/yellow/707-chips-yellow.png
+[173/210] Downloaded: preview-chips/707-chips-yellow-preview.png
+[174/210] Downloaded: Win-chips/707-chips-yellow.png
+[175/210] Downloaded: Chips-case/gray/505-chips-gray.png
+[176/210] Downloaded: preview-chips/505-chips-gray-preview.png
+[177/210] Downloaded: Win-chips/505-chips-gray.png
+[178/210] Downloaded: Chips-case/yellow/505-chips-yellow.png
+[179/210] Downloaded: preview-chips/505-chips-yellow-preview.png
+[180/210] Downloaded: Win-chips/505-chips-yellow.png
+[181/210] Downloaded: Chips-case/gray/404-chips-gray.png
+[182/210] Downloaded: preview-chips/404-chips-gray-preview.png
+[183/210] Downloaded: Win-chips/404-chips-gray.png
+[184/210] Downloaded: Chips-case/yellow/404-chips-yellow.png
+[185/210] Downloaded: preview-chips/404-chips-yellow-preview.png
+[186/210] Downloaded: Win-chips/404-chips-yellow.png
+[187/210] Downloaded: Chips-case/gray/303-chips-gray.png
+[188/210] Downloaded: preview-chips/303-chips-gray-preview.png
+[189/210] Downloaded: Win-chips/303-chips-gray.png
+[190/210] Downloaded: Chips-case/yellow/303-chips-yellow.png
+[191/210] Downloaded: preview-chips/303-chips-yellow-preview.png
+[192/210] Downloaded: Win-chips/303-chips-yellow.png
+[193/210] Downloaded: Chips-case/gray/255-chips-gray.png
+[194/210] Downloaded: preview-chips/255-chips-gray-preview.png
+[195/210] Downloaded: Win-chips/255-chips-gray.png
+[196/210] Downloaded: Chips-case/yellow/255-chips-yellow.png
+[197/210] Downloaded: preview-chips/255-chips-yellow-preview.png
+[198/210] Downloaded: Win-chips/255-chips-yellow.png
+[199/210] Downloaded: Chips-case/gray/202-chips-gray.png
+[200/210] Downloaded: preview-chips/202-chips-gray-preview.png
+[201/210] Downloaded: Win-chips/202-chips-gray.png
+[202/210] Downloaded: Chips-case/gray/155-chips-gray.png
+[203/210] Downloaded: preview-chips/155-chips-gray-preview.png
+[204/210] Downloaded: Win-chips/155-chips-gray.png
+[205/210] Downloaded: Chips-case/gray/101-chips-gray.png
+[206/210] Downloaded: preview-chips/101-chips-gray-preview.png
+[207/210] Downloaded: Win-chips/101-chips-gray.png
+[208/210] Downloaded: Chips-case/gray/50-chips-gray.png
+[209/210] Downloaded: preview-chips/50-chips-gray-preview.png
+[ERROR] Failed to download https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/50-chips-gray.png: HTTP Error 404: Not Found
+
+============================================================
+DOWNLOAD COMPLETE
+============================================================
+Success: 177
+Failed: 33
+Skipped (already exists): 0
+
+Images saved to: C:\Users\dev_fenomen\Desktop\duo\bot\main\prizes
+
+[WARNING] 33 images failed to download
+You can re-run the script to retry failed downloads
+PS C:\Users\dev_fenomen\Desktop\duo\bot>
