@@ -43,7 +43,19 @@ class ReferralManager {
                 console.log('📊 Реферальные данные:', data);
                 
                 this.referralCode = data.referralCode;
-                this.stats = data.stats || this.stats;
+                
+                // API возвращает данные в корне объекта, а не в data.stats
+                this.stats = {
+                    clicks: data.clicks || 0,
+                    firstDeposits: data.firstDeposits || 0,
+                    deposits: data.deposits || 0,
+                    totalDeposits: data.totalDeposits || 0,
+                    costPerClick: data.costPerClick || 0,
+                    avgIncomePerPlayer: data.avgIncomePerPlayer || 0,
+                    totalEarnings: data.totalEarnings || 0
+                };
+                
+                console.log('📊 Обработанная статистика:', this.stats);
                 
                 // Генерируем ссылку
                 this.generateReferralLink();
