@@ -224,7 +224,7 @@ class ReferralManager {
     }
     
     // Периодическое обновление статистики
-    startAutoUpdate(intervalMs = 30000) {
+    startAutoUpdate(intervalMs = 120000) { // Увеличил с 30 до 120 секунд (2 минуты)
         setInterval(() => {
             this.loadReferralData();
         }, intervalMs);
@@ -239,8 +239,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         window.ReferralManager = new ReferralManager();
         
-        // Запускаем автообновление каждые 30 секунд
-        window.ReferralManager.startAutoUpdate(30000);
+        // Запускаем автообновление каждые 2 минуты (120 секунд)
+        window.ReferralManager.startAutoUpdate(120000);
         
         console.log('✅ ReferralManager инициализирован');
     }, 1000);

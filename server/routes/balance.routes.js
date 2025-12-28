@@ -6,20 +6,51 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/database');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-// In-memory balance storage (для быстрого доступа)
+// Путь к БД Python бота (из config.py: PATH_DATABASE = "tgbot/data/database.db")
+const BOT_DB_PATH = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
+
+// In-memory balance cache (для быстрого доступа, НО с синхронизацией с Python БД)
 const balances = new Map();
 
-// Загрузить балансы из localStorage если есть
-try {
-    // Балансы хранятся в памяти сервера
-} catch (error) {
-    console.error('Error loading balances:', error);
+// Функция для получения баланса из Python БД
+function getBalanceFromBotDB(telegramId) {
+    return new Promise((resolve, reject) => {
+        const botDB = new sqlite3.Database(BOT_DB_PATH, sqlite3.OPEN_READONLY, (err) => {
+            if (err) {
+                console.error('❌ Error opening bot DB:', err);
+                resolve(null); // Если не удалось открыть - вернём null
+                return;
+            }
+            
+            botDB.get(
+                'SELECT user_balance FROM storage_users WHERE user_id = ?',
+                [telegramId],
+                (err, row) => {
+                    botDB.close();
+                    
+                    if (err) {
+                        console.error('❌ Error reading from bot DB:', err);
+                        resolve(null);
+                        return;
+                    }
+                    
+                    if (row) {
+                        resolve({ rubles: row.user_balance || 0, chips: 0 });
+                    } else {
+                        resolve(null);
+                    }
+                }
+            );
+        });
+    });
 }
 
 /**
  * GET /api/balance/:telegramId
- * Get user balance
+ * Get user balance (синхронизировано с Python БД)
  */
 router.get('/:telegramId', async (req, res) => {
     try {
@@ -27,8 +58,22 @@ router.get('/:telegramId', async (req, res) => {
         
         console.log(`📥 GET /api/balance/${telegramId}`);
         
-        // Получить баланс из памяти или вернуть 0
-        const balance = balances.get(telegramId) || { rubles: 0, chips: 0 };
+        // 1. Проверить кэш
+        let balance = balances.get(telegramId);
+        
+        // 2. Если нет в кэше - прочитать из Python БД
+        if (!balance) {
+            balance = await getBalanceFromBotDB(telegramId);
+            
+            if (balance) {
+                // Сохранить в кэш
+                balances.set(telegramId, balance);
+                console.log(`💾 Баланс загружен из Bot DB: ${telegramId} → ${balance.rubles}₽`);
+            } else {
+                // Если пользователя нет в БД - вернуть 0
+                balance = { rubles: 0, chips: 0 };
+            }
+        }
         
         res.json({
             success: true,
@@ -96,7 +141,7 @@ router.post('/:telegramId', async (req, res) => {
 
 /**
  * POST /api/balance/:telegramId/add
- * Add balance
+ * Add balance (инвалидирует кэш чтобы перечитать из Python БД)
  */
 router.post('/:telegramId/add', async (req, res) => {
     try {
@@ -108,7 +153,11 @@ router.post('/:telegramId/add', async (req, res) => {
         
         console.log(`📥 POST /api/balance/${telegramId}/add:`, { addAmount, addChips, source });
         
-        const currentBalance = balances.get(telegramId) || { rubles: 0, chips: 0 };
+        // Получить текущий баланс (из кэша или БД)
+        let currentBalance = balances.get(telegramId);
+        if (!currentBalance) {
+            currentBalance = await getBalanceFromBotDB(telegramId) || { rubles: 0, chips: 0 };
+        }
         
         currentBalance.rubles = (currentBalance.rubles || 0) + addAmount;
         currentBalance.chips = (currentBalance.chips || 0) + addChips;

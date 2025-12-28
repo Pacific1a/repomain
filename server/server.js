@@ -65,8 +65,18 @@ app.use(express.json());
 // Rate limiting on API routes
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: { success: false, message: 'Too many requests' }
+    max: 500, // Увеличено с 100 до 500 запросов
+    message: { success: false, message: 'Too many requests' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Исключить авторизованные endpoints партнёров из жёсткого лимита
+    skip: (req) => {
+        // Если есть токен авторизации - используем более мягкий лимит
+        if (req.headers.authorization) {
+            return false;
+        }
+        return false;
+    }
 });
 app.use('/api/', apiLimiter);
 
