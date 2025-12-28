@@ -6,6 +6,8 @@
 
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -34,6 +36,15 @@ console.log('');
 // ============================================
 
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+    transports: ['websocket', 'polling']
+});
 
 // Trust proxy (for Nginx)
 app.set('trust proxy', 1);
@@ -118,6 +129,18 @@ console.log('✅ Auth routes loaded');
 app.use('/api/referral', require('./routes/referral.routes'));
 console.log('✅ Referral routes loaded');
 
+// Balance routes (for bot)
+app.use('/api/balance', require('./routes/balance.routes'));
+console.log('✅ Balance routes loaded');
+
+// Transactions routes (for bot)
+app.use('/api/transactions', require('./routes/transactions.routes'));
+console.log('✅ Transactions routes loaded');
+
+// 2FA routes (stubs)
+app.use('/api', require('./routes/auth.routes')); // Will handle /api/2fa/*
+console.log('✅ 2FA routes loaded (stubs)');
+
 // ============================================
 // ROOT ROUTES
 // ============================================
@@ -178,8 +201,17 @@ async function startServer() {
         await initDatabase();
         console.log('✅ Database ready');
         
+        // Socket.IO connection handling
+        io.on('connection', (socket) => {
+            console.log('🔌 Socket.IO client connected:', socket.id);
+            
+            socket.on('disconnect', () => {
+                console.log('❌ Socket.IO client disconnected:', socket.id);
+            });
+        });
+        
         // Start listening
-        app.listen(PORT, '0.0.0.0', () => {
+        server.listen(PORT, '0.0.0.0', () => {
             console.log('');
             console.log('========================================');
             console.log('✅ SERVER IS RUNNING');

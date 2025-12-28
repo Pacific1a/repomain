@@ -210,4 +210,42 @@ router.get('/user', jwtAuth, async (req, res) => {
     }
 });
 
+// ============================================
+// 2FA ENDPOINTS (заглушки для совместимости)
+// ============================================
+
+/**
+ * GET /api/2fa/status
+ * Get 2FA status
+ */
+router.get('/2fa/status', jwtAuth, async (req, res) => {
+    res.json({
+        success: true,
+        twoFactorEnabled: false,
+        message: '2FA not implemented yet'
+    });
+});
+
+/**
+ * POST /api/2fa/enable
+ * Enable 2FA
+ */
+router.post('/2fa/enable', jwtAuth, async (req, res) => {
+    res.json({
+        success: false,
+        message: '2FA not implemented yet'
+    });
+});
+
+/**
+ * POST /api/2fa/disable
+ * Disable 2FA
+ */
+router.post('/2fa/disable', jwtAuth, async (req, res) => {
+    res.json({
+        success: false,
+        message: '2FA not implemented yet'
+    });
+});
+
 module.exports = router;
