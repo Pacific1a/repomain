@@ -16,7 +16,7 @@ IP: 77.239.125.70
 
 ```bash
 ssh root@77.239.125.70
-# Пароль: G3ce12soSjWJK38jyGq
+G3ce12soSjWJK38jyGq
 cd /var/www/duo
 git pull
 ```

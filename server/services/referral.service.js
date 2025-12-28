@@ -468,6 +468,53 @@ class ReferralService {
             console.error('❌ Error getting referrals list:', error);
             throw error;
         }
+    },
+    
+    /**
+     * Получить referrer_code пользователя из Python БД
+     * @param {string} telegramId - Telegram ID пользователя
+     * @returns {Promise<string|null>} referrer_code или null
+     */
+    async getUserReferrer(telegramId) {
+        try {
+            const sqlite3 = require('sqlite3').verbose();
+            const path = require('path');
+            const BOT_DB_PATH = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
+            
+            return new Promise((resolve) => {
+                const botDB = new sqlite3.Database(BOT_DB_PATH, sqlite3.OPEN_READONLY, (err) => {
+                    if (err) {
+                        console.error('❌ Error opening bot DB for referrer lookup:', err);
+                        resolve(null);
+                        return;
+                    }
+                    
+                    botDB.get(
+                        'SELECT user_referrer FROM storage_users WHERE user_id = ?',
+                        [telegramId],
+                        (err, row) => {
+                            botDB.close();
+                            
+                            if (err) {
+                                console.error('❌ Error reading referrer from bot DB:', err);
+                                resolve(null);
+                                return;
+                            }
+                            
+                            if (row && row.user_referrer) {
+                                console.log(`💾 Found referrer for ${telegramId}: ${row.user_referrer}`);
+                                resolve(row.user_referrer);
+                            } else {
+                                resolve(null);
+                            }
+                        }
+                    );
+                });
+            });
+        } catch (error) {
+            console.error('❌ Error in getUserReferrer:', error);
+            return null;
+        }
     }
 }
 
