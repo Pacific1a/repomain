@@ -97,11 +97,15 @@ class ReferralManager {
                 input.setAttribute('readonly', true);
                 input.style.cursor = 'pointer';
                 
-                // При клике на input - копируем (и останавливаем всплытие события!)
-                input.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Останавливаем всплытие чтобы не открывать окно повторно
-                    this.copyReferralLink();
-                });
+                // Проверяем что обработчик ещё не навешан
+                if (!input.dataset.handlerAttached) {
+                    // При клике на input - копируем (и останавливаем всплытие события!)
+                    input.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Останавливаем всплытие чтобы не открывать окно повторно
+                        this.copyReferralLink();
+                    });
+                    input.dataset.handlerAttached = 'true';
+                }
             }
         });
     }
@@ -129,6 +133,12 @@ class ReferralManager {
             return;
         }
         
+        // Защита от множественных кликов
+        if (this.isCopying) {
+            return;
+        }
+        this.isCopying = true;
+        
         try {
             await navigator.clipboard.writeText(this.referralLink);
             Toast.success('Ссылка скопирована!');
@@ -143,6 +153,11 @@ class ReferralManager {
             document.body.removeChild(input);
             Toast.success('Ссылка скопирована!');
             console.log('✅ Ссылка скопирована (fallback)');
+        } finally {
+            // Разблокируем через 1 секунду
+            setTimeout(() => {
+                this.isCopying = false;
+            }, 1000);
         }
     }
     

@@ -328,7 +328,7 @@ class ReferralService {
                 totalDeposits: parseFloat(stats.total_deposits || 0).toFixed(2),
                 earnings: parseFloat(stats.earnings || 0).toFixed(2),
                 costPerClick: stats.clicks > 0 ? (stats.earnings / stats.clicks).toFixed(2) : '0.00',
-                avgIncomePerPlayer: stats.first_deposits > 0 ? (stats.total_deposits / stats.first_deposits).toFixed(2) : '0.00'
+                avgIncomePerPlayer: stats.first_deposits > 0 ? (stats.earnings / stats.first_deposits).toFixed(2) : '0.00'  // Средний доход = earnings / игроки
             };
         } catch (error) {
             console.error('❌ Error getting partner stats:', error);
