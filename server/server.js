@@ -38,21 +38,11 @@ const app = express();
 // Trust proxy (for Nginx)
 app.set('trust proxy', 1);
 
-// Security middleware
+// Security middleware - relaxed CSP for Telegram WebApp
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://telegram.org", "https://cdn.socket.io"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"],
-            connectSrc: ["'self'", "https:", "wss:", "ws:"],
-            fontSrc: ["'self'", "data:", "https:", "https://fonts.gstatic.com"],
-            objectSrc: ["'none'"],
-            mediaSrc: ["'self'"],
-            frameSrc: ["'self'"]
-        }
-    }
+    contentSecurityPolicy: false, // Disable CSP for Telegram WebApp compatibility
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false
 }));
 
 // CORS
@@ -73,14 +63,42 @@ app.use('/api/', apiLimiter);
 // STATIC FILES
 // ============================================
 
+// Middleware to set correct Content-Type headers
+app.use((req, res, next) => {
+    if (req.url.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    } else if (req.url.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+    } else if (req.url.endsWith('.json')) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    }
+    next();
+});
+
 // Bot miniapp (served at /bot/)
 const botDir = path.join(__dirname, '../bot');
-app.use('/bot', express.static(botDir));
+app.use('/bot', express.static(botDir, {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        } else if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        }
+    }
+}));
 console.log('📁 Bot static files:', botDir);
 
 // Partner site (served at /partner/)
 const siteDir = path.join(__dirname, '../site');
-app.use('/partner', express.static(siteDir));
+app.use('/partner', express.static(siteDir, {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        } else if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css; charset=utf-8');
+        }
+    }
+}));
 console.log('📁 Partner site static files:', siteDir);
 
 // Uploads
