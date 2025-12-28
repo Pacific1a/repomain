@@ -30,7 +30,7 @@
 
 /* style.css - ПОЛНОСТЬЮ */
 .loading {
-    display: inline-flex;
+    display: flex !important; /* КРИТИЧНО: показываем сразу */
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -39,47 +39,57 @@
     position: relative;
     background-color: #151414;
     min-height: 100vh;
+    height: 100%;
     width: 100%;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1;
 }
 
 .loading .token {
     position: relative;
     width: 100%;
-    max-width: 100%;
+    max-width: 298px; /* Фиксированная ширина из SVG */
     height: auto;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 298 / 331; /* Точное соотношение из SVG */
     object-fit: contain;
     /* Оптимизация: предзагрузка SVG */
     will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .text-wrapper {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
     font-weight: 600;
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 16px;
     text-align: center;
     letter-spacing: -0.80px;
     line-height: normal;
     margin: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .div {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-Medium", Helvetica;
+    font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
     font-weight: 500;
     width: 100%;
-    color: #555555;
+    color: #555555 !important;
     font-size: 14px;
     text-align: center;
     letter-spacing: -0.70px;
     line-height: normal;
     margin: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .load-icon {
@@ -93,6 +103,8 @@
     position: relative;
     align-self: stretch;
     width: 100%;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .icon {
@@ -101,6 +113,8 @@
     height: 50px;
     margin-top: -4.00px;
     margin-bottom: -4.00px;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .load-icon svg {
@@ -110,13 +124,15 @@
 .loading .authentication {
     position: relative;
     align-self: stretch;
-    font-family: "Montserrat-Medium", Helvetica;
+    font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
     font-weight: 500;
-    color: #c5c5c5;
+    color: #c5c5c5 !important;
     font-size: 15px;
     text-align: center;
     line-height: normal;
     margin: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .span {
@@ -131,6 +147,8 @@
     position: relative;
     width: 298px;
     height: 21px;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .loading .text-wrapper-3 {
@@ -139,14 +157,16 @@
     height: 100%;
     top: 0;
     left: 0;
-    font-family: "Montserrat-SemiBold", Helvetica;
+    font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
     font-weight: 600;
-    color: #ffffff;
+    color: #ffffff !important;
     font-size: 17px;
     text-align: center;
     letter-spacing: 0;
     line-height: normal;
     margin: 0;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
