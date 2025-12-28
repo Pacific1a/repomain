@@ -77,10 +77,12 @@ class ReferralTracker {
       return { success: false, reason: 'self_referral' };
     }
     
-    // Проверяем что пользователь еще не привязан к другому партнеру
-    if (this.referralLinks[userId]) {
-      console.log(`⚠️ User already linked to: ${this.referralLinks[userId]}`);
-      return { success: false, reason: 'already_linked', existingRef: this.referralLinks[userId] };
+    // 🔒 ОГРАНИЧЕНИЕ: Проверяем что пользователь еще не привязан к ЛЮБОМУ партнеру
+    // Один telegram_id может использовать ТОЛЬКО ОДНУ реферальную ссылку
+    const existingReferralCode = this.referralLinks[userId];
+    if (existingReferralCode) {
+      console.log(`🚫 User ${userId} already linked to partner: ${existingReferralCode} (tried to use: ${referralCode})`);
+      return { success: false, reason: 'already_linked', existingPartner: existingReferralCode };
     }
     
     // Сохраняем связь
