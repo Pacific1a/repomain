@@ -7,10 +7,8 @@ import sqlite3
 import os
 import sys
 
-# Добавить путь к модулям бота
-sys.path.insert(0, os.path.dirname(__file__))
-
-from tgbot.data.config import PATH_DATABASE
+# Путь к БД напрямую (без импорта config.py)
+PATH_DATABASE = "tgbot/data/database.db"
 
 def add_referrer_column():
     """Добавить колонку user_referrer если её ещё нет"""
