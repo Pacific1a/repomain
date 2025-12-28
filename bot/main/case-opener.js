@@ -196,7 +196,7 @@
         img.height = 110;
         img.src = prizeData.preview;
         img.alt = isChipsCase ? `${prize} chips` : `${prize}₽`;
-        img.loading = 'eager'; // Загружаем сразу (критичный контент)
+        img.loading = 'lazy'; // Ленивая загрузка для ускорения
         img.decoding = 'async';
         
         itemPreview.appendChild(img);
