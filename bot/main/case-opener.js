@@ -80,11 +80,11 @@
     const color = getRandomColor(prize, isChips);
     
     if (isChips) {
-      // Пути для кейсов за фишки
+      // Пути для кейсов за фишки (локальные)
       const paths = {
-        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Chips-case/${color}/${prize}-chips-${color}.png`,
-        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/preview-chips/${prize}-chips-${color}-preview.png`,
-        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${prize}-chips-${color}.png`,
+        spin: `main/prizes/Chips-case/${color}/${prize}-chips-${color}.png`,
+        preview: `main/prizes/preview-chips/${prize}-chips-${color}-preview.png`,
+        win: `main/prizes/Win-chips/${prize}-chips-${color}.png`,
         color: color
       };
       return paths;
@@ -94,16 +94,11 @@
       const previewColor = color === 'purple' ? 'puple' : color;
       
       const paths = {
-        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Case-tokens/${color}/${prize}-r-${color}.png`,
-        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
-        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${color}/${prize}-r-${color}.png`,
+        spin: `main/prizes/Case-tokens/${color}/${prize}-r-${color}.png`,
+        preview: `main/prizes/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
+        win: `main/prizes/win-tokens/${color}/${prize}-r-${color}.png`,
         color: color
       };
-      
-      // Для не-purple цветов используем обычный путь
-      if (color !== 'purple') {
-        paths.preview = `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
-      }
       
       return paths;
     }
@@ -199,6 +194,13 @@
         img.loading = 'lazy'; // Ленивая загрузка для ускорения
         img.decoding = 'async';
         
+        // Fallback если картинка не загрузилась
+        img.onerror = function() {
+          this.style.background = '#2a2a2a';
+          this.style.border = '2px solid ' + (prizeData.color === 'red' ? '#ff4444' : prizeData.color === 'blue' ? '#4444ff' : '#888');
+          this.alt = prize;
+        };
+        
         itemPreview.appendChild(img);
       });
     }
@@ -274,6 +276,12 @@
       img.dataset.color = prizeData.color;
       img.loading = 'lazy';
       img.decoding = 'async';
+      
+      // Fallback для spin картинок
+      img.onerror = function() {
+        this.style.background = '#2a2a2a';
+        this.style.border = '2px solid ' + (prizeData.color === 'red' ? '#ff4444' : '#888');
+      };
       
       fragment.appendChild(img);
     });
@@ -506,9 +514,9 @@
     let winImagePath;
     if (window.winningColor) {
       if (currentCase.isChipsCase) {
-        winImagePath = `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${wonPrize}-chips-${window.winningColor}.png`;
+        winImagePath = `main/prizes/Win-chips/${wonPrize}-chips-${window.winningColor}.png`;
       } else {
-        winImagePath = `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png`;
+        winImagePath = `main/prizes/win-tokens/${window.winningColor}/${wonPrize}-r-${window.winningColor}.png`;
       }
     } else {
       winImagePath = prizeInfo.win;
@@ -524,6 +532,13 @@
     winImg.alt = `WIN ${wonPrize}₽`;
     winImg.loading = 'eager';
     winImg.decoding = 'async';
+    
+    // Fallback для win картинки
+    winImg.onerror = function() {
+      this.style.background = '#2a2a2a';
+      this.style.border = '3px solid #ffaa00';
+      this.alt = `WIN ${wonPrize}`;
+    };
     
     winItem.appendChild(winImg);
     
