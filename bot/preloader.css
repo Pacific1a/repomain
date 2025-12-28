@@ -179,13 +179,15 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #151414;
-  z-index: 999999;
-  opacity: 1; /* Сразу видимый */
+  background-color: #151414 !important;
+  z-index: 999999 !important;
+  opacity: 1 !important; /* Сразу видимый */
+  visibility: visible !important;
   transition: none; /* Без анимации при появлении */
   overflow: hidden;
   align-items: center;
   justify-content: center;
+  pointer-events: all;
 }
 
 #page-preloader.fade-out {
@@ -198,17 +200,24 @@
   display: none !important;
 }
 
-/* КРИТИЧНО: Скрываем контент пока грузится */
+/* КРИТИЧНО: Скрываем контент казино пока грузится */
 body:not(.loaded) #app,
-body:not(.loaded) .div,
 body:not(.loaded) .overlap-group-wrapper {
   visibility: hidden !important;
   opacity: 0 !important;
 }
 
-/* Когда всё загружено - показываем контент */
+/* НЕ прячем сам прелоадер и его содержимое! */
+#page-preloader,
+#page-preloader *,
+#page-preloader .loading,
+#page-preloader .loading * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Когда всё загружено - показываем контент казино */
 body.loaded #app,
-body.loaded .div,
 body.loaded .overlap-group-wrapper {
   visibility: visible !important;
   opacity: 1 !important;
