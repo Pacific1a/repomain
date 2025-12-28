@@ -395,6 +395,26 @@ async def refill_success(
         'bot', 
         f"Пополнение через {method_description}"
     )
+    
+    # ✅ ОТПРАВИТЬ ДЕПОЗИТ В РЕФЕРАЛЬНУЮ СИСТЕМУ
+    if get_user.user_referrer:
+        from tgbot.services.referral_service import ReferralService
+        
+        # Проверить это первый депозит или нет
+        is_first_deposit = (get_user.user_refill == 0)  # До добавления было 0
+        
+        if is_first_deposit:
+            await ReferralService.register_first_deposit(
+                str(call.from_user.id),
+                get_user.user_referrer,
+                pay_amount
+            )
+        else:
+            await ReferralService.register_repeated_deposit(
+                str(call.from_user.id),
+                get_user.user_referrer,
+                pay_amount
+            )
 
     await call.message.edit_text(
         f"<b>💰 Вы пополнили баланс на сумму <code>{pay_amount}₽</code>. Удачи ❤️\n"

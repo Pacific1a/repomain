@@ -18,6 +18,7 @@ class UserModel(BaseModel):
     user_refill: float
     user_give: float
     user_unix: int
+    user_referrer: str = None  # Реферальный код пригласившего партнёра
 
 
 # Работа с юзером
@@ -30,6 +31,7 @@ class Userx:
             user_id: int,
             user_login: str,
             user_name: str,
+            user_referrer: str = None,
     ):
         user_balance = 0
         user_refill = 0
@@ -48,8 +50,9 @@ class Userx:
                         user_balance,
                         user_refill,
                         user_give,
-                        user_unix
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                        user_unix,
+                        user_referrer
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """),
                 [
                     user_id,
@@ -59,6 +62,7 @@ class Userx:
                     user_refill,
                     user_give,
                     user_unix,
+                    user_referrer,
                 ],
             )
 

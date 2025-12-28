@@ -136,17 +136,17 @@ router.post('/:telegramId/add', async (req, res) => {
 
 /**
  * POST /api/balance/:telegramId/subtract
- * Subtract balance
+ * Subtract balance (проигрыш в игре)
  */
 router.post('/:telegramId/subtract', async (req, res) => {
     try {
         const { telegramId } = req.params;
-        const { amount, rubles, chips, reason } = req.body;
+        const { amount, rubles, chips, reason, gameType } = req.body;
         
         const subtractAmount = amount || rubles || 0;
         const subtractChips = chips || 0;
         
-        console.log(`📥 POST /api/balance/${telegramId}/subtract:`, { subtractAmount, subtractChips });
+        console.log(`📥 POST /api/balance/${telegramId}/subtract:`, { subtractAmount, subtractChips, gameType, reason });
         
         const currentBalance = balances.get(telegramId) || { rubles: 0, chips: 0 };
         
@@ -164,6 +164,28 @@ router.post('/:telegramId/subtract', async (req, res) => {
         balances.set(telegramId, currentBalance);
         
         console.log(`✅ Balance subtracted: ${telegramId} -${subtractAmount}₽ -${subtractChips} chips`);
+        
+        // ✅ ОТПРАВИТЬ ПРОИГРЫШ В РЕФЕРАЛЬНУЮ СИСТЕМУ (60% партнёру!)
+        if (subtractAmount > 0 && gameType && gameType !== 'unknown') {
+            // Получить referrer_code из Python бота
+            // Для этого нужно хранить связь telegramId -> referrerCode
+            // Пока просто проверим есть ли в БД
+            try {
+                const ReferralService = require('../services/referral.service');
+                const referrerCode = await ReferralService.getUserReferrer(telegramId);
+                
+                if (referrerCode) {
+                    await ReferralService.addEarnings(
+                        referrerCode,
+                        telegramId,
+                        subtractAmount
+                    );
+                }
+            } catch (refError) {
+                console.error('❌ Error sending loss to referral system:', refError);
+                // Не блокируем основной запрос если реферальная система недоступна
+            }
+        }
         
         res.json({
             success: true,

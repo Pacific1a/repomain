@@ -163,6 +163,14 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                     return
                                 
                                 if resp.status == 200 and result.get('success'):
+                                    # ✅ СОХРАНИТЬ referrer_code в БД
+                                    from tgbot.database.db_users import Userx
+                                    try:
+                                        Userx.update(message.from_user.id, user_referrer=referral_code)
+                                        print(f"💾 Saved referrer code '{referral_code}' for user {user_id}")
+                                    except Exception as db_err:
+                                        print(f"❌ Error saving referrer to DB: {db_err}")
+                                    
                                     await message.answer(
                                         "🎁 Вы перешли по реферальной ссылке!\n"
                                         "Ваш партнёр будет получать 60% от ваших проигрышей."
