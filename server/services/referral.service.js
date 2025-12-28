@@ -468,14 +468,14 @@ class ReferralService {
             console.error('❌ Error getting referrals list:', error);
             throw error;
         }
-    },
+    }
     
     /**
      * Получить referrer_code пользователя из Python БД
      * @param {string} telegramId - Telegram ID пользователя
      * @returns {Promise<string|null>} referrer_code или null
      */
-    async getUserReferrer(telegramId) {
+    static async getUserReferrer(telegramId) {
         try {
             const sqlite3 = require('sqlite3').verbose();
             const path = require('path');
