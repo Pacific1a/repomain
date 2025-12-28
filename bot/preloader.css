@@ -49,6 +49,10 @@
     height: auto;
     aspect-ratio: 1 / 1;
     object-fit: contain;
+    /* Оптимизация: предзагрузка SVG */
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .loading .text-wrapper {
