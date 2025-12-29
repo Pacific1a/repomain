@@ -94,6 +94,8 @@ class CrashChart {
     this.currentMultiplier = multiplier;
     const elapsed = Date.now() - this.startTime;
     
+    // FIXED: НЕ сохраняем X координату здесь - она будет вычислена при отрисовке
+    // Используем только time и multiplier
     this.points.push({
       time: elapsed,
       multiplier: multiplier
@@ -244,11 +246,9 @@ class CrashChart {
     const elapsed = Date.now() - this.startTime;
     const chartWidth = this.width - this.padding.left - this.padding.right;
     
-    // FIXED: Scrolling window - показываем последние 60 секунд
-    // Точки НЕ дергаются потому что мы используем фиксированное окно времени
-    const visiblePoints = this.points.filter(p => 
-      elapsed - p.time < this.maxVisibleTime
-    );
+    // FIXED: Статичный график - показываем ВСЁ от начала до сейчас
+    // График заполняет всю ширину экрана независимо от длительности игры
+    const visiblePoints = this.points;
     
     if (visiblePoints.length < 2) return;
     
@@ -283,12 +283,17 @@ class CrashChart {
     const noiseAmplitude = 0.05; // Уменьшено с 0.3 до 0.05 для плавного движения
     
     // Подготавливаем массив точек с координатами
-    // FIXED: Scrolling window - новые точки справа, старые уходят влево и исчезают
+    // FIXED: Рисуем от ПРАВОГО края! Последняя точка ВСЕГДА справа
+    // Фиксируем шкалу на ближайших 5 секундах чтобы уменьшить дергание
+    const timeScale = Math.max(Math.ceil(elapsed / 5000) * 5000, 5000); // округляем вверх до 5 секунд
+    const pixelsPerMs = chartWidth / timeScale;
+    const rightEdge = this.padding.left + chartWidth;
+    
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
-      const ageOfPoint = elapsed - point.time; // Возраст точки
-      const progress = ageOfPoint / this.maxVisibleTime; // 0 = новая (справа), 1 = старая (слева)
-      const x = this.padding.left + chartWidth * (1 - progress); // Инвертируем чтобы новые справа
+      // X: от правого края влево, пропорционально времени
+      const distanceFromEnd = elapsed - point.time;
+      const x = rightEdge - (distanceFromEnd * pixelsPerMs);
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
@@ -383,10 +388,13 @@ class CrashChart {
     const chartWidth = this.width - this.padding.left - this.padding.right;
     const lastPoint = this.points[this.points.length - 1];
     const elapsedTotal = Date.now() - this.startTime;
-    // FIXED: Scrolling window - такая же логика как в drawChart
-    const lastPointAge = elapsedTotal - lastPoint.time;
-    const lastProgress = lastPointAge / this.maxVisibleTime;
-    const lastX = this.padding.left + chartWidth * (1 - lastProgress);
+    
+    // FIXED: Используем ту же шкалу времени
+    const timeScale = Math.max(Math.ceil(elapsedTotal / 5000) * 5000, 5000);
+    const pixelsPerMs = chartWidth / timeScale;
+    const rightEdge = this.padding.left + chartWidth;
+    const distanceFromEnd = elapsedTotal - lastPoint.time;
+    const lastX = rightEdge - (distanceFromEnd * pixelsPerMs);
     const lastY = this.crashAnimation.startY;
     
     const flyDistance = this.height * 0.5;
