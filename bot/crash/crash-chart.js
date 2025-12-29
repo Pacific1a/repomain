@@ -17,7 +17,8 @@ class CrashChart {
     this.noiseOffset = 0;
     
     this.padding = { top: 20, right: 20, bottom: 30, left: 50 };
-    this.maxVisibleTime = 60000; // 60 секунд - достаточно для большинства игр
+    this.maxVisibleTime = 60000; // 60 секунд
+    this.estimatedGameDuration = 30000; // 30 секунд - ожидаемая длительность для масштабирования
     
     // Кэшируем градиенты для производительности
     this.lineGradient = null;
@@ -283,17 +284,18 @@ class CrashChart {
     const noiseAmplitude = 0.05; // Уменьшено с 0.3 до 0.05 для плавного движения
     
     // Подготавливаем массив точек с координатами
-    // FIXED: Рисуем от ПРАВОГО края! Последняя точка ВСЕГДА справа
-    // Фиксируем шкалу на ближайших 5 секундах чтобы уменьшить дергание
-    const timeScale = Math.max(Math.ceil(elapsed / 5000) * 5000, 5000); // округляем вверх до 5 секунд
-    const pixelsPerMs = chartWidth / timeScale;
-    const rightEdge = this.padding.left + chartWidth;
+    // FIXED: Статичный график слева→направо с фиксированной шкалой времени
+    // Используем estimatedGameDuration для плавного масштабирования
+    const pixelsPerMs = chartWidth / this.estimatedGameDuration;
     
     for (let i = 0; i < visiblePoints.length; i++) {
       const point = visiblePoints[i];
-      // X: от правого края влево, пропорционально времени
-      const distanceFromEnd = elapsed - point.time;
-      const x = rightEdge - (distanceFromEnd * pixelsPerMs);
+      // X: от левого края вправо, пропорционально времени точки
+      let x = this.padding.left + (point.time * pixelsPerMs);
+      
+      // Если игра длится дольше ожидаемого - ограничиваем справа
+      x = Math.min(x, this.padding.left + chartWidth);
+      
       let y = this.getYPosition(point.multiplier);
       y += this.getNoise(point.time) * noiseAmplitude;
       chartPoints[i] = { x, y, multiplier: point.multiplier, time: point.time };
@@ -389,12 +391,10 @@ class CrashChart {
     const lastPoint = this.points[this.points.length - 1];
     const elapsedTotal = Date.now() - this.startTime;
     
-    // FIXED: Используем ту же шкалу времени
-    const timeScale = Math.max(Math.ceil(elapsedTotal / 5000) * 5000, 5000);
-    const pixelsPerMs = chartWidth / timeScale;
-    const rightEdge = this.padding.left + chartWidth;
-    const distanceFromEnd = elapsedTotal - lastPoint.time;
-    const lastX = rightEdge - (distanceFromEnd * pixelsPerMs);
+    // FIXED: Используем ту же фиксированную шкалу
+    const pixelsPerMs = chartWidth / this.estimatedGameDuration;
+    let lastX = this.padding.left + (lastPoint.time * pixelsPerMs);
+    lastX = Math.min(lastX, this.padding.left + chartWidth);
     const lastY = this.crashAnimation.startY;
     
     const flyDistance = this.height * 0.5;
