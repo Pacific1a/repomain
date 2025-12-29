@@ -44,7 +44,8 @@ def create_dbx():
 
         ############################################################
         # Создание таблицы с хранением - пользователей
-        if len(con.execute("PRAGMA table_info(storage_users)").fetchall()) == 8:
+        # Было 8 колонок, после добавления user_referrer стало 9
+        if len(con.execute("PRAGMA table_info(storage_users)").fetchall()) >= 8:
             print("DB was found(1/8)")
         else:
             con.execute(
