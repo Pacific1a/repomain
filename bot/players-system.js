@@ -287,8 +287,10 @@ class GameWebSocket {
         });
 
         this.socket.on('player_joined', (data) => {
-            console.log('👤 Игрок присоединился:', data.player.nickname);
-            if (this.currentRoom) {
+            // FIXED: Сервер отправляет data.nickname, а не data.player.nickname
+            const nickname = data.nickname || data.player?.nickname || 'Unknown';
+            console.log('👤 Игрок присоединился:', nickname);
+            if (this.currentRoom && data.room) {
                 this.currentRoom = data.room;
             }
         });

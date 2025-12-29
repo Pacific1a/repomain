@@ -88,6 +88,30 @@
       }
     });
 
+    // Новый игрок присоединился (боты и игроки)
+    ws.socket.on('player_joined', (data) => {
+      console.log('👤 Игрок присоединился:', data);
+      
+      // Добавляем игрока если его еще нет
+      const existingPlayer = gameState.players.find(p => p.userId === data.userId);
+      if (!existingPlayer) {
+        gameState.players.push({
+          userId: data.userId,
+          nickname: data.nickname,
+          photoUrl: data.photoUrl,
+          bet: data.bet,
+          color: data.color,
+          isBot: data.isBot || false
+        });
+        
+        console.log(`✅ Игрок ${data.nickname} добавлен, всего игроков: ${gameState.players.length}`);
+        
+        // Синхронизируем с колесом
+        syncPlayersToWheel();
+        updateUI();
+      }
+    });
+    
     // Новый игрок сделал ставку
     ws.socket.on('player_bet', (data) => {
       console.log('💰 Игрок сделал ставку:', data, 'бот:', data.isBot);
