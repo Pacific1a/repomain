@@ -979,24 +979,25 @@ class SpeedCashGame {
         // Determine racing phase (first 8 seconds)
         this.racingPhase = currentTime < this.racePhaseEndTime;
         
-        // Determine delayed status only AFTER racing phase ends
-        const blueDelayed = !this.racingPhase && (this.delayedCar === 'blue' || this.delayedCar === 'both');
-        const orangeDelayed = !this.racingPhase && (this.delayedCar === 'orange' || this.delayedCar === 'both');
+        // FIXED: Задержка определяется целевым множителем (устанавливается сервером!)
+        // Задержанная машина имеет низкий target (1.1-1.5x), уезжающая - высокий (2.5-4.0x)
+        // Обе машины растут с одинаковой скоростью, но останавливаются на разных значениях
 
         // Increment multipliers СРАЗУ когда racing (параллельно с выездом!)
         if (!this.gameEnded && !this.socket && this.gameState === 'racing') {
             const baseIncrease = 0.00015 + Math.random() * 0.00025;
 
-            // Blue множитель
-            if (!blueDelayed && !this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
+            // Blue множитель - растет ВСЕГДА (но targetMultiplier уже установлен сервером!)
+            // Задержанная машина просто имеет НИЗКИЙ target (1.1-1.5x вместо 2.5-4.0x)
+            if (!this.blueEscaped && this.blueMultiplier < this.blueTargetMultiplier) {
                 this.blueMultiplier += baseIncrease;
                 if (this.blueMultiplier >= this.blueTargetMultiplier) {
                     this.blueMultiplier = this.blueTargetMultiplier;
                 }
             }
 
-            // Orange множитель
-            if (!orangeDelayed && !this.orangeEscaped && this.orangeMultiplier < this.orangeTargetMultiplier) {
+            // Orange множитель - растет ВСЕГДА
+            if (!this.orangeEscaped && this.orangeMultiplier < this.orangeTargetMultiplier) {
                 this.orangeMultiplier += baseIncrease;
                 if (this.orangeMultiplier >= this.orangeTargetMultiplier) {
                     this.orangeMultiplier = this.orangeTargetMultiplier;
