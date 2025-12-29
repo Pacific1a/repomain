@@ -2,7 +2,7 @@
 (function() {
     'use strict';
     
-    const SERVER_URL = window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com';
+    const SERVER_URL = window.GAME_SERVER_URL || 'https://duopartners.xyz';
     
     class MiniAppBalanceSync {
         constructor() {

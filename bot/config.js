@@ -8,8 +8,8 @@
     }
     // Для продакшена на Render
     else if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app')) {
-        // Укажите здесь URL вашего сервера на Render
-        window.GAME_SERVER_URL = 'https://telegram-games-plkj.onrender.com';
+        // Новый унифицированный сервер
+        window.GAME_SERVER_URL = 'https://duopartners.xyz';
     }
     // Для других доменов - используем тот же origin
     else {

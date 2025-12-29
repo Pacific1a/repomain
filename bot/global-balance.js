@@ -6,7 +6,7 @@ class GlobalBalance {
         this.isCloudAvailable = this.tg && this.tg.CloudStorage && typeof this.tg.CloudStorage.getItem === 'function';
         this.serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
             ? 'http://localhost:3000' 
-            : 'https://telegram-games-plkj.onrender.com';
+            : 'https://duopartners.xyz';
         // Cache DOM elements to avoid repeated queries
         this.cachedElements = {};
         this.updateThrottle = null;

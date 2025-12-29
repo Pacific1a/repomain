@@ -198,7 +198,7 @@ class RealtimeLivePrizes {
             serverUrl = 'http://localhost:3000';
          
         } else {
-            serverUrl = 'https://telegram-games-plkj.onrender.com';
+            serverUrl = 'https://duopartners.xyz';
           
         }
         

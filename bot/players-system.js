@@ -208,7 +208,7 @@ class GameWebSocket {
         
         // Production: используем сервер на Render
         // Фронтенд на Vercel, бэкенд на Render
-        return 'https://telegram-games-plkj.onrender.com';
+        return 'https://duopartners.xyz';
     }
 
     connect() {

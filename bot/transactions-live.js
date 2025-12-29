@@ -5,7 +5,7 @@
     // Автоматически определяем URL сервера
     const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000'
-        : (window.GAME_SERVER_URL || 'https://telegram-games-plkj.onrender.com');
+        : (window.GAME_SERVER_URL || 'https://duopartners.xyz');
     
     class TransactionsList {
         constructor() {
