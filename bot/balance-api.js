@@ -111,8 +111,8 @@
                 if (response.ok) {
                     const data = await response.json();
                     this.balance = {
-                        rubles: parseFloat(data.rubles) || 0,
-                        chips: parseInt(data.chips) || 0
+                        rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
+                        chips: parseInt(data.chips || data.newChips) || 0
                     };
                     this.updateVisual();
                     this.notifyCallbacks();
@@ -136,8 +136,8 @@
                 if (response.ok) {
                     const data = await response.json();
                     this.balance = {
-                        rubles: parseFloat(data.rubles) || 0,
-                        chips: parseInt(data.chips) || 0
+                        rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
+                        chips: parseInt(data.chips || data.newChips) || 0
                     };
                     this.updateVisual();
                     this.notifyCallbacks();
