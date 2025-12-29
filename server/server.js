@@ -15,6 +15,15 @@ const path = require('path');
 const { db, initDatabase } = require('./config/database');
 
 // ============================================
+// GAMES
+// ============================================
+
+const { registerCrashHandlers } = require('./games/crash');
+const { registerSpeedcashHandlers } = require('./games/speedcash');
+const { registerRollHandlers } = require('./games/roll');
+const { scheduleBotSpawn } = require('./games/fakePlayers');
+
+// ============================================
 // CONFIGURATION
 // ============================================
 
@@ -215,10 +224,20 @@ async function startServer() {
         io.on('connection', (socket) => {
             console.log('🔌 Socket.IO client connected:', socket.id);
             
+            // Register game handlers
+            registerCrashHandlers(socket, io);
+            registerSpeedcashHandlers(socket, io);
+            registerRollHandlers(socket, io);
+            
             socket.on('disconnect', () => {
                 console.log('❌ Socket.IO client disconnected:', socket.id);
             });
         });
+        
+        // Start bot scheduler for Roll game
+        scheduleBotSpawn(io);
+        console.log('✅ Game handlers registered');
+        console.log('✅ Bot scheduler started');
         
         // Start listening
         server.listen(PORT, '0.0.0.0', () => {

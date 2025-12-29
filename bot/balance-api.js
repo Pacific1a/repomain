@@ -4,10 +4,8 @@
 (function() {
     'use strict';
     
-    // Автоматически определяем URL сервера
-    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3001'
-        : (window.GAME_SERVER_URL || window.location.origin);
+    // Автоматически определяем URL сервера (используем config.js)
+    const SERVER_URL = window.GAME_SERVER_URL || window.location.origin;
     
     class BalanceAPI {
         constructor() {
