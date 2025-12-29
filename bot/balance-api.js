@@ -195,12 +195,13 @@
                     if (response.ok) {
                         const data = await response.json();
                         this.balance = {
-                            rubles: parseFloat(data.rubles) || 0,
-                            chips: parseInt(data.chips) || 0
+                            rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
+                            chips: parseInt(data.chips || data.newChips) || 0
                         };
                         this.updateVisual();
                         this.notifyCallbacks();
                         console.log(`➖ Loss tracked: ${amount}₽ in ${gameType}`);
+                        console.log(`💰 New balance after subtract: ${this.balance.rubles}₽, ${this.balance.chips} chips`);
                         await this.saveTransaction('subtract', amount, source, description || `Проигрыш в ${gameType}: ${amount}₽`);
                         return true;
                     }
