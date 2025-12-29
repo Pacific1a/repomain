@@ -18,7 +18,7 @@ class UserModel(BaseModel):
     user_refill: float
     user_give: float
     user_unix: int
-    user_referrer: str = None  # Реферальный код пригласившего партнёра
+    user_referrer: str | None = None  # Реферальный код пригласившего партнёра (может быть NULL)
 
 
 # Работа с юзером
