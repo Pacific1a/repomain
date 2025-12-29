@@ -880,12 +880,20 @@
         const newPlayers = state.players.map((player) => {
           const playerId = player.id || player.userId;
           
-          // Используем цвет с сервера, но если он уже занят — выбираем ближайший свободный
+          // FIXED: Генерируем цвет если сервер не прислал
           let playerColor = player.color;
           
           if (!playerColor) {
-            console.error(`❌ Игрок ${player.username || player.nickname} не получил цвет с сервера!`);
-            playerColor = '#808080'; // Серый цвет по умолчанию (ошибка)
+            // Проверяем есть ли сохраненный цвет для этого игрока
+            if (playerColors.has(playerId)) {
+              playerColor = playerColors.get(playerId);
+              console.log(`🎨 Используем сохраненный цвет для ${player.username || player.nickname}: ${playerColor}`);
+            } else {
+              // Генерируем новый цвет
+              playerColor = getNextAvailableColor(usedColors);
+              playerColors.set(playerId, playerColor);
+              console.log(`🎨 Сгенерирован новый цвет для ${player.username || player.nickname}: ${playerColor}`);
+            }
           } else {
             // Сохраняем цвет с сервера
             playerColors.set(playerId, playerColor);
