@@ -1034,10 +1034,6 @@
   align-self: stretch;
   width: 100%;
   flex: 0 0 auto;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 8px;
-  margin-bottom: 5px;
 }
 
 .roll-playing .text-wrapper-13 {
@@ -1045,12 +1041,11 @@
   width: fit-content;
   margin-top: -1.00px;
   font-family: "Montserrat", Helvetica;
-  font-weight: 600;
-  color: #AEAEAE;
-  font-size: 11px;
+  font-weight: 500;
+  color: #525252;
+  font-size: 8px;
   letter-spacing: -0.24px;
   line-height: normal;
-  text-transform: uppercase;
 }
 
 .roll-playing .user-templates {
