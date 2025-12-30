@@ -25,8 +25,8 @@ function startBetting(io) {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // ФИКСИРОВАННАЯ скорость роста: 0.03x за секунду (МЕДЛЕННО!)
-    const growthRate = 0.03; // 0.03x в секунду
+    // ФИКСИРОВАННАЯ скорость роста: 0.05x за секунду (ОПТИМАЛЬНО!)
+    const growthRate = 0.05; // 0.05x в секунду (30-60 сек до 2.5-4.0x)
     
     // Определяем сценарий гонки
     const rand = Math.random();

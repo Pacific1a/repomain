@@ -92,6 +92,19 @@ class SpeedCashGame {
             this.socket.on('speedcash_multiplier_update', (data) => {
                 this.blueMultiplier = data.blueMultiplier;
                 this.orangeMultiplier = data.orangeMultiplier;
+                
+                // ОБРАБАТЫВАЕМ флаги задержания - показываем иконки СРАЗУ
+                if (data.blueDetained && !this.blueDetained) {
+                    this.blueDetained = true;
+                    this.showCrashIcon('blue', this.bluePosition);
+                    console.log(`🚫 Blue detained at ${data.blueMultiplier}x`);
+                }
+                if (data.orangeDetained && !this.orangeDetained) {
+                    this.orangeDetained = true;
+                    this.showCrashIcon('orange', this.orangePosition);
+                    console.log(`🚫 Orange detained at ${data.orangeMultiplier}x`);
+                }
+                
                 this.updateMultiplierDisplays();
             });
             

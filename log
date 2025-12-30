@@ -1,183 +1,58 @@
-auth.js?v=8:18 === Auth.js запущен [ВЕРСИЯ 4] ===
-auth.js?v=8:19 Toast доступен? ✅ ДА
-auth.js?v=8:20 API доступен? ✅ ДА
-auth.js?v=8:38 Данные пользователя из localStorage: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:133 Обновление UI с данными: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:140 Баланс обновлен: 0
-auth.js?v=8:147 Актуальный логин установлен: kuratormir07
-auth.js?v=8:154 Актуальный email установлен: kuratormir07@gmail.com
-auth.js?v=8:161 Telegram установлен: @asdasf
-auth.js?v=8:52 📝 Настройка обработчика кнопки Сохранить...
-auth.js?v=8:122 ✅ Обработчик установлен!
-twofa.js?v=17:8 2FA module loaded
-validation.js?v=1:301 Validation.js загружен
-admin.js?v=8:6 Admin module loaded
-admin.js?v=8:17 Получаем роль с сервера...
-modal-handler.js:29 ModalHandler: Инициализация...
-modal-handler.js:349 ModalHandler: Обработчики кнопок настроены
-modal-handler.js:43 ModalHandler: Готов к работе
-admin.js?v=8:22 Роль пользователя с сервера: user
-admin.js?v=8:45 Обновление UI, isAdmin: false
-admin.js?v=8:50 Найдено админских кнопок: 0
-admin.js?v=8:61 👤 Обычный пользователь - кнопки скрыты
-chart.js?v=43:359 🔍 API Response: {stats: undefined, timeline: {…}, dates: Array(7), sampleDate: '2025-12-22', sampleData: {…}}
-twofa.js?v=17:301 2FA Status on load: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-modal-handler.js:55 ModalHandler: Модальные окна загружены
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-validation.js?v=1:308 ✅ Валидация инициализирована
-referral.js?v=1:21 🎁 Referral Manager initializing...
-referral.js?v=1:232 ✅ Автообновление каждые 120с
-referral.js?v=1:245 ✅ ReferralManager инициализирован
-referral.js?v=1:43 📊 Реферальные данные: {success: true, referralCode: '4_MJQ22TV3PNI5J', clicks: 4, firstDeposits: 0, deposits: 0, …}
-referral.js?v=1:58 📊 Обработанная статистика: {clicks: 4, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '0.00', …}
-referral.js?v=1:96 🔗 Реферальная ссылка: https://t.me/aasasdasdadsddasdbot?start=ref_4_MJQ22TV3PNI5J
-referral.js?v=1:177 🔄 Обновление статистики: {clicks: 4, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '0.00', …}
-referral.js?v=1:211 ✅ Обновлено .visits-value = 4
-referral.js?v=1:211 ✅ Обновлено .clients-value = 0
-referral.js?v=1:211 ✅ Обновлено .deposits-value = 0
-referral.js?v=1:211 ✅ Обновлено .income-value = 0.00₽
-referral.js?v=1:204 ✅ Статистика обновлена
-referral.js?v=1:139 ✅ UI настроен
-referral.js?v=1:24 ✅ Referral Manager ready
-
-root@duos:/var/www/duo/server# pm2 restart duo-server
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
-[PM2] [duo-server](0) ✓
-┌────┬───────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name          │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼───────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 1  │ duo-bot       │ default     │ N/A     │ fork    │ 645591   │ 61m    │ 121  │ online    │ 0%       │ 151.6mb  │ root     │ disabled │
-│ 0  │ duo-server    │ default     │ 2.0.0   │ fork    │ 646233   │ 0s     │ 16   │ online    │ 0%       │ 15.5mb   │ root     │ disabled │
-└────┴───────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-root@duos:/var/www/duo/server# curl http://localhost:3000/api/auth/user
-{"success":false,"message":"Токен не предоставлен"}root@duos:/var/www/duo/server# pm2 logs duo-server --lines 50
-[TAILING] Tailing last 50 lines for [duo-server] process (change the value with --lines option)
-/root/.pm2/logs/duo-server-error.log last 50 lines:
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: jwt malformed
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ❌ JWT Auth failed: invalid signature
-0|duo-serv | ⚠️ Webhook attempt with invalid API secret from: 77.239.125.70
-0|duo-serv | ❌ Unhandled error: SyntaxError: Unexpected token c in JSON at position 77
-0|duo-serv |     at JSON.parse (<anonymous>)
-0|duo-serv |     at parse (/var/www/duo/server/node_modules/body-parser/lib/types/json.js:92:19)
-0|duo-serv |     at /var/www/duo/server/node_modules/body-parser/lib/read.js:128:18
-0|duo-serv |     at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
-0|duo-serv |     at invokeCallback (/var/www/duo/server/node_modules/raw-body/index.js:238:16)
-0|duo-serv |     at done (/var/www/duo/server/node_modules/raw-body/index.js:227:7)
-0|duo-serv |     at IncomingMessage.onEnd (/var/www/duo/server/node_modules/raw-body/index.js:287:7)
-0|duo-serv |     at IncomingMessage.emit (node:events:517:28)
-0|duo-serv |     at endReadableNT (node:internal/streams/readable:1400:12)
-0|duo-serv |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-0|duo-serv |   expose: true,
-0|duo-serv |   statusCode: 400,
-0|duo-serv |   status: 400,
-0|duo-serv |   body: '{\n' +
-0|duo-serv |     '         "userId": "999999999",\n' +
-0|duo-serv |     '         "referrerId": "ВАШ_REFERRAL_CODE"\n' +
-0|duo-serv |     'curl -X POST http://77.239.125.70.nip.io/api/referral/register        -H "Content-Type: application/json"        -H "X-API-Secret: ваш_PARTNER_API
-_SECRET_из_.env"        -d {',
-0|duo-serv |   type: 'entity.parse.failed'
-0|duo-serv | }
-0|duo-serv | ⚠️ Webhook attempt with invalid API secret from: 77.239.125.70
-0|duo-serv | ❌ Error sending loss to referral system: TypeError: ReferralService.getUserReferrer is not a function
-0|duo-serv |     at /var/www/duo/server/routes/balance.routes.js:175:60
-0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
-0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/route.js:149:13)
-0|duo-serv |     at Route.dispatch (/var/www/duo/server/node_modules/express/lib/router/route.js:119:3)
-0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
-0|duo-serv |     at /var/www/duo/server/node_modules/express/lib/router/index.js:284:15
-0|duo-serv |     at param (/var/www/duo/server/node_modules/express/lib/router/index.js:365:14)
-0|duo-serv |     at param (/var/www/duo/server/node_modules/express/lib/router/index.js:376:14)
-0|duo-serv |     at Function.process_params (/var/www/duo/server/node_modules/express/lib/router/index.js:421:3)
-0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/index.js:280:10)
-
-/root/.pm2/logs/duo-server-out.log last 50 lines:
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | � /api/referral/partner/stats: userId=4
-0|duo-serv | 
-0|duo-serv | ⏹️  Closing database connection...
-0|duo-serv | 
-0|duo-serv | ⏹️  SIGINT signal received: closing HTTP server
-0|duo-serv | 
-0|duo-serv | ========================================
-0|duo-serv | � DUO UNIFIED SERVER
-0|duo-serv | ========================================
-0|duo-serv | � Port: 3000
-0|duo-serv | � Environment: production
-0|duo-serv | � Bot Username: @aasasdasdadsddasdbot
-0|duo-serv | ========================================
-0|duo-serv | 
-0|duo-serv | � Bot static files: /var/www/duo/bot
-0|duo-serv | � Partner site static files: /var/www/duo/site
-0|duo-serv | � Uploads directory: /var/www/duo/site/uploads
-0|duo-serv | ✅ Auth routes loaded
-0|duo-serv | ✅ Referral routes loaded
-0|duo-serv | ✅ Balance routes loaded
-0|duo-serv | ✅ Transactions routes loaded
-0|duo-serv | ✅ 2FA routes loaded (stubs)
-0|duo-serv | ✅ Connected to SQLite database: ./data/database.db
-0|duo-serv | ✅ Table [users] ready
-0|duo-serv | ✅ Table [referral_stats] ready
-0|duo-serv | ✅ Table [referrals] ready
-0|duo-serv | ✅ Table [referral_events] ready
-0|duo-serv | ✅ Database initialization complete
-0|duo-serv | ✅ Database ready
-0|duo-serv | 
-0|duo-serv | ========================================
-0|duo-serv | ✅ SERVER IS RUNNING
-0|duo-serv | ========================================
-0|duo-serv | � Bot miniapp: http://localhost:3000/bot/
-0|duo-serv | � Partner site: http://localhost:3000/partner/
-0|duo-serv | � API: http://localhost:3000/api/
-0|duo-serv | � Health: http://localhost:3000/health
-0|duo-serv | ========================================
-0|duo-serv | 
-0|duo-serv | � Socket.IO client connected: Znuc4ta3FXxrgVa7AAAB
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | � /api/referral/partner/stats/timeline: userId=4, period=week
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | � /api/referral/partner/stats: userId=4
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | � /api/auth/user: userId=4
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | ✅ JWT Auth: userId=4
-0|duo-serv | � /api/referral/partner/stats: userId=4
-
-cd /var/www/duo/server
-^C
-root@duos:/var/www/duo/server# cd /var/www/duo/server
-root@duos:/var/www/duo/server# npm install sqlite3
-
-up to date, audited 257 packages in 941ms
-
-32 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-root@duos:/var/www/duo/server# pm2 restart duo-server
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
-[PM2] [duo-server](0) ✓
-┌────┬───────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name          │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼───────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 1  │ duo-bot       │ default     │ N/A     │ fork    │ 645591   │ 61m    │ 121  │ online    │ 0%       │ 151.6mb  │ root     │ disabled │
-│ 0  │ duo-server    │ default     │ 2.0.0   │ fork    │ 646277   │ 0s     │ 17   │ online    │ 0%       │ 11.0mb   │ root     │ disabled │
-└────┴───────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-root@duos:/var/www/duo/server#
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color Object
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color Object
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_viewport 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_safe_area 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_content_safe_area 
+ 🔧 Сервер настроен: https://duopartners.xyz
+balance-api.js:21 💰 Balance API initializing...
+balance-api.js:67 ⚠️ No real Telegram ID found, using default for testing
+getTelegramId @ balance-api.js:67
+balance-api.js:30 ✅ Telegram ID: 1889923046
+balance-api.js:73 🔄 Загрузка баланса с сервера для 1889923046...
+balance-api.js:420 💰 Balance API loaded!
+players-system.js:74 ✅ Текущий пользователь добавлен: Object
+players-system.js:415 ✅ Players System загружена
+referral-system.js:22 🎁 Referral System initializing...
+referral-system.js:56 ⚠️ Using test ID
+getTelegramId @ referral-system.js:56
+referral-system.js:31 ✅ Telegram ID: 1889923046
+referral-system.js:448 ✅ Referral System loaded
+referral-integration.js:42 ✅ Referral integration installed on BalanceAPI
+referral-integration.js:117 ✅ Referral integration loaded
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
+players-system.js:400 ✅ WebSocket клиент инициализирован
+game_fixed.js:8 📱 Мобильное устройство: false
+game_fixed.js:59 🔌 WebSocket подключен
+balance-api.js:75 📡 Ответ сервера: 200
+balance-api.js:79 📦 Данные с сервера: Object
+balance-api.js:87 💰 Balance loaded from server: Object
+balance-api.js:42 ✅ Balance API ready
+/api/referral/1889923046:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+referral-system.js:158 ✅ UI initialized
+referral-system.js:42 ✅ Referral System ready
+players-system.js:225 ✅ WebSocket подключен: vmA945Abk_cvWd4CAAAJ
+game_fixed.js:77 📊 Текущее состояние: Object
+game_fixed.js:221 🔄 syncWithServer вызван: betting
+game_fixed.js:224 ✅ Сервер в состоянии BETTING - показываем countdown
+game_fixed.js:1536 Countdown started
+game_fixed.js:274 📟 Countdown показан с временем: 5 сек
+/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+balance-api.js:345 ✅ Balance WebSocket connected
+referral-integration.js:103 ✅ Referral integration installed on BalanceAPI.addRubles
+game_fixed.js:143 🎮 Начало фазы ставок: Object
+game_fixed.js:1536 Countdown started
+game_fixed.js:202 🏁 WebSocket: race_start → запускаем гонку
+game_fixed.js:1547 👋 hideCountdown() вызван
+game_fixed.js:810 🏁 startRace() вызван
+game_fixed.js:821 ⏹️ Все анимации остановлены
+game_fixed.js:891 🎲 Blue target: x1.30, Orange target: x1.95
+game_fixed.js:892 🚔 Delayed car: blue
+game_fixed.js:913 ✅ ЗАПУСКАЕМ ГОНКУ - выезд машин + рост иксов!
+game_fixed.js:976 ✅ Машины на позиции 0px, начинается гонка!
+balance-api.js:73 🔄 Загрузка баланса с сервера для 1889923046...
+balance-api.js:75 📡 Ответ сервера: 200
+balance-api.js:79 📦 Данные с сервера: Object
+balance-api.js:87 💰 Balance loaded from server: Object
