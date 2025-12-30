@@ -184,13 +184,16 @@
         </div>
       </div>
     </div>
+    <!-- Критические скрипты -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" defer></script>
-    <script src="../balance-api.js" defer></script>
-    <script src="../players-system.js" defer></script>
-    <script src="../telegram-user-data.js" defer></script>
-    <script src="../referral-system.js" defer></script>
-    <script src="../referral-integration.js" defer></script>
-    <script src="game_fixed.js" defer></script>
+    <script src="https://cdn.socket.io/4.8.0/socket.io.min.js"></script>
+    <!-- ВАЖНО: config.js ПЕРВЫМ для настройки сервера -->
+    <script src="../config.js"></script>
+    <script src="../balance-api.js"></script>
+    <script src="../telegram-user-data.js"></script>
+    <script src="../players-system.js"></script>
+    <script src="../referral-system.js"></script>
+    <script src="../referral-integration.js"></script>
+    <script src="game_fixed.js"></script>
   </body>
 </html>
