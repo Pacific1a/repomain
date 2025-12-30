@@ -235,7 +235,14 @@ class SpeedCashGame {
         
         if (data.status === 'betting' || data.status === 'waiting') {
             console.log('✅ Сервер в состоянии BETTING - показываем countdown');
+            
+            // ПРИНУДИТЕЛЬНО СКРЫВАЕМ SKELETON!
             this.hideGlassLoader();
+            
+            // УБЕЖДАЕМСЯ что skeleton УДАЛЕН (двойная проверка)
+            setTimeout(() => {
+                this.hideGlassLoader();
+            }, 100);
             
             // Фаза ставок
             this.gameState = 'betting';
@@ -288,8 +295,13 @@ class SpeedCashGame {
         } else if (data.status === 'racing' || data.status === 'playing') {
             console.log('🏁 Сервер в состоянии RACING - показываем гонку в реальном времени!');
             
-            // СКРЫВАЕМ SKELETON!
+            // ПРИНУДИТЕЛЬНО СКРЫВАЕМ SKELETON!
             this.hideGlassLoader();
+            
+            // УБЕЖДАЕМСЯ что skeleton УДАЛЕН (двойная проверка)
+            setTimeout(() => {
+                this.hideGlassLoader();
+            }, 100);
             
             // Устанавливаем состояние гонки
             this.gameState = 'racing';
@@ -415,7 +427,18 @@ class SpeedCashGame {
                     this.glassLoader = null;
                 }
             }, 300);
+        } else if (this.glassLoader) {
+            // Если нет parentNode - просто обнуляем ссылку
+            this.glassLoader = null;
         }
+        
+        // ПРИНУДИТЕЛЬНО удаляем все skeleton элементы (на случай если остались)
+        const allLoaders = document.querySelectorAll('.glass-loader');
+        allLoaders.forEach(loader => {
+            if (loader && loader.parentNode) {
+                loader.parentNode.removeChild(loader);
+            }
+        });
     }
 
     initializeElements() {

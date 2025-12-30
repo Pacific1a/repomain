@@ -29,8 +29,8 @@ function startBetting(io) {
     gameState.blueEscapeAt = null;
     gameState.orangeEscapeAt = null;
     
-    // ФИКСИРОВАННАЯ скорость роста: 0.07x за секунду (БЫСТРО!)
-    const growthRate = 0.07; // 0.07x в секунду (быстрее на 40%)
+    // ФИКСИРОВАННАЯ скорость роста: 0.09x за секунду (БЫСТРО!)
+    const growthRate = 0.09; // 0.09x в секунду (до 4x за 33 сек)
     
     // Определяем сценарий гонки
     const rand = Math.random();
