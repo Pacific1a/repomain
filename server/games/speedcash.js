@@ -25,29 +25,29 @@ function startBetting(io) {
     gameState.orangeMultiplier = 1.00;
     gameState.winner = null;
     
-    // Генерируем длительность гонки (5-15 секунд)
-    gameState.raceDuration = 5000 + Math.random() * 10000;
+    // Генерируем длительность гонки (10-20 секунд для МЕДЛЕННОГО роста)
+    gameState.raceDuration = 10000 + Math.random() * 10000;
     
     // Определяем сценарий гонки
     const rand = Math.random();
-    if (rand < 0.40) {
-        // 40% - blue задержана, orange уехала
+    if (rand < 0.45) {
+        // 45% - blue задержана, orange уехала
         gameState.delayedCar = 'blue';
-        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.7; // 1.1-1.8x
-        gameState.orangeStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x
-    } else if (rand < 0.80) {
-        // 40% - orange задержана, blue уехала
+        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.6; // 1.1-1.7x (останавливается раньше)
+        gameState.orangeStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x (продолжает расти)
+    } else if (rand < 0.90) {
+        // 45% - orange задержана, blue уехала
         gameState.delayedCar = 'orange';
-        gameState.blueStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x
-        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.7; // 1.1-1.8x
-    } else if (rand < 0.95) {
-        // 15% - обе уехали (близкие множители, интересная гонка)
+        gameState.blueStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x (продолжает расти)
+        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.6; // 1.1-1.7x (останавливается раньше)
+    } else if (rand < 0.98) {
+        // 8% - обе уехали (близкие множители, интересная гонка)
         gameState.delayedCar = 'none';
-        const base = 2.0 + Math.random() * 2.0; // Базовый множитель 2.0-4.0
+        const base = 2.5 + Math.random() * 2.0; // Базовый множитель 2.5-4.5
         gameState.blueStopMultiplier = base + (Math.random() - 0.5) * 0.5; // ±0.25
         gameState.orangeStopMultiplier = base + (Math.random() - 0.5) * 0.5; // ±0.25
     } else {
-        // 5% - обе задержаны (редко)
+        // 2% - обе задержаны (ОЧЕНЬ редко)
         gameState.delayedCar = 'both';
         gameState.blueStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
         gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
@@ -92,43 +92,31 @@ function startRace(io) {
     // Обновляем множители каждые 100мс
     if (gameState.raceInterval) clearInterval(gameState.raceInterval);
     
-    // Устанавливаем РАЗНУЮ длительность для каждой машины (разная скорость!)
-    let blueDuration = gameState.raceDuration;
-    let orangeDuration = gameState.raceDuration;
-    
-    if (gameState.delayedCar === 'blue') {
-        // Blue задержана - в 3-4 раза медленнее
-        blueDuration = gameState.raceDuration * (3 + Math.random());
-    } else if (gameState.delayedCar === 'orange') {
-        // Orange задержана - в 3-4 раза медленнее
-        orangeDuration = gameState.raceDuration * (3 + Math.random());
-    } else if (gameState.delayedCar === 'both') {
-        // Обе задержаны - обе медленные
-        blueDuration = gameState.raceDuration * (3 + Math.random());
-        orangeDuration = gameState.raceDuration * (3 + Math.random());
-    }
-    // Если 'none' - обе едут с базовой скоростью
+    // ОБЕ МАШИНЫ РАСТУТ С ОДИНАКОВОЙ МЕДЛЕННОЙ СКОРОСТЬЮ
+    // Но останавливаются в РАЗНОЕ время (одна раньше - задержана, другая позже - уехала)
     
     gameState.raceInterval = setInterval(() => {
         const elapsed = Date.now() - gameState.raceStartTime;
+        const progress = Math.min(elapsed / gameState.raceDuration, 1);
         
-        // РАЗНЫЙ прогресс для каждой машины (разная скорость!)
-        const blueProgress = Math.min(elapsed / blueDuration, 1);
-        const orangeProgress = Math.min(elapsed / orangeDuration, 1);
-        
-        // Рассчитываем множители с РАЗНОЙ скоростью роста
-        gameState.blueMultiplier = 1.00 + (gameState.blueStopMultiplier - 1.00) * blueProgress;
-        gameState.orangeMultiplier = 1.00 + (gameState.orangeStopMultiplier - 1.00) * orangeProgress;
+        // ОБЕ растут с ОДИНАКОВОЙ скоростью до своих целей
+        gameState.blueMultiplier = Math.min(
+            1.00 + (gameState.blueStopMultiplier - 1.00) * progress,
+            gameState.blueStopMultiplier
+        );
+        gameState.orangeMultiplier = Math.min(
+            1.00 + (gameState.orangeStopMultiplier - 1.00) * progress,
+            gameState.orangeStopMultiplier
+        );
         
         io.to('global_speedcash').emit('speedcash_multiplier_update', {
             blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
             orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
-            blueProgress: parseFloat((blueProgress * 100).toFixed(1)),
-            orangeProgress: parseFloat((orangeProgress * 100).toFixed(1))
+            progress: parseFloat((progress * 100).toFixed(1))
         });
         
-        // Финиш когда обе достигли целей
-        if (blueProgress >= 1 && orangeProgress >= 1) {
+        // Финиш когда обе достигли своих целей
+        if (progress >= 1) {
             clearInterval(gameState.raceInterval);
             gameState.raceInterval = null;
             finishRace(io);
