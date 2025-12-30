@@ -95,7 +95,8 @@
             return false;
         }
         
-        async updateBalance(rubles, chips) {
+        async setBalance(rubles, chips) {
+            // УСТАНАВЛИВАЕМ баланс (для внутреннего использования)
             try {
                 const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}`, {
                     method: 'POST',
@@ -114,11 +115,11 @@
                     };
                     this.updateVisual();
                     this.notifyCallbacks();
-                    console.log('✅ Balance updated on server:', this.balance);
+                    console.log('✅ Balance SET on server:', this.balance);
                     return true;
                 }
             } catch (error) {
-                console.error('❌ Error updating balance:', error);
+                console.error('❌ Error setting balance:', error);
             }
             return false;
         }
@@ -175,59 +176,76 @@
         }
         
         async subtractRubles(amount, source = 'game', description = '', gameType = null) {
-            const newRubles = this.balance.rubles - amount;
-            if (newRubles < 0) {
+            if (this.balance.rubles < amount) {
                 console.warn('⚠️ Insufficient balance');
                 return false;
             }
             
-            // Если передан gameType, используем специальный эндпоинт для отслеживания проигрышей
-            if (gameType) {
-                try {
-                    const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}/subtract`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ amount, gameType })
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        this.balance = {
-                            rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
-                            chips: parseInt(data.chips || data.newChips) || 0
-                        };
-                        this.updateVisual();
-                        this.notifyCallbacks();
-                        console.log(`➖ Loss tracked: ${amount}₽ in ${gameType}`);
-                        console.log(`💰 New balance after subtract: ${this.balance.rubles}₽, ${this.balance.chips} chips`);
-                        await this.saveTransaction('subtract', amount, source, description || `Проигрыш в ${gameType}: ${amount}₽`);
-                        return true;
-                    }
-                } catch (error) {
-                    console.error('❌ Error subtracting with tracking:', error);
+            // ВСЕГДА используем /subtract эндпоинт
+            try {
+                const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}/subtract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        rubles: amount, 
+                        gameType: gameType || 'unknown',
+                        reason: description || source
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    this.balance = {
+                        rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
+                        chips: parseInt(data.chips || data.newChips) || 0
+                    };
+                    this.updateVisual();
+                    this.notifyCallbacks();
+                    console.log(`➖ Subtracted: ${amount}₽ in ${gameType || 'game'}`);
+                    console.log(`💰 New balance: ${this.balance.rubles}₽, ${this.balance.chips} chips`);
+                    await this.saveTransaction('subtract', amount, source, description || `Списание ${amount}₽ в ${gameType || 'игре'}`);
+                    return true;
                 }
+            } catch (error) {
+                console.error('❌ Error subtracting balance:', error);
             }
             
-            // Стандартное списание без трекинга
-            const result = await this.updateBalance(newRubles, this.balance.chips);
-            if (result) {
-                await this.saveTransaction('subtract', amount, source, description || `Списание ${amount}₽`);
-            }
-            return result;
+            return false;
         }
         
         async subtractChips(amount, source = 'game', description = '') {
-            const newChips = this.balance.chips - amount;
-            if (newChips < 0) {
+            if (this.balance.chips < amount) {
                 console.warn('⚠️ Insufficient chips');
                 return false;
             }
             
-            const result = await this.updateBalance(this.balance.rubles, newChips);
-            if (result) {
-                await this.saveTransaction('subtract', amount, source, description || `Списание ${amount} chips`);
+            // Используем /subtract эндпоинт для chips
+            try {
+                const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}/subtract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        chips: amount,
+                        reason: description || source
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    this.balance = {
+                        rubles: parseFloat(data.rubles || data.balance || data.newBalance) || 0,
+                        chips: parseInt(data.chips || data.newChips) || 0
+                    };
+                    this.updateVisual();
+                    this.notifyCallbacks();
+                    await this.saveTransaction('subtract', amount, source, description || `Списание ${amount} chips`);
+                    return true;
+                }
+            } catch (error) {
+                console.error('❌ Error subtracting chips:', error);
             }
-            return result;
+            
+            return false;
         }
         
         async addRubles(amount, source = 'game', description = '') {

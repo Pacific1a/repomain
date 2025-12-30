@@ -93,45 +93,37 @@ router.get('/:telegramId', async (req, res) => {
 
 /**
  * POST /api/balance/:telegramId
- * Update user balance (add/subtract)
+ * SET user balance (УСТАНАВЛИВАЕТ, не добавляет!)
  */
 router.post('/:telegramId', async (req, res) => {
     try {
         const { telegramId } = req.params;
-        const { amount, reason, rubles, chips } = req.body;
+        const { rubles, chips } = req.body;
         
-        console.log(`📥 POST /api/balance/${telegramId}:`, { amount, rubles, chips, reason });
+        console.log(`📥 POST /api/balance/${telegramId} [SET]:`, { rubles, chips });
         
-        // Получить текущий баланс
-        const currentBalance = balances.get(telegramId) || { rubles: 0, chips: 0 };
-        
-        // Обновить баланс
-        if (amount !== undefined) {
-            currentBalance.rubles = (currentBalance.rubles || 0) + amount;
-        }
-        if (rubles !== undefined) {
-            currentBalance.rubles = (currentBalance.rubles || 0) + rubles;
-        }
-        if (chips !== undefined) {
-            currentBalance.chips = (currentBalance.chips || 0) + chips;
-        }
+        // УСТАНАВЛИВАЕМ баланс (НЕ добавляем!)
+        const newBalance = {
+            rubles: rubles !== undefined ? parseFloat(rubles) : 0,
+            chips: chips !== undefined ? parseInt(chips) : 0
+        };
         
         // Сохранить
-        balances.set(telegramId, currentBalance);
+        balances.set(telegramId, newBalance);
         
-        console.log(`✅ Balance updated: ${telegramId} -> ${currentBalance.rubles}₽ / ${currentBalance.chips} chips`);
+        console.log(`✅ Balance SET: ${telegramId} -> ${newBalance.rubles}₽ / ${newBalance.chips} chips`);
         
         res.json({
             success: true,
             telegramId: parseInt(telegramId),
-            oldBalance: currentBalance.rubles - (amount || rubles || 0),
-            newBalance: currentBalance.rubles,
-            balance: currentBalance.rubles,
-            chips: currentBalance.chips,
-            amount: amount || rubles || 0
+            balance: newBalance.rubles,
+            chips: newBalance.chips,
+            rubles: newBalance.rubles,
+            newBalance: newBalance.rubles,
+            newChips: newBalance.chips
         });
     } catch (error) {
-        console.error('❌ Error updating balance:', error);
+        console.error('❌ Error setting balance:', error);
         res.status(500).json({
             success: false,
             message: 'Server error'
