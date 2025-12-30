@@ -34,9 +34,19 @@ function initializeRoll(io) {
     if (!gameState.isInitialized) {
         gameState.isInitialized = true;
         
-        // ИСПРАВЛЕНО: НЕ добавляем ботов автоматически!
-        // Боты добавятся только после ставки реального игрока
-        console.log(`✅ Roll инициализирован (без автостарта ботов)`);
+        // БОТЫ ИГРАЮТ ПОСТОЯННО - добавляем их автоматически
+        console.log(`✅ Roll инициализирован, запускаем ботов...`);
+        
+        setTimeout(() => {
+            const initialBotCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
+            console.log(`🤖 Добавляем ${initialBotCount} начальных ботов`);
+            addBotsToRoll(initialBotCount, io);
+            
+            // Запускаем ставки ботов
+            setTimeout(() => {
+                startBotBets(io, () => startRollGame(io));
+            }, 2000);
+        }, 2000);
     }
 }
 
@@ -139,16 +149,33 @@ function finishRoll(io) {
     gameState.startTime = null;
     gameState.winner = null;
     
-    // ИСПРАВЛЕНО: Очищаем ботов ПОЛНОСТЬЮ, НЕ добавляем новых автоматически
-    // Боты добавятся только когда реальный игрок сделает ставку
+    // БОТЫ ИГРАЮТ ПОСТОЯННО - добавляем новых после игры
     setTimeout(() => {
+        if (gameState.status !== 'waiting') {
+            console.log(`⏸️ Игра уже началась, пропускаем добавление ботов`);
+            return;
+        }
+        
         cleanupBots();
         
-        // Очищаем всех активных ботов
-        gameState.activeBots = [];
+        const currentBotCount = gameState.activeBots.length;
+        const targetBotCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
         
-        console.log(`🏁 Roll finished, ждём реальных игроков`);
+        if (currentBotCount < targetBotCount) {
+            const botsToAdd = targetBotCount - currentBotCount;
+            console.log(`🤖 После игры: добавляем ${botsToAdd} новых ботов`);
+            addBotsToRoll(botsToAdd, io);
+        }
+        
+        // Запускаем ставки ботов АВТОМАТИЧЕСКИ
+        if (gameState.activeBots.length > 0) {
+            setTimeout(() => {
+                startBotBets(io, () => startRollGame(io));
+            }, 2000);
+        }
     }, 2000);
+    
+    console.log(`🏁 Roll finished`);
 }
 
 // Socket handlers
@@ -229,21 +256,10 @@ function registerRollHandlers(socket, io) {
         
         console.log(`📥 Roll bet: ${nickname} -> ${bet}, color: ${playerColor}`);
         
-        // НОВАЯ ЛОГИКА: Добавляем ботов после первой ставки реального игрока
-        if (gameState.players.length === 1 && gameState.activeBots.length === 0) {
-            console.log(`🤖 Первый игрок сделал ставку, добавляем ботов...`);
-            const botCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
-            addBotsToRoll(botCount, io);
-            
-            // Запускаем ставки ботов
-            setTimeout(() => {
-                startBotBets(io, () => startRollGame(io));
-            }, 1000);
-        }
-        
-        // Запуск игры если >= 2 игроков
+        // Игрок присоединяется к текущей игре ИЛИ запускает новую если игра в waiting
+        // Боты уже играют сами, игрок просто присоединяется
         if (gameState.status === 'waiting' && gameState.players.length >= 2) {
-            console.log(`🎮 Starting Roll (${gameState.players.length} players)`);
+            console.log(`🎮 Starting Roll (${gameState.players.length} players, реальных: ${gameState.players.filter(p => !p.isBot).length})`);
             startRollGame(io);
         }
     });
