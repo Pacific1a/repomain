@@ -179,6 +179,17 @@ class SpeedCashGame {
                 const crashIcons = document.querySelectorAll('.crash-icon');
                 crashIcons.forEach(icon => icon.remove());
                 
+                // УСТАНАВЛИВАЕМ КНОПКИ В BETTING СОСТОЯНИЕ (ДОСТУПНЫЕ)
+                // Сбрасываем все ставки
+                this.currentBlueBet = null;
+                this.currentOrangeBet = null;
+                this.currentSingleBet = null;
+                
+                // Кнопки BET (зеленые/оранжевые, доступные)
+                this.updateBetButton('blue', 'bet', this.blueBet, false); // disabled=false → доступная
+                this.updateBetButton('orange', 'bet', this.orangeBet, false); // disabled=false → доступная
+                this.updateSingleButton('bet', this.singleBet, false); // disabled=false → доступная
+                
                 // Очищаем старый таймер
                 if (this.bettingTimer) {
                     clearTimeout(this.bettingTimer);
@@ -290,6 +301,17 @@ class SpeedCashGame {
             // Показываем countdown с правильным временем
             this.showCountdown();
             this.updateCountdown();
+            
+            // УСТАНАВЛИВАЕМ КНОПКИ В BETTING СОСТОЯНИЕ (ДОСТУПНЫЕ)
+            // Сбрасываем все ставки
+            this.currentBlueBet = null;
+            this.currentOrangeBet = null;
+            this.currentSingleBet = null;
+            
+            // Кнопки BET (зеленые/оранжевые, доступные)
+            this.updateBetButton('blue', 'bet', this.blueBet, false); // disabled=false → доступная
+            this.updateBetButton('orange', 'bet', this.orangeBet, false); // disabled=false → доступная
+            this.updateSingleButton('bet', this.singleBet, false); // disabled=false → доступная
             
             console.log(`📟 Countdown показан с временем: ${this.bettingTimeLeft} сек`);
         } else if (data.status === 'racing' || data.status === 'playing') {

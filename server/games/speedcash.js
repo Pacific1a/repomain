@@ -191,8 +191,10 @@ function finishRace(io) {
     
     io.to('global_speedcash').emit('speedcash_race_end', {
         winner: gameState.winner,
-        blueMultiplier: parseFloat(gameState.blueStopMultiplier.toFixed(2)),
-        orangeMultiplier: parseFloat(gameState.orangeStopMultiplier.toFixed(2))
+        blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)), // ФИНАЛЬНЫЙ множитель (не stopMultiplier!)
+        orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)), // ФИНАЛЬНЫЙ множитель
+        blueEscaped: gameState.blueEscaped || false,
+        orangeEscaped: gameState.orangeEscaped || false
     });
     
     console.log(`🏁 Speedcash finished! Winner: ${gameState.winner}`);
