@@ -451,11 +451,9 @@
               </div>
             </div>
             <div class="div-wrapper-2">
-              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Bet</div>
               <div class="text-wrapper-14" data-bet-amount>${player.bet}₽</div>
             </div>
             <div class="element-wrapper">
-              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Win</div>
               <div class="element-3" data-win-amount>-</div>
             </div>
           `;
