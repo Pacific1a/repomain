@@ -99,34 +99,51 @@ function startRace(io) {
     // Обновляем множители каждые 100мс
     if (gameState.raceInterval) clearInterval(gameState.raceInterval);
     
-    // ОБЕ МАШИНЫ РАСТУТ С ОДИНАКОВОЙ ФИКСИРОВАННОЙ СКОРОСТЬЮ
-    // growthRate = 0.03x за секунду (МЕДЛЕННО!)
+    // ПРАВИЛЬНАЯ ЛОГИКА: ОДИН общий множитель, задержанные ЗАМОРАЖИВАЮТСЯ
+    gameState.currentMultiplier = 1.00;
+    gameState.blueDetained = false;
+    gameState.orangeDetained = false;
     
     gameState.raceInterval = setInterval(() => {
         const elapsedSeconds = (Date.now() - gameState.raceStartTime) / 1000;
         
-        // ОБЕ растут с ОДИНАКОВОЙ фиксированной скоростью (0.03x/сек)
-        // Но останавливаются когда достигают своего stopMultiplier
-        gameState.blueMultiplier = Math.min(
-            1.00 + (elapsedSeconds * gameState.growthRate),
-            gameState.blueStopMultiplier
-        );
-        gameState.orangeMultiplier = Math.min(
-            1.00 + (elapsedSeconds * gameState.growthRate),
-            gameState.orangeStopMultiplier
-        );
+        // ОДИН общий множитель растет для ВСЕХ
+        gameState.currentMultiplier = 1.00 + (elapsedSeconds * gameState.growthRate);
+        
+        // Проверка задержания BLUE (достигла точки задержания)
+        if (!gameState.blueDetained && gameState.currentMultiplier >= gameState.blueStopMultiplier) {
+            gameState.blueDetained = true;
+            gameState.blueMultiplier = gameState.currentMultiplier; // ЗАМОРАЖИВАЕМ на текущем значении
+            console.log(`🚫 Blue detained at ${gameState.blueMultiplier.toFixed(2)}x`);
+        }
+        
+        // Проверка задержания ORANGE (достигла точки задержания)
+        if (!gameState.orangeDetained && gameState.currentMultiplier >= gameState.orangeStopMultiplier) {
+            gameState.orangeDetained = true;
+            gameState.orangeMultiplier = gameState.currentMultiplier; // ЗАМОРАЖИВАЕМ на текущем значении
+            console.log(`🚫 Orange detained at ${gameState.orangeMultiplier.toFixed(2)}x`);
+        }
+        
+        // Обновляем множители:
+        // Если НЕ задержана - растет вместе с общим
+        // Если задержана - остается замороженной
+        if (!gameState.blueDetained) {
+            gameState.blueMultiplier = gameState.currentMultiplier;
+        }
+        if (!gameState.orangeDetained) {
+            gameState.orangeMultiplier = gameState.currentMultiplier;
+        }
         
         io.to('global_speedcash').emit('speedcash_multiplier_update', {
             blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
             orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
+            blueDetained: gameState.blueDetained,
+            orangeDetained: gameState.orangeDetained,
             elapsedSeconds: parseFloat(elapsedSeconds.toFixed(1))
         });
         
-        // Финиш когда ОБЕ достигли своих целей
-        const blueFinished = gameState.blueMultiplier >= gameState.blueStopMultiplier;
-        const orangeFinished = gameState.orangeMultiplier >= gameState.orangeStopMultiplier;
-        
-        if (blueFinished && orangeFinished) {
+        // Финиш когда ОБЕ задержаны
+        if (gameState.blueDetained && gameState.orangeDetained) {
             clearInterval(gameState.raceInterval);
             gameState.raceInterval = null;
             finishRace(io);
