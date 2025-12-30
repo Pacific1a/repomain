@@ -968,23 +968,30 @@ class SpeedCashGame {
         console.log(`🎲 Blue target: x${this.blueTargetMultiplier.toFixed(2)}, Orange target: x${this.orangeTargetMultiplier.toFixed(2)}`);
         console.log(`🚔 Delayed car: ${this.delayedCar}`);
         
-        // Обновляем кнопки на Cash Out если ставки размещены (disabled = false, так как в начале гонки машины еще не задержаны)
-        // Если нет ставки - кнопка становится disabled
+        // УСТАНАВЛИВАЕМ КНОПКИ В RACING СОСТОЯНИЕ:
+        // Если ЕСТЬ ставка → Cash Out (зеленая/оранжевая, доступная)
+        // Если НЕТ ставки → Bet (СЕРАЯ, disabled=true)
         if (this.currentBlueBet) {
-            this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
+            this.updateBetButton('blue', 'cashout', this.currentBlueBet, false); // disabled=false → доступная
         } else {
-            this.updateBetButton('blue', 'bet', this.blueBet, true);
+            this.updateBetButton('blue', 'bet', this.blueBet, true); // disabled=true → СЕРАЯ
         }
         if (this.currentOrangeBet) {
-            this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
+            this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false); // disabled=false → доступная
         } else {
-            this.updateBetButton('orange', 'bet', this.orangeBet, true);
+            this.updateBetButton('orange', 'bet', this.orangeBet, true); // disabled=true → СЕРАЯ
         }
         if (this.currentSingleBet) {
-            this.updateSingleButton('cashout', this.currentSingleBet, false);
+            this.updateSingleButton('cashout', this.currentSingleBet, false); // disabled=false → доступная
         } else {
-            this.updateSingleButton('bet', this.singleBet, true);
+            this.updateSingleButton('bet', this.singleBet, true); // disabled=true → СЕРАЯ
         }
+        
+        console.log('🎮 Кнопки установлены в RACING состояние:', {
+            blueBet: this.currentBlueBet ? 'CASHOUT' : 'BET DISABLED',
+            orangeBet: this.currentOrangeBet ? 'CASHOUT' : 'BET DISABLED',
+            singleBet: this.currentSingleBet ? 'CASHOUT' : 'BET DISABLED'
+        });
         
         // СРАЗУ запускаем гонку (без задержки!)
         console.log('✅ ЗАПУСКАЕМ ГОНКУ - выезд машин + рост иксов!');
