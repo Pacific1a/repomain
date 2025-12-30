@@ -28,29 +28,29 @@ function startBetting(io) {
     // Генерируем длительность гонки (5-15 секунд)
     gameState.raceDuration = 5000 + Math.random() * 10000;
     
-    // Определяем задержанную машину
+    // Определяем сценарий гонки
     const rand = Math.random();
-    if (rand < 0.015) {
-        gameState.delayedCar = 'both'; // 1.5% - обе задержаны
-    } else if (rand < 0.5) {
-        gameState.delayedCar = 'blue'; // 48.5% - blue задержана
+    if (rand < 0.40) {
+        // 40% - blue задержана, orange уехала
+        gameState.delayedCar = 'blue';
+        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.7; // 1.1-1.8x
+        gameState.orangeStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x
+    } else if (rand < 0.80) {
+        // 40% - orange задержана, blue уехала
+        gameState.delayedCar = 'orange';
+        gameState.blueStopMultiplier = 2.5 + Math.random() * 2.5; // 2.5-5.0x
+        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.7; // 1.1-1.8x
+    } else if (rand < 0.95) {
+        // 15% - обе уехали (близкие множители, интересная гонка)
+        gameState.delayedCar = 'none';
+        const base = 2.0 + Math.random() * 2.0; // Базовый множитель 2.0-4.0
+        gameState.blueStopMultiplier = base + (Math.random() - 0.5) * 0.5; // ±0.25
+        gameState.orangeStopMultiplier = base + (Math.random() - 0.5) * 0.5; // ±0.25
     } else {
-        gameState.delayedCar = 'orange'; // 50% - orange задержана
-    }
-    
-    // Генерируем целевые множители
-    // Машина которая уедет - высокий множитель (2.5-4.0)
-    // Задержанная машина - низкий множитель (1.1-1.5)
-    if (gameState.delayedCar === 'blue') {
-        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5
-        gameState.orangeStopMultiplier = 2.5 + Math.random() * 1.5; // 2.5-4.0
-    } else if (gameState.delayedCar === 'orange') {
-        gameState.blueStopMultiplier = 2.5 + Math.random() * 1.5; // 2.5-4.0
-        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5
-    } else {
-        // Обе задержаны - обе низкие
-        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.4;
-        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.4;
+        // 5% - обе задержаны (редко)
+        gameState.delayedCar = 'both';
+        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
+        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
     }
     
     console.log(`🚗 Speedcash betting started. Duration: ${(gameState.raceDuration/1000).toFixed(1)}s, Delayed: ${gameState.delayedCar}`);
