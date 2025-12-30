@@ -108,11 +108,25 @@ function makeBotBet(botId, io, startGameCallback) {
     
     const bet = BOT_BET_MIN + Math.floor(Math.random() * (BOT_BET_MAX - BOT_BET_MIN));
     
+    // ГЕНЕРИРУЕМ УНИКАЛЬНЫЙ ЦВЕТ для бота
+    const PLAYER_COLORS = [
+        '#bde0fe', '#ffafcc', '#ade8f4', '#edede9', '#6f2dbd',
+        '#b8c0ff', '#ff9e00', '#826aed', '#ffff3f', '#1dd3b0',
+        '#ffd449', '#54defd', '#2fe6de', '#00f2f2', '#2d00f7',
+        '#00ccf5', '#00f59b', '#7014f2', '#ff00ff', '#ffe017',
+        '#44d800', '#ff8c00', '#ff3800', '#fff702', '#00ffff',
+        '#00ffe0', '#00ffc0', '#00ffa0', '#00ffff', '#8000ff',
+        '#02b3f6'
+    ];
+    const usedColors = new Set(gameState.players.map(p => p.color));
+    let botColor = PLAYER_COLORS.find(c => !usedColors.has(c)) || `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
+    
     gameState.players.push({
         userId: botId,
         nickname: bot.nickname,
         photoUrl: bot.photoUrl,
         bet: bet,
+        color: botColor,
         isBot: true
     });
     
@@ -120,7 +134,8 @@ function makeBotBet(botId, io, startGameCallback) {
         userId: botId,
         nickname: bot.nickname,
         photoUrl: bot.photoUrl,
-        bet: bet
+        bet: bet,
+        color: botColor
     });
     
     console.log(`🤖 Бот ${bot.nickname} поставил ${bet}`);

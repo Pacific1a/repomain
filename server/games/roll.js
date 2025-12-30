@@ -6,6 +6,28 @@
 const gameStates = require('./gameStates');
 const { addBotsToRoll, startBotBets, stopBotBets, cleanupBots, incrementBotGames } = require('./fakePlayers');
 
+// Палитра цветов для игроков
+const PLAYER_COLORS = [
+    '#bde0fe', '#ffafcc', '#ade8f4', '#edede9', '#6f2dbd',
+    '#b8c0ff', '#ff9e00', '#826aed', '#ffff3f', '#1dd3b0',
+    '#ffd449', '#54defd', '#2fe6de', '#00f2f2', '#2d00f7',
+    '#00ccf5', '#00f59b', '#7014f2', '#ff00ff', '#ffe017',
+    '#44d800', '#ff8c00', '#ff3800', '#fff702', '#00ffff',
+    '#00ffe0', '#00ffc0', '#00ffa0', '#00ffff', '#8000ff',
+    '#02b3f6'
+];
+
+// Генерация уникального цвета для игрока
+function getUniqueColor(usedColors) {
+    for (const color of PLAYER_COLORS) {
+        if (!usedColors.has(color)) {
+            return color;
+        }
+    }
+    // Если все цвета заняты - генерируем случайный
+    return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
+}
+
 function initializeRoll(io) {
     const gameState = gameStates.roll;
     
@@ -117,31 +139,16 @@ function finishRoll(io) {
     gameState.startTime = null;
     gameState.winner = null;
     
-    // Очистка ботов и добавление новых
+    // ИСПРАВЛЕНО: Очищаем ботов ПОЛНОСТЬЮ, НЕ добавляем новых автоматически
+    // Боты добавятся только когда реальный игрок сделает ставку
     setTimeout(() => {
-        if (gameState.status !== 'waiting') {
-            console.log(`⏸️ Игра уже началась, пропускаем добавление ботов`);
-            return;
-        }
-        
         cleanupBots();
         
-        const currentBotCount = gameState.activeBots.length;
-        const targetBotCount = 2 + Math.floor(Math.random() * 3); // 2-4 бота
+        // Очищаем всех активных ботов
+        gameState.activeBots = [];
         
-        if (currentBotCount < targetBotCount) {
-            const botsToAdd = targetBotCount - currentBotCount;
-            console.log(`🤖 После игры: добавляем ${botsToAdd} новых ботов`);
-            addBotsToRoll(botsToAdd, io);
-        }
-        
-        // Запускаем ставки ботов
-        if (gameState.activeBots.length > 0) {
-            startBotBets(io, () => startRollGame(io));
-        }
+        console.log(`🏁 Roll finished, ждём реальных игроков`);
     }, 2000);
-    
-    console.log(`🏁 Roll finished`);
 }
 
 // Socket handlers
@@ -175,16 +182,32 @@ function registerRollHandlers(socket, io) {
         
         const gameState = gameStates.roll;
         
+        // ИСПРАВЛЕНО: Можно ставить только в waiting или betting (НЕ во время spinning)
         if (gameState.status === 'spinning') {
             console.log(`⚠️ Нельзя ставить во время спина`);
             return;
         }
         
         // Проверка существующей ставки
-        if (gameState.players.find(p => p.userId === userId)) {
-            console.log(`⚠️ Игрок ${userId} уже сделал ставку`);
+        const existingPlayer = gameState.players.find(p => p.userId === userId);
+        if (existingPlayer) {
+            // ИСПРАВЛЕНО: Если игрок уже есть - ДОБАВЛЯЕМ к его ставке
+            console.log(`💰 Игрок ${nickname} увеличивает ставку: ${existingPlayer.bet} + ${bet} = ${existingPlayer.bet + bet}`);
+            existingPlayer.bet += bet;
+            
+            // Отправляем обновление (с цветом)
+            io.to('global_roll').emit('player_bet_updated', {
+                userId,
+                nickname,
+                bet: existingPlayer.bet,
+                color: existingPlayer.color
+            });
             return;
         }
+        
+        // ГЕНЕРИРУЕМ УНИКАЛЬНЫЙ ЦВЕТ
+        const usedColors = new Set(gameState.players.map(p => p.color));
+        const playerColor = getUniqueColor(usedColors);
         
         // Добавляем игрока
         gameState.players.push({
@@ -192,6 +215,7 @@ function registerRollHandlers(socket, io) {
             nickname,
             photoUrl,
             bet,
+            color: playerColor,
             isBot: false
         });
         
@@ -199,10 +223,11 @@ function registerRollHandlers(socket, io) {
             userId,
             nickname,
             photoUrl,
-            bet
+            bet,
+            color: playerColor
         });
         
-        console.log(`📥 Roll bet: ${nickname} -> ${bet}`);
+        console.log(`📥 Roll bet: ${nickname} -> ${bet}, color: ${playerColor}`);
         
         // НОВАЯ ЛОГИКА: Добавляем ботов после первой ставки реального игрока
         if (gameState.players.length === 1 && gameState.activeBots.length === 0) {
