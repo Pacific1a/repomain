@@ -354,6 +354,25 @@ class SpeedCashGame {
             this.animateRace();
             this.animateRoadLines();
             
+            // УСТАНАВЛИВАЕМ КНОПКИ В ПРАВИЛЬНОЕ СОСТОЯНИЕ
+            // Если нет ставки - кнопки disabled (серые)
+            // Если есть ставка - кнопки cashout (доступные)
+            if (this.currentBlueBet) {
+                this.updateBetButton('blue', 'cashout', this.currentBlueBet, false);
+            } else {
+                this.updateBetButton('blue', 'bet', this.blueBet, true); // disabled серая
+            }
+            if (this.currentOrangeBet) {
+                this.updateBetButton('orange', 'cashout', this.currentOrangeBet, false);
+            } else {
+                this.updateBetButton('orange', 'bet', this.orangeBet, true); // disabled серая
+            }
+            if (this.currentSingleBet) {
+                this.updateSingleButton('cashout', this.currentSingleBet, false);
+            } else {
+                this.updateSingleButton('bet', this.singleBet, true); // disabled серая
+            }
+            
             console.log('✅ Гонка отображается в реальном времени');
         }
     }
