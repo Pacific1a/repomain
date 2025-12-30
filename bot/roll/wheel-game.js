@@ -501,15 +501,21 @@
               </div>
               <div class="n-k"><div class="n-k-2">${player.username}</div></div>
             </div>
-            <div class="div-wrapper-2"><div class="text-wrapper-14" data-bet-amount>${player.betAmount || 0}</div></div>
-            <div class="element-wrapper"><div class="element-3" data-win-amount>${player.winAmount || '-'}</div></div>
+            <div class="div-wrapper-2">
+              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Bet</div>
+              <div class="text-wrapper-14" data-bet-amount>${player.betAmount || 0}₽</div>
+            </div>
+            <div class="element-wrapper">
+              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Win</div>
+              <div class="element-3" data-win-amount>${player.winAmount || '-'}</div>
+            </div>
           `;
           elements.playersList.appendChild(playerDiv);
         } else {
           // Обновляем только цифры
           const betElement = playerDiv.querySelector('[data-bet-amount]');
           const winElement = playerDiv.querySelector('[data-win-amount]');
-          if (betElement) betElement.textContent = player.betAmount || 0;
+          if (betElement) betElement.textContent = (player.betAmount || 0) + '₽';
           if (winElement) winElement.textContent = player.winAmount || '-';
         }
       });

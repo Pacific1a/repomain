@@ -111,6 +111,23 @@
         updateUI();
       }
     });
+
+    // НОВОЕ: Обработчик увеличения ставки
+    ws.socket.on('player_bet_updated', (data) => {
+      console.log('💰 Ставка игрока увеличена:', data);
+      
+      const existingPlayer = gameState.players.find(p => p.userId === data.userId);
+      if (existingPlayer) {
+        existingPlayer.bet = data.bet;
+        if (data.color) existingPlayer.color = data.color;
+        
+        console.log(`✅ Ставка ${data.nickname} обновлена: ${existingPlayer.bet}₽`);
+        
+        // ВАЖНО: Перерисовываем колесо с новыми ставками
+        syncPlayersToWheel();
+        updateUI();
+      }
+    });
     
     // Новый игрок сделал ставку
     ws.socket.on('player_bet', (data) => {
@@ -434,9 +451,11 @@
               </div>
             </div>
             <div class="div-wrapper-2">
-              <div class="text-wrapper-14" data-bet-amount>${player.bet}</div>
+              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Bet</div>
+              <div class="text-wrapper-14" data-bet-amount>${player.bet}₽</div>
             </div>
             <div class="element-wrapper">
+              <div style="font-size: 10px; color: #888; margin-bottom: 2px;">Win</div>
               <div class="element-3" data-win-amount>-</div>
             </div>
           `;
@@ -446,7 +465,7 @@
         // Обновляем только цифры в Previos
         if (currentTab === 'previos') {
           const betElement = playerEl.querySelector('[data-bet-amount]');
-          if (betElement) betElement.textContent = player.bet;
+          if (betElement) betElement.textContent = player.bet + '₽';
         }
       }
     });
