@@ -1830,10 +1830,19 @@ class SpeedCashGame {
 
     updateSingleButton(state, amount, disabled = false) {
         const button = document.querySelector('.who-is-win .bet-button');
-        if (!button) return;
+        if (!button) {
+            console.error(`❌ updateSingleButton: кнопка не найдена!`);
+            return;
+        }
         
         const textElement = button.querySelector('.text-wrapper-9');
         const amountElement = button.querySelector('.text-wrapper-10');
+        
+        // ВАЛИДАЦИЯ: проверяем что amount корректный
+        const validAmount = (amount && !isNaN(amount) && amount > 0) ? Math.floor(amount) : 50;
+        if (amount !== validAmount) {
+            console.warn(`⚠️ updateSingleButton: некорректный amount ${amount}, используем ${validAmount}`);
+        }
         
         button.classList.remove('state-bet', 'state-cancel', 'state-cashout', 'disabled');
         
@@ -1844,7 +1853,7 @@ class SpeedCashGame {
         
         if (state === 'bet') {
             if (textElement) textElement.textContent = 'Bet';
-            if (amountElement) amountElement.textContent = `${amount} Chips`;
+            if (amountElement) amountElement.textContent = `${validAmount} Chips`;
             button.classList.add('state-bet');
         } else if (state === 'cancel') {
             if (textElement) textElement.textContent = 'Cancel';
@@ -1852,9 +1861,17 @@ class SpeedCashGame {
             button.classList.add('state-cancel');
         } else if (state === 'cashout') {
             if (textElement) textElement.textContent = 'Cash Out';
-            if (amountElement) amountElement.textContent = `${amount} Chips`;
+            if (amountElement) amountElement.textContent = `${validAmount} Chips`;
             button.classList.add('state-cashout');
         }
+        
+        // ОТЛАДКА: логируем состояние кнопки
+        console.log(`🎮 updateSingleButton():`, {
+            state,
+            amount: validAmount,
+            disabled,
+            classes: button.className
+        });
     }
 
     generateWeightedMultiplier() {
