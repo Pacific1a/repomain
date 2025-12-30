@@ -383,8 +383,8 @@
     // Обновляем список игроков в зависимости от активной вкладки
     const currentTab = window.TabsManager ? window.TabsManager.getCurrentTab() : 'previos';
     
-    // Обновляем счетчик онлайн игроков для Live Bets
-    if (currentTab === 'live-bets' && window.TabsManager) {
+    // ИСПРАВЛЕНО: Обновляем счетчик онлайн игроков ВСЕГДА (независимо от вкладки)
+    if (window.TabsManager) {
       window.TabsManager.updatePlayersCount(gameState.players.length);
     }
 
