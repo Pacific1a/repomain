@@ -65,8 +65,8 @@
     elements.playersList.innerHTML = '';
   }
   
-  // Начальный таб
-  switchTab('live-bets');
+  // Начальный таб - PREVIOS (чтобы видеть ставки)
+  switchTab('previos');
 
   // Экспорт
   window.TabsManager = {
