@@ -92,22 +92,43 @@ function startRace(io) {
     // Обновляем множители каждые 100мс
     if (gameState.raceInterval) clearInterval(gameState.raceInterval);
     
+    // Устанавливаем РАЗНУЮ длительность для каждой машины (разная скорость!)
+    let blueDuration = gameState.raceDuration;
+    let orangeDuration = gameState.raceDuration;
+    
+    if (gameState.delayedCar === 'blue') {
+        // Blue задержана - в 3-4 раза медленнее
+        blueDuration = gameState.raceDuration * (3 + Math.random());
+    } else if (gameState.delayedCar === 'orange') {
+        // Orange задержана - в 3-4 раза медленнее
+        orangeDuration = gameState.raceDuration * (3 + Math.random());
+    } else if (gameState.delayedCar === 'both') {
+        // Обе задержаны - обе медленные
+        blueDuration = gameState.raceDuration * (3 + Math.random());
+        orangeDuration = gameState.raceDuration * (3 + Math.random());
+    }
+    // Если 'none' - обе едут с базовой скоростью
+    
     gameState.raceInterval = setInterval(() => {
         const elapsed = Date.now() - gameState.raceStartTime;
-        const progress = Math.min(elapsed / gameState.raceDuration, 1);
         
-        // Рассчитываем множители с плавным ростом
-        gameState.blueMultiplier = 1.00 + (gameState.blueStopMultiplier - 1.00) * progress;
-        gameState.orangeMultiplier = 1.00 + (gameState.orangeStopMultiplier - 1.00) * progress;
+        // РАЗНЫЙ прогресс для каждой машины (разная скорость!)
+        const blueProgress = Math.min(elapsed / blueDuration, 1);
+        const orangeProgress = Math.min(elapsed / orangeDuration, 1);
+        
+        // Рассчитываем множители с РАЗНОЙ скоростью роста
+        gameState.blueMultiplier = 1.00 + (gameState.blueStopMultiplier - 1.00) * blueProgress;
+        gameState.orangeMultiplier = 1.00 + (gameState.orangeStopMultiplier - 1.00) * orangeProgress;
         
         io.to('global_speedcash').emit('speedcash_multiplier_update', {
             blueMultiplier: parseFloat(gameState.blueMultiplier.toFixed(2)),
             orangeMultiplier: parseFloat(gameState.orangeMultiplier.toFixed(2)),
-            progress: parseFloat((progress * 100).toFixed(1))
+            blueProgress: parseFloat((blueProgress * 100).toFixed(1)),
+            orangeProgress: parseFloat((orangeProgress * 100).toFixed(1))
         });
         
-        // Финиш
-        if (progress >= 1) {
+        // Финиш когда обе достигли целей
+        if (blueProgress >= 1 && orangeProgress >= 1) {
             clearInterval(gameState.raceInterval);
             gameState.raceInterval = null;
             finishRace(io);
