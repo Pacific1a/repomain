@@ -6,7 +6,6 @@
   let gameState = {
     status: 'waiting',
     players: [],
-    activeGames: [],  // Активные игры (в процессе)
     history: []       // История завершенных игр
   };
   
@@ -39,7 +38,6 @@
         gameState = {
           status: state.status || 'waiting',
           players: state.players || [],
-          activeGames: state.activeGames || [],
           history: state.history || []
         };
         updateUI();
