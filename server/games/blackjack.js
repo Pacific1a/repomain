@@ -79,6 +79,21 @@ function registerBlackjackHandlers(socket, io) {
         });
     });
     
+    // Игра началась
+    socket.on('blackjack_game_started', ({ game, userId, nickname, photoUrl, bet }) => {
+        if (game !== 'blackjack') return;
+        
+        console.log(`🎮 BlackJack: Game started from ${userId}: bet=${bet}`);
+        
+        // Рассылаем всем игрокам
+        io.to('global_blackjack').emit('blackjack_game_started', {
+            userId,
+            nickname,
+            photoUrl,
+            bet
+        });
+    });
+    
     // Результат игры (из локальной игры на клиенте!)
     socket.on('blackjack_result', ({ game, userId, nickname, photoUrl, bet, win, isWinner, multiplier }) => {
         if (game !== 'blackjack') return;
