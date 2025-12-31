@@ -613,18 +613,18 @@
       
       // Отправляем событие что игра началась
       if (window.GameWebSocket && window.GameWebSocket.socket) {
-        let userId, nickname, photoUrl;
+        // Используем getUserId() для консистентности
+        const userId = this.getUserId();
+        let nickname, photoUrl;
+        
         if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
           const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-          userId = tgUser.id;
           nickname = tgUser.first_name || tgUser.username || 'Player';
           photoUrl = tgUser.photo_url || null;
         } else if (window.TelegramUserData) {
-          userId = window.TelegramUserData.id;
           nickname = window.TelegramUserData.first_name || window.TelegramUserData.username || 'Player';
           photoUrl = window.TelegramUserData.photo_url || null;
         } else {
-          userId = 'user_' + Date.now();
           nickname = 'Player';
           photoUrl = null;
         }
