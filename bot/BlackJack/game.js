@@ -873,6 +873,9 @@
       
       this.betPlaced = false;
       this.updateBetBalanceUI();
+      
+      // Очищаем сессию на сервере после завершения игры
+      this.clearServerSession();
 
       // Do not show textual result overlay
 
