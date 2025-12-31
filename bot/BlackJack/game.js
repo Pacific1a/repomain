@@ -385,10 +385,13 @@
       this.dealLock = false;
       this.playerBusted = false;
       this.betPlaced = false; // Track if bet was deducted
+      this.gameId = null; // Server game ID
+      this.ws = null; // WebSocket connection
       
       ensureAnimationStyles();
       this.bindUI();
       this.waitForBalance();
+      this.waitForWebSocket();
       setBetControlsEnabled(true);
       setNewGameEnabled(true);
       setButtonsEnabled(false, this);
@@ -413,6 +416,109 @@
       }
     }
 
+    waitForWebSocket() {
+      if (window.GameWebSocket && window.GameWebSocket.socket && window.GameWebSocket.connected) {
+        this.ws = window.GameWebSocket;
+        console.log('✅ BlackJack: WebSocket готов');
+        this.setupSocketListeners();
+      } else {
+        console.log('⏳ BlackJack: Ожидание WebSocket...');
+        setTimeout(() => this.waitForWebSocket(), 500);
+      }
+    }
+
+    setupSocketListeners() {
+      if (!this.ws || !this.ws.socket) return;
+      
+      // Карты получены от сервера
+      this.ws.socket.on('blackjack_cards', (data) => {
+        console.log('🃏 Received cards:', data);
+        this.gameId = data.gameId;
+        this.player = data.playerHand;
+        this.dealer = [data.dealerCards[0]]; // Только первая карта дилера
+        this.renderGameState();
+        this.updateScores(false);
+        setButtonsEnabled(true, this);
+      });
+
+      // Новая карта выдана (Hit)
+      this.ws.socket.on('blackjack_card_dealt', (data) => {
+        console.log('🃏 New card:', data.card);
+        this.player.push(data.card);
+        this.renderGameState();
+        this.updateScores(false);
+      });
+
+      // Результат игры
+      this.ws.socket.on('blackjack_result', async (data) => {
+        console.log('🏁 Game result:', data);
+        
+        // Обновляем руку дилера
+        this.dealer = data.dealerHand;
+        this.renderGameState();
+        this.updateScores(true);
+        
+        // Обработка баланса
+        if (data.result === 'bust' || data.result === 'lose') {
+          // Списываем ставку
+          await window.BalanceAPI.subtractRubles(this.bet);
+          showResult(`YOU LOSE! -${this.bet} chips`);
+          placeWinBadge('dealer');
+        } else if (data.result === 'win' || data.result === 'blackjack') {
+          // Начисляем выигрыш (за вычетом ставки)
+          const profit = data.winnings - this.bet;
+          if (profit > 0) {
+            await window.BalanceAPI.addRubles(profit);
+          }
+          const msg = data.result === 'blackjack' ? 'BLACKJACK!' : 'YOU WIN!';
+          showResult(`${msg} +${profit} chips (${data.multiplier}x)`);
+          placeWinBadge('player');
+        } else if (data.result === 'push') {
+          // Ничья - возвращаем ставку
+          showResult(`PUSH! Bet returned`);
+        }
+        
+        // Отправляем результат в синхронизацию
+        if (window.BlackJackSync) {
+          window.BlackJackSync.reportGameResult(
+            this.bet,
+            data.winnings,
+            data.result === 'win' || data.result === 'blackjack',
+            data.multiplier
+          );
+        }
+        
+        this.roundOver = true;
+        setButtonsEnabled(false, this);
+        
+        // Возвращаем к выбору ставки через 5 секунд
+        setTimeout(() => {
+          renderHand([], el.dealerCards, { hideHole: false });
+          renderHand([], el.playerCards, { hideHole: false });
+          if (el.gameArea) el.gameArea.classList.add('hidden');
+          if (el.buttonsBar) el.buttonsBar.classList.add('hidden');
+          if (el.tableOverlay) el.tableOverlay.style.display = 'block';
+          if (el.centerOverlay) el.centerOverlay.style.display = 'flex';
+          setBetControlsEnabled(true);
+          setNewGameEnabled(true);
+        }, 5000);
+      });
+
+      // Ошибки
+      this.ws.socket.on('blackjack_error', (data) => {
+        console.error('❌ BlackJack error:', data.message);
+        showResult(data.message);
+        this.roundOver = true;
+        setBetControlsEnabled(true);
+        setNewGameEnabled(true);
+      });
+    }
+
+    renderGameState() {
+      renderHand(this.player, el.playerCards, { hideHole: false });
+      renderHand(this.dealer, el.dealerCards, { hideHole: false });
+    }
+
     updateBetBalanceUI() {
       if (!window.BalanceAPI) return;
       
@@ -427,9 +533,9 @@
       el.btn.stand && el.btn.stand.addEventListener("click", () => this.stand());
       el.btn.double && el.btn.double.addEventListener("click", () => this.doubleDown());
       el.btn.split && el.btn.split.addEventListener("click", () => this.split());
-      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-10));
-      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(10));
-      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(10, Math.floor(this.bet / 2))));
+      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-50));
+      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(50));
+      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(50, Math.floor(this.bet / 2))));
       el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => this.setBet(this.bet * 2));
       el.btn.newGame && el.btn.newGame.addEventListener("click", () => this.newRound(true));
     }
@@ -437,7 +543,7 @@
     setBet(value) {
       if (!window.BalanceAPI) return;
       const balance = window.BalanceAPI.getChips();
-      this.bet = Math.max(10, Math.min(value, balance));
+      this.bet = Math.max(50, Math.min(value, balance));
       this.updateBetBalanceUI();
     }
     
@@ -448,7 +554,7 @@
     async newRound(force = false) {
       if (!force && !this.roundOver) return;
       
-      // Check balance (не списываем сразу, только проверяем)
+      // Проверка баланса
       if (!window.BalanceAPI) {
         showResult('Balance API not ready');
         return;
@@ -458,44 +564,61 @@
         showResult('Недостаточно рублей');
         return;
       }
+
+      // Проверка WebSocket
+      if (!this.ws || !this.ws.socket) {
+        showResult('Подключение к серверу...');
+        return;
+      }
       
-      // НЕ списываем баланс сразу - только после завершения игры
-      console.log(`✅ Ставка ${this.bet} rubles зарезервирована`);
+      console.log(`🃏 Начинаем игру со ставкой: ${this.bet}`);
       
-      this.betPlaced = true;
       this.roundOver = false;
       this.hasActed = false;
-      this.dealLock = false;
-      this.playerBusted = false;
       this.player = [];
       this.dealer = [];
-      this.deck = new Deck();
       
       setBetControlsEnabled(false);
       setNewGameEnabled(false);
       this.updateBetBalanceUI();
       el.result && (el.result.textContent = "");
-      // show game elements when starting
+      
+      // Показываем игровую зону
       if (el.gameArea) el.gameArea.classList.remove('hidden');
       if (el.buttonsBar) el.buttonsBar.classList.remove('hidden');
       if (el.tableOverlay) el.tableOverlay.style.display = 'none';
       if (el.centerOverlay) el.centerOverlay.style.display = 'none';
-      // remove winner badges if any
+      
+      // Удаляем старые бейджи
       const oldBadges = document.querySelectorAll('.win-badge');
       oldBadges.forEach(b => b.remove());
 
-      // Initial deal: 2 cards to player, 2 cards to dealer (last hidden)
-      // Чередуем раздачу: игрок → дилер → игрок → дилер
-      await this.dealCard(this.player, el.playerCards, { hideHole: false });
-      await sleep(300);
-      await this.dealCard(this.dealer, el.dealerCards, { hideHole: false });
-      await sleep(300);
-      await this.dealCard(this.player, el.playerCards, { hideHole: false });
-      await sleep(300);
-      await this.dealCard(this.dealer, el.dealerCards, { hideHole: true });
-      await sleep(200);
-      
-      setButtonsEnabled(true, this);
+      // Получаем данные пользователя
+      let userId, nickname, photoUrl;
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+        userId = tgUser.id;
+        nickname = tgUser.first_name || tgUser.username || 'Player';
+        photoUrl = tgUser.photo_url || null;
+      } else if (window.TelegramUserData) {
+        userId = window.TelegramUserData.id;
+        nickname = window.TelegramUserData.first_name || window.TelegramUserData.username || 'Player';
+        photoUrl = window.TelegramUserData.photo_url || null;
+      } else {
+        userId = 'user_' + Date.now();
+        nickname = 'Player';
+        photoUrl = null;
+      }
+
+      // Отправляем запрос на сервер для начала игры
+      this.ws.socket.emit('blackjack_start', {
+        bet: this.bet,
+        userId,
+        nickname,
+        photoUrl
+      });
+
+      setButtonsEnabled(false, this); // Ждем ответа от сервера
     }
 
     updateScores(revealDealer) {
@@ -566,30 +689,30 @@
     isTenOrAce(card) { return card.rank === "A" || card.value === 10; }
 
     async hit() {
-      if (this.roundOver || this.dealLock) return;
-      this.dealLock = true;
-      try {
-        this.hasActed = true;
-        this.player.push(this.deck.draw());
-        renderHand(this.player, el.playerCards, { hideHole: false });
-        this.updateScores(false);
-        await sleep(260);
-        const s = score(this.player);
-        if (s > 21) {
-          this.playerBusted = true;
-          setButtonsEnabled(true, this);
-        } else {
-          setButtonsEnabled(true, this);
-        }
-      } finally {
-        this.dealLock = false;
-      }
+      if (this.roundOver || !this.gameId) return;
+      if (!this.ws || !this.ws.socket) return;
+      
+      console.log('🃏 Hit - запрос карты');
+      this.hasActed = true;
+      setButtonsEnabled(false, this);
+      
+      // Отправляем на сервер
+      this.ws.socket.emit('blackjack_hit', {
+        gameId: this.gameId
+      });
     }
 
     async stand() {
-      if (this.roundOver) return;
-      const busted = this.playerBusted;
-      await this.finishRound({ playerBusted: busted, revealDealerCards: true });
+      if (this.roundOver || !this.gameId) return;
+      if (!this.ws || !this.ws.socket) return;
+      
+      console.log('🃏 Stand - завершение хода');
+      setButtonsEnabled(false, this);
+      
+      // Отправляем на сервер
+      this.ws.socket.emit('blackjack_stand', {
+        gameId: this.gameId
+      });
     }
 
     async finishRound({ playerBusted, revealDealerCards = true }) {
@@ -622,32 +745,23 @@
     }
 
     async doubleDown() {
-      if (this.roundOver || this.player.length !== 2 || this.hasActed) return;
+      if (this.roundOver || !this.gameId || this.player.length !== 2 || this.hasActed) return;
+      if (!this.ws || !this.ws.socket) return;
       
-      // Проверяем баланс для удвоения ставки (не списываем сразу)
+      // Проверяем баланс для удвоения ставки
       if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(this.bet)) {
         showResult("Недостаточно рублей для удвоения");
         return;
       }
       
-      // Удваиваем ставку (не списываем, спишется при завершении игры)
-      this.bet *= 2;
+      console.log('🃏 Double - удвоение ставки');
       this.hasActed = true;
+      setButtonsEnabled(false, this);
       
-      // Берем одну карту и автоматически stand
-      await sleep(300);
-      this.player.push(this.deck.draw());
-      renderHand(this.player, el.playerCards, { hideHole: false });
-      this.updateScores(false);
-      await sleep(500);
-      
-      const s = score(this.player);
-      if (s > 21) {
-        this.playerBusted = true;
-      }
-      
-      // Автоматически завершаем ход
-      this.stand();
+      // Отправляем на сервер
+      this.ws.socket.emit('blackjack_double', {
+        gameId: this.gameId
+      });
     }
 
     split() {
