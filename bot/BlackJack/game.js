@@ -910,7 +910,8 @@
   }
 
   function init() {
-    new Game();
+    const game = new Game();
+    window.game = game; // Экспортируем для доступа из blackjack-sync.js
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
