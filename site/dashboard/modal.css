@@ -270,6 +270,7 @@ button{
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    position: relative;
     gap: 25px;
     padding: 30px;
     border-radius: 20px;
