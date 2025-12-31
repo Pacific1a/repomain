@@ -1,10 +1,11 @@
 const gameStates = require('./gameStates');
 
-// BlackJack game state (ИСТОРИЯ + ВРЕМЕННЫЕ ИГРЫ)
+// BlackJack game state (ИСТОРИЯ + ВРЕМЕННЫЕ ИГРЫ + СЕССИИ)
 gameStates.blackjack = {
     players: [],      // Активные игроки в комнате
     activeGames: [],  // Временные игры (удаляются через 10 сек после завершения)
-    history: []       // Постоянная история
+    history: [],      // Постоянная история
+    sessions: {}      // Текущие игровые сессии по userId
 };
 
 // Добавить в историю
@@ -46,12 +47,17 @@ function registerBlackjackHandlers(socket, io) {
         
         // Отправляем текущее состояние
         const gameState = gameStates.blackjack;
+        
+        // Проверяем сохраненную сессию игрока
+        const savedSession = gameState.sessions[telegramId];
+        
         socket.emit('game_state_sync', {
             game: 'blackjack',
             status: 'waiting',
             players: gameState.players,
             activeGames: gameState.activeGames || [],
-            history: gameState.history.slice(0, 20)
+            history: gameState.history.slice(0, 20),
+            savedSession: savedSession || null // Отправляем сохраненную игру если есть
         });
     });
     
