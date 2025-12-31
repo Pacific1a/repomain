@@ -275,23 +275,35 @@
     return wrap;
   }
 
-  function flipReveal(cell, src, durationMs = 500) {
+  function flipReveal(cell, src, durationMs = 600) {
     try {
       const wrap = ensureFlipStructure(cell);
       wrap.innerHTML = '';
       const img = document.createElement('img');
       img.className = 'img-2';
       img.src = src;
+      
+      // Устанавливаем начальное состояние
       Object.assign(img.style, {
-        width: '100%', height: '100%', objectFit: 'contain', display: 'block', margin: '0 auto',
-        transform: 'scale(0) rotate(-180deg)', opacity: '0',
-        transition: `all ${durationMs}ms cubic-bezier(0.68, -0.55, 0.265, 1.55)`
+        width: '100%', 
+        height: '100%', 
+        objectFit: 'contain', 
+        display: 'block', 
+        margin: '0 auto',
+        transform: 'scale(0.3) rotateY(90deg)',
+        opacity: '0',
+        transition: `all ${durationMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`
       });
+      
       wrap.appendChild(img);
-      requestAnimationFrame(() => {
-        img.style.transform = 'scale(1) rotate(0deg)';
-        img.style.opacity = '1';
-      });
+      
+      // ВАЖНО: Даем браузеру время применить начальные стили
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          img.style.transform = 'scale(1) rotateY(0deg)';
+          img.style.opacity = '1';
+        });
+      }, 20);
     } catch (e) {
       showImage(cell, src);
     }
