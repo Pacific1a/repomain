@@ -239,6 +239,13 @@
 
         dates.forEach(dateStr => {
             const dayData = timeline.timeline[dateStr];
+            
+            if (!dayData) {
+                console.warn(`⚠️ No data for date: ${dateStr}`);
+                data.push(cumulative);
+                return;
+            }
+            
             let value = 0;
 
             switch(metric) {
@@ -262,10 +269,10 @@
 
         console.log('📊 extractMetricData:', {
             metric: metric,
-            firstDate: dates[0],
-            lastDate: dates[dates.length - 1],
-            firstValue: timeline.timeline[dates[0]],
-            data: data,
+            dates: dates,
+            dataPoints: data.length,
+            firstValue: data[0],
+            lastValue: data[data.length - 1],
             cumulative: cumulative
         });
 

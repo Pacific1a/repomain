@@ -353,14 +353,27 @@ class ReferralService {
         try {
             const stats = await this.getOrCreateReferralStats(userId);
             
-            // Calculate cost per click = AVERAGE LOSS PER CLICK (not earnings!)
-            const costPerClick = stats.clicks > 0 
-                ? (stats.total_losses || 0) / stats.clicks 
-                : 0;
+            const earnings = stats.earnings || 0;
+            const totalLosses = stats.total_losses || 0;
             
-            // Calculate average income per player
-            const avgIncomePerPlayer = stats.first_deposits > 0 
-                ? (stats.earnings || 0) / stats.first_deposits 
+            // Get count of referred players
+            const referralsCount = await db.getAsync(
+                'SELECT COUNT(*) as count FROM referrals WHERE partner_id = ?',
+                [userId]
+            );
+            const playersCount = referralsCount ? referralsCount.count : 0;
+            
+            // СХЕМА 1 (максимально привлекательная для партнёров):
+            
+            // 1. "Сумма депозитов" = total_losses (100% проигрышей - БОЛЬШАЯ ЦИФРА)
+            const totalDeposits = totalLosses;
+            
+            // 2. "Стоимость перехода" = 15₽ фикс (визуальная, как "бонус" за переход)
+            const costPerClick = 15;
+            
+            // 3. "Средний доход с игрока" = total_losses / игроки (сколько в среднем проиграл один игрок)
+            const avgIncomePerPlayer = playersCount > 0 
+                ? totalLosses / playersCount 
                 : 0;
             
             return {
@@ -368,11 +381,12 @@ class ReferralService {
                 clicks: stats.clicks,
                 firstDeposits: stats.first_deposits,
                 deposits: stats.deposits,
-                totalDeposits: parseFloat(stats.total_deposits || 0).toFixed(2),
-                totalLosses: parseFloat(stats.total_losses || 0).toFixed(2),
-                earnings: parseFloat(stats.earnings || 0).toFixed(2),
-                costPerClick: costPerClick.toFixed(2),  // Average loss per click
-                avgIncomePerPlayer: avgIncomePerPlayer.toFixed(2)
+                totalDeposits: parseFloat(totalDeposits).toFixed(2),  // Show total losses as "deposits"
+                totalLosses: parseFloat(totalLosses).toFixed(2),
+                earnings: parseFloat(earnings).toFixed(2),  // Real earnings (60%)
+                costPerClick: costPerClick.toFixed(2),  // Fixed 15₽ (visual)
+                avgIncomePerPlayer: parseFloat(avgIncomePerPlayer).toFixed(2),  // Average loss per player
+                playersCount: playersCount
             };
         } catch (error) {
             console.error('❌ Error getting partner stats:', error);

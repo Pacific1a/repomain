@@ -49,18 +49,21 @@ class ReferralManager {
                     clicks: data.clicks || 0,
                     firstDeposits: data.firstDeposits || 0,
                     deposits: data.deposits || 0,
-                    totalDeposits: data.totalDeposits || 0,
+                    totalDeposits: data.totalDeposits || 0,  // Now shows earnings as "deposits"
                     totalLosses: data.totalLosses || 0,
-                    costPerClick: data.costPerClick || 0,
-                    avgIncomePerPlayer: data.avgIncomePerPlayer || 0,
+                    commission: data.commission || 0,  // Commission 3%
+                    costPerClick: data.costPerClick || 0,  // Commission amount
+                    avgIncomePerPlayer: data.avgIncomePerPlayer || 0,  // Net income per player
                     totalEarnings: data.earnings || data.totalEarnings || 0,
-                    earnings: data.earnings || 0
+                    earnings: data.earnings || 0,
+                    netEarnings: data.netEarnings || 0  // Earnings - commission
                 };
                 
                 console.log('📊 Обработанная статистика:', this.stats);
-                console.log(`💰 Заработано партнёром: ${this.stats.earnings}₽`);
-                console.log(`📊 Проигрыши рефералов: ${this.stats.totalLosses}₽`);
-                console.log(`💸 Средний проигрыш на клик: ${this.stats.costPerClick}₽`);
+                console.log(`💰 Баланс для вывода (60%): ${this.stats.earnings}₽`);
+                console.log(`📊 Сумма депозитов (проигрыши): ${this.stats.totalDeposits}₽`);
+                console.log(`💸 Стоимость перехода (визуальная): ${this.stats.costPerClick}₽`);
+                console.log(`👤 Средний доход с игрока: ${this.stats.avgIncomePerPlayer}₽`);
                 
                 // Генерируем ссылку
                 this.generateReferralLink();
