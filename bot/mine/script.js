@@ -212,7 +212,7 @@
         // Добавляем баланс
         if (window.BalanceAPI) {
           window.BalanceAPI.addRubles(data.winnings, 'game', `Выигрыш в Mines x${data.multiplier}`);
-          showNotification(`🎉 Выигрыш ${data.winnings} rubles!`);
+          showNotification(`Выигрыш ${data.winnings} rubles`);
         }
         
         // Сохраняем в историю

@@ -79,7 +79,7 @@
                     if (response.ok) {
                         const data = await response.json();
                         console.log('✅ Реферал зарегистрирован:', data);
-                        this.showNotification('Вы зарегистрированы по реферальной ссылке!');
+                        this.showNotification('Вы зарегистрированы по реферальной ссылке');
                     }
                 } catch (error) {
                     console.error('❌ Ошибка регистрации реферала:', error);
@@ -189,7 +189,7 @@
             try {
                 // Копируем в буфер обмена
                 await navigator.clipboard.writeText(this.referralLink);
-                this.showNotification('✅ Ссылка скопирована!');
+                this.showNotification('Ссылка скопирована');
                 console.log('✅ Ссылка скопирована');
             } catch (error) {
                 // Fallback для Telegram WebApp

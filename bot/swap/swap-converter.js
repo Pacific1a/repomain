@@ -577,7 +577,7 @@
      */
     async function handleExchange() {
         if (!window.BalanceAPI) {
-            showNotification('❌ Система баланса не загружена');
+            showNotification('Система баланса не загружена');
             return;
         }
 
@@ -600,20 +600,20 @@
         // Максимальная сумма обмена - 1 миллион
         const MAX_EXCHANGE = 1000000;
         if (rublesAmount > MAX_EXCHANGE) {
-            showNotification(`❌ Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} ₽`);
+            showNotification(`Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} ₽`);
             return;
         }
 
         const currentRubles = window.BalanceAPI.getRubles();
         if (rublesAmount > currentRubles) {
-            showNotification('❌ Недостаточно рублей');
+            showNotification('Недостаточно рублей');
             return;
         }
 
         // Списываем рубли через placeBet
         const deducted = window.BalanceAPI.subtractRubles(rublesAmount);
         if (!deducted) {
-            showNotification('❌ Ошибка списания рублей');
+            showNotification('Ошибка списания рублей');
             return;
         }
 
@@ -640,20 +640,20 @@
         // Максимальная сумма обмена - 1 миллион
         const MAX_EXCHANGE = 1000000;
         if (tokensAmount > MAX_EXCHANGE) {
-            showNotification(`❌ Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} Chips`);
+            showNotification(`Максимальная сумма обмена: ${MAX_EXCHANGE.toLocaleString('ru-RU')} Chips`);
             return;
         }
 
         const currentChips = window.BalanceAPI.getChips();
         if (tokensAmount > currentChips) {
-            showNotification('❌ Недостаточно фишек');
+            showNotification('Недостаточно фишек');
             return;
         }
 
         // Списываем фишки через placeBet
         const deducted = window.BalanceAPI.subtractChips(tokensAmount);
         if (!deducted) {
-            showNotification('❌ Ошибка списания фишек');
+            showNotification('Ошибка списания фишек');
             return;
         }
 
