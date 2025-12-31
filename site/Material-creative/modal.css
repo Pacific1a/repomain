@@ -328,7 +328,6 @@ button{
 }
 .li_style{
     display: flex;
-    align-items: start;
     gap: 5px;
     color: #C5A9A9;
     font-size: 18px;
