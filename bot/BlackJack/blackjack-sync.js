@@ -249,6 +249,7 @@
   // Переключение вкладок
   function switchTab(tabName) {
     currentTab = tabName;
+    localStorage.setItem('blackjack_tab', currentTab); // Сохраняем выбор вкладки
     
     const tabButtons = document.querySelectorAll('.section-menu > div');
     tabButtons.forEach(btn => {
@@ -479,8 +480,8 @@
       yourBetsWrapper.addEventListener('click', () => switchTab('your-bets'));
     }
     
-    // Начальная вкладка
-    switchTab('live-bets');
+    // Восстанавливаем сохранённую вкладку или используем Live Bets по умолчанию
+    switchTab(currentTab);
   }
 
   // Экспорт
