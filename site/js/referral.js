@@ -50,9 +50,11 @@ class ReferralManager {
                     firstDeposits: data.firstDeposits || 0,
                     deposits: data.deposits || 0,
                     totalDeposits: data.totalDeposits || 0,
+                    totalLosses: data.totalLosses || 0,
                     costPerClick: data.costPerClick || 0,
                     avgIncomePerPlayer: data.avgIncomePerPlayer || 0,
-                    totalEarnings: data.totalEarnings || 0
+                    totalEarnings: data.earnings || data.totalEarnings || 0,
+                    earnings: data.earnings || 0
                 };
                 
                 console.log('📊 Обработанная статистика:', this.stats);
@@ -183,6 +185,12 @@ class ReferralManager {
         this.updateDetailValue('.amount-value', `${this.stats.totalDeposits || 0}₽`);
         this.updateDetailValue('.cost-value', `${this.stats.costPerClick || 0}₽`);
         this.updateDetailValue('.income-value', `${this.stats.avgIncomePerPlayer || 0}₽`);
+        
+        // Update balance/earnings display if element exists
+        const balanceElement = document.querySelector('.balance-value, .earnings-value, [data-stat="earnings"]');
+        if (balanceElement) {
+            balanceElement.textContent = `${this.stats.earnings || 0}₽`;
+        }
         
         // Обновляем карточки статистики (старая структура, если есть)
         const statCards = document.querySelectorAll('.stat-card');
