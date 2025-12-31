@@ -373,7 +373,6 @@ button{
     outline: none;
 }
 .li_style{
-    display: flex;
     gap: 5px;
     color: #C5A9A9;
     font-size: 18px;
