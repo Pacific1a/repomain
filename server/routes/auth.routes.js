@@ -274,8 +274,8 @@ router.post('/2fa/setup', jwtAuth, async (req, res) => {
  */
 router.get('/2fa/status', jwtAuth, async (req, res) => {
     try {
-        const db = require('../config/database');
-        const user = await db.getAsync(
+        const { db: database } = require('../config/database');
+        const user = await database.getAsync(
             'SELECT two_factor_enabled FROM users WHERE id = ?',
             [req.userId]
         );
@@ -327,8 +327,8 @@ router.post('/2fa/enable', jwtAuth, async (req, res) => {
         }
         
         // Save secret to database for this user
-        const db = require('../config/database');
-        await db.runAsync(
+        const { db: database } = require('../config/database');
+        await database.runAsync(
             'UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?',
             [secret, req.userId]
         );
@@ -376,8 +376,8 @@ router.post('/2fa/verify-withdrawal', jwtAuth, async (req, res) => {
         }
         
         // Получаем секрет пользователя из БД
-        const db = require('../config/database');
-        const user = await db.getAsync(
+        const { db: database } = require('../config/database');
+        const user = await database.getAsync(
             'SELECT two_factor_secret, two_factor_enabled FROM users WHERE id = ?',
             [req.userId]
         );
