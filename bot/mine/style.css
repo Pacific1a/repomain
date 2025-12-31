@@ -275,6 +275,27 @@ a:focus {
     rgba(22, 20, 20, 1) 0%,
     rgba(22, 21, 21, 1) 100%
   );
+  overflow: hidden;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+/* Flip wrap для анимации */
+.mines .div-3 .flip-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Изображения внутри клеток */
+.mines .div-3 img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  backface-visibility: hidden;
 }
 
 .mines .info {
