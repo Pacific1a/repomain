@@ -1,4 +1,4 @@
-const { gameStates } = require('../game-state');
+const gameStates = require('./gameStates');
 
 // Mines game state
 gameStates.mines = {
