@@ -275,7 +275,7 @@
     return wrap;
   }
 
-  function flipReveal(cell, src, durationMs = 600) {
+  function flipReveal(cell, src, durationMs = 400) {
     try {
       const wrap = ensureFlipStructure(cell);
       wrap.innerHTML = '';
@@ -283,27 +283,26 @@
       img.className = 'img-2';
       img.src = src;
       
-      // Устанавливаем начальное состояние
+      // КЛАССИЧЕСКИЙ ПЕРЕВОРОТ
       Object.assign(img.style, {
         width: '100%', 
         height: '100%', 
         objectFit: 'contain', 
         display: 'block', 
         margin: '0 auto',
-        transform: 'scale(0.3) rotateY(90deg)',
-        opacity: '0',
-        transition: `all ${durationMs}ms cubic-bezier(0.34, 1.56, 0.64, 1)`
+        transform: 'rotateY(180deg)',
+        opacity: '1',
+        transition: `transform ${durationMs}ms ease-out`
       });
       
       wrap.appendChild(img);
       
-      // ВАЖНО: Даем браузеру время применить начальные стили
+      // Даем браузеру время применить начальные стили
       setTimeout(() => {
         requestAnimationFrame(() => {
-          img.style.transform = 'scale(1) rotateY(0deg)';
-          img.style.opacity = '1';
+          img.style.transform = 'rotateY(0deg)';
         });
-      }, 20);
+      }, 10);
     } catch (e) {
       showImage(cell, src);
     }
