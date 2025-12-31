@@ -218,6 +218,24 @@ router.get('/user', jwtAuth, async (req, res) => {
  * GET /api/2fa/status
  * Get 2FA status
  */
+/**
+ * POST /api/2fa/setup
+ * Generate QR code and temporary code for 2FA setup
+ */
+router.post('/2fa/setup', jwtAuth, async (req, res) => {
+    const twoFactorCode = 'TEMP2FA' + Date.now();
+    res.json({
+        success: true,
+        code: twoFactorCode,
+        qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+        message: '2FA setup initiated (placeholder)'
+    });
+});
+
+/**
+ * GET /api/2fa/status
+ * Check if 2FA is enabled
+ */
 router.get('/2fa/status', jwtAuth, async (req, res) => {
     res.json({
         success: true,

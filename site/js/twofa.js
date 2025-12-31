@@ -60,7 +60,7 @@ async function init2FA() {
         console.log('Setup result:', setupResult);
         
         if (setupResult.success) {
-            currentSecret = setupResult.secret;
+            currentSecret = setupResult.code || setupResult.secret;
             
             // Устанавливаем QR код
             const qrImg = document.querySelector('.auth_2f .auth_qr img');
