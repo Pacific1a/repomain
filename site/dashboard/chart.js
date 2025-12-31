@@ -34,16 +34,18 @@
 
     function initChart() {
         if (typeof Chart === 'undefined') {
-            console.error('Chart.js не загружен!');
+            console.error('❌ Chart.js не загружен!');
             setTimeout(initChart, 100);
             return;
         }
 
         const canvas = document.getElementById('statisticsChart');
         if (!canvas) {
-            console.error('Canvas не найден!');
+            console.error('❌ Canvas не найден!');
             return;
         }
+        
+        console.log('✅ Инициализация графика...');
 
         const ctx = canvas.getContext('2d');
 
@@ -408,6 +410,8 @@
     }
 
     function updateStatsCards(stats) {
+        console.log('📊 Обновление карточек статистики:', stats);
+        
         const statValues = document.querySelectorAll('.stat-value');
         if (statValues.length >= 6) {
             statValues[0].textContent = stats.clicks || 0;
@@ -415,7 +419,11 @@
             statValues[2].textContent = stats.deposits || 0;
             statValues[3].textContent = (parseFloat(stats.totalDeposits) || 0).toFixed(2) + '₽';
             statValues[4].textContent = (parseFloat(stats.costPerClick) || 0).toFixed(2) + '₽';
-            statValues[5].textContent = (parseFloat(stats.earnings) || 0).toFixed(2) + '₽';
+            statValues[5].textContent = (parseFloat(stats.avgIncomePerPlayer) || 0).toFixed(2) + '₽';
+            
+            console.log('✅ Карточки обновлены');
+        } else {
+            console.warn('⚠️ Не найдены элементы .stat-value');
         }
     }
 
