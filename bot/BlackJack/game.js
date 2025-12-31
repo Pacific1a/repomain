@@ -805,6 +805,10 @@
       this.player.push(this.deck.draw());
       renderHand(this.player, el.playerCards, { hideHole: false });
       this.updateScores(false);
+      
+      // Сохраняем после double down
+      this.saveGameState();
+      
       await sleep(500);
       
       const s = score(this.player);
