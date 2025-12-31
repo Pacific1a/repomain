@@ -655,6 +655,9 @@
       await sleep(200);
       
       setButtonsEnabled(true, this);
+      
+      // Сохраняем состояние после раздачи карт
+      this.saveGameState();
     }
 
     updateScores(revealDealer) {
