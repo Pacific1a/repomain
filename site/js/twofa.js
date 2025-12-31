@@ -43,6 +43,20 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupCopyButton();
 });
 
+// Проверка статуса 2FA и обновление кнопок
+async function check2FAStatusAndUpdateButtons() {
+    try {
+        const response = await API.check2FAStatus();
+        console.log('📥 2FA Status on load:', response);
+        
+        const isEnabled = response.twoFactorEnabled || false;
+        updateButtonsVisibility(isEnabled);
+    } catch (error) {
+        console.error('❌ Error checking 2FA status:', error);
+        updateButtonsVisibility(false);
+    }
+}
+
 // Инициализация 2FA при открытии модального окна
 async function init2FA() {
     console.log('Initializing 2FA...');
@@ -163,28 +177,20 @@ async function handleConnect2FA() {
     console.log('📥 Ответ сервера:', result);
     
     if (result.success) {
-        // Показываем только одно уведомление
+        // Показываем только одно Toast уведомление
         Toast.success('2FA успешно подключен');
         
-        // Показываем модалку успеха
-        showSuccess();
+        // Закрываем окно сразу
+        const modal = document.querySelector('.auth_2f');
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+        }
         
-        // Через 5 секунд закрываем окно и обновляем кнопки
-        setTimeout(() => {
-            hideConditionModals();
-            const modal = document.querySelector('.auth_2f');
-            if (modal) {
-                modal.style.setProperty('display', 'none', 'important');
-            }
-            
-            // Обновляем кнопки - показываем "Отключить 2FA"
-            updateButtonsVisibility(true);
-        }, 5000);
+        // Обновляем кнопки - показываем "Отключить 2FA"
+        updateButtonsVisibility(true);
     } else {
-        showError();
-        setTimeout(() => {
-            hideConditionModals();
-        }, 3000);
+        // Показываем Toast с ошибкой
+        Toast.error(result.message || 'Неверный код');
     }
 }
 

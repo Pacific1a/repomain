@@ -273,11 +273,26 @@ router.post('/2fa/setup', jwtAuth, async (req, res) => {
  * Check if 2FA is enabled
  */
 router.get('/2fa/status', jwtAuth, async (req, res) => {
-    res.json({
-        success: true,
-        twoFactorEnabled: false,
-        message: '2FA not implemented yet'
-    });
+    try {
+        const db = require('../database');
+        const user = await db.getAsync(
+            'SELECT two_factor_enabled FROM users WHERE id = ?',
+            [req.userId]
+        );
+        
+        const isEnabled = user && user.two_factor_enabled === 1;
+        
+        res.json({
+            success: true,
+            twoFactorEnabled: isEnabled
+        });
+    } catch (error) {
+        console.error('❌ Error checking 2FA status:', error);
+        res.json({
+            success: true,
+            twoFactorEnabled: false
+        });
+    }
 });
 
 /**
@@ -311,10 +326,14 @@ router.post('/2fa/enable', jwtAuth, async (req, res) => {
             });
         }
         
-        // TODO: Save secret to database for this user
-        // await db.runAsync('UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?', [secret, req.userId]);
+        // Save secret to database for this user
+        const db = require('../database');
+        await db.runAsync(
+            'UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?',
+            [secret, req.userId]
+        );
         
-        console.log('✅ 2FA enabled:', { userId: req.userId });
+        console.log('✅ 2FA enabled and saved to DB:', { userId: req.userId });
         
         res.json({
             success: true,
