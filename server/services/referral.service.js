@@ -356,25 +356,32 @@ class ReferralService {
             const earnings = stats.earnings || 0;
             const totalLosses = stats.total_losses || 0;
             
-            // Get count of referred players
+            // Get count of ALL referred players
             const referralsCount = await db.getAsync(
                 'SELECT COUNT(*) as count FROM referrals WHERE partner_id = ?',
                 [userId]
             );
             const playersCount = referralsCount ? referralsCount.count : 0;
             
+            // Get count of players WHO ALREADY LOST MONEY (have earning events)
+            const playersWithLosses = await db.getAsync(
+                'SELECT COUNT(DISTINCT referral_user_id) as count FROM referral_events WHERE partner_id = ? AND event_type = ?',
+                [userId, 'earning']
+            );
+            const lostPlayersCount = playersWithLosses ? playersWithLosses.count : 0;
+            
             // СХЕМА 1 (исправленная):
             
             // 1. "Сумма депозитов" = total_losses (100% проигрышей)
             const totalDeposits = totalLosses;
             
-            // 2. "Стоимость перехода" = 15₽ × количество игроков (берётся из 60%)
-            const costPerClick = playersCount > 0 ? 15 * playersCount : 0;
+            // 2. "Стоимость перехода" = 15₽ × ТОЛЬКО игроки которые УЖЕ ПРОИГРАЛИ
+            const costPerClick = lostPlayersCount > 0 ? 15 * lostPlayersCount : 0;
             
-            // 3. "Средний доход с игрока" = (earnings - costPerClick) / игроки
+            // 3. "Средний доход с игрока" = (earnings - costPerClick) / игроки С ПРОИГРЫШАМИ
             const netEarnings = earnings - costPerClick;
-            const avgIncomePerPlayer = playersCount > 0 
-                ? netEarnings / playersCount 
+            const avgIncomePerPlayer = lostPlayersCount > 0 
+                ? netEarnings / lostPlayersCount 
                 : 0;
             
             return {
@@ -385,10 +392,11 @@ class ReferralService {
                 totalDeposits: parseFloat(totalDeposits).toFixed(2),  // Show total losses as "deposits"
                 totalLosses: parseFloat(totalLosses).toFixed(2),
                 earnings: parseFloat(earnings).toFixed(2),  // Real earnings (60%)
-                costPerClick: parseFloat(costPerClick).toFixed(2),  // 15₽ × players
-                avgIncomePerPlayer: parseFloat(avgIncomePerPlayer).toFixed(2),  // (earnings - cost) / players
+                costPerClick: parseFloat(costPerClick).toFixed(2),  // 15₽ × players with losses
+                avgIncomePerPlayer: parseFloat(avgIncomePerPlayer).toFixed(2),  // (earnings - cost) / lost players
                 netEarnings: parseFloat(netEarnings).toFixed(2),  // earnings - costPerClick
-                playersCount: playersCount
+                playersCount: playersCount,  // All players
+                lostPlayersCount: lostPlayersCount  // Players who lost money
             };
         } catch (error) {
             console.error('❌ Error getting partner stats:', error);

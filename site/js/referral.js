@@ -61,7 +61,8 @@ class ReferralManager {
                 
                 console.log('📊 Обработанная статистика:', this.stats);
                 console.log(`💰 Заработано (60%): ${this.stats.earnings}₽`);
-                console.log(`💸 Стоимость перехода (из 60%): -${this.stats.costPerClick}₽`);
+                console.log(`👥 Игроков с проигрышами: ${this.stats.lostPlayersCount || 0}`);
+                console.log(`💸 Стоимость перехода (15₽ × игроки): -${this.stats.costPerClick}₽`);
                 console.log(`✅ Чистый баланс: ${this.stats.netEarnings}₽`);
                 console.log(`📊 Сумма депозитов (проигрыши): ${this.stats.totalDeposits}₽`);
                 console.log(`👤 Средний доход с игрока: ${this.stats.avgIncomePerPlayer}₽`);
