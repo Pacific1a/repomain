@@ -3,6 +3,7 @@ const gameStates = require('./gameStates');
 // BlackJack game state (ТОЛЬКО ИСТОРИЯ! Игра локально на клиенте)
 gameStates.blackjack = {
     players: [],      // Активные игроки в комнате
+    activeGames: [],  // Активные игры (в реальном времени)
     history: []       // История игр
 };
 
@@ -49,6 +50,7 @@ function registerBlackjackHandlers(socket, io) {
             game: 'blackjack',
             status: 'waiting',
             players: gameState.players,
+            activeGames: gameState.activeGames || [],
             history: gameState.history.slice(0, 20)
         });
     });

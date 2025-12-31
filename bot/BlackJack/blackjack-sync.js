@@ -35,7 +35,13 @@
     ws.socket.on('game_state_sync', (state) => {
       if (state.game === 'blackjack') {
         console.log('🔄 BlackJack: Синхронизация состояния:', state);
-        gameState = state;
+        // Убеждаемся что есть все поля
+        gameState = {
+          status: state.status || 'waiting',
+          players: state.players || [],
+          activeGames: state.activeGames || [],
+          history: state.history || []
+        };
         updateUI();
       }
     });
