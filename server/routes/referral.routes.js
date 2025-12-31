@@ -184,10 +184,10 @@ router.get('/partner/stats', jwtAuth, async (req, res) => {
         console.log(`📥 /api/referral/partner/stats: userId=${req.userId}`);
         
         const stats = await ReferralService.getPartnerStats(req.userId);
-        res.json({ 
-            success: true, 
-            ...stats 
-        });
+        
+        console.log('📊 Sending stats:', stats);
+        
+        res.json(stats);  // Возвращаем напрямую, без вложенности
     } catch (error) {
         console.error('❌ /api/referral/partner/stats error:', error);
         res.status(500).json({ 

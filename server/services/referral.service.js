@@ -363,12 +363,14 @@ class ReferralService {
             );
             const playersCount = referralsCount ? referralsCount.count : 0;
             
-            // Get count of players WHO ALREADY LOST MONEY (have earning events)
+            // Get count of players WHO ALREADY LOST MONEY (have earnings in referrals table)
             const playersWithLosses = await db.getAsync(
-                'SELECT COUNT(DISTINCT referral_user_id) as count FROM referral_events WHERE partner_id = ? AND event_type = ?',
-                [userId, 'earning']
+                'SELECT COUNT(*) as count FROM referrals WHERE partner_id = ? AND total_earnings > 0',
+                [userId]
             );
             const lostPlayersCount = playersWithLosses ? playersWithLosses.count : 0;
+            
+            console.log(`🔍 getPartnerStats debug: playersCount=${playersCount}, lostPlayersCount=${lostPlayersCount}, earnings=${earnings}`);
             
             // СХЕМА 1 (исправленная):
             
