@@ -735,6 +735,10 @@
         this.player.push(this.deck.draw());
         renderHand(this.player, el.playerCards, { hideHole: false });
         this.updateScores(false);
+        
+        // Сохраняем после взятия карты
+        this.saveGameState();
+        
         await sleep(260);
         const s = score(this.player);
         if (s > 21) {
