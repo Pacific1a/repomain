@@ -224,37 +224,37 @@
     playersList.innerHTML = '';
     
     if (currentTab === 'live-bets') {
-      // Live Bets - АКТИВНЫЕ игры (в реальном времени)
+      // Live Bets - последние ЗАВЕРШЕННЫЕ игры ВСЕХ игроков
       updateOnlineCount();
-      renderActiveGames(playersList);
+      renderAllGamesHistory(playersList);
     } else {
-      // Your Bets - история ЗАВЕРШЕННЫХ игр текущего игрока
+      // Your Bets - история ЗАВЕРШЕННЫХ игр ТЕКУЩЕГО игрока
       renderPlayerGamesHistory(playersList);
     }
   }
 
-  // Обновить счетчик онлайн (количество активных игр)
+  // Обновить счетчик онлайн (количество игр в истории)
   function updateOnlineCount() {
     const onlineElement = document.querySelector('.element-online .text-wrapper-12');
     if (onlineElement) {
-      // Показываем количество АКТИВНЫХ игр
-      const activeCount = gameState.activeGames.length;
-      onlineElement.textContent = `${activeCount} playing`;
+      // Показываем количество игр в истории
+      const gamesCount = gameState.history.length;
+      onlineElement.textContent = `${gamesCount} games`;
     }
   }
 
-  // Отрисовка АКТИВНЫХ игр (Live Bets)
-  function renderActiveGames(container) {
-    if (gameState.activeGames.length === 0) {
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center; font-family: "Montserrat", Helvetica;">No active games</div>';
+  // Отрисовка ВСЕХ завершенных игр (Live Bets)
+  function renderAllGamesHistory(container) {
+    if (gameState.history.length === 0) {
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center; font-family: "Montserrat", Helvetica;">No games played yet</div>';
       return;
     }
 
-    // Показываем последние 10 активных игр
-    const recentGames = gameState.activeGames.slice(0, 10);
+    // Показываем последние 10 игр ВСЕХ игроков с цветовым выделением
+    const recentGames = gameState.history.slice(0, 10);
     
     recentGames.forEach(game => {
-      const playerEl = createActiveGameElement(game);
+      const playerEl = createPlayerElement(game);
       container.appendChild(playerEl);
     });
   }
@@ -280,7 +280,7 @@
     const recentGames = playerGames.slice(0, 10);
     
     recentGames.forEach(game => {
-      const playerEl = createPlayerElement(game, false); // false = показываем полную инфу с цветами
+      const playerEl = createPlayerElement(game);
       container.appendChild(playerEl);
     });
   }
@@ -297,52 +297,8 @@
     return null;
   }
 
-  // Создание элемента АКТИВНОЙ игры (для Live Bets)
-  function createActiveGameElement(game) {
-    const div = document.createElement('div');
-    div.className = 'div-4';
-    
-    // Желтый фон для активных игр
-    div.style.backgroundColor = '#4a3c1a'; // Темно-желтый
-    div.style.borderRadius = '8px';
-    div.style.padding = '8px';
-    div.style.marginBottom = '4px';
-    div.style.border = '1px solid #ffd700'; // Золотая рамка
-    
-    // Создаем аватар
-    let avatarHTML = '';
-    if (game.photoUrl) {
-      avatarHTML = `<div class="avatar-2" style="background-image: url(${game.photoUrl}); background-size: cover; background-position: center; width: 19px; height: 19px; border-radius: 50%;"></div>`;
-    } else {
-      const initial = game.nickname ? game.nickname[0].toUpperCase() : 'P';
-      const colors = [
-        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-        'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-      ];
-      const colorIndex = (game.nickname?.charCodeAt(0) || 0) % colors.length;
-      avatarHTML = `<div class="avatar-2" style="background: ${colors[colorIndex]}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; width: 19px; height: 19px; border-radius: 50%; font-size: 10px;">${initial}</div>`;
-    }
-    
-    const maskedName = game.nickname || 'Player';
-    
-    div.innerHTML = `
-      <div class="acc-inf">
-        <div class="avatar-wrapper">${avatarHTML}</div>
-        <div class="div-3"><div class="text-wrapper-17" style="color: #ffd700;">${maskedName}</div></div>
-      </div>
-      <div class="div-3"><div class="text-wrapper-18" style="color: #ffd700;">${game.bet}</div></div>
-      <div class="div-3"><div class="text-wrapper-18" style="color: #ffd700;">Playing...</div></div>
-      <div class="div-3"><div class="text-wrapper-19" style="color: #ffd700;">--</div></div>
-    `;
-    
-    return div;
-  }
-
-  // Создание элемента ЗАВЕРШЕННОЙ игры (для Your Bets)
-  function createPlayerElement(player, isLive) {
+  // Создание элемента ЗАВЕРШЕННОЙ игры
+  function createPlayerElement(player) {
     const div = document.createElement('div');
     div.className = 'div-4';
     
