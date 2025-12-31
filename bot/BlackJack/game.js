@@ -423,8 +423,24 @@
       console.log(`🎨 updateBetBalanceUI: обновляю отображение ставки на ${this.bet}`);
       
       if (el.betAmount) {
+        const oldValue = el.betAmount.textContent;
         el.betAmount.textContent = String(this.bet);
-        console.log(`✅ el.betAmount.textContent установлен в: ${el.betAmount.textContent}`);
+        const newValue = el.betAmount.textContent;
+        console.log(`✅ Обновление: ${oldValue} → ${newValue}`);
+        
+        // Проверка что это правильный элемент
+        console.log('🔍 Проверка элемента:', {
+          id: el.betAmount.id,
+          className: el.betAmount.className,
+          parent: el.betAmount.parentElement?.className,
+          displayed: window.getComputedStyle(el.betAmount).display
+        });
+        
+        // Принудительно обновим innerHTML если нужно
+        if (el.betAmount.textContent !== String(this.bet)) {
+          console.warn('⚠️ textContent не установился! Пробую innerHTML');
+          el.betAmount.innerHTML = String(this.bet);
+        }
       } else {
         console.error('❌ el.betAmount не найден!');
       }
