@@ -743,53 +743,7 @@ a:focus {
   transition: background 0.5s ease;
 }
 
-/* КРАСНЫЙ ФОН ПРИ ПРОИГРЫШЕ */
-.mines .bet.game-lose .bet-2 {
-  background: linear-gradient(
-    90deg,
-    rgba(31, 29, 29, 1) 0%,
-    rgba(32, 32, 32, 1) 100%
-  ),
-  linear-gradient(
-    90deg,
-    rgba(202, 57, 88, 0.6) 0%,
-    rgba(150, 40, 60, 0.6) 100%
-  ) !important;
-  background-blend-mode: normal, overlay !important;
-  box-shadow: 0px 10px 10px #171616, 0 0 30px rgba(202, 57, 88, 0.6) !important;
-}
 
-.mines .bet.game-lose .bet-2::before {
-  background: linear-gradient(
-    90deg,
-    rgba(202, 57, 88, 0.8) 0%,
-    rgba(150, 40, 60, 0.8) 100%
-  ) !important;
-}
-
-/* ЗЕЛЕНЫЙ ФОН ПРИ ВЫИГРЫШЕ */
-.mines .bet.game-win .bet-2 {
-  background: linear-gradient(
-    90deg,
-    rgba(31, 29, 29, 1) 0%,
-    rgba(32, 32, 32, 1) 100%
-  ),
-  linear-gradient(
-    90deg,
-    rgba(67, 233, 123, 0.6) 0%,
-    rgba(56, 249, 215, 0.6) 100%
-  ) !important;
-  background-blend-mode: normal, overlay !important;
-  box-shadow: 0px 10px 10px #171616, 0 0 30px rgba(67, 233, 123, 0.6) !important;
-}
-
-.mines .bet.game-win .bet-2::before {
-  background: linear-gradient(
-    90deg,
-    rgba(67, 233, 123, 0.8) 0%,
-    rgba(56, 249, 215, 0.8) 100%
-  ) !important;
-}
 
 .mines .bet-amount {
   flex-direction: column;
@@ -1542,11 +1496,16 @@ a:focus {
   position: relative;
   flex: 1;
 }
-.lost{
-  background: linear-gradient(90deg, #352323 0%, #402626 30%);
+/* КРАСНЫЙ ФОН ПРИ ПРОИГРЫШЕ (твоя палитра) */
+.mines .div-4.lost {
+  background: linear-gradient(90deg, #352323 0%, #402626 30%) !important;
+  border-radius: 13.5px;
 }
-.win{
-  background: linear-gradient(90deg, #407b3d62 0%, #54a45062 30%);
+
+/* ЗЕЛЕНЫЙ ФОН ПРИ ВЫИГРЫШЕ (твоя палитра) */
+.mines .div-4.win {
+  background: linear-gradient(90deg, #407b3d62 0%, #54a45062 30%) !important;
+  border-radius: 13.5px;
 }
 .mines .text-wrapper-38 {
   position: relative;

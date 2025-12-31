@@ -162,8 +162,16 @@
             // 2. Взрыв
             setBackImage(cell, ASSETS.MINE_EXPLOSION);
             
-            // КРАСНЫЙ ФОН!
-            setGameBackground('red');
+            // Красный фон будет в live bets строке
+            // setGameBackground('red'); - удалено
+            
+            // Делаем кнопку серой
+            const cashOutBtn = $('.cash-out-button');
+            if (cashOutBtn) {
+              cashOutBtn.style.opacity = '0.5';
+              cashOutBtn.style.cursor = 'not-allowed';
+              cashOutBtn.style.filter = 'grayscale(1)';
+            }
             
             setTimeout(() => {
               // 3. Показываем все мины
@@ -179,6 +187,12 @@
               
               setTimeout(() => {
                 // 4. Сброс доски
+                // Восстанавливаем кнопку
+                if (cashOutBtn) {
+                  cashOutBtn.style.opacity = '';
+                  cashOutBtn.style.cursor = '';
+                  cashOutBtn.style.filter = '';
+                }
                 resetGame();
               }, 2000);
             }, 600);
@@ -189,8 +203,8 @@
         // ВЫИГРЫШ - показываем все мины
         revealAllMines(data.allMines, data.revealed);
         
-        // ЗЕЛЕНЫЙ ФОН!
-        setGameBackground('green');
+        // Зеленый фон будет в live bets строке
+        // setGameBackground('green'); - удалено
         
         // Добавляем баланс
         if (window.BalanceAPI) {
@@ -215,24 +229,13 @@
     });
   }
 
+  // Эти функции больше не нужны - убираем
   function setGameBackground(color) {
-    const betBlock = $('.bet');
-    if (!betBlock) return;
-    
-    // Удаляем старые классы
-    betBlock.classList.remove('game-win', 'game-lose');
-    
-    if (color === 'red') {
-      betBlock.classList.add('game-lose');
-    } else if (color === 'green') {
-      betBlock.classList.add('game-win');
-    }
+    // Удалено - теперь красим строки в live bets
   }
 
   function resetGameBackground() {
-    const betBlock = $('.bet');
-    if (!betBlock) return;
-    betBlock.classList.remove('game-win', 'game-lose');
+    // Удалено
   }
 
   function getCells() {
@@ -403,7 +406,7 @@
     
     state.clickLock = false;
     resetBoardVisuals();
-    resetGameBackground();
+    // resetGameBackground(); - удалено
     
     // Отправляем запрос на сервер
     state.socket.emit('mines_start_game', {
@@ -424,7 +427,7 @@
     state.clickLock = false;
     
     resetBoardVisuals();
-    resetGameBackground();
+    // resetGameBackground(); - удалено
     updateCashoutDisplay();
     setControlsEnabled(true);
   }
@@ -701,12 +704,18 @@
 
   function createPlayerElement(game) {
     const div = document.createElement('div');
-    div.className = 'div-4';
+    
+    // ДОБАВЛЯЕМ КЛАСС win/lost В ЗАВИСИМОСТИ ОТ РЕЗУЛЬТАТА
+    const isWinner = game.isWinner;
+    if (isWinner) {
+      div.className = 'div-4 win'; // ЗЕЛЕНЫЙ ФОН
+    } else {
+      div.className = 'div-4 lost'; // КРАСНЫЙ ФОН
+    }
     
     const avatar = createTelegramAvatar(game);
     const maskedName = game.playerName || 'Player';
     const bet = game.bet;
-    const isWinner = game.isWinner;
     const multiplier = game.multiplier ? `${game.multiplier.toFixed(2)}x` : '0x';
     const winAmount = isWinner && game.winnings ? game.winnings : '--';
     const winClass = isWinner ? 'text-wrapper-42' : 'text-wrapper-39';
