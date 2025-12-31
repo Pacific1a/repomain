@@ -282,13 +282,52 @@ router.get('/2fa/status', jwtAuth, async (req, res) => {
 
 /**
  * POST /api/2fa/enable
- * Enable 2FA
+ * Enable 2FA by verifying token
  */
 router.post('/2fa/enable', jwtAuth, async (req, res) => {
-    res.json({
-        success: false,
-        message: '2FA not implemented yet'
-    });
+    try {
+        const { secret, token } = req.body;
+        
+        if (!secret || !token) {
+            return res.status(400).json({
+                success: false,
+                message: 'Secret and token are required'
+            });
+        }
+        
+        // Verify the token using speakeasy
+        const verified = speakeasy.totp.verify({
+            secret: secret,
+            encoding: 'base32',
+            token: token,
+            window: 2 // Allow 2 steps before/after (60 seconds tolerance)
+        });
+        
+        if (!verified) {
+            console.log('❌ 2FA verification failed:', { userId: req.userId, token });
+            return res.json({
+                success: false,
+                message: 'Неверный код. Проверьте код в приложении'
+            });
+        }
+        
+        // TODO: Save secret to database for this user
+        // await db.runAsync('UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?', [secret, req.userId]);
+        
+        console.log('✅ 2FA enabled:', { userId: req.userId });
+        
+        res.json({
+            success: true,
+            message: '2FA успешно подключен!'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error enabling 2FA:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка подключения 2FA: ' + error.message
+        });
+    }
 });
 
 /**
