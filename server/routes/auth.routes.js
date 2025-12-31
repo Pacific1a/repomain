@@ -10,6 +10,8 @@ const { body, validationResult } = require('express-validator');
 const { db } = require('../config/database');
 const { jwtAuth, generateToken } = require('../middleware/auth');
 const ReferralService = require('../services/referral.service');
+const speakeasy = require('speakeasy');
+const QRCode = require('qrcode');
 
 /**
  * POST /api/auth/register
@@ -220,16 +222,50 @@ router.get('/user', jwtAuth, async (req, res) => {
  */
 /**
  * POST /api/2fa/setup
- * Generate QR code and temporary code for 2FA setup
+ * Generate QR code and secret for Google Authenticator
  */
 router.post('/2fa/setup', jwtAuth, async (req, res) => {
-    const twoFactorCode = 'TEMP2FA' + Date.now();
-    res.json({
-        success: true,
-        code: twoFactorCode,
-        qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-        message: '2FA setup initiated (placeholder)'
-    });
+    try {
+        // Получаем данные пользователя
+        const user = await db.getAsync('SELECT email, login FROM users WHERE id = ?', [req.userId]);
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Пользователь не найден'
+            });
+        }
+        
+        // Генерируем секрет для 2FA
+        const secret = speakeasy.generateSecret({
+            name: `DUO Partners (${user.login || user.email})`,
+            issuer: 'DUO Partners'
+        });
+        
+        // Генерируем QR код
+        const qrCodeDataUrl = await QRCode.toDataURL(secret.otpauth_url);
+        
+        console.log('✅ 2FA setup:', {
+            userId: req.userId,
+            login: user.login,
+            secretLength: secret.base32.length
+        });
+        
+        res.json({
+            success: true,
+            secret: secret.base32,
+            code: secret.base32,
+            qrCode: qrCodeDataUrl,
+            message: '2FA QR код сгенерирован'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error generating 2FA:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка генерации 2FA: ' + error.message
+        });
+    }
 });
 
 /**
