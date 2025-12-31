@@ -74,33 +74,9 @@
       }
     });
 
-    // Новая игра началась
-    ws.socket.on('blackjack_game_started', (data) => {
-      console.log('🎮 BlackJack: Игра началась:', data);
-      
-      // Добавляем в активные игры
-      gameState.activeGames.unshift({
-        userId: data.userId,
-        nickname: data.nickname,
-        photoUrl: data.photoUrl,
-        bet: data.bet,
-        startTime: Date.now()
-      });
-      
-      // Оставляем только последние 20 активных игр
-      if (gameState.activeGames.length > 20) {
-        gameState.activeGames = gameState.activeGames.slice(0, 20);
-      }
-      
-      updateUI();
-    });
-
     // Игра завершена
     ws.socket.on('blackjack_game_finished', (data) => {
       console.log('🏁 BlackJack: Игра завершена:', data);
-      
-      // Удаляем из активных игр
-      gameState.activeGames = gameState.activeGames.filter(g => g.userId !== data.userId);
       
       // Добавляем в историю
       gameState.history.unshift({
