@@ -256,8 +256,8 @@ const ModalGenerator = {
         // Вывод средств (недоступен)
         witd_funds: () => `
             <div class="witd_funds not-available-today">
-                <div class="exit">${ModalGenerator.icons.close}</div>
                   <div class="funds_title">
+                  <div class="exit">${ModalGenerator.icons.close}</div>
                     <div class="funds_cnt">
                         <span>ВЫВОД СРЕДСТВ</span>
                     </div>
