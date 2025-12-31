@@ -1,57 +1,124 @@
-auth.js?v=8:18 === Auth.js запущен [ВЕРСИЯ 4] ===
-auth.js?v=8:19 Toast доступен? ✅ ДА
-auth.js?v=8:20 API доступен? ✅ ДА
-auth.js?v=8:38 Данные пользователя из localStorage: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:133 Обновление UI с данными: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:140 Баланс обновлен: 0
-auth.js?v=8:147 Актуальный логин установлен: kuratormir07
-auth.js?v=8:154 Актуальный email установлен: kuratormir07@gmail.com
-auth.js?v=8:161 Telegram установлен: @asdasf
-auth.js?v=8:52 📝 Настройка обработчика кнопки Сохранить...
-auth.js?v=8:122 ✅ Обработчик установлен!
-twofa.js?v=17:8 2FA module loaded
-validation.js?v=1:301 Validation.js загружен
-admin.js?v=8:6 Admin module loaded
-admin.js?v=8:17 Получаем роль с сервера...
-modal-handler.js:29 ModalHandler: Инициализация...
-modal-handler.js:349 ModalHandler: Обработчики кнопок настроены
-modal-handler.js:43 ModalHandler: Готов к работе
-twofa.js?v=17:301 2FA Status on load: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-admin.js?v=8:22 Роль пользователя с сервера: user
-admin.js?v=8:45 Обновление UI, isAdmin: false
-admin.js?v=8:50 Найдено админских кнопок: 0
-admin.js?v=8:61 👤 Обычный пользователь - кнопки скрыты
-chart.js?v=43:359 🔍 API Response: {stats: undefined, timeline: {…}, dates: Array(7), sampleDate: '2025-12-25', sampleData: {…}}
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-modal-handler.js:55 ModalHandler: Модальные окна загружены
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-validation.js?v=1:308 ✅ Валидация инициализирована
-referral.js?v=1:21 🎁 Referral Manager initializing...
-referral.js?v=1:232 ✅ Автообновление каждые 120с
-referral.js?v=1:245 ✅ ReferralManager инициализирован
-referral.js?v=1:43 📊 Реферальные данные: {success: true, referralCode: '4_MJQ22TV3PNI5J', clicks: 11, firstDeposits: 0, deposits: 0, …}
-referral.js?v=1:58 📊 Обработанная статистика: {clicks: 11, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '875.45', …}
-referral.js?v=1:96 🔗 Реферальная ссылка: https://t.me/aasasdasdadsddasdbot?start=ref_4_MJQ22TV3PNI5J
-referral.js?v=1:177 🔄 Обновление статистики: {clicks: 11, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '875.45', …}
-referral.js?v=1:211 ✅ Обновлено .visits-value = 11
-referral.js?v=1:211 ✅ Обновлено .clients-value = 0
-referral.js?v=1:211 ✅ Обновлено .deposits-value = 0
-referral.js?v=1:211 ✅ Обновлено .income-value = 0.00₽
-referral.js?v=1:204 ✅ Статистика обновлена
-referral.js?v=1:139 ✅ UI настроен
-referral.js?v=1:24 ✅ Referral Manager ready
+root@duos:/var/www/duo# git pull origin main
+From https://github.com/Pacific1a/repomain
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+root@duos:/var/www/duo# cd /var/www/duo/server
+root@duos:/var/www/duo/server#      node migrate-add-total-losses.js
+� Migration: Adding total_losses column to referral_stats
+� Database: /var/www/duo/server/data/database.db
+✅ Connected to database
+ℹ️  Column total_losses already exists
 
+� referral_stats columns:
+  - id (INTEGER)
+  - user_id (INTEGER)
+  - referral_code (TEXT)
+  - clicks (INTEGER)
+  - first_deposits (INTEGER)
+  - deposits (INTEGER)
+  - total_deposits (REAL)
+  - earnings (REAL)
+  - created_at (DATETIME)
+  - total_losses (REAL)
 
-Переходы = когда перейдут по реферальной ссылке
-Первые депозиты = это когда пополнение через бота в кактус пее сделают покажет первые депозиты САМЫЙ ПЕРВОЕ пополнение
-Кол-во пополнений депозитов = это сколько раз пополнял пользователь
+✅ Migration complete!
+root@duos:/var/www/duo/server#  pm2 restart duo-server
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+[PM2] [duo-server](0) ✓
+┌────┬───────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name          │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ duo-bot       │ default     │ N/A     │ fork    │ 679746   │ 2D     │ 224… │ online    │ 0%       │ 152.8mb  │ root     │ disabled │
+│ 0  │ duo-server    │ default     │ 2.0.0   │ fork    │ 724907   │ 0s     │ 110  │ online    │ 0%       │ 15.8mb   │ root     │ disabled │
+└────┴───────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@duos:/var/www/duo/server# pm2 logs duo-server
+[TAILING] Tailing last 15 lines for [duo-server] process (change the value with --lines option)
+/root/.pm2/logs/duo-server-error.log last 15 lines:
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
 
-Сумма депозитов = Общая сумма всех игроков приведенными партнером
-Стоимость перехода = будет рассчитываться от проигрыша там копейки 10-5 рублей когда проиграет
-Средний доход с игрока = это крч со всех игроков сколько в среднем получит партнер 
+/root/.pm2/logs/duo-server-out.log last 15 lines:
+0|duo-serv | � Mines: Player 1889923046 connected
+0|duo-serv | � BlackJack: Player 1889923046 connected
+0|duo-serv | � Socket.IO client connected: -74uAq2ORCqiDGE4AAAH
+0|duo-serv | � Socket.IO client connected: fCwW_XNMrQ4up-sUAAAJ
+0|duo-serv | � Mines: Player 1889923046 connected
+0|duo-serv | � BlackJack: Player 1889923046 connected
+0|duo-serv | ✅ JWT Auth: userId=4
+0|duo-serv | � /api/referral/partner/stats: userId=4
+0|duo-serv | ✅ JWT Auth: userId=4
+0|duo-serv | � /api/referral/partner/stats/timeline: userId=4, period=week
+0|duo-serv | ✅ JWT Auth: userId=4
+0|duo-serv | ✅ JWT Auth: userId=4
+0|duo-serv | � /api/auth/user: userId=4
+0|duo-serv | ✅ JWT Auth: userId=4
+0|duo-serv | � /api/referral/partner/stats: userId=4
 
-Еще не работает график нету линий ни одной в каждом пункет 
-Переходы 
-доход
-Депозиты 
-Первые депозиты 
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Баланс загружен из Bot DB: 1889923046 → 25500₽
+0|duo-server  | � BlackJack: 1889923046 disconnected
+0|duo-server  | ❌ Socket.IO client disconnected: Ib8ucAAPZk0WKGrbAAAB
+0|duo-server  | ❌ Socket.IO client disconnected: cEPCGIy5nAzRqKo5AAAD
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � /api/referral/1889923046: GET referral data
+0|duo-server  | � Socket.IO client connected: K5eUpwFIGEYIa7-jAAAL
+0|duo-server  | � Mines: Player 1889923046 connected
+0|duo-server  | � BlackJack: Player 1889923046 connected
+0|duo-server  | � Player joined Crash
+0|duo-server  | � Socket.IO client connected: zgASKQRXuFfc3LMNAAAN
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.36x
+0|duo-server  | � POST /api/balance/1889923046/subtract: {
+0|duo-server  |   subtractAmount: 500,
+0|duo-server  |   subtractChips: 0,
+0|duo-server  |   gameType: 'unknown',
+0|duo-server  |   reason: 'game'
+0|duo-server  | }
+0|duo-server  | ✅ Balance subtracted: 1889923046 -500₽ -0 chips
+0|duo-server  | � POST /api/transactions/1889923046: { type: 'subtract', amount: 500, source: 'game' }
+0|duo-server  | ✅ Transaction added: 1889923046 subtract 500
+0|duo-server  | � /api/referral/add-earnings: referralUser=1889923046, loss=500₽
+0|duo-server  | � Add earnings: referralUser=1889923046, loss=500
+0|duo-server  | � Finding partner for referral user: 1889923046
+0|duo-server  | ✅ Found partner: 3 for referral: 1889923046
+0|duo-server  | � Partner 3 will earn 300₽ (60% of 500₽ loss)
+0|duo-server  | ✅ Earnings added: partner=3, earnings=300₽ (60% of 500₽)
+0|duo-server  | ⚠️ Нельзя ставить во время игры (статус: flying)
+0|duo-server  | � Crash ended at: 1.36x
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats/timeline: userId=4, period=week
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/auth/user: userId=4
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats/timeline: userId=4, period=week
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/auth/user: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | ✅ JWT Auth: userId=4
+0|duo-server  | � /api/referral/partner/stats: userId=4
+0|duo-server  | � Crash started! Will crash at: 1.46x
+0|duo-server  | � Crash ended at: 1.46x
