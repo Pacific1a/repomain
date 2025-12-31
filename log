@@ -1,87 +1,57 @@
-referral-system.js:93  GET https://duopartners.xyz/api/referral/1889923046 404 (Not Found)
+auth.js?v=8:18 === Auth.js запущен [ВЕРСИЯ 4] ===
+auth.js?v=8:19 Toast доступен? ✅ ДА
+auth.js?v=8:20 API доступен? ✅ ДА
+auth.js?v=8:38 Данные пользователя из localStorage: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
+auth.js?v=8:133 Обновление UI с данными: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
+auth.js?v=8:140 Баланс обновлен: 0
+auth.js?v=8:147 Актуальный логин установлен: kuratormir07
+auth.js?v=8:154 Актуальный email установлен: kuratormir07@gmail.com
+auth.js?v=8:161 Telegram установлен: @asdasf
+auth.js?v=8:52 📝 Настройка обработчика кнопки Сохранить...
+auth.js?v=8:122 ✅ Обработчик установлен!
+twofa.js?v=17:8 2FA module loaded
+validation.js?v=1:301 Validation.js загружен
+admin.js?v=8:6 Admin module loaded
+admin.js?v=8:17 Получаем роль с сервера...
+modal-handler.js:29 ModalHandler: Инициализация...
+modal-handler.js:349 ModalHandler: Обработчики кнопок настроены
+modal-handler.js:43 ModalHandler: Готов к работе
+twofa.js?v=17:301 2FA Status on load: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
+admin.js?v=8:22 Роль пользователя с сервера: user
+admin.js?v=8:45 Обновление UI, isAdmin: false
+admin.js?v=8:50 Найдено админских кнопок: 0
+admin.js?v=8:61 👤 Обычный пользователь - кнопки скрыты
+chart.js?v=43:359 🔍 API Response: {stats: undefined, timeline: {…}, dates: Array(7), sampleDate: '2025-12-25', sampleData: {…}}
+favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
+modal-handler.js:55 ModalHandler: Модальные окна загружены
+favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
+validation.js?v=1:308 ✅ Валидация инициализирована
+referral.js?v=1:21 🎁 Referral Manager initializing...
+referral.js?v=1:232 ✅ Автообновление каждые 120с
+referral.js?v=1:245 ✅ ReferralManager инициализирован
+referral.js?v=1:43 📊 Реферальные данные: {success: true, referralCode: '4_MJQ22TV3PNI5J', clicks: 11, firstDeposits: 0, deposits: 0, …}
+referral.js?v=1:58 📊 Обработанная статистика: {clicks: 11, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '875.45', …}
+referral.js?v=1:96 🔗 Реферальная ссылка: https://t.me/aasasdasdadsddasdbot?start=ref_4_MJQ22TV3PNI5J
+referral.js?v=1:177 🔄 Обновление статистики: {clicks: 11, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', costPerClick: '875.45', …}
+referral.js?v=1:211 ✅ Обновлено .visits-value = 11
+referral.js?v=1:211 ✅ Обновлено .clients-value = 0
+referral.js?v=1:211 ✅ Обновлено .deposits-value = 0
+referral.js?v=1:211 ✅ Обновлено .income-value = 0.00₽
+referral.js?v=1:204 ✅ Статистика обновлена
+referral.js?v=1:139 ✅ UI настроен
+referral.js?v=1:24 ✅ Referral Manager ready
 
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_viewport 
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_safe_area 
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_content_safe_area 
-balance-api.js:21 💰 Balance API initializing...
-balance-api.js:67 ⚠️ No real Telegram ID found, using default for testing
-getTelegramId @ balance-api.js:67
-init @ balance-api.js:24
-BalanceAPI @ balance-api.js:17
-(anonymous) @ balance-api.js:415
-(anonymous) @ balance-api.js:422
-balance-api.js:30 ✅ Telegram ID: 1889923046
-balance-api.js:73 🔄 Загрузка баланса с сервера для 1889923046...
-balance-api.js:420 💰 Balance API loaded!
-players-system.js:413 ✅ WebSocket клиент инициализирован
-players-system.js:428 ✅ Players System загружена
-referral-system.js:22 🎁 Referral System initializing...
-referral-system.js:56 ⚠️ Using test ID
-getTelegramId @ referral-system.js:56
-init @ referral-system.js:25
-ReferralSystem @ referral-system.js:18
-(anonymous) @ referral-system.js:446
-(anonymous) @ referral-system.js:449
-referral-system.js:31 ✅ Telegram ID: 1889923046
-referral-system.js:448 ✅ Referral System loaded
-referral-integration.js:42 ✅ Referral integration installed on BalanceAPI
-referral-integration.js:117 ✅ Referral integration loaded
-script.js:835 🎮 Mines Game: Initializing...
-script.js:102 🔌 Подключение к серверу: https://duopartners.xyz
-script.js:656 🎮 Инициализация локальной системы игроков для Mines
-script.js:841 ✅ Mines Game: Ready!
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
-balance-api.js:75 📡 Ответ сервера: 200
-balance-api.js:79 📦 Данные с сервера: {success: true, telegramId: 1889923046, balance: 25800, chips: 0, rubles: 25800}
-balance-api.js:87 💰 Balance loaded from server: {rubles: 25800, chips: 0}
-balance-api.js:42 ✅ Balance API ready
-referral-system.js:93  GET https://duopartners.xyz/api/referral/1889923046 404 (Not Found)
-loadReferralData @ referral-system.js:93
-init @ referral-system.js:37
-await in init
-ReferralSystem @ referral-system.js:18
-(anonymous) @ referral-system.js:446
-(anonymous) @ referral-system.js:449
-referral-system.js:158 ✅ UI initialized
-referral-system.js:42 ✅ Referral System ready
-players-system.js:238 ✅ WebSocket подключен: qAYZE5Bbp2IE1pn7AAAa
-script.js:113 ✅ Socket.IO connected - готов к игре
-referral-integration.js:103 ✅ Referral integration installed on BalanceAPI.addRubles
-balance-api.js:345 ✅ Balance WebSocket connected
-script.js:441 💣 Начинаем игру: 2 мин, ставка 50
-script.js:122 🎮 Игра началась: {gameId: '1889923046_1767195057673', bombs: 2, bet: 50}
-script.js:134 ✅ Клетка открыта: {cellIndex: 24, isMine: false, revealed: Array(1), multiplier: 1.1, potentialWin: 55}
-script.js:134 ✅ Клетка открыта: {cellIndex: 23, isMine: false, revealed: Array(2), multiplier: 1.18, potentialWin: 59}
-script.js:151 🏁 Игра завершена: {result: 'win', allMines: Array(2), revealed: Array(2), multiplier: 1.18, bet: 50, …}
-referral-integration.js:92 💰 BalanceAPI.addRubles called: amount=59, source=game
-balance-api.js:152 ➕ Added 59₽, 0 chips. New balance: {rubles: 25859, chips: 0}
-referral-integration.js:11 🎰 Win detected: 59 from game
-referral-system.js:424  POST https://duopartners.xyz/api/referral/add-earnings 401 (Unauthorized)
-addReferralEarnings @ referral-system.js:424
-trackWinning @ referral-integration.js:15
-window.BalanceAPI.addRubles @ referral-integration.js:97
-await in window.BalanceAPI.addRubles
-(anonymous) @ script.js:214
-L.emit @ index.mjs:136
-value @ socket.js:494
-value @ socket.js:481
-value @ socket.js:451
-L.emit @ index.mjs:136
-(anonymous) @ manager.js:207
-Promise.then
-it @ websocket-constructor.browser.js:5
-value @ manager.js:206
-L.emit @ index.mjs:136
-value @ index.js:131
-value @ manager.js:193
-L.emit @ index.mjs:136
-value @ socket.js:324
-L.emit @ index.mjs:136
-value @ transport.js:97
-value @ transport.js:89
-ws.onmessage @ websocket.js:69
-referral-integration.js:16 ✅ Referral bonus processed for 1889923046
+
+Переходы = когда перейдут по реферальной ссылке
+Первые депозиты = это когда пополнение через бота в кактус пее сделают покажет первые депозиты САМЫЙ ПЕРВОЕ пополнение
+Кол-во пополнений депозитов = это сколько раз пополнял пользователь
+
+Сумма депозитов = Общая сумма всех игроков приведенными партнером
+Стоимость перехода = будет рассчитываться от проигрыша там копейки 10-5 рублей когда проиграет
+Средний доход с игрока = это крч со всех игроков сколько в среднем получит партнер 
+
+Еще не работает график нету линий ни одной в каждом пункет 
+Переходы 
+доход
+Депозиты 
+Первые депозиты 

@@ -312,10 +312,10 @@ class ReferralService {
             
             console.log(`💰 Partner ${partnerId} will earn ${earnings}₽ (60% of ${lossAmount}₽ loss)`);
             
-            // Update partner stats
+            // Update partner stats (earnings AND total_losses)
             await db.runAsync(
-                'UPDATE referral_stats SET earnings = earnings + ? WHERE user_id = ?',
-                [earnings, partnerId]
+                'UPDATE referral_stats SET earnings = earnings + ?, total_losses = total_losses + ? WHERE user_id = ?',
+                [earnings, lossAmount, partnerId]
             );
             
             // Update referral record
