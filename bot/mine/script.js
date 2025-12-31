@@ -283,15 +283,16 @@
       img.className = 'img-2';
       img.src = src;
       
-      // КЛАССИЧЕСКИЙ ПЕРЕВОРОТ
+      // ПЕРЕВОРОТ ПО ОСИ X (сверху вниз)
       Object.assign(img.style, {
         width: '100%', 
         height: '100%', 
         objectFit: 'contain', 
         display: 'block', 
         margin: '0 auto',
-        transform: 'rotateY(180deg)',
+        transform: 'rotateX(-90deg)',
         opacity: '1',
+        backfaceVisibility: 'visible',
         transition: `transform ${durationMs}ms ease-out`
       });
       
@@ -300,7 +301,7 @@
       // Даем браузеру время применить начальные стили
       setTimeout(() => {
         requestAnimationFrame(() => {
-          img.style.transform = 'rotateY(0deg)';
+          img.style.transform = 'rotateX(0deg)';
         });
       }, 10);
     } catch (e) {
