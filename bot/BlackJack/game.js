@@ -431,6 +431,100 @@
       }
       return null;
     }
+    
+    // Получить userId текущего игрока
+    getUserId() {
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        return window.Telegram.WebApp.initDataUnsafe.user.id;
+      } else if (window.TelegramUserData) {
+        return window.TelegramUserData.id;
+      }
+      return 'user_' + Date.now();
+    }
+    
+    // Сохранение состояния игры на сервер
+    saveGameState() {
+      if (!window.GameWebSocket || !window.GameWebSocket.socket) return;
+      
+      const gameData = {
+        bet: this.bet,
+        player: this.player.map(card => ({suit: card.suit, rank: card.rank, value: card.value})),
+        dealer: this.dealer.map(card => ({suit: card.suit, rank: card.rank, value: card.value})),
+        deckCards: this.deck.cards.map(card => ({suit: card.suit, rank: card.rank, value: card.value})),
+        roundOver: this.roundOver,
+        hasActed: this.hasActed,
+        playerBusted: this.playerBusted,
+        betPlaced: this.betPlaced
+      };
+      
+      window.GameWebSocket.socket.emit('blackjack_save_session', {
+        userId: this.getUserId(),
+        gameData
+      });
+      
+      console.log('💾 Состояние игры сохранено на сервер');
+    }
+    
+    // Восстановление состояния игры
+    restoreGameState(savedSession) {
+      if (!savedSession) return false;
+      
+      console.log('🔄 Восстанавливаю игру из сохраненной сессии:', savedSession);
+      
+      try {
+        // Восстанавливаем базовые данные
+        this.bet = savedSession.bet || 50;
+        this.roundOver = savedSession.roundOver !== undefined ? savedSession.roundOver : true;
+        this.hasActed = savedSession.hasActed || false;
+        this.playerBusted = savedSession.playerBusted || false;
+        this.betPlaced = savedSession.betPlaced || false;
+        
+        // Восстанавливаем карты
+        this.player = savedSession.player ? savedSession.player.map(c => new Card(c.suit, c.rank)) : [];
+        this.dealer = savedSession.dealer ? savedSession.dealer.map(c => new Card(c.suit, c.rank)) : [];
+        
+        // Восстанавливаем колоду
+        if (savedSession.deckCards && savedSession.deckCards.length > 0) {
+          this.deck.cards = savedSession.deckCards.map(c => new Card(c.suit, c.rank));
+        }
+        
+        // Обновляем UI
+        if (!this.roundOver) {
+          // Игра активна - показываем игровой интерфейс
+          if (el.gameArea) el.gameArea.classList.remove('hidden');
+          if (el.buttonsBar) el.buttonsBar.classList.remove('hidden');
+          if (el.tableOverlay) el.tableOverlay.style.display = 'none';
+          if (el.centerOverlay) el.centerOverlay.style.display = 'none';
+          
+          setBetControlsEnabled(false);
+          setNewGameEnabled(false);
+          setButtonsEnabled(true, this);
+          
+          renderHand(this.dealer, el.dealerCards, { hideHole: !this.roundOver });
+          renderHand(this.player, el.playerCards, { hideHole: false });
+          this.updateScores(true);
+        }
+        
+        this.updateBetBalanceUI();
+        
+        console.log('✅ Игра восстановлена успешно');
+        return true;
+      } catch (e) {
+        console.error('❌ Ошибка при восстановлении игры:', e);
+        return false;
+      }
+    }
+    
+    // Очистка сессии на сервере
+    clearServerSession() {
+      if (!window.GameWebSocket || !window.GameWebSocket.socket) return;
+      
+      window.GameWebSocket.socket.emit('blackjack_clear_session', {
+        userId: this.getUserId()
+      });
+      
+      console.log('🗑️ Сессия очищена на сервере');
+    }
 
     waitForBalance() {
       if (window.BalanceAPI && window.BalanceAPI.isReady) {

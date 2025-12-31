@@ -73,6 +73,13 @@
           history: state.history || []
         };
         saveGameState(); // Сохраняем после синхронизации
+        
+        // Проверяем сохраненную игру на сервере
+        if (state.savedSession && window.game) {
+          console.log('💾 Найдена сохраненная игра, восстанавливаем...');
+          window.game.restoreGameState(state.savedSession);
+        }
+        
         updateUI();
       }
     });
