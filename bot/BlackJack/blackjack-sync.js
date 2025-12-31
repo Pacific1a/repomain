@@ -371,13 +371,24 @@
   function renderPlayerGamesHistory(container) {
     const currentUserId = getCurrentUserId();
     
+    console.log('🔍 Your Bets - фильтрация по userId:', currentUserId);
+    console.log('📚 Общее количество игр в истории:', gameState.history.length);
+    
     if (!currentUserId) {
       container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center;">Unable to identify player</div>';
       return;
     }
 
     // Фильтруем только игры текущего пользователя
-    const playerGames = gameState.history.filter(game => game.userId === currentUserId);
+    const playerGames = gameState.history.filter(game => {
+      const match = game.userId === currentUserId;
+      if (!match) {
+        console.log('🔍 Игра не подходит:', {gameUserId: game.userId, currentUserId, match});
+      }
+      return match;
+    });
+    
+    console.log('✅ Найдено игр текущего игрока:', playerGames.length);
     
     if (playerGames.length === 0) {
       container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 20px; text-align: center;">You have no games yet</div>';
@@ -393,8 +404,13 @@
     });
   }
 
-  // Получить userId текущего игрока
+  // Получить userId текущего игрока (ДОЛЖЕН СОВПАДАТЬ С СОХРАНЕНИЕМ!)
   function getCurrentUserId() {
+    // Используем BalanceAPI.telegramId для консистентности
+    if (window.BalanceAPI && window.BalanceAPI.telegramId) {
+      return window.BalanceAPI.telegramId;
+    }
+    
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       return window.Telegram.WebApp.initDataUnsafe.user.id;
     } else if (window.TelegramUserData) {
@@ -402,7 +418,9 @@
     } else if (ws && ws.currentUser) {
       return ws.currentUser.id;
     }
-    return null;
+    
+    // Fallback для тестирования
+    return '1889923046';
   }
 
   // Создание элемента для Live Bets (БЕЗ желтого!)
