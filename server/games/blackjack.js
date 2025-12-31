@@ -51,6 +51,17 @@ function registerBlackjackHandlers(socket, io) {
         // Проверяем сохраненную сессию игрока
         const savedSession = gameState.sessions[telegramId];
         
+        if (savedSession) {
+            console.log(`💾 BlackJack: Найдена сохраненная сессия для ${telegramId}:`, {
+                bet: savedSession.bet,
+                playerCards: savedSession.player?.length,
+                dealerCards: savedSession.dealer?.length,
+                roundOver: savedSession.roundOver
+            });
+        } else {
+            console.log(`ℹ️ BlackJack: Сохраненной сессии для ${telegramId} нет`);
+        }
+        
         socket.emit('game_state_sync', {
             game: 'blackjack',
             status: 'waiting',
