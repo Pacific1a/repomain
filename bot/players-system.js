@@ -213,12 +213,25 @@ class GameWebSocket {
 
     connect() {
         try {
-            // Подключаемся к Socket.io серверу
+            // Получаем telegramId
+            let telegramId = null;
+            if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                telegramId = window.Telegram.WebApp.initDataUnsafe.user.id;
+            } else if (window.TelegramUserData) {
+                telegramId = window.TelegramUserData.id;
+            } else {
+                telegramId = '1889923046'; // Для тестирования
+            }
+            
+            // Подключаемся к Socket.io серверу С telegramId
             this.socket = io(this.serverUrl, {
                 transports: ['websocket', 'polling'],
                 reconnection: true,
                 reconnectionDelay: 1000,
-                reconnectionAttempts: 5
+                reconnectionAttempts: 5,
+                query: {
+                    telegramId: telegramId
+                }
             });
 
             this.socket.on('connect', () => {
