@@ -32,28 +32,28 @@ function startBetting(io) {
     // ФИКСИРОВАННАЯ скорость роста: 0.09x за секунду (БЫСТРО!)
     const growthRate = 0.09; // 0.09x в секунду (до 4x за 33 сек)
     
-    // ФУНКЦИЯ генерации множителя с уклоном в НИЗКИЕ значения
+    // ФУНКЦИЯ генерации множителя с ЭКСТРЕМАЛЬНЫМ уклоном в НИЗКИЕ значения
     function generateMultiplier() {
         const rand = Math.random();
         
-        if (rand < 0.70) {
-            // 70% - очень низкие множители 1.10-1.30x (ЧАСТЫЕ!)
-            return 1.10 + Math.random() * 0.20;
-        } else if (rand < 0.90) {
-            // 20% - низкие множители 1.30-1.80x
-            return 1.30 + Math.random() * 0.50;
-        } else if (rand < 0.97) {
-            // 7% - средние множители 1.80-2.50x
-            return 1.80 + Math.random() * 0.70;
-        } else if (rand < 0.999) {
-            // 2.9% - высокие множители 2.50-4.00x
-            return 2.50 + Math.random() * 1.50;
-        } else if (rand < 0.9999) {
-            // 0.09% - очень высокие 4.00-6.00x (1 на 1000!)
-            return 4.00 + Math.random() * 2.00;
+        if (rand < 0.85) {
+            // 85% - 1.20-1.30x (ПОЧТИ ВСЕГДА!)
+            return 1.20 + Math.random() * 0.10;
+        } else if (rand < 0.95) {
+            // 10% - 1.30-1.50x
+            return 1.30 + Math.random() * 0.20;
+        } else if (rand < 0.98) {
+            // 3% - 1.50-2.00x
+            return 1.50 + Math.random() * 0.50;
+        } else if (rand < 0.995) {
+            // 1.5% - 2.00-3.00x
+            return 2.00 + Math.random() * 1.00;
+        } else if (rand < 0.9995) {
+            // 0.45% - 3.00-5.00x (1 на 222 игры)
+            return 3.00 + Math.random() * 2.00;
         } else {
-            // 0.01% - ГИГАНТСКИЕ 6.00-10.00x (1 на 10000!!!)
-            return 6.00 + Math.random() * 4.00;
+            // 0.05% - 5.00-10.00x (1 на 2000 игр!!!)
+            return 5.00 + Math.random() * 5.00;
         }
     }
     
