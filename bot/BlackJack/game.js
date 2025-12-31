@@ -427,9 +427,9 @@
       el.btn.stand && el.btn.stand.addEventListener("click", () => this.stand());
       el.btn.double && el.btn.double.addEventListener("click", () => this.doubleDown());
       el.btn.split && el.btn.split.addEventListener("click", () => this.split());
-      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-10));
-      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(10));
-      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(10, Math.floor(this.bet / 2))));
+      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-50));
+      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(50));
+      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(50, Math.floor(this.bet / 2))));
       el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => this.setBet(this.bet * 2));
       el.btn.newGame && el.btn.newGame.addEventListener("click", () => this.newRound(true));
     }
@@ -437,7 +437,7 @@
     setBet(value) {
       if (!window.BalanceAPI) return;
       const balance = window.BalanceAPI.getChips();
-      this.bet = Math.max(10, Math.min(value, balance));
+      this.bet = Math.max(50, Math.min(value, balance));
       this.updateBetBalanceUI();
     }
     
