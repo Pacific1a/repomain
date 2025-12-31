@@ -59,19 +59,28 @@ async function init2FA() {
         const setupResult = await API.setup2FA();
         console.log('Setup result:', setupResult);
         
+        console.log('🔍 Setup result full:', setupResult);
+        
         if (setupResult.success) {
             currentSecret = setupResult.code || setupResult.secret;
+            console.log('✅ Current secret:', currentSecret);
             
             // Устанавливаем QR код
             const qrImg = document.querySelector('.auth_2f .auth_qr img');
             if (qrImg) {
                 qrImg.src = setupResult.qrCode;
+                console.log('✅ QR код установлен:', setupResult.qrCode);
+            } else {
+                console.error('❌ Элемент .auth_2f .auth_qr img не найден');
             }
             
             // Устанавливаем секрет
             const secretInput = document.querySelector('.auth_2f .input_code input');
             if (secretInput) {
-                secretInput.value = setupResult.secret;
+                secretInput.value = setupResult.code || setupResult.secret || '';
+                console.log('✅ Секретный код установлен:', currentSecret);
+            } else {
+                console.error('❌ Элемент .auth_2f .input_code input не найден');
             }
             
             // Показываем форму включения
