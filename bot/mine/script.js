@@ -103,11 +103,14 @@
     
     state.socket = io(SERVER_URL, {
       transports: ['websocket', 'polling'],
-      query: { telegramId: state.telegramId }
+      query: { telegramId: state.telegramId },
+      reconnection: true,
+      reconnectionDelay: 500,
+      reconnectionAttempts: 5
     });
     
     state.socket.on('connect', () => {
-      console.log('✅ Socket.IO connected');
+      console.log('✅ Socket.IO connected - готов к игре');
     });
     
     state.socket.on('disconnect', () => {
