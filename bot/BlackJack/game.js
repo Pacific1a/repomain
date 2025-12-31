@@ -376,7 +376,8 @@
   // --- Controller / Game ---
   class Game {
     constructor() {
-      this.bet = 50;
+      // Загружаем сохранённую ставку или используем по умолчанию
+      this.bet = this.loadBet() || 50;
       this.deck = new Deck();
       this.player = [];
       this.dealer = [];
@@ -403,6 +404,32 @@
       this.updateScores(false);
       
       console.log('🃏 BlackJack готов!');
+      console.log(`💰 Загружена ставка: ${this.bet} rubles`);
+    }
+    
+    // Сохранение ставки в localStorage
+    saveBet() {
+      try {
+        localStorage.setItem('blackjack_bet', this.bet.toString());
+      } catch (e) {
+        console.warn('⚠️ Не удалось сохранить ставку:', e);
+      }
+    }
+    
+    // Загрузка ставки из localStorage
+    loadBet() {
+      try {
+        const saved = localStorage.getItem('blackjack_bet');
+        if (saved) {
+          const bet = parseInt(saved, 10);
+          if (bet >= 50) {
+            return bet;
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Не удалось загрузить ставку:', e);
+      }
+      return null;
     }
 
     waitForBalance() {
@@ -447,6 +474,7 @@
       const newBet = Math.max(50, Math.min(value, balance));
       console.log(`💰 setBet: ${this.bet} → ${newBet} (баланс: ${balance})`);
       this.bet = newBet;
+      this.saveBet(); // Сохраняем ставку при изменении
       this.updateBetBalanceUI();
     }
     
