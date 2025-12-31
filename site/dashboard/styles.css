@@ -448,8 +448,9 @@ nav.mobile_nav{
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: gainsboro;
-    width: 300px;
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
 }
 .funds{
     display: flex;
