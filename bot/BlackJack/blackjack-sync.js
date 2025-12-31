@@ -315,16 +315,17 @@
     const div = document.createElement('div');
     div.className = 'div-4';
     
-    // Если игра завершена - показываем результат (зеленый/красный)
+    // Цвет фона в зависимости от статуса
     if (game.status === 'finished') {
+      // Игра завершена - зелёный/красный как в Mines
       if (game.isWinner) {
-        div.style.backgroundColor = '#407B3D'; // Зеленый
+        div.style.backgroundColor = '#407B3D'; // Зелёный выигрыш
       } else {
-        div.style.backgroundColor = '#402626'; // Красный
+        div.style.backgroundColor = '#402626'; // Красный проигрыш
       }
     } else {
-      // Если играет - обычный фон (БЕЗ желтого!)
-      div.style.backgroundColor = 'transparent';
+      // Игра идёт - тёмно-красный фон как в Mines
+      div.style.backgroundColor = 'rgb(64, 38, 38)'; // Тёмный фон для активной игры
     }
     
     div.style.borderRadius = '8px';
