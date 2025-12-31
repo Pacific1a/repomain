@@ -32,33 +32,59 @@ function startBetting(io) {
     // ФИКСИРОВАННАЯ скорость роста: 0.09x за секунду (БЫСТРО!)
     const growthRate = 0.09; // 0.09x в секунду (до 4x за 33 сек)
     
+    // ФУНКЦИЯ генерации множителя с уклоном в НИЗКИЕ значения
+    function generateMultiplier() {
+        const rand = Math.random();
+        
+        if (rand < 0.70) {
+            // 70% - очень низкие множители 1.10-1.30x (ЧАСТЫЕ!)
+            return 1.10 + Math.random() * 0.20;
+        } else if (rand < 0.90) {
+            // 20% - низкие множители 1.30-1.80x
+            return 1.30 + Math.random() * 0.50;
+        } else if (rand < 0.97) {
+            // 7% - средние множители 1.80-2.50x
+            return 1.80 + Math.random() * 0.70;
+        } else if (rand < 0.999) {
+            // 2.9% - высокие множители 2.50-4.00x
+            return 2.50 + Math.random() * 1.50;
+        } else if (rand < 0.9999) {
+            // 0.09% - очень высокие 4.00-6.00x (1 на 1000!)
+            return 4.00 + Math.random() * 2.00;
+        } else {
+            // 0.01% - ГИГАНТСКИЕ 6.00-10.00x (1 на 10000!!!)
+            return 6.00 + Math.random() * 4.00;
+        }
+    }
+    
     // Определяем сценарий гонки
     const rand = Math.random();
     if (rand < 0.40) {
-        // 40% - blue задержана, orange УЕХАЛА (не останавливается!)
+        // 40% - blue задержана, orange УЕХАЛА
         gameState.delayedCar = 'blue';
-        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.5; // 1.1-1.6x (задержана)
-        gameState.orangeStopMultiplier = 999; // УЕХАЛА - не останавливается!
-        gameState.orangeEscapeAt = 3.0 + Math.random() * 3.0; // Показывает "УЕХАЛ" на 3.0-6.0x
+        gameState.blueStopMultiplier = generateMultiplier(); // Генерируем с уклоном в низкие
+        gameState.orangeStopMultiplier = 999; // УЕХАЛА
+        gameState.orangeEscapeAt = generateMultiplier(); // Генерируем с уклоном в низкие
     } else if (rand < 0.80) {
-        // 40% - orange задержана, blue УЕХАЛА (не останавливается!)
+        // 40% - orange задержана, blue УЕХАЛА
         gameState.delayedCar = 'orange';
-        gameState.blueStopMultiplier = 999; // УЕХАЛА - не останавливается!
-        gameState.blueEscapeAt = 3.0 + Math.random() * 3.0; // Показывает "УЕХАЛ" на 3.0-6.0x
-        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.5; // 1.1-1.6x (задержана)
+        gameState.blueStopMultiplier = 999; // УЕХАЛА
+        gameState.blueEscapeAt = generateMultiplier(); // Генерируем с уклоном в низкие
+        gameState.orangeStopMultiplier = generateMultiplier(); // Генерируем с уклоном в низкие
     } else if (rand < 0.95) {
-        // 15% - обе УЕХАЛИ (близкие множители, интересная гонка!)
+        // 15% - обе УЕХАЛИ
         gameState.delayedCar = 'none';
-        const base = 3.5 + Math.random() * 2.0; // 3.5-5.5x
         gameState.blueStopMultiplier = 999;
         gameState.orangeStopMultiplier = 999;
-        gameState.blueEscapeAt = base + (Math.random() - 0.5) * 0.5; // ±0.25
-        gameState.orangeEscapeAt = base + (Math.random() - 0.5) * 0.5; // ±0.25
+        const mult1 = generateMultiplier();
+        const mult2 = generateMultiplier();
+        gameState.blueEscapeAt = mult1;
+        gameState.orangeEscapeAt = mult2;
     } else {
         // 5% - обе задержаны (редко!)
         gameState.delayedCar = 'both';
-        gameState.blueStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
-        gameState.orangeStopMultiplier = 1.1 + Math.random() * 0.4; // 1.1-1.5x
+        gameState.blueStopMultiplier = generateMultiplier();
+        gameState.orangeStopMultiplier = generateMultiplier();
     }
     
     // Вычисляем МАКСИМАЛЬНУЮ длительность
