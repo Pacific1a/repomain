@@ -363,17 +363,18 @@ class ReferralService {
             );
             const playersCount = referralsCount ? referralsCount.count : 0;
             
-            // СХЕМА 1 (максимально привлекательная для партнёров):
+            // СХЕМА 1 (исправленная):
             
-            // 1. "Сумма депозитов" = total_losses (100% проигрышей - БОЛЬШАЯ ЦИФРА)
+            // 1. "Сумма депозитов" = total_losses (100% проигрышей)
             const totalDeposits = totalLosses;
             
-            // 2. "Стоимость перехода" = 15₽ фикс (визуальная, как "бонус" за переход)
-            const costPerClick = 15;
+            // 2. "Стоимость перехода" = 15₽ × количество игроков (берётся из 60%)
+            const costPerClick = playersCount > 0 ? 15 * playersCount : 0;
             
-            // 3. "Средний доход с игрока" = total_losses / игроки (сколько в среднем проиграл один игрок)
+            // 3. "Средний доход с игрока" = (earnings - costPerClick) / игроки
+            const netEarnings = earnings - costPerClick;
             const avgIncomePerPlayer = playersCount > 0 
-                ? totalLosses / playersCount 
+                ? netEarnings / playersCount 
                 : 0;
             
             return {
@@ -384,8 +385,9 @@ class ReferralService {
                 totalDeposits: parseFloat(totalDeposits).toFixed(2),  // Show total losses as "deposits"
                 totalLosses: parseFloat(totalLosses).toFixed(2),
                 earnings: parseFloat(earnings).toFixed(2),  // Real earnings (60%)
-                costPerClick: costPerClick.toFixed(2),  // Fixed 15₽ (visual)
-                avgIncomePerPlayer: parseFloat(avgIncomePerPlayer).toFixed(2),  // Average loss per player
+                costPerClick: parseFloat(costPerClick).toFixed(2),  // 15₽ × players
+                avgIncomePerPlayer: parseFloat(avgIncomePerPlayer).toFixed(2),  // (earnings - cost) / players
+                netEarnings: parseFloat(netEarnings).toFixed(2),  // earnings - costPerClick
                 playersCount: playersCount
             };
         } catch (error) {
