@@ -93,21 +93,26 @@
         if (state.savedSession) {
           console.log('💾 Найдена сохраненная игра на сервере!');
           
-          // Если window.game еще не готов, ждем
-          if (!window.game) {
-            console.log('⏳ window.game не готов, ждем 500ms...');
-            setTimeout(() => {
-              if (window.game) {
-                console.log('✅ window.game готов, восстанавливаем игру');
-                window.game.restoreGameState(state.savedSession);
-              } else {
-                console.error('❌ window.game так и не инициализировался!');
-              }
-            }, 500);
-          } else {
-            console.log('✅ window.game готов, восстанавливаем сразу');
-            window.game.restoreGameState(state.savedSession);
-          }
+          // Функция для проверки готовности
+          const tryRestoreGame = (attempts = 0, maxAttempts = 10) => {
+            const isReady = window.game && window.BalanceAPI && window.BalanceAPI.isReady;
+            
+            if (isReady) {
+              console.log('✅ Всё готово, восстанавливаем игру');
+              window.game.restoreGameState(state.savedSession);
+            } else if (attempts < maxAttempts) {
+              console.log(`⏳ Ожидание готовности (попытка ${attempts + 1}/${maxAttempts})...`);
+              setTimeout(() => tryRestoreGame(attempts + 1, maxAttempts), 200);
+            } else {
+              console.error('❌ Не удалось дождаться инициализации', {
+                hasGame: !!window.game,
+                hasBalanceAPI: !!window.BalanceAPI,
+                balanceReady: window.BalanceAPI?.isReady
+              });
+            }
+          };
+          
+          tryRestoreGame();
         } else {
           console.log('ℹ️ Сохраненной игры на сервере нет');
         }
