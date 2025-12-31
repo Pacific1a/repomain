@@ -207,7 +207,7 @@
                     input.select();
                     document.execCommand('copy');
                     document.body.removeChild(input);
-                    this.showNotification('✅ Ссылка скопирована!');
+                    this.showNotification('Ссылка скопирована');
                 }
                 console.log('✅ Ссылка скопирована (fallback)');
             }
