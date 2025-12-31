@@ -29,9 +29,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         observer.observe(auth2f, { attributes: true, attributeFilter: ['style'] });
     }
     
-    // Кнопка "Подключить"
+    // Кнопка "Подключить" - используем removeEventListener чтобы избежать дублирования
     const connectBtn = document.querySelector('.auth_2f .button_2f button');
     if (connectBtn) {
+        // Удаляем старый обработчик если был
+        connectBtn.removeEventListener('click', handleConnect2FA);
+        // Добавляем новый
         connectBtn.addEventListener('click', handleConnect2FA);
     }
     

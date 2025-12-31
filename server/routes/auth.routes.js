@@ -274,7 +274,7 @@ router.post('/2fa/setup', jwtAuth, async (req, res) => {
  */
 router.get('/2fa/status', jwtAuth, async (req, res) => {
     try {
-        const db = require('../database');
+        const db = require('../config/database');
         const user = await db.getAsync(
             'SELECT two_factor_enabled FROM users WHERE id = ?',
             [req.userId]
@@ -327,7 +327,7 @@ router.post('/2fa/enable', jwtAuth, async (req, res) => {
         }
         
         // Save secret to database for this user
-        const db = require('../database');
+        const db = require('../config/database');
         await db.runAsync(
             'UPDATE users SET two_factor_secret = ?, two_factor_enabled = 1 WHERE id = ?',
             [secret, req.userId]
@@ -358,6 +358,67 @@ router.post('/2fa/disable', jwtAuth, async (req, res) => {
         success: false,
         message: '2FA not implemented yet'
     });
+});
+
+/**
+ * POST /api/2fa/verify-withdrawal
+ * Verify 2FA code for withdrawal
+ */
+router.post('/2fa/verify-withdrawal', jwtAuth, async (req, res) => {
+    try {
+        const { token } = req.body;
+        
+        if (!token) {
+            return res.status(400).json({
+                success: false,
+                message: 'Код не указан'
+            });
+        }
+        
+        // Получаем секрет пользователя из БД
+        const db = require('../config/database');
+        const user = await db.getAsync(
+            'SELECT two_factor_secret, two_factor_enabled FROM users WHERE id = ?',
+            [req.userId]
+        );
+        
+        if (!user || !user.two_factor_enabled || !user.two_factor_secret) {
+            return res.json({
+                success: false,
+                message: '2FA не подключен к вашему аккаунту'
+            });
+        }
+        
+        // Verify the token using speakeasy
+        const verified = speakeasy.totp.verify({
+            secret: user.two_factor_secret,
+            encoding: 'base32',
+            token: token,
+            window: 2 // Allow 2 steps before/after (60 seconds tolerance)
+        });
+        
+        if (!verified) {
+            console.log('❌ 2FA withdrawal verification failed:', { userId: req.userId, token });
+            return res.json({
+                success: false,
+                message: 'Неверный код. Проверьте код в приложении'
+            });
+        }
+        
+        console.log('✅ 2FA withdrawal verified:', { userId: req.userId });
+        
+        res.json({
+            success: true,
+            message: 'Код подтверждён'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error verifying 2FA for withdrawal:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Ошибка проверки 2FA: ' + error.message
+        });
+    }
 });
 
 module.exports = router;

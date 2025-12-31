@@ -99,22 +99,38 @@ async function verify2FAForWithdrawal() {
         code += input.value.trim();
     });
     
-    console.log('2FA код для проверки:', code);
+    console.log('🔑 2FA код для проверки вывода:', code);
     
     if (!validate2FACode(code)) {
         Toast.error('Введите полный код (6 цифр)');
         return false;
     }
     
-    // Проверяем код через API
-    const result = await API.verify2FACode(code);
-    
-    if (result.success) {
-        console.log('✅ 2FA код верный');
-        return true;
-    } else {
-        console.log('❌ 2FA код неверный');
-        Toast.error('Неверный код 2FA');
+    // Проверяем код через API (используем тот же эндпоинт что и для включения 2FA)
+    try {
+        const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/verify-withdrawal`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API.getToken()}`
+            },
+            body: JSON.stringify({ token: code })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('✅ 2FA код верный - вывод разрешён');
+            Toast.success('Код подтверждён');
+            return true;
+        } else {
+            console.log('❌ 2FA код неверный');
+            Toast.error(result.message || 'Неверный код 2FA');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка проверки 2FA:', error);
+        Toast.error('Ошибка проверки кода');
         return false;
     }
 }
