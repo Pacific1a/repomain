@@ -3,12 +3,41 @@
   'use strict';
 
   let ws = null;
-  let gameState = {
-    status: 'waiting',
-    players: [],
-    activeGames: [],  // Временные игры для Live Bets (удаляются через 10 сек)
-    history: []       // Постоянная история для Your Bets
-  };
+  // Загружаем сохранённое состояние из localStorage
+  function loadGameState() {
+    try {
+      const saved = localStorage.getItem('blackjack_state');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        console.log('💾 Загружено состояние из localStorage:', parsed);
+        return {
+          status: parsed.status || 'waiting',
+          players: parsed.players || [],
+          activeGames: parsed.activeGames || [],
+          history: parsed.history || []
+        };
+      }
+    } catch (e) {
+      console.warn('⚠️ Не удалось загрузить состояние:', e);
+    }
+    return {
+      status: 'waiting',
+      players: [],
+      activeGames: [],
+      history: []
+    };
+  }
+  
+  // Сохраняем состояние в localStorage
+  function saveGameState() {
+    try {
+      localStorage.setItem('blackjack_state', JSON.stringify(gameState));
+    } catch (e) {
+      console.warn('⚠️ Не удалось сохранить состояние:', e);
+    }
+  }
+  
+  let gameState = loadGameState();
   
   let currentTab = 'live-bets';
 
@@ -42,6 +71,7 @@
           activeGames: state.activeGames || [],
           history: state.history || []
         };
+        saveGameState(); // Сохраняем после синхронизации
         updateUI();
       }
     });
@@ -88,6 +118,7 @@
         startTime: Date.now()
       });
       
+      saveGameState(); // Сохраняем после добавления активной игры
       updateUI();
     });
 
@@ -114,6 +145,7 @@
           gameState.activeGames = gameState.activeGames.filter(g => 
             g.userId !== data.userId || g.finishTime !== gameState.activeGames[gameIndex]?.finishTime
           );
+          saveGameState(); // Сохраняем после удаления
           updateUI();
         }, 10000);
       }
@@ -135,6 +167,7 @@
         gameState.history = gameState.history.slice(0, 100);
       }
       
+      saveGameState(); // Сохраняем после обновления истории
       updateUI();
     });
 
