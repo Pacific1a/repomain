@@ -411,8 +411,17 @@
       return;
     }
     
+    // Если сокет не подключен, ждем подключения без показа ошибки
     if (!state.socket || !state.socket.connected) {
-      showNotification('Нет соединения с сервером');
+      console.log('⏳ Ожидание подключения к серверу...');
+      // Ждем подключения и повторяем попытку
+      setTimeout(() => {
+        if (state.socket && state.socket.connected) {
+          startGame();
+        } else {
+          console.warn('⚠️ Сервер еще не подключен, попробуй позже');
+        }
+      }, 500);
       return;
     }
     
