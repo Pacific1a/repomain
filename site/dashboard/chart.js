@@ -66,8 +66,8 @@
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 0, // Без точек на линии (только при hover)
-                    pointHoverRadius: 5, // Точка появляется при наведении
+                    pointRadius: 3, // Маленькие точки всегда видны
+                    pointHoverRadius: 6, // Немного больше при наведении
                     pointBackgroundColor: metrics[currentMetric].color,
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
