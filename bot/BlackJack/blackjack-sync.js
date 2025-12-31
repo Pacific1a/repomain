@@ -68,12 +68,24 @@
         console.log('🔍 savedSession:', state.savedSession);
         console.log('🔍 window.game существует?', !!window.game);
         
-        // Убеждаемся что есть все поля
+        // Приоритет данным с сервера, но сохраняем локальные если сервер пустой
+        const serverActiveGames = state.activeGames || [];
+        const localActiveGames = gameState.activeGames || [];
+        
+        // Объединяем: сервер + уникальные локальные
+        const mergedActiveGames = [...serverActiveGames];
+        localActiveGames.forEach(localGame => {
+          const exists = mergedActiveGames.find(g => g.userId === localGame.userId);
+          if (!exists) {
+            mergedActiveGames.push(localGame);
+          }
+        });
+        
         gameState = {
           status: state.status || 'waiting',
           players: state.players || [],
-          activeGames: state.activeGames || [],
-          history: state.history || []
+          activeGames: mergedActiveGames,
+          history: state.history || gameState.history || []
         };
         saveGameState(); // Сохраняем после синхронизации
         
