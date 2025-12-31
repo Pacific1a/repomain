@@ -312,6 +312,32 @@ const ModalHandler = {
             const isFundsSts = e.target.closest('.auto-redirect-tuesday');
             if (btn && isFundsSts) {
                 e.preventDefault();
+                
+                // Валидация кошелька перед продолжением
+                const walletInput = document.querySelector('.funds_sts .walet_sts input');
+                if (walletInput) {
+                    const walletAddress = walletInput.value.trim();
+                    
+                    // Проверка USDT TRC20 адреса (должен начинаться с T и быть 34 символа)
+                    if (!walletAddress) {
+                        if (typeof Toast !== 'undefined') {
+                            Toast.error('Введите адрес кошелька');
+                        } else {
+                            alert('Введите адрес кошелька');
+                        }
+                        return;
+                    }
+                    
+                    if (!walletAddress.startsWith('T') || walletAddress.length !== 34) {
+                        if (typeof Toast !== 'undefined') {
+                            Toast.error('Неверный адрес USDT TRC20. Адрес должен начинаться с "T" и содержать 34 символа');
+                        } else {
+                            alert('Неверный адрес USDT TRC20');
+                        }
+                        return;
+                    }
+                }
+                
                 this.close();
                 setTimeout(() => this.open('withdrawalAuth'), 300);
             }
