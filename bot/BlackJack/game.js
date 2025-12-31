@@ -414,10 +414,20 @@
     }
 
     updateBetBalanceUI() {
-      if (!window.BalanceAPI) return;
+      if (!window.BalanceAPI) {
+        console.error('❌ updateBetBalanceUI: BalanceAPI не готов');
+        return;
+      }
       
       const balance = window.BalanceAPI.getChips();
-      if (el.betAmount) el.betAmount.textContent = String(this.bet);
+      console.log(`🎨 updateBetBalanceUI: обновляю отображение ставки на ${this.bet}`);
+      
+      if (el.betAmount) {
+        el.betAmount.textContent = String(this.bet);
+        console.log(`✅ el.betAmount.textContent установлен в: ${el.betAmount.textContent}`);
+      } else {
+        console.error('❌ el.betAmount не найден!');
+      }
       
       // Balance updates automatically via GlobalBalance
     }
