@@ -92,6 +92,32 @@ class ReferralService {
     }
     
     /**
+     * Find partner by referral user ID (the player who was referred)
+     * Used when tracking game losses
+     */
+    static async findPartnerByReferralUserId(referralUserId) {
+        try {
+            console.log(`🔍 Finding partner for referral user: ${referralUserId}`);
+            
+            const referral = await db.getAsync(
+                'SELECT partner_id FROM referrals WHERE referral_user_id = ?',
+                [referralUserId.toString()]
+            );
+            
+            if (referral) {
+                console.log(`✅ Found partner: ${referral.partner_id} for referral: ${referralUserId}`);
+                return referral.partner_id;
+            }
+            
+            console.log(`⚠️ No partner found for referral user: ${referralUserId}`);
+            return null;
+        } catch (error) {
+            console.error('❌ Error finding partner by referral user ID:', error);
+            return null;
+        }
+    }
+    
+    /**
      * Register click on referral link
      * Called when user opens bot via referral link
      */
@@ -267,17 +293,24 @@ class ReferralService {
      * Called when referred user loses money in game
      * Partner gets 60% of the loss
      */
-    static async addEarnings(referralCode, userId, lossAmount) {
+    static async addEarnings(referralCode, referralUserId, lossAmount) {
         try {
-            console.log(`📈 Add earnings: code=${referralCode}, user=${userId}, loss=${lossAmount}`);
+            console.log(`📈 Add earnings: referralUser=${referralUserId}, loss=${lossAmount}`);
             
-            const partnerId = await this.findPartnerByCode(referralCode);
+            // Find the partner who referred this user
+            const partnerId = await this.findPartnerByReferralUserId(referralUserId);
             
             if (!partnerId) {
-                throw new Error('Partner not found');
+                console.log(`⚠️ User ${referralUserId} was not referred by anyone - skipping earnings`);
+                return { 
+                    success: false, 
+                    message: 'User was not referred by anyone' 
+                };
             }
             
             const earnings = lossAmount * 0.6;  // 60% to partner
+            
+            console.log(`💰 Partner ${partnerId} will earn ${earnings}₽ (60% of ${lossAmount}₽ loss)`);
             
             // Update partner stats
             await db.runAsync(
@@ -288,23 +321,23 @@ class ReferralService {
             // Update referral record
             await db.runAsync(
                 'UPDATE referrals SET total_earnings = total_earnings + ? WHERE partner_id = ? AND referral_user_id = ?',
-                [earnings, partnerId, userId]
+                [earnings, partnerId, referralUserId]
             );
             
-            // Save event
+            // Save event for timeline
             await db.runAsync(
                 'INSERT INTO referral_events (partner_id, referral_user_id, event_type, amount) VALUES (?, ?, ?, ?)',
-                [partnerId, userId, 'earning', earnings]
+                [partnerId, referralUserId, 'earning', earnings]
             );
             
-            console.log(`✅ Earnings added: partner=${partnerId}, earnings=${earnings} (60% of ${lossAmount})`);
+            console.log(`✅ Earnings added: partner=${partnerId}, earnings=${earnings}₽ (60% of ${lossAmount}₽)`);
             
             return { 
                 success: true, 
                 partnerId, 
                 earnings,
                 lossAmount,
-                message: 'Earnings added' 
+                message: `Partner earned ${earnings}₽` 
             };
         } catch (error) {
             console.error('❌ Error adding earnings:', error);

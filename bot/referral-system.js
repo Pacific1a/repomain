@@ -418,25 +418,35 @@
             }
         }
         
-        // Метод для начисления процентов (вызывается из игр)
-        async addReferralEarnings(userId, amount) {
+        // Метод для начисления процентов партнёру (вызывается когда реферал проигрывает)
+        async addReferralEarnings(referralUserId, lossAmount) {
             try {
+                console.log(`📤 Sending earnings: referralUser=${referralUserId}, loss=${lossAmount}₽`);
+                
                 const response = await fetch(`${SERVER_URL}/api/referral/add-earnings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        userId: userId,
-                        amount: amount
+                        referralUserId: referralUserId.toString(),
+                        lossAmount: lossAmount
                     })
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ Начислено рефереру:', data);
-                    return true;
+                    console.log('✅ Referral earnings processed:', data);
+                    if (data.success) {
+                        console.log(`💰 Partner ${data.partnerId} earned ${data.earnings}₽ (60% of ${lossAmount}₽)`);
+                    } else {
+                        console.log(`ℹ️ ${data.message}`);
+                    }
+                    return data.success;
+                } else {
+                    const errorData = await response.json();
+                    console.error('❌ Server error:', errorData);
                 }
             } catch (error) {
-                console.error('❌ Ошибка начисления:', error);
+                console.error('❌ Network error:', error);
             }
             return false;
         }
