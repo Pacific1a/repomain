@@ -157,8 +157,9 @@
                     y: {
                         display: true,
                         position: 'right',
-                        beginAtZero: false, // НЕ начинать с нуля для лучшего масштабирования
-                        grace: '10%', // Добавить 10% сверху/снизу для красоты
+                        beginAtZero: true, // Всегда начинать с нуля (НЕТ отрицательных значений!)
+                        grace: '5%', // Добавить 5% сверху (только вверх!)
+                        min: 0, // Минимум всегда 0
                         grid: {
                             color: 'rgba(255, 255, 255, 0.05)',
                             drawBorder: false
@@ -171,6 +172,9 @@
                             },
                             padding: 10,
                             callback: function(value) {
+                                // Не показываем отрицательные значения
+                                if (value < 0) return '';
+                                
                                 // Округляем большие числа
                                 if (value >= 1000) {
                                     return (value / 1000).toFixed(1) + 'k';
