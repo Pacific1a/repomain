@@ -344,9 +344,11 @@
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                console.error('Токен не найден');
+                console.error('❌ Токен не найден');
                 return;
             }
+
+            console.log(`📥 Загрузка данных графика (period: ${period})...`);
 
             const [statsResponse, timelineResponse] = await Promise.all([
                 fetch(`/api/referral/partner/stats`, {
@@ -358,7 +360,7 @@
             ]);
 
             if (!statsResponse.ok || !timelineResponse.ok) {
-                console.error('Ошибка загрузки данных');
+                console.error('❌ Ошибка загрузки данных');
                 return;
             }
 
@@ -366,47 +368,73 @@
             const timeline = await timelineResponse.json();
             
             console.log('🔍 API Response:', {
-                stats: statsData.stats,
-                timeline: timeline.timeline,
-                dates: timeline.dates,
-                sampleDate: timeline.dates[0],
-                sampleData: timeline.timeline[timeline.dates[0]]
+                statsData: statsData,
+                timelineDates: timeline.dates,
+                timelineLength: timeline.dates ? timeline.dates.length : 0,
+                firstDate: timeline.dates ? timeline.dates[0] : null,
+                lastDate: timeline.dates ? timeline.dates[timeline.dates.length - 1] : null,
+                sampleData: timeline.dates && timeline.dates[0] ? timeline.timeline[timeline.dates[0]] : null
             });
             
-            if (statsData && statsData.stats && timeline && timeline.timeline) {
+            if (timeline && timeline.dates && timeline.dates.length > 0) {
                 timelineData = timeline; // Сохраняем для переключения метрик
                 updateChartWithTimeline(timeline);
-                updateStatsCards(statsData.stats);
+                
+                if (statsData) {
+                    updateStatsCards(statsData);
+                }
+                
+                console.log('✅ Данные загружены и график обновлён');
+            } else {
+                console.warn('⚠️ Нет данных для графика');
+                // Показываем пустой график
+                if (myChart) {
+                    myChart.data.labels = [];
+                    myChart.data.datasets[0].data = [];
+                    myChart.update();
+                }
             }
         } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
+            console.error('❌ Ошибка загрузки данных:', error);
         }
     }
 
     function updateChartWithTimeline(timeline) {
-        if (!myChart) return;
+        if (!myChart) {
+            console.error('❌ График не инициализирован');
+            return;
+        }
+
+        if (!timeline || !timeline.dates || timeline.dates.length === 0) {
+            console.warn('⚠️ Нет данных timeline');
+            return;
+        }
 
         // Форматируем даты
         const labels = timeline.dates.map(dateStr => {
             const date = new Date(dateStr);
             const day = date.getDate();
-            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-            const month = monthNames[date.getMonth()];
-            return `${day} ${month}`;
+            const month = date.getMonth() + 1;
+            return `${day}.${month}`;
         });
 
         // Извлекаем данные для текущей метрики
         const data = extractMetricData(timeline, currentMetric);
 
-        console.log('📊 Chart updated:', {
+        console.log('📊 updateChartWithTimeline:', {
             metric: currentMetric,
+            labelsCount: labels.length,
+            dataCount: data.length,
             labels: labels,
-            data: data
+            data: data,
+            hasData: data.some(v => v > 0)
         });
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = data;
-        myChart.update();
+        myChart.update('active');
+        
+        console.log('✅ График обновлён');
     }
 
     function updateStatsCards(stats) {
