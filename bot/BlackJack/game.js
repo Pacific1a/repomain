@@ -432,14 +432,21 @@
       return null;
     }
     
-    // Получить userId текущего игрока
+    // Получить userId текущего игрока (ДОЛЖЕН СОВПАДАТЬ С TELEGRAMID!)
     getUserId() {
+      // Используем тот же метод что и BalanceAPI
+      if (window.BalanceAPI && window.BalanceAPI.telegramId) {
+        return window.BalanceAPI.telegramId;
+      }
+      
       if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
         return window.Telegram.WebApp.initDataUnsafe.user.id;
       } else if (window.TelegramUserData) {
         return window.TelegramUserData.id;
       }
-      return 'user_' + Date.now();
+      
+      // Fallback для тестирования
+      return '1889923046';
     }
     
     // Сохранение состояния игры на сервер
