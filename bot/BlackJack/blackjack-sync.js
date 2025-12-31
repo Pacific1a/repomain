@@ -65,6 +65,9 @@
     ws.socket.on('game_state_sync', (state) => {
       if (state.game === 'blackjack') {
         console.log('🔄 BlackJack: Синхронизация состояния:', state);
+        console.log('🔍 savedSession:', state.savedSession);
+        console.log('🔍 window.game существует?', !!window.game);
+        
         // Убеждаемся что есть все поля
         gameState = {
           status: state.status || 'waiting',
@@ -75,9 +78,26 @@
         saveGameState(); // Сохраняем после синхронизации
         
         // Проверяем сохраненную игру на сервере
-        if (state.savedSession && window.game) {
-          console.log('💾 Найдена сохраненная игра, восстанавливаем...');
-          window.game.restoreGameState(state.savedSession);
+        if (state.savedSession) {
+          console.log('💾 Найдена сохраненная игра на сервере!');
+          
+          // Если window.game еще не готов, ждем
+          if (!window.game) {
+            console.log('⏳ window.game не готов, ждем 500ms...');
+            setTimeout(() => {
+              if (window.game) {
+                console.log('✅ window.game готов, восстанавливаем игру');
+                window.game.restoreGameState(state.savedSession);
+              } else {
+                console.error('❌ window.game так и не инициализировался!');
+              }
+            }, 500);
+          } else {
+            console.log('✅ window.game готов, восстанавливаем сразу');
+            window.game.restoreGameState(state.savedSession);
+          }
+        } else {
+          console.log('ℹ️ Сохраненной игры на сервере нет');
         }
         
         updateUI();
