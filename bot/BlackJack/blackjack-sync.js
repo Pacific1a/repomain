@@ -39,7 +39,8 @@
   
   let gameState = loadGameState();
   
-  let currentTab = 'live-bets';
+  // Загружаем сохранённую вкладку
+  let currentTab = localStorage.getItem('blackjack_tab') || 'live-bets';
 
   // Ждём WebSocket
   function waitForWebSocket() {
