@@ -22,6 +22,7 @@ const { registerCrashHandlers } = require('./games/crash');
 const { registerSpeedcashHandlers } = require('./games/speedcash');
 const { registerRollHandlers } = require('./games/roll');
 const { registerMinesHandlers } = require('./games/mines');
+const { registerBlackjackHandlers } = require('./games/blackjack');
 const { scheduleBotSpawn } = require('./games/fakePlayers');
 
 // ============================================
@@ -230,6 +231,7 @@ async function startServer() {
             registerSpeedcashHandlers(socket, io);
             registerRollHandlers(socket, io);
             registerMinesHandlers(socket, io);
+            registerBlackjackHandlers(socket, io);
             
             socket.on('disconnect', () => {
                 console.log('❌ Socket.IO client disconnected:', socket.id);
