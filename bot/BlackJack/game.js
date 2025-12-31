@@ -462,6 +462,34 @@
       // НЕ списываем баланс сразу - только после завершения игры
       console.log(`✅ Ставка ${this.bet} rubles зарезервирована`);
       
+      // Отправляем событие что игра началась
+      if (window.GameWebSocket && window.GameWebSocket.socket) {
+        let userId, nickname, photoUrl;
+        if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+          const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+          userId = tgUser.id;
+          nickname = tgUser.first_name || tgUser.username || 'Player';
+          photoUrl = tgUser.photo_url || null;
+        } else if (window.TelegramUserData) {
+          userId = window.TelegramUserData.id;
+          nickname = window.TelegramUserData.first_name || window.TelegramUserData.username || 'Player';
+          photoUrl = window.TelegramUserData.photo_url || null;
+        } else {
+          userId = 'user_' + Date.now();
+          nickname = 'Player';
+          photoUrl = null;
+        }
+        
+        window.GameWebSocket.socket.emit('blackjack_game_started', {
+          game: 'blackjack',
+          userId,
+          nickname,
+          photoUrl,
+          bet: this.bet
+        });
+        console.log('🎮 BlackJack: Отправлено событие game_started');
+      }
+      
       this.betPlaced = true;
       this.roundOver = false;
       this.hasActed = false;

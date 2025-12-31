@@ -1,58 +1,247 @@
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color Object
-telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color Object
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_viewport 
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_safe_area 
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_content_safe_area 
- 🔧 Сервер настроен: https://duopartners.xyz
 balance-api.js:21 💰 Balance API initializing...
 balance-api.js:67 ⚠️ No real Telegram ID found, using default for testing
 getTelegramId @ balance-api.js:67
+init @ balance-api.js:24
+BalanceAPI @ balance-api.js:17
+(anonymous) @ balance-api.js:415
+(anonymous) @ balance-api.js:422
 balance-api.js:30 ✅ Telegram ID: 1889923046
 balance-api.js:73 🔄 Загрузка баланса с сервера для 1889923046...
 balance-api.js:420 💰 Balance API loaded!
-players-system.js:74 ✅ Текущий пользователь добавлен: Object
-players-system.js:415 ✅ Players System загружена
+players-system.js:413 ✅ WebSocket клиент инициализирован
+players-system.js:428 ✅ Players System загружена
 referral-system.js:22 🎁 Referral System initializing...
 referral-system.js:56 ⚠️ Using test ID
 getTelegramId @ referral-system.js:56
+init @ referral-system.js:25
+ReferralSystem @ referral-system.js:18
+(anonymous) @ referral-system.js:446
+(anonymous) @ referral-system.js:449
 referral-system.js:31 ✅ Telegram ID: 1889923046
 referral-system.js:448 ✅ Referral System loaded
 referral-integration.js:42 ✅ Referral integration installed on BalanceAPI
 referral-integration.js:117 ✅ Referral integration loaded
+blackjack-sync.js:22 ⏳ BlackJack: Ожидание WebSocket...
+blackjack-sync.js:430 ✅ BlackJack Sync инициализирован
+game.js:542 📊 Scores Update: {playerScore: '0', playerCards: '', dealerShown: 0, dealerCards: '', revealed: false}
+game.js:405 🃏 BlackJack готов!
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
-players-system.js:400 ✅ WebSocket клиент инициализирован
-game_fixed.js:8 📱 Мобильное устройство: false
-game_fixed.js:59 🔌 WebSocket подключен
 balance-api.js:75 📡 Ответ сервера: 200
-balance-api.js:79 📦 Данные с сервера: Object
-balance-api.js:87 💰 Balance loaded from server: Object
+balance-api.js:79 📦 Данные с сервера: {success: true, telegramId: 1889923046, balance: 25700, chips: 0, rubles: 25700}
+balance-api.js:87 💰 Balance loaded from server: {rubles: 25700, chips: 0}
 balance-api.js:42 ✅ Balance API ready
-/api/referral/1889923046:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+referral-system.js:93  GET https://duopartners.xyz/api/referral/1889923046 404 (Not Found)
+loadReferralData @ referral-system.js:93
+init @ referral-system.js:37
+await in init
+ReferralSystem @ referral-system.js:18
+(anonymous) @ referral-system.js:446
+(anonymous) @ referral-system.js:449
 referral-system.js:158 ✅ UI initialized
 referral-system.js:42 ✅ Referral System ready
-players-system.js:225 ✅ WebSocket подключен: vmA945Abk_cvWd4CAAAJ
-game_fixed.js:77 📊 Текущее состояние: Object
-game_fixed.js:221 🔄 syncWithServer вызван: betting
-game_fixed.js:224 ✅ Сервер в состоянии BETTING - показываем countdown
-game_fixed.js:1536 Countdown started
-game_fixed.js:274 📟 Countdown показан с временем: 5 сек
-/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (Not Found)
-/favicon.ico:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
+players-system.js:238 ✅ WebSocket подключен: ETkefqPmIzut0E0UAAAV
+favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
+blackjack-sync.js:19 ✅ BlackJack: WebSocket готов
+blackjack-sync.js:28 🚀 BlackJack: Инициализация синхронизации...
+blackjack-sync.js:32 📡 BlackJack: Подключение к комнате global_blackjack
+blackjack-sync.js:155 ✅ BlackJack: Отправлено уведомление о входе
+blackjack-sync.js:37 🔄 BlackJack: Синхронизация состояния: {game: 'blackjack', status: 'waiting', players: Array(1), history: Array(1)}
+blackjack-sync.js:235 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'length')
+    at updateOnlineCount (blackjack-sync.js:235:49)
+    at updateUI (blackjack-sync.js:222:7)
+    at a.<anonymous> (blackjack-sync.js:39:9)
+    at L.emit (index.mjs:136:20)
+    at a.value (socket.js:494:20)
+    at a.value (socket.js:481:18)
+    at a.value (socket.js:451:22)
+    at L.emit (index.mjs:136:20)
+    at manager.js:207:18
+updateOnlineCount @ blackjack-sync.js:235
+updateUI @ blackjack-sync.js:222
+(anonymous) @ blackjack-sync.js:39
+L.emit @ index.mjs:136
+value @ socket.js:494
+value @ socket.js:481
+value @ socket.js:451
+L.emit @ index.mjs:136
+(anonymous) @ manager.js:207
+Promise.then
+it @ websocket-constructor.browser.js:5
+value @ manager.js:206
+L.emit @ index.mjs:136
+value @ index.js:131
+value @ manager.js:193
+L.emit @ index.mjs:136
+value @ socket.js:324
+L.emit @ index.mjs:136
+value @ transport.js:97
+value @ transport.js:89
+ws.onmessage @ websocket.js:69
+blackjack-sync.js:46 👤 BlackJack: Игрок зашел: {game: 'blackjack', userId: 123456789, nickname: 'Test', photoUrl: null}
+blackjack-sync.js:235 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'length')
+    at updateOnlineCount (blackjack-sync.js:235:49)
+    at updateUI (blackjack-sync.js:222:7)
+    at a.<anonymous> (blackjack-sync.js:58:9)
+    at L.emit (index.mjs:136:20)
+    at a.value (socket.js:494:20)
+    at a.value (socket.js:481:18)
+    at a.value (socket.js:451:22)
+    at L.emit (index.mjs:136:20)
+    at manager.js:207:18
+updateOnlineCount @ blackjack-sync.js:235
+updateUI @ blackjack-sync.js:222
+(anonymous) @ blackjack-sync.js:58
+L.emit @ index.mjs:136
+value @ socket.js:494
+value @ socket.js:481
+value @ socket.js:451
+L.emit @ index.mjs:136
+(anonymous) @ manager.js:207
+Promise.then
+it @ websocket-constructor.browser.js:5
+value @ manager.js:206
+L.emit @ index.mjs:136
+value @ index.js:131
+value @ manager.js:193
+L.emit @ index.mjs:136
+value @ socket.js:324
+L.emit @ index.mjs:136
+value @ transport.js:97
+value @ transport.js:89
+ws.onmessage @ websocket.js:69
 balance-api.js:345 ✅ Balance WebSocket connected
+game.js:463 ✅ Ставка 50 rubles зарезервирована
+game.js:490 🎮 BlackJack: Отправлено событие game_started
+game.js:542 📊 Scores Update: {playerScore: '7', playerCards: '7', dealerShown: 0, dealerCards: '', revealed: false}
 referral-integration.js:103 ✅ Referral integration installed on BalanceAPI.addRubles
-game_fixed.js:143 🎮 Начало фазы ставок: Object
-game_fixed.js:1536 Countdown started
-game_fixed.js:202 🏁 WebSocket: race_start → запускаем гонку
-game_fixed.js:1547 👋 hideCountdown() вызван
-game_fixed.js:810 🏁 startRace() вызван
-game_fixed.js:821 ⏹️ Все анимации остановлены
-game_fixed.js:891 🎲 Blue target: x1.30, Orange target: x1.95
-game_fixed.js:892 🚔 Delayed car: blue
-game_fixed.js:913 ✅ ЗАПУСКАЕМ ГОНКУ - выезд машин + рост иксов!
-game_fixed.js:976 ✅ Машины на позиции 0px, начинается гонка!
-balance-api.js:73 🔄 Загрузка баланса с сервера для 1889923046...
-balance-api.js:75 📡 Ответ сервера: 200
-balance-api.js:79 📦 Данные с сервера: Object
-balance-api.js:87 💰 Balance loaded from server: Object
+game.js:542 📊 Scores Update: {playerScore: '7', playerCards: '7', dealerShown: 8, dealerCards: '8', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '17', playerCards: '7, Q', dealerShown: 8, dealerCards: '8', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '17', playerCards: '7, Q', dealerShown: 8, dealerCards: '8, 9', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '17', playerCards: '7, Q', dealerShown: 17, dealerCards: '8, 9', revealed: true}
+referral-integration.js:92 💰 BalanceAPI.addRubles called: amount=50, source=game
+game.js:725 💰 BlackJack push: +50 rubles
+blackjack-sync.js:190 📊 BlackJack: Результат отправлен на сервер
+game.js:740 📊 BlackJack: Результат отправлен в систему мультиплеера
+blackjack-sync.js:235 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at updateOnlineCount (blackjack-sync.js:235:49)
+    at updateUI (blackjack-sync.js:222:7)
+    at switchTab (blackjack-sync.js:209:5)
+    at HTMLDivElement.<anonymous> (blackjack-sync.js:401:55)
+updateOnlineCount @ blackjack-sync.js:235
+updateUI @ blackjack-sync.js:222
+switchTab @ blackjack-sync.js:209
+(anonymous) @ blackjack-sync.js:401
+blackjack-sync.js:94 🏁 BlackJack: Игра завершена: {userId: 123456789, nickname: 'Test', photoUrl: null, bet: 50, win: 50, …}
+blackjack-sync.js:97 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'filter')
+    at a.<anonymous> (blackjack-sync.js:97:53)
+    at L.emit (index.mjs:136:20)
+    at a.value (socket.js:494:20)
+    at a.value (socket.js:481:18)
+    at a.value (socket.js:451:22)
+    at L.emit (index.mjs:136:20)
+    at manager.js:207:18
+(anonymous) @ blackjack-sync.js:97
+L.emit @ index.mjs:136
+value @ socket.js:494
+value @ socket.js:481
+value @ socket.js:451
+L.emit @ index.mjs:136
+(anonymous) @ manager.js:207
+Promise.then
+it @ websocket-constructor.browser.js:5
+value @ manager.js:206
+L.emit @ index.mjs:136
+value @ index.js:131
+value @ manager.js:193
+L.emit @ index.mjs:136
+value @ socket.js:324
+L.emit @ index.mjs:136
+value @ transport.js:97
+value @ transport.js:89
+ws.onmessage @ websocket.js:69
+balance-api.js:152 ➕ Added 50₽, 0 chips. New balance: {rubles: 25750, chips: 0}
+referral-integration.js:11 🎰 Win detected: 50 from game
+referral-system.js:424  POST https://duopartners.xyz/api/referral/add-earnings 401 (Unauthorized)
+addReferralEarnings @ referral-system.js:424
+trackWinning @ referral-integration.js:15
+window.BalanceAPI.addRubles @ referral-integration.js:97
+await in window.BalanceAPI.addRubles
+settleEndOfRound @ game.js:724
+finishRound @ game.js:649
+await in finishRound
+stand @ game.js:620
+(anonymous) @ game.js:427
+referral-integration.js:16 ✅ Referral bonus processed for 1889923046
+blackjack-sync.js:235 Uncaught TypeError: Cannot read properties of undefined (reading 'length')
+    at updateOnlineCount (blackjack-sync.js:235:49)
+    at updateUI (blackjack-sync.js:222:7)
+    at switchTab (blackjack-sync.js:209:5)
+    at HTMLDivElement.<anonymous> (blackjack-sync.js:401:55)
+updateOnlineCount @ blackjack-sync.js:235
+updateUI @ blackjack-sync.js:222
+switchTab @ blackjack-sync.js:209
+(anonymous) @ blackjack-sync.js:401
+game.js:463 ✅ Ставка 50 rubles зарезервирована
+game.js:490 🎮 BlackJack: Отправлено событие game_started
+game.js:542 📊 Scores Update: {playerScore: '11', playerCards: 'A', dealerShown: 0, dealerCards: '', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '11', playerCards: 'A', dealerShown: 9, dealerCards: '9', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '21', playerCards: 'A, 10', dealerShown: 9, dealerCards: '9', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '21', playerCards: 'A, 10', dealerShown: 9, dealerCards: '9, 4', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '13', playerCards: 'A, 10, 2', dealerShown: 9, dealerCards: '9, 4', revealed: false}
+game.js:542 📊 Scores Update: {playerScore: '13', playerCards: 'A, 10, 2', dealerShown: 13, dealerCards: '9, 4', revealed: true}
+game.js:542 📊 Scores Update: {playerScore: '13', playerCards: 'A, 10, 2', dealerShown: 14, dealerCards: '9, 4, A', revealed: true}
+game.js:542 📊 Scores Update: {playerScore: '13', playerCards: 'A, 10, 2', dealerShown: 16, dealerCards: '9, 4, A, 2', revealed: true}
+game.js:542 📊 Scores Update: {playerScore: '13', playerCards: 'A, 10, 2', dealerShown: 22, dealerCards: '9, 4, A, 2, 6', revealed: true}
+referral-integration.js:92 💰 BalanceAPI.addRubles called: amount=100, source=game
+game.js:725 💰 BlackJack win: +100 rubles
+blackjack-sync.js:190 📊 BlackJack: Результат отправлен на сервер
+game.js:740 📊 BlackJack: Результат отправлен в систему мультиплеера
+blackjack-sync.js:94 🏁 BlackJack: Игра завершена: {userId: 123456789, nickname: 'Test', photoUrl: null, bet: 50, win: 100, …}
+blackjack-sync.js:97 Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'filter')
+    at a.<anonymous> (blackjack-sync.js:97:53)
+    at L.emit (index.mjs:136:20)
+    at a.value (socket.js:494:20)
+    at a.value (socket.js:481:18)
+    at a.value (socket.js:451:22)
+    at L.emit (index.mjs:136:20)
+    at manager.js:207:18
+(anonymous) @ blackjack-sync.js:97
+L.emit @ index.mjs:136
+value @ socket.js:494
+value @ socket.js:481
+value @ socket.js:451
+L.emit @ index.mjs:136
+(anonymous) @ manager.js:207
+Promise.then
+it @ websocket-constructor.browser.js:5
+value @ manager.js:206
+L.emit @ index.mjs:136
+value @ index.js:131
+value @ manager.js:193
+L.emit @ index.mjs:136
+value @ socket.js:324
+L.emit @ index.mjs:136
+value @ transport.js:97
+value @ transport.js:89
+ws.onmessage @ websocket.js:69
+balance-api.js:152 ➕ Added 100₽, 0 chips. New balance: {rubles: 25850, chips: 0}
+referral-integration.js:11 🎰 Win detected: 100 from game
+referral-system.js:424  POST https://duopartners.xyz/api/referral/add-earnings 401 (Unauthorized)
+addReferralEarnings @ referral-system.js:424
+trackWinning @ referral-integration.js:15
+window.BalanceAPI.addRubles @ referral-integration.js:97
+await in window.BalanceAPI.addRubles
+settleEndOfRound @ game.js:724
+finishRound @ game.js:649
+await in finishRound
+stand @ game.js:620
+(anonymous) @ game.js:427
+referral-integration.js:16 ✅ Referral bonus processed for 1889923046
