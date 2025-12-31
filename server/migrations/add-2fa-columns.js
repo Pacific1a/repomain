@@ -2,8 +2,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Используем правильный путь к БД (в config папке)
-const dbPath = path.join(__dirname, '..', 'config', 'database.sqlite');
+// Используем тот же путь, что и в config/database.js
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'data', 'database.db');
 console.log('📂 Database path:', dbPath);
 
 const db = new sqlite3.Database(dbPath, (err) => {
