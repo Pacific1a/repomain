@@ -216,23 +216,23 @@
   }
 
   function setGameBackground(color) {
-    const gameBlock = $('.game');
-    if (!gameBlock) return;
+    const betBlock = $('.bet');
+    if (!betBlock) return;
     
     // Удаляем старые классы
-    gameBlock.classList.remove('game-win', 'game-lose');
+    betBlock.classList.remove('game-win', 'game-lose');
     
     if (color === 'red') {
-      gameBlock.classList.add('game-lose');
+      betBlock.classList.add('game-lose');
     } else if (color === 'green') {
-      gameBlock.classList.add('game-win');
+      betBlock.classList.add('game-win');
     }
   }
 
   function resetGameBackground() {
-    const gameBlock = $('.game');
-    if (!gameBlock) return;
-    gameBlock.classList.remove('game-win', 'game-lose');
+    const betBlock = $('.bet');
+    if (!betBlock) return;
+    betBlock.classList.remove('game-win', 'game-lose');
   }
 
   function getCells() {
