@@ -427,21 +427,67 @@
       el.btn.stand && el.btn.stand.addEventListener("click", () => this.stand());
       el.btn.double && el.btn.double.addEventListener("click", () => this.doubleDown());
       el.btn.split && el.btn.split.addEventListener("click", () => this.split());
-      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-50));
-      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(50));
-      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(50, Math.floor(this.bet / 2))));
-      el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => this.setBet(this.bet * 2));
+      
+      if (el.btn.betMinus) {
+        el.btn.betMinus.addEventListener("click", () => {
+          console.log('➖ Кнопка -50');
+          this.changeBet(-50);
+        });
+      } else {
+        console.error('❌ Кнопка betMinus не найдена!');
+      }
+      
+      if (el.btn.betPlus) {
+        el.btn.betPlus.addEventListener("click", () => {
+          console.log('➕ Кнопка +50');
+          this.changeBet(50);
+        });
+      } else {
+        console.error('❌ Кнопка betPlus не найдена!');
+      }
+      
+      if (el.btn.betHalf) {
+        el.btn.betHalf.addEventListener("click", () => {
+          console.log('➗ Кнопка /2');
+          this.setBet(Math.max(50, Math.floor(this.bet / 2)));
+        });
+      } else {
+        console.error('❌ Кнопка betHalf не найдена!');
+      }
+      
+      if (el.btn.betDouble) {
+        el.btn.betDouble.addEventListener("click", () => {
+          console.log('✖️ Кнопка x2');
+          this.setBet(this.bet * 2);
+        });
+      } else {
+        console.error('❌ Кнопка betDouble не найдена!');
+      }
+      
       el.btn.newGame && el.btn.newGame.addEventListener("click", () => this.newRound(true));
+      
+      console.log('✅ Кнопки привязаны:', {
+        betMinus: !!el.btn.betMinus,
+        betPlus: !!el.btn.betPlus,
+        betHalf: !!el.btn.betHalf,
+        betDouble: !!el.btn.betDouble
+      });
     }
 
     setBet(value) {
-      if (!window.BalanceAPI) return;
+      if (!window.BalanceAPI) {
+        console.error('❌ BalanceAPI не готов!');
+        return;
+      }
       const balance = window.BalanceAPI.getChips();
-      this.bet = Math.max(50, Math.min(value, balance));
+      const newBet = Math.max(50, Math.min(value, balance));
+      console.log(`💰 setBet: ${this.bet} → ${newBet} (баланс: ${balance})`);
+      this.bet = newBet;
       this.updateBetBalanceUI();
     }
     
-    changeBet(delta) { 
+    changeBet(delta) {
+      console.log(`🔄 changeBet: ${delta}, текущая ставка: ${this.bet}`);
       this.setBet(this.bet + delta); 
     }
 
