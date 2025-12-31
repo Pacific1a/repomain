@@ -63,18 +63,18 @@
                     data: [],
                     borderColor: metrics[currentMetric].color,
                     backgroundColor: gradient,
-                    borderWidth: 3, // ТОЛЩЕ ЛИНИЯ!
-                    fill: true, // ВАЖНО: заполнение под линией!
-                    tension: 0.4, // Плавные изгибы
-                    pointRadius: 4, // ТОЧКИ ВИДНЫ СРАЗУ!
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0, // Без точек на линии (только при hover)
+                    pointHoverRadius: 5, // Точка появляется при наведении
                     pointBackgroundColor: metrics[currentMetric].color,
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 7,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 3,
-                    clip: false // НЕ ОБРЕЗАТЬ точки на краях графика!
+                    pointHoverBorderWidth: 2,
+                    clip: false
                 }]
             },
             options: {
