@@ -2,8 +2,17 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
-const db = new sqlite3.Database(dbPath);
+// Используем правильный путь к БД (в config папке)
+const dbPath = path.join(__dirname, '..', 'config', 'database.sqlite');
+console.log('📂 Database path:', dbPath);
+
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('❌ Error opening database:', err);
+        process.exit(1);
+    }
+    console.log('✅ Database connected');
+});
 
 console.log('🔄 Running migration: Add 2FA columns to users table...');
 
