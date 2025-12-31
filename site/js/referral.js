@@ -58,6 +58,9 @@ class ReferralManager {
                 };
                 
                 console.log('📊 Обработанная статистика:', this.stats);
+                console.log(`💰 Заработано партнёром: ${this.stats.earnings}₽`);
+                console.log(`📊 Проигрыши рефералов: ${this.stats.totalLosses}₽`);
+                console.log(`💸 Средний проигрыш на клик: ${this.stats.costPerClick}₽`);
                 
                 // Генерируем ссылку
                 this.generateReferralLink();
