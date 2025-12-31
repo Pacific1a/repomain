@@ -206,27 +206,7 @@ router.post('/:telegramId/subtract', async (req, res) => {
         
         console.log(`✅ Balance subtracted: ${telegramId} -${subtractAmount}₽ -${subtractChips} chips`);
         
-        // ✅ ОТПРАВИТЬ ПРОИГРЫШ В РЕФЕРАЛЬНУЮ СИСТЕМУ (60% партнёру!)
-        if (subtractAmount > 0 && gameType && gameType !== 'unknown') {
-            // Получить referrer_code из Python бота
-            // Для этого нужно хранить связь telegramId -> referrerCode
-            // Пока просто проверим есть ли в БД
-            try {
-                const ReferralService = require('../services/referral.service');
-                const referrerCode = await ReferralService.getUserReferrer(telegramId);
-                
-                if (referrerCode) {
-                    await ReferralService.addEarnings(
-                        referrerCode,
-                        telegramId,
-                        subtractAmount
-                    );
-                }
-            } catch (refError) {
-                console.error('❌ Error sending loss to referral system:', refError);
-                // Не блокируем основной запрос если реферальная система недоступна
-            }
-        }
+        // Referral tracking is handled by referral-integration.js on client side
         
         res.json({
             success: true,
