@@ -444,7 +444,10 @@
     
     // Сохранение состояния игры на сервер
     saveGameState() {
-      if (!window.GameWebSocket || !window.GameWebSocket.socket) return;
+      if (!window.GameWebSocket || !window.GameWebSocket.socket) {
+        console.warn('⚠️ saveGameState: WebSocket не готов');
+        return;
+      }
       
       const gameData = {
         bet: this.bet,
@@ -457,12 +460,20 @@
         betPlaced: this.betPlaced
       };
       
-      window.GameWebSocket.socket.emit('blackjack_save_session', {
-        userId: this.getUserId(),
-        gameData
+      const userId = this.getUserId();
+      
+      console.log('💾 Сохранение игры на сервер:', {
+        userId,
+        roundOver: gameData.roundOver,
+        playerCards: gameData.player.length,
+        dealerCards: gameData.dealer.length,
+        bet: gameData.bet
       });
       
-      console.log('💾 Состояние игры сохранено на сервер');
+      window.GameWebSocket.socket.emit('blackjack_save_session', {
+        userId,
+        gameData
+      });
     }
     
     // Восстановление состояния игры
