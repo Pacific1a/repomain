@@ -419,30 +419,8 @@
         return;
       }
       
-      const balance = window.BalanceAPI.getChips();
-      console.log(`🎨 updateBetBalanceUI: обновляю отображение ставки на ${this.bet}`);
-      
       if (el.betAmount) {
-        const oldValue = el.betAmount.textContent;
         el.betAmount.textContent = String(this.bet);
-        const newValue = el.betAmount.textContent;
-        console.log(`✅ Обновление: ${oldValue} → ${newValue}`);
-        
-        // Проверка что это правильный элемент
-        console.log('🔍 Проверка элемента:', {
-          id: el.betAmount.id,
-          className: el.betAmount.className,
-          parent: el.betAmount.parentElement?.className,
-          displayed: window.getComputedStyle(el.betAmount).display
-        });
-        
-        // Принудительно обновим innerHTML если нужно
-        if (el.betAmount.textContent !== String(this.bet)) {
-          console.warn('⚠️ textContent не установился! Пробую innerHTML');
-          el.betAmount.innerHTML = String(this.bet);
-        }
-      } else {
-        console.error('❌ el.betAmount не найден!');
       }
       
       // Balance updates automatically via GlobalBalance
@@ -453,51 +431,11 @@
       el.btn.stand && el.btn.stand.addEventListener("click", () => this.stand());
       el.btn.double && el.btn.double.addEventListener("click", () => this.doubleDown());
       el.btn.split && el.btn.split.addEventListener("click", () => this.split());
-      
-      if (el.btn.betMinus) {
-        el.btn.betMinus.addEventListener("click", () => {
-          console.log('➖ Кнопка -50');
-          this.changeBet(-50);
-        });
-      } else {
-        console.error('❌ Кнопка betMinus не найдена!');
-      }
-      
-      if (el.btn.betPlus) {
-        el.btn.betPlus.addEventListener("click", () => {
-          console.log('➕ Кнопка +50');
-          this.changeBet(50);
-        });
-      } else {
-        console.error('❌ Кнопка betPlus не найдена!');
-      }
-      
-      if (el.btn.betHalf) {
-        el.btn.betHalf.addEventListener("click", () => {
-          console.log('➗ Кнопка /2');
-          this.setBet(Math.max(50, Math.floor(this.bet / 2)));
-        });
-      } else {
-        console.error('❌ Кнопка betHalf не найдена!');
-      }
-      
-      if (el.btn.betDouble) {
-        el.btn.betDouble.addEventListener("click", () => {
-          console.log('✖️ Кнопка x2');
-          this.setBet(this.bet * 2);
-        });
-      } else {
-        console.error('❌ Кнопка betDouble не найдена!');
-      }
-      
+      el.btn.betMinus && el.btn.betMinus.addEventListener("click", () => this.changeBet(-50));
+      el.btn.betPlus && el.btn.betPlus.addEventListener("click", () => this.changeBet(50));
+      el.btn.betHalf && el.btn.betHalf.addEventListener("click", () => this.setBet(Math.max(50, Math.floor(this.bet / 2))));
+      el.btn.betDouble && el.btn.betDouble.addEventListener("click", () => this.setBet(this.bet * 2));
       el.btn.newGame && el.btn.newGame.addEventListener("click", () => this.newRound(true));
-      
-      console.log('✅ Кнопки привязаны:', {
-        betMinus: !!el.btn.betMinus,
-        betPlus: !!el.btn.betPlus,
-        betHalf: !!el.btn.betHalf,
-        betDouble: !!el.btn.betDouble
-      });
     }
 
     setBet(value) {
@@ -505,7 +443,7 @@
         console.error('❌ BalanceAPI не готов!');
         return;
       }
-      const balance = window.BalanceAPI.getChips();
+      const balance = window.BalanceAPI.getRubles(); // ИСПРАВЛЕНО: getRubles вместо getChips
       const newBet = Math.max(50, Math.min(value, balance));
       console.log(`💰 setBet: ${this.bet} → ${newBet} (баланс: ${balance})`);
       this.bet = newBet;
@@ -513,7 +451,6 @@
     }
     
     changeBet(delta) {
-      console.log(`🔄 changeBet: ${delta}, текущая ставка: ${this.bet}`);
       this.setBet(this.bet + delta); 
     }
 
