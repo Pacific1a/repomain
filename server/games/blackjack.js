@@ -102,9 +102,27 @@ function registerBlackjackHandlers(socket, io) {
         });
     });
     
+    // Сохранение текущей игры
+    socket.on('blackjack_save_session', ({ userId, gameData }) => {
+        console.log(`💾 BlackJack: Saving session for ${userId}`);
+        gameStates.blackjack.sessions[userId] = {
+            ...gameData,
+            timestamp: Date.now()
+        };
+    });
+    
+    // Удаление сессии (игра завершена)
+    socket.on('blackjack_clear_session', ({ userId }) => {
+        console.log(`🗑️ BlackJack: Clearing session for ${userId}`);
+        delete gameStates.blackjack.sessions[userId];
+    });
+    
     // Результат игры (из локальной игры на клиенте!)
     socket.on('blackjack_result', ({ game, userId, nickname, photoUrl, bet, win, isWinner, multiplier }) => {
         if (game !== 'blackjack') return;
+        
+        // Удаляем сохраненную сессию после завершения игры
+        delete gameStates.blackjack.sessions[userId];
         
         console.log(`🏁 BlackJack: Result from ${userId}: bet=${bet}, win=${win}, isWinner=${isWinner}, multiplier=${multiplier}`);
         
