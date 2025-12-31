@@ -138,38 +138,44 @@
                 },
                 scales: {
                     x: {
+                        display: true,
                         grid: {
-                            display: false // УБИРАЕМ ВЕРТИКАЛЬНЫЕ ЛИНИИ!
+                            display: false,
+                            drawBorder: false
                         },
                         ticks: {
-                            color: '#9B8585',
+                            color: '#C1ACAC',
                             font: {
-                                size: 12,
+                                size: 11,
                                 family: 'Inter, sans-serif'
-                            }
+                            },
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 10
                         }
                     },
                     y: {
-                        beginAtZero: true, // Начинать с нуля
-                        min: 0, // Минимум 0
-                        max: 200, // ФИКСИРОВАННЫЙ МАКСИМУМ 200!
+                        display: true,
+                        position: 'right',
+                        beginAtZero: false, // НЕ начинать с нуля для лучшего масштабирования
+                        grace: '10%', // Добавить 10% сверху/снизу для красоты
                         grid: {
-                            color: 'rgba(193, 172, 172, 0.1)',
-                            lineWidth: 1
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
                         },
                         ticks: {
-                            color: '#9B8585',
+                            color: '#C1ACAC',
                             font: {
-                                size: 12,
+                                size: 11,
                                 family: 'Inter, sans-serif'
                             },
-                            stepSize: 50, // Шаг 50 (0, 50, 100, 150, 200)
+                            padding: 10,
                             callback: function(value) {
-                                // Показываем только значения 0, 50, 100, 150, 200
-                                if (value === 0 || value === 50 || value === 100 || value === 150 || value === 200) {
-                                    return value;
+                                // Округляем большие числа
+                                if (value >= 1000) {
+                                    return (value / 1000).toFixed(1) + 'k';
                                 }
-                                return '';
+                                return Math.round(value);
                             }
                         }
                     }
