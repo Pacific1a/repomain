@@ -242,19 +242,27 @@
   function reportGameResult(bet, win, isWinner, multiplier) {
     if (!ws) return;
     
-    let userId, nickname, photoUrl;
-
+    // Используем BalanceAPI.telegramId для консистентности
+    let userId;
+    if (window.BalanceAPI && window.BalanceAPI.telegramId) {
+      userId = window.BalanceAPI.telegramId;
+    } else if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+    } else if (window.TelegramUserData) {
+      userId = window.TelegramUserData.id;
+    } else {
+      userId = '1889923046'; // Fallback
+    }
+    
+    let nickname, photoUrl;
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-      userId = tgUser.id;
       nickname = tgUser.first_name || tgUser.username || 'Player';
       photoUrl = tgUser.photo_url || null;
     } else if (window.TelegramUserData) {
-      userId = window.TelegramUserData.id;
       nickname = window.TelegramUserData.first_name || window.TelegramUserData.username || 'Player';
       photoUrl = window.TelegramUserData.photo_url || null;
     } else {
-      userId = 'user_' + Date.now();
       nickname = 'Player';
       photoUrl = null;
     }
