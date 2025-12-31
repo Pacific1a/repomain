@@ -50,7 +50,7 @@ a:focus {
   display: inline-flex;
   max-width: 165px;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   position: relative;
   flex: 0 0 auto;
 }
@@ -233,6 +233,55 @@ a:focus {
   mask-composite: exclude;
   z-index: 1;
   pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+/* КРАСНЫЙ ФОН ПРИ ПРОИГРЫШЕ */
+.mines .game.game-lose {
+  background: linear-gradient(
+    90deg,
+    rgba(31, 29, 29, 1) 0%,
+    rgba(36, 31, 31, 1) 100%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(202, 57, 88, 0.4) 0%,
+    rgba(150, 40, 60, 0.4) 100%
+  ) !important;
+  background-blend-mode: normal, overlay !important;
+  box-shadow: 0px 10px 10px #171616, 0 0 30px rgba(202, 57, 88, 0.5) !important;
+}
+
+.mines .game.game-lose::before {
+  background: linear-gradient(
+    90deg,
+    rgba(202, 57, 88, 0.6) 0%,
+    rgba(150, 40, 60, 0.6) 100%
+  ) !important;
+}
+
+/* ЗЕЛЕНЫЙ ФОН ПРИ ВЫИГРЫШЕ */
+.mines .game.game-win {
+  background: linear-gradient(
+    90deg,
+    rgba(31, 29, 29, 1) 0%,
+    rgba(36, 31, 31, 1) 100%
+  ),
+  linear-gradient(
+    90deg,
+    rgba(67, 233, 123, 0.4) 0%,
+    rgba(56, 249, 215, 0.4) 100%
+  ) !important;
+  background-blend-mode: normal, overlay !important;
+  box-shadow: 0px 10px 10px #171616, 0 0 30px rgba(67, 233, 123, 0.5) !important;
+}
+
+.mines .game.game-win::before {
+  background: linear-gradient(
+    90deg,
+    rgba(67, 233, 123, 0.6) 0%,
+    rgba(56, 249, 215, 0.6) 100%
+  ) !important;
 }
 
 .mines .tile {
@@ -1328,18 +1377,19 @@ a:focus {
 }
 
 .mines .text {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 0.9fr 0.9fr;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
   position: relative;
   align-self: stretch;
   width: 100%;
   flex: 0 0 auto;
+  padding: 0 8px;
 }
 
 .mines .text-wrapper-36 {
   position: relative;
-  width: fit-content;
   margin-top: -1.00px;
   font-family: "Montserrat", Helvetica;
   font-weight: 500;
@@ -1347,6 +1397,11 @@ a:focus {
   font-size: 8px;
   letter-spacing: -0.24px;
   line-height: normal;
+  text-align: center;
+}
+
+.mines .text-wrapper-36:first-child {
+  text-align: left;
 }
 
 .mines .user-templates {
@@ -1385,15 +1440,24 @@ a:focus {
 }
 
 .mines .div-4 {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr 0.9fr 0.9fr;
   height: 27px;
   align-items: center;
-  justify-content: space-between;
-  padding: 0px;
+  gap: 4px;
+  padding: 0 8px;
   position: relative;
   align-self: stretch;
   width: 100%;
   border-radius: 13.5px;
+}
+
+.mines .div-4 > * {
+  text-align: center;
+}
+
+.mines .div-4 > *:first-child {
+  text-align: left;
 }
 
 /* Выигрыш */

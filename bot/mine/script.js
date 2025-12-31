@@ -1,7 +1,11 @@
-// Mines game JS: adds onclick handlers without changing styles/HTML structure
-// Uses existing elements and classes in mine/index.html
-
+// ============================================
+// MINES GAME - ПОЛНАЯ ИНТЕГРАЦИЯ С СЕРВЕРОМ
+// ============================================
 (function() {
+  'use strict';
+  
+  const SERVER_URL = window.GAME_SERVER_URL || window.location.origin;
+  
   const ASSETS = {
     SAFE: 'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/mine/hit-a-safe-tile.svg',
     SAFE_GRAY: 'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/mine/revealed-a-safe-tile.svg',
@@ -9,19 +13,20 @@
     MINE_EXPLOSION: 'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/mine/hit-a-mine.svg',
   };
 
-  const MIN_BET = 50; // Минимальная ставка
+  const MIN_BET = 50;
   
   const state = {
     inGame: false,
     bombs: 2,
     bet: 50,
-    mines: new Set(), // indices 0..24
+    gameId: null,
     revealed: new Set(),
     explodedIndex: null,
-    timers: [],
     clickLock: false,
-    isCashingOut: false,
-    isGameOver: false,
+    currentMultiplier: 1.0,
+    potentialWin: 0,
+    socket: null,
+    telegramId: null
   };
 
   // Helpers
@@ -30,7 +35,6 @@
 
   function formatChips(n){ return `${Math.max(0, Math.floor(n))} Chips`; }
 
-  // Функция для показа toast-уведомлений
   function showNotification(message) {
     let toast = document.querySelector('#mine-toast');
     if (!toast) {
@@ -59,10 +63,7 @@
       document.body.appendChild(toast);
     }
     
-    // Сбрасываем предыдущий таймер если есть
-    if (toast.hideTimer) {
-      clearTimeout(toast.hideTimer);
-    }
+    if (toast.hideTimer) clearTimeout(toast.hideTimer);
     
     toast.textContent = message;
     requestAnimationFrame(() => {
@@ -73,24 +74,181 @@
     });
   }
 
+  function getTelegramId() {
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+      return window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+    }
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlTgId = urlParams.get('tgId') || urlParams.get('telegram_id');
+    if (urlTgId) return urlTgId;
+    
+    const savedId = localStorage.getItem('telegram_id');
+    if (savedId && savedId !== 'test_m3xabw0pr' && !savedId.startsWith('test_')) {
+      return savedId;
+    }
+    
+    return '1889923046'; // Default for testing
+  }
+
+  function initSocket() {
+    state.telegramId = getTelegramId();
+    
+    if (!window.io) {
+      console.error('❌ Socket.IO не загружен');
+      return;
+    }
+    
+    console.log(`🔌 Подключение к серверу: ${SERVER_URL}`);
+    
+    state.socket = io(SERVER_URL, {
+      transports: ['websocket', 'polling'],
+      query: { telegramId: state.telegramId }
+    });
+    
+    state.socket.on('connect', () => {
+      console.log('✅ Socket.IO connected');
+    });
+    
+    state.socket.on('disconnect', () => {
+      console.log('❌ Socket.IO disconnected');
+    });
+    
+    // Игра началась
+    state.socket.on('mines_game_started', (data) => {
+      console.log('🎮 Игра началась:', data);
+      state.gameId = data.gameId;
+      state.inGame = true;
+      state.revealed.clear();
+      state.currentMultiplier = 1.0;
+      state.potentialWin = state.bet;
+      updateCashoutDisplay();
+      setControlsEnabled(false);
+    });
+    
+    // Клетка открыта
+    state.socket.on('mines_cell_revealed', (data) => {
+      console.log('✅ Клетка открыта:', data);
+      
+      const cell = getCells()[data.cellIndex];
+      if (cell) {
+        flipReveal(cell, ASSETS.SAFE, 500);
+        state.revealed.add(data.cellIndex);
+      }
+      
+      state.currentMultiplier = data.multiplier;
+      state.potentialWin = data.potentialWin;
+      updateCashoutDisplay();
+      
+      state.clickLock = false;
+    });
+    
+    // Игра завершена
+    state.socket.on('mines_game_over', (data) => {
+      console.log('🏁 Игра завершена:', data);
+      
+      state.clickLock = true;
+      
+      if (data.result === 'lose') {
+        // ПРОИГРЫШ - показываем взрыв
+        const cell = getCells()[data.cellIndex];
+        if (cell) {
+          state.explodedIndex = data.cellIndex;
+          
+          // 1. Граната
+          flipReveal(cell, ASSETS.MINE_GRENADE, 400);
+          
+          setTimeout(() => {
+            // 2. Взрыв
+            setBackImage(cell, ASSETS.MINE_EXPLOSION);
+            
+            // КРАСНЫЙ ФОН!
+            setGameBackground('red');
+            
+            setTimeout(() => {
+              // 3. Показываем все мины
+              revealAllMines(data.allMines, data.revealed);
+              
+              // Списываем баланс
+              if (window.BalanceAPI) {
+                window.BalanceAPI.subtractRubles(state.bet, 'game', 'Проигрыш в Mines', 'mines');
+              }
+              
+              // Сохраняем в историю
+              saveGameResult(false, data.multiplier, 0);
+              
+              setTimeout(() => {
+                // 4. Сброс доски
+                resetGame();
+              }, 2000);
+            }, 600);
+          }, 1000);
+        }
+        
+      } else {
+        // ВЫИГРЫШ - показываем все мины
+        revealAllMines(data.allMines, data.revealed);
+        
+        // ЗЕЛЕНЫЙ ФОН!
+        setGameBackground('green');
+        
+        // Добавляем баланс
+        if (window.BalanceAPI) {
+          window.BalanceAPI.addRubles(data.winnings, 'game', `Выигрыш в Mines x${data.multiplier}`);
+          showNotification(`🎉 Выигрыш ${data.winnings} rubles!`);
+        }
+        
+        // Сохраняем в историю
+        saveGameResult(true, data.multiplier, data.winnings);
+        
+        setTimeout(() => {
+          resetGame();
+        }, 3000);
+      }
+    });
+    
+    // Ошибки
+    state.socket.on('mines_error', (data) => {
+      console.error('❌ Ошибка:', data.message);
+      showNotification(data.message);
+      state.clickLock = false;
+    });
+  }
+
+  function setGameBackground(color) {
+    const gameBlock = $('.game');
+    if (!gameBlock) return;
+    
+    // Удаляем старые классы
+    gameBlock.classList.remove('game-win', 'game-lose');
+    
+    if (color === 'red') {
+      gameBlock.classList.add('game-lose');
+    } else if (color === 'green') {
+      gameBlock.classList.add('game-win');
+    }
+  }
+
+  function resetGameBackground() {
+    const gameBlock = $('.game');
+    if (!gameBlock) return;
+    gameBlock.classList.remove('game-win', 'game-lose');
+  }
+
   function getCells() {
-    // All clickable tiles are divs with class .div-3 inside .game .tile
     return $$('.game .tile .div-3');
   }
 
   function cellIndexOf(cell) {
-    const cells = getCells();
-    return cells.indexOf(cell);
+    return getCells().indexOf(cell);
   }
 
   function clearCell(cell) {
-    // Remove any image in tile
     const img = $('img', cell);
     if (img) img.remove();
   }
 
   function showImage(cell, src) {
-    // Fallback simple render (used rarely now)
     clearCell(cell);
     const img = document.createElement('img');
     img.className = 'img-2';
@@ -101,9 +259,6 @@
     cell.appendChild(img);
   }
 
-  
-  
-  // АНИМАЦИЯ 2: Масштабирование с вращением (раскомментируйте чтобы использовать)
   function ensureFlipStructure(cell) {
     let wrap = cell.querySelector('.flip-wrap');
     if (wrap) return wrap;
@@ -139,39 +294,25 @@
     }
   }
 
-
-
-
   function setBackImage(cell, src) {
     const wrap = ensureFlipStructure(cell);
-    const card = wrap.querySelector('.flip-card');
-    const back = wrap.querySelector('.flip-back');
-    if (!back) return;
-    back.innerHTML = '';
+    wrap.innerHTML = '';
     const img = document.createElement('img');
     img.className = 'img-2';
     img.src = src;
     Object.assign(img.style, {
       width: '100%', height: '100%', objectFit: 'contain', display: 'block', margin: '0 auto'
     });
-    back.appendChild(img);
-    if (card) card.style.transform = 'rotateY(180deg)';
+    wrap.appendChild(img);
   }
 
   function resetBoardVisuals() {
-    clearAllTimers();
     state.revealed.clear();
     state.explodedIndex = null;
     getCells().forEach(cell => {
-      // Reset flip structure to front side
       const wrap = cell.querySelector('.flip-wrap');
       if (wrap) {
-        const card = wrap.querySelector('.flip-card');
-        const front = wrap.querySelector('.flip-front');
-        const back = wrap.querySelector('.flip-back');
-        if (front) front.innerHTML = '';
-        if (back) back.innerHTML = '';
-        if (card) card.style.transform = 'rotateY(0deg)';
+        wrap.innerHTML = '';
       } else {
         clearCell(cell);
       }
@@ -179,22 +320,20 @@
     });
   }
 
-  function placeMines() {
-    state.mines.clear();
-    const total = getCells().length;
-    const bombsToPlace = Math.min(state.bombs, Math.max(0, total - 1));
-    while (state.mines.size < bombsToPlace) {
-      state.mines.add(Math.floor(Math.random() * total));
-    }
-  }
-
-  function currentMultiplier() {
-    // Simple demo multipliers based on bombs and revealed safe tiles
-    // You can replace with your exact payout table
-    const baseMap = {2: 1.02, 3: 1.11, 5: 1.22, 7: 1.34};
-    const base = baseMap[state.bombs] || 1.02;
-    const increment = (state.bombs >= 7) ? 0.18 : (state.bombs >= 5) ? 0.12 : (state.bombs >= 3) ? 0.09 : 0.08;
-    return +(base + increment * state.revealed.size).toFixed(2);
+  function revealAllMines(allMines, revealedCells) {
+    const cells = getCells();
+    cells.forEach((cell, idx) => {
+      const delay = 40 * (idx % 5);
+      setTimeout(() => {
+        if (allMines.includes(idx)) {
+          if (idx !== state.explodedIndex) {
+            flipReveal(cell, ASSETS.MINE_GRENADE, 650);
+          }
+        } else {
+          flipReveal(cell, ASSETS.SAFE_GRAY, 650);
+        }
+      }, delay);
+    });
   }
 
   function updateCashoutDisplay() {
@@ -204,31 +343,20 @@
     
     if (!button || !labelEl || !amountEl) return;
     
-    // Если игра завершена (проигрыш) - показываем Bet режим
-    if (state.inGame && !state.isGameOver) {
-      // Cash Out режим - показываем текущий выигрыш
-      const multi = currentMultiplier();
-      const potentialWin = Math.floor(state.bet * multi);
-      
+    if (state.inGame) {
+      // Cash Out режим
       button.classList.add('state-cashout');
       labelEl.textContent = 'Cash Out';
-      amountEl.textContent = formatChips(potentialWin);
+      amountEl.textContent = formatChips(state.potentialWin);
     } else {
-      // Bet режим - показываем ставку
+      // Bet режим
       button.classList.remove('state-cashout');
       labelEl.textContent = 'Bet';
       amountEl.textContent = formatChips(state.bet);
     }
   }
 
-  function setInGame(on) {
-    state.inGame = on;
-    updateCashoutDisplay();
-    setControlsEnabled(!on);
-  }
-
   function setControlsEnabled(enabled) {
-    // Toggle bombs selector
     const bombsContainer = $('.number-of-bombs .frame-2');
     if (bombsContainer) {
       $$('.element-3, .element-4', bombsContainer).forEach(el => {
@@ -238,7 +366,6 @@
       });
     }
 
-    // Toggle bet controls
     const halfBtn = $('.bet .button-x .button-2');
     const x2Btn = $('.bet .button-x .button-3');
     [halfBtn, x2Btn].forEach(btn => {
@@ -258,285 +385,89 @@
     });
   }
 
-  function hideInitialImages() {
-    // Hide any sample images currently present in the grid container
-    $$('.game .tile img').forEach(img => {
-      // Do not remove; just hide so layout stays intact
-      img.style.display = 'none';
-    });
-  }
-
-  async function startGame() {
-    // Проверка минимальной ставки
+  function startGame() {
     if (state.bet < MIN_BET) {
       showNotification(`Минимальная ставка: ${MIN_BET} rubles`);
-      return false;
+      return;
     }
     
-    // Проверка баланса (не списываем сразу, только проверяем)
-    if (!window.BalanceAPI) {
-      console.error('GameBalanceAPI не загружен');
-      return false;
-    }
-    
-    if (!window.BalanceAPI.hasEnoughRubles(state.bet)) {
+    if (!window.BalanceAPI || !window.BalanceAPI.hasEnoughRubles(state.bet)) {
       showNotification(`Недостаточно средств для ставки ${state.bet} rubles`);
-      return false;
+      return;
     }
     
-    // НЕ списываем баланс сразу - только после завершения игры
-    console.log(`💣 Mines: ставка ${state.bet} rubles зарезервирована`);
+    if (!state.socket || !state.socket.connected) {
+      showNotification('Нет соединения с сервером');
+      return;
+    }
     
-    hideInitialImages();
-    clearAllTimers();
+    state.clickLock = false;
     resetBoardVisuals();
-    placeMines();
-    setInGame(true);
-    state.isCashingOut = false;
-    state.isGameOver = false;
+    resetGameBackground();
+    
+    // Отправляем запрос на сервер
+    state.socket.emit('mines_start_game', {
+      bombs: state.bombs,
+      bet: state.bet
+    });
+    
+    console.log(`💣 Начинаем игру: ${state.bombs} мин, ставка ${state.bet}`);
+  }
+
+  function resetGame() {
+    state.inGame = false;
+    state.gameId = null;
+    state.revealed.clear();
+    state.explodedIndex = null;
+    state.currentMultiplier = 1.0;
+    state.potentialWin = 0;
+    state.clickLock = false;
+    
+    resetBoardVisuals();
+    resetGameBackground();
     updateCashoutDisplay();
-    return true;
-  }
-
-  function revealAllAfterMine() {
-    const cells = getCells();
-    cells.forEach((cell, idx) => {
-      const delay = 40 * (idx % 5); // light stagger for smoother feel
-      schedule(() => {
-        if (state.mines.has(idx)) {
-          if (idx !== state.explodedIndex) {
-            flipReveal(cell, ASSETS.MINE_GRENADE, 650);
-          }
-        } else {
-          flipReveal(cell, ASSETS.SAFE_GRAY, 650);
-        }
-      }, delay);
-    });
-  }
-
-  function revealAllAfterCashout() {
-    const cells = getCells();
-    cells.forEach((cell, idx) => {
-      const delay = 40 * (idx % 5);
-      schedule(() => {
-        if (state.mines.has(idx)) {
-          flipReveal(cell, ASSETS.MINE_GRENADE, 650);
-        } else {
-          flipReveal(cell, ASSETS.SAFE, 650);
-        }
-      }, delay);
-    });
-  }
-
-  function endGame(lost) {
-    setInGame(false);
-    
-    if (lost) {
-      // Проигрыш - списываем ставку С ТРЕКИНГОМ РЕФЕРАЛЬНОЙ СИСТЕМЫ
-      if (window.BalanceAPI) {
-        window.BalanceAPI.subtractRubles(state.bet, 'game', `Проигрыш в Mines`, 'mine');
-        console.log(`💥 Mines: проигрыш, списано ${state.bet} rubles (с трекингом реферальной системы)`);
-      }
-      
-      // Анимация уже отработала в onCellClick
-      
-      // Сохраняем результат игры в историю (ПРОИГРЫШ)
-      const multi = currentMultiplier();
-      saveCurrentGame(false, multi, 0);
-    }
-    
-    // Add summary block only after a loss per request
-    if (lost) renderRoundSummary();
-  }
-
-  function renderRoundSummary() {
-    const box = $('.info-about-multiply');
-    if (!box) return;
-    // Append a compact summary block
-    const element = document.createElement('div');
-    element.className = 'element-mine';
-    const overlap = document.createElement('div');
-    overlap.className = 'overlap-group';
-    const x = document.createElement('div');
-    x.className = 'text-wrapper-4';
-    const multi = currentMultiplier();
-    x.textContent = `x${multi}`;
-    const count = document.createElement('div');
-    count.className = 'text-wrapper-5';
-    count.textContent = String(state.revealed.size);
-    const star = document.createElement('img');
-    star.src = 'https://raw.githubusercontent.com/Pacific1a/img/6768186bd224ed8383ca478d1363a8b40b694805/mine/mine-icon-1.svg';
-    star.alt = 'star';
-    star.style.width = '8px';
-    star.style.height = '10px';
-    star.style.marginLeft = '4px';
-    count.appendChild(star);
-    overlap.appendChild(x);
-    overlap.appendChild(count);
-    element.appendChild(overlap);
-    box.appendChild(element);
-    // Auto-scroll to the end so the newest summary is visible
-    try {
-      box.parentElement && (box.parentElement.scrollLeft = box.parentElement.scrollWidth);
-      box.scrollLeft = box.scrollWidth;
-    } catch (e) {}
+    setControlsEnabled(true);
   }
 
   function onCellClick(cell) {
-    if (!state.inGame) return;
-    if (!isValidBombs(state.bombs)) return;
-    if (state.clickLock) return; // Блокировка во время анимации
+    if (!state.inGame || state.clickLock) return;
     
     const idx = cellIndexOf(cell);
     if (idx < 0 || state.revealed.has(idx)) return;
 
-    if (state.mines.has(idx)) {
-      // Попали на мину!
-      state.clickLock = true;
-      state.isGameOver = true;
-      state.explodedIndex = idx;
-      
-      // Сразу переключаем кнопку в Bet режим
-      updateCashoutDisplay();
-      
-      // 1. Показываем гранату на 1 секунду
-      flipReveal(cell, ASSETS.MINE_GRENADE, 400);
-      
-      schedule(() => {
-        // 2. Показываем взрыв
-        setBackImage(cell, ASSETS.MINE_EXPLOSION);
-        
-        schedule(() => {
-          // 3. Раскрываем все карточки
-          revealAllAfterMine();
-          
-          schedule(() => {
-            endGame(true);
-            state.clickLock = false;
-            
-            // Сбрасываем доску после задержки
-            schedule(() => {
-              resetBoardVisuals();
-              state.revealed.clear();
-              state.mines.clear();
-              state.explodedIndex = null;
-              state.isGameOver = false;
-            }, 2000);
-          }, 1000);
-        }, 600);
-      }, 1000);
-      
-      return;
-    }
-
-    // Safe
-    state.revealed.add(idx);
-    flipReveal(cell, ASSETS.SAFE, 500);
+    state.clickLock = true;
     
-    // Update cashout display with new multiplier
-    updateCashoutDisplay();
+    // Отправляем на сервер
+    state.socket.emit('mines_reveal_cell', {
+      gameId: state.gameId,
+      cellIndex: idx
+    });
   }
 
-  async function onBetOrCash() {
+  function onBetOrCash() {
     if (!state.inGame) {
-      if (state.clickLock) return;
-      // brief debounce to avoid accidental double-trigger when starting
-      state.clickLock = true;
-      // Use direct setTimeout so it won't be cleared by clearAllTimers() on startGame
-      setTimeout(() => { state.clickLock = false; }, 600);
-      if (!isValidBombs(state.bombs)) {
+      // Начать игру
+      if (![2, 3, 5, 7].includes(state.bombs)) {
         indicateBombsRequired();
         return;
       }
-      // Start game (balance check inside)
-      const gameStarted = await startGame();
-      
-      // Показываем toast уведомления
-      if (gameStarted) {
-        showNotification(`Ставка ${state.bet} rubles сделана!`);
-      } else {
-        // Ошибка уже показывается в startGame() через showNotification
-      }
+      startGame();
     } else {
-      // Block cashout reveal if bombs selection is invalid
-      if (!isValidBombs(state.bombs)) {
-        indicateBombsRequired();
-        return;
-      }
-      // Require at least one opened safe tile before allowing cash out
+      // Cash out
       if (state.revealed.size === 0) {
-        indicateOpenRequired();
-        return;
-      }
-      // Блокировка если игра уже завершена (проигрыш)
-      if (state.isGameOver) {
-        console.log('⚠️ Игра уже завершена, Cash Out невозможен');
-        return;
-      }
-      // Блокировка повторного нажатия Cash Out
-      if (state.isCashingOut) {
+        showNotification('Откройте хотя бы одну клетку');
         return;
       }
       
-      state.isCashingOut = true;
+      if (state.clickLock) return;
       
-      // Блокируем кнопку визуально
-      const cashOutBtn = $('.cash-out-button');
-      if (cashOutBtn) {
-        cashOutBtn.style.opacity = '0.5';
-        cashOutBtn.style.cursor = 'not-allowed';
-        cashOutBtn.style.pointerEvents = 'none';
-      }
+      state.clickLock = true;
       
-      // Calculate winnings and pay out through global API
-      const multi = currentMultiplier();
-      const win = Math.floor(state.bet * multi);
-      
-      if (window.BalanceAPI) {
-        window.BalanceAPI.addRubles(win);
-        console.log(`💰 Mines: выигрыш ${win} rubles (x${multi})`);
-      }
-      
-      // Сохраняем результат игры в историю (ВЫИГРЫШ)
-      saveCurrentGame(true, multi, win);
-      
-      // Cash out: reveal all remaining, then clear board
-      revealAllAfterCashout();
-      schedule(() => {
-        setInGame(false);
-        renderRoundSummary();
-        schedule(() => {
-          resetBoardVisuals();
-          // Восстанавливаем кнопку после сброса
-          if (cashOutBtn) {
-            cashOutBtn.style.opacity = '';
-            cashOutBtn.style.cursor = '';
-            cashOutBtn.style.pointerEvents = '';
-          }
-        }, 300);
-      }, 500);
+      // Отправляем на сервер
+      state.socket.emit('mines_cash_out', {
+        gameId: state.gameId
+      });
     }
-  }
-
-  function indicateOpenRequired() {
-    // No visual highlight; simply ignore the action
-    return;
-  }
-
-  function schedule(fn, delay = 0) {
-    const id = setTimeout(fn, delay);
-    state.timers.push(id);
-    return id;
-  }
-
-  function clearAllTimers() {
-    if (!state.timers) return;
-    state.timers.forEach(id => clearTimeout(id));
-    state.timers = [];
-  }
-
-  function isValidBombs(n) {
-    return n === 2 || n === 3 || n === 5 || n === 7;
   }
 
   function indicateBombsRequired() {
@@ -555,7 +486,6 @@
   }
 
   function setupBetControls() {
-    // /2 button
     const halfBtn = $('.bet .button-x .button-2');
     if (halfBtn) {
       halfBtn.addEventListener('click', () => {
@@ -565,7 +495,6 @@
       });
     }
 
-    // x2 control (is a div with class .button-3)
     const x2Btn = $('.bet .button-x .button-3');
     if (x2Btn) {
       x2Btn.addEventListener('click', () => {
@@ -575,18 +504,14 @@
       });
     }
 
-    // Bet/Cash Out main control (кнопка .cash-out-button)
     const betCash = $('.cash-out-button');
     if (betCash) {
       betCash.style.cursor = 'pointer';
       betCash.addEventListener('click', onBetOrCash);
-    } else {
-      console.error('❌ Кнопка .cash-out-button не найдена!');
     }
 
     updateCashoutDisplay();
 
-    // Input amount area controls
     const minusBtn = $('.input-amount-bet .button');
     if (minusBtn) {
       minusBtn.style.cursor = 'pointer';
@@ -610,7 +535,6 @@
       });
     }
 
-    // Initial render of amount into middle element
     renderBetAmount();
   }
 
@@ -618,10 +542,8 @@
     const container = $('.number-of-bombs .frame-2');
     if (!container) return;
     const options = $$('.element-3, .element-4', container);
-    // Remove any pre-set outlines from HTML inline styles
     options.forEach(o => { o.style.outline = ''; });
 
-    // Helper to extract current number from an option's inner text
     function extractNumFromOption(opt) {
       const t30 = opt.querySelector('.text-wrapper-30');
       const t31 = opt.querySelector('.text-wrapper-31');
@@ -630,24 +552,21 @@
       return isNaN(n) ? null : n;
     }
 
-    // Initialize dataset values for each option once
     options.forEach(opt => {
       const n = extractNumFromOption(opt);
       if (n != null) opt.dataset.bombs = String(n);
     });
+    
     options.forEach(opt => {
       opt.style.cursor = 'pointer';
       opt.addEventListener('click', () => {
-        if (state.inGame) return; // do not allow changing bombs during an active round
-        // Read number from dataset (stable across rebuilds)
+        if (state.inGame) return;
         const n = parseInt(opt.dataset.bombs || '', 10);
         if (!isNaN(n)) {
           state.bombs = n;
-          // Rebuild inner wrapper to use selected/div-wrapper-2 without touching external classes
           options.forEach(o => {
             const num = parseInt(o.dataset.bombs || '', 10);
             if (isNaN(num)) return;
-            // Build inner content
             const wrap = document.createElement('div');
             if (num === state.bombs) {
               wrap.className = 'selected';
@@ -662,14 +581,14 @@
               txt.textContent = String(num);
               wrap.appendChild(txt);
             }
-            // Replace first child of option with our wrapper
             o.innerHTML = '';
             o.appendChild(wrap);
           });
         }
       });
     });
-    // Initial rebuild based on default state.bombs
+    
+    // Initial render
     options.forEach(o => {
       const num = parseInt(o.dataset.bombs || '', 10);
       if (isNaN(num)) return;
@@ -695,7 +614,6 @@
   function renderBetAmount() {
     const container = $('.input-amount-bet .element');
     if (!container) return;
-    // Render numeric text instead of static image
     container.innerHTML = '';
     const span = document.createElement('div');
     span.className = 'text-wrapper-25';
@@ -703,21 +621,15 @@
     container.appendChild(span);
   }
 
-  // ========== ЛОКАЛЬНАЯ СИСТЕМА ИГРОКОВ (ТОЛЬКО НА СТРАНИЦЕ MINES) ==========
+  // ========== СИСТЕМА LIVE BETS ==========
   const STORAGE_KEY = 'mines_players_history';
-  const MAX_HISTORY_AGE = 5 * 60 * 1000; // 5 минут
+  const MAX_HISTORY_AGE = 5 * 60 * 1000;
   
   function initPlayersSystem() {
     console.log('🎮 Инициализация локальной системы игроков для Mines');
-    
-    // Очищаем старые записи
     cleanOldHistory();
-    
-    // Обновляем отображение
     updateOnlineCount();
     renderLiveBets();
-    
-    // Обновляем каждые 10 секунд
     setInterval(() => {
       cleanOldHistory();
       updateOnlineCount();
@@ -736,24 +648,13 @@
 
   function savePlayerGame(playerData) {
     const history = getPlayersHistory();
-    
-    // Добавляем новую запись
-    history.push({
-      ...playerData,
-      timestamp: Date.now()
-    });
-    
-    // Оставляем только последние 20 записей
+    history.push({ ...playerData, timestamp: Date.now() });
     const recentHistory = history.slice(-20);
-    
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(recentHistory));
-      console.log('💾 Сохранена игра:', playerData);
     } catch (e) {
       console.error('Ошибка сохранения истории:', e);
     }
-    
-    // Обновляем отображение
     renderLiveBets();
   }
 
@@ -761,14 +662,10 @@
     const history = getPlayersHistory();
     const now = Date.now();
     const fresh = history.filter(p => (now - p.timestamp) < MAX_HISTORY_AGE);
-    
     if (fresh.length !== history.length) {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
-        console.log(`🧹 Очищено ${history.length - fresh.length} старых записей`);
-      } catch (e) {
-        console.error('Ошибка очистки истории:', e);
-      }
+      } catch (e) {}
     }
   }
 
@@ -776,9 +673,8 @@
     const onlineElement = $('.element-online .text-wrapper-35');
     if (onlineElement) {
       const history = getPlayersHistory();
-      // Подсчитываем уникальных игроков за последние 5 минут
       const uniquePlayers = new Set(history.map(p => p.userId)).size;
-      const count = Math.max(uniquePlayers, 1); // Минимум 1
+      const count = Math.max(uniquePlayers, 1);
       onlineElement.textContent = `${count} online`;
     }
   }
@@ -787,20 +683,16 @@
     const container = $('.user-templates');
     if (!container) return;
 
-    // Получаем последние игры (максимум 10)
     const history = getPlayersHistory();
-    const recentGames = history.slice(-10).reverse(); // Последние 10, в обратном порядке
+    const recentGames = history.slice(-10).reverse();
 
-    // Очищаем контейнер
     container.innerHTML = '';
 
     if (recentGames.length === 0) {
-      // Показываем сообщение если нет игр
-      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center; font-family: "Montserrat", Helvetica;">No recent games</div>';
+      container.innerHTML = '<div style="color: #7a7a7a; font-size: 12px; padding: 10px; text-align: center; font-family: \'Montserrat\', Helvetica;">No recent games</div>';
       return;
     }
 
-    // Рендерим каждую игру
     recentGames.forEach(game => {
       const playerElement = createPlayerElement(game);
       container.appendChild(playerElement);
@@ -811,13 +703,8 @@
     const div = document.createElement('div');
     div.className = 'div-4';
     
-    // Создаем аватар
     const avatar = createTelegramAvatar(game);
-    
-    // Маскируем имя
-    const maskedName = maskPlayerName(game.playerName);
-    
-    // РЕАЛЬНЫЕ данные из игры
+    const maskedName = game.playerName || 'Player';
     const bet = game.bet;
     const isWinner = game.isWinner;
     const multiplier = game.multiplier ? `${game.multiplier.toFixed(2)}x` : '0x';
@@ -835,7 +722,6 @@
       <div class="${winWrapperClass}"><div class="${winClass}">${winAmount}</div></div>
     `;
 
-    // Вставляем аватар
     const avatarWrapper = div.querySelector('.avatar-wrapper');
     avatarWrapper.appendChild(avatar);
 
@@ -845,24 +731,24 @@
   function createTelegramAvatar(game) {
     const avatar = document.createElement('div');
     avatar.className = 'avatar-2';
-    avatar.style.width = '19px';
-    avatar.style.height = '19px';
-    avatar.style.borderRadius = '50%';
-    avatar.style.overflow = 'hidden';
-    avatar.style.display = 'flex';
-    avatar.style.alignItems = 'center';
-    avatar.style.justifyContent = 'center';
-    avatar.style.fontSize = '10px';
-    avatar.style.fontWeight = 'bold';
-    avatar.style.color = 'white';
+    Object.assign(avatar.style, {
+      width: '19px',
+      height: '19px',
+      borderRadius: '50%',
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      color: 'white'
+    });
     
     if (game.playerAvatar) {
-      // Аватар из Telegram
       avatar.style.backgroundImage = `url(${game.playerAvatar})`;
       avatar.style.backgroundSize = 'cover';
       avatar.style.backgroundPosition = 'center';
     } else {
-      // Градиент с первой буквой имени
       const colors = [
         'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -879,13 +765,7 @@
     return avatar;
   }
 
-  function maskPlayerName(name) {
-    // Показываем имя ПОЛНОСТЬЮ без маскирования
-    return name || 'Player';
-  }
-
   function getCurrentPlayer() {
-    // Получаем данные игрока из Telegram
     if (window.TelegramUserData) {
       return {
         userId: window.TelegramUserData.id || 'user_' + Date.now(),
@@ -893,7 +773,6 @@
         playerAvatar: window.TelegramUserData.photo_url || null
       };
     }
-    // Fallback если нет Telegram данных
     return {
       userId: 'local_user',
       playerName: 'Player',
@@ -901,7 +780,7 @@
     };
   }
 
-  function saveCurrentGame(isWinner, multiplier, winnings) {
+  function saveGameResult(isWinner, multiplier, winnings) {
     const player = getCurrentPlayer();
     
     const gameData = {
@@ -920,10 +799,13 @@
   }
 
   function init() {
+    console.log('🎮 Mines Game: Initializing...');
+    initSocket();
     setupTileClicks();
     setupBetControls();
     setupBombsSelector();
     initPlayersSystem();
+    console.log('✅ Mines Game: Ready!');
   }
 
   if (document.readyState === 'loading') {
