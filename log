@@ -1,3 +1,5 @@
+referral-system.js:93  GET https://duopartners.xyz/api/referral/1889923046 404 (Not Found)
+
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
@@ -27,16 +29,15 @@ referral-system.js:31 ✅ Telegram ID: 1889923046
 referral-system.js:448 ✅ Referral System loaded
 referral-integration.js:42 ✅ Referral integration installed on BalanceAPI
 referral-integration.js:117 ✅ Referral integration loaded
-blackjack-sync.js:22 ⏳ BlackJack: Ожидание WebSocket...
-blackjack-sync.js:469 ✅ BlackJack Sync инициализирован
-game.js:495 ✅ Кнопки привязаны: {betMinus: true, betPlus: true, betHalf: true, betDouble: true}
-game.js:614 📊 Scores Update: {playerScore: '0', playerCards: '', dealerShown: 0, dealerCards: '', revealed: false}
-game.js:405 🃏 BlackJack готов!
+script.js:835 🎮 Mines Game: Initializing...
+script.js:102 🔌 Подключение к серверу: https://duopartners.xyz
+script.js:656 🎮 Инициализация локальной системы игроков для Mines
+script.js:841 ✅ Mines Game: Ready!
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
 telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
 balance-api.js:75 📡 Ответ сервера: 200
-balance-api.js:79 📦 Данные с сервера: {success: true, telegramId: 1889923046, balance: 25750, chips: 0, rubles: 25750}
-balance-api.js:87 💰 Balance loaded from server: {rubles: 25750, chips: 0}
+balance-api.js:79 📦 Данные с сервера: {success: true, telegramId: 1889923046, balance: 25800, chips: 0, rubles: 25800}
+balance-api.js:87 💰 Balance loaded from server: {rubles: 25800, chips: 0}
 balance-api.js:42 ✅ Balance API ready
 referral-system.js:93  GET https://duopartners.xyz/api/referral/1889923046 404 (Not Found)
 loadReferralData @ referral-system.js:93
@@ -47,72 +48,40 @@ ReferralSystem @ referral-system.js:18
 (anonymous) @ referral-system.js:449
 referral-system.js:158 ✅ UI initialized
 referral-system.js:42 ✅ Referral System ready
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-game.js:468 ➕ Кнопка +50
-game.js:516 🔄 changeBet: 50, текущая ставка: 50
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-players-system.js:238 ✅ WebSocket подключен: 4sqarkIbOTZslPapAAAk
-game.js:468 ➕ Кнопка +50
-game.js:516 🔄 changeBet: 50, текущая ставка: 50
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-favicon.ico:1  GET https://duopartners.xyz/favicon.ico 404 (Not Found)
-blackjack-sync.js:19 ✅ BlackJack: WebSocket готов
-blackjack-sync.js:28 🚀 BlackJack: Инициализация синхронизации...
-blackjack-sync.js:32 📡 BlackJack: Подключение к комнате global_blackjack
-blackjack-sync.js:177 ✅ BlackJack: Отправлено уведомление о входе
-game.js:468 ➕ Кнопка +50
-game.js:516 🔄 changeBet: 50, текущая ставка: 50
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-blackjack-sync.js:37 🔄 BlackJack: Синхронизация состояния: {game: 'blackjack', status: 'waiting', players: Array(1), activeGames: Array(0), history: Array(7)}
-blackjack-sync.js:52 👤 BlackJack: Игрок зашел: {game: 'blackjack', userId: 123456789, nickname: 'Test', photoUrl: null}
-game.js:468 ➕ Кнопка +50
-game.js:516 🔄 changeBet: 50, текущая ставка: 50
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-balance-api.js:345 ✅ Balance WebSocket connected
-game.js:468 ➕ Кнопка +50
-game.js:516 🔄 changeBet: 50, текущая ставка: 50
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
+players-system.js:238 ✅ WebSocket подключен: qAYZE5Bbp2IE1pn7AAAa
+script.js:113 ✅ Socket.IO connected - готов к игре
 referral-integration.js:103 ✅ Referral integration installed on BalanceAPI.addRubles
-game.js:486 ✖️ Кнопка x2
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-game.js:486 ✖️ Кнопка x2
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-game.js:486 ✖️ Кнопка x2
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-game.js:486 ✖️ Кнопка x2
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
-game.js:486 ✖️ Кнопка x2
-game.js:510 💰 setBet: 50 → 50 (баланс: 0)
-game.js:423 🎨 updateBetBalanceUI: обновляю отображение ставки на 50
-game.js:429 ✅ Обновление: 50 → 50
-game.js:432 🔍 Проверка элемента: {id: 'bet-amount', className: 'text-wrapper-5', parent: 'element', displayed: 'flex'}
+balance-api.js:345 ✅ Balance WebSocket connected
+script.js:441 💣 Начинаем игру: 2 мин, ставка 50
+script.js:122 🎮 Игра началась: {gameId: '1889923046_1767195057673', bombs: 2, bet: 50}
+script.js:134 ✅ Клетка открыта: {cellIndex: 24, isMine: false, revealed: Array(1), multiplier: 1.1, potentialWin: 55}
+script.js:134 ✅ Клетка открыта: {cellIndex: 23, isMine: false, revealed: Array(2), multiplier: 1.18, potentialWin: 59}
+script.js:151 🏁 Игра завершена: {result: 'win', allMines: Array(2), revealed: Array(2), multiplier: 1.18, bet: 50, …}
+referral-integration.js:92 💰 BalanceAPI.addRubles called: amount=59, source=game
+balance-api.js:152 ➕ Added 59₽, 0 chips. New balance: {rubles: 25859, chips: 0}
+referral-integration.js:11 🎰 Win detected: 59 from game
+referral-system.js:424  POST https://duopartners.xyz/api/referral/add-earnings 401 (Unauthorized)
+addReferralEarnings @ referral-system.js:424
+trackWinning @ referral-integration.js:15
+window.BalanceAPI.addRubles @ referral-integration.js:97
+await in window.BalanceAPI.addRubles
+(anonymous) @ script.js:214
+L.emit @ index.mjs:136
+value @ socket.js:494
+value @ socket.js:481
+value @ socket.js:451
+L.emit @ index.mjs:136
+(anonymous) @ manager.js:207
+Promise.then
+it @ websocket-constructor.browser.js:5
+value @ manager.js:206
+L.emit @ index.mjs:136
+value @ index.js:131
+value @ manager.js:193
+L.emit @ index.mjs:136
+value @ socket.js:324
+L.emit @ index.mjs:136
+value @ transport.js:97
+value @ transport.js:89
+ws.onmessage @ websocket.js:69
+referral-integration.js:16 ✅ Referral bonus processed for 1889923046

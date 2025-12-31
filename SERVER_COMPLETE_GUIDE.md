@@ -19,6 +19,7 @@ ssh root@77.239.125.70
 G3ce12soSjWJK38jyGq
 cd /var/www/duo
 git pull origin main
+pm2 restart duo-server
 ```
 curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc2NjY3OTY1NiwiZXhwIjoxNzY3Mjg0NDU2fQ.aocObCtvpeIoKK2qI9DBMShkxzpAyBEfBOAQpra0rkc"
      http://localhost:3000/api/referral/partner/stats

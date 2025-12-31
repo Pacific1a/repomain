@@ -1,19 +1,20 @@
 // ============================================
 // ИНТЕГРАЦИЯ РЕФЕРАЛЬНОЙ СИСТЕМЫ С ИГРАМИ
 // ============================================
-// Этот файл добавляет автоматическое начисление процентов при выигрышах
+// Этот файл добавляет автоматическое начисление процентов при ПРОИГРЫШАХ игроков
 
 (function() {
     'use strict';
     
-    // Функция для начисления профита рефереру
-    const trackWinning = async (userId, amount, source) => {
-        console.log(`🎰 Win detected: ${amount} from ${source}`);
+    // Функция для начисления профита рефереру при ПРОИГРЫШЕ игрока
+    const trackLoss = async (userId, lossAmount, source) => {
+        console.log(`💸 Loss detected: ${lossAmount} from ${source}`);
         
         if (window.ReferralSystem) {
             try {
-                await window.ReferralSystem.addReferralEarnings(userId, amount);
-                console.log(`✅ Referral bonus processed for ${userId}`);
+                // Партнёр получает 60% от проигрыша
+                await window.ReferralSystem.addReferralEarnings(userId, lossAmount);
+                console.log(`✅ Referral bonus processed for ${userId}: ${lossAmount} loss`);
             } catch (e) {
                 console.error('❌ Referral bonus error:', e);
             }
@@ -22,24 +23,24 @@
         }
     };
     
-    // Перехват BalanceAPI.addChips
+    // Перехват BalanceAPI.subtractRubles - ЭТО ПРОИГРЫШИ!
     if (window.BalanceAPI) {
-        const originalAddChips = window.BalanceAPI.addChips.bind(window.BalanceAPI);
+        const originalSubtractRubles = window.BalanceAPI.subtractRubles.bind(window.BalanceAPI);
         
-        window.BalanceAPI.addChips = async function(amount, source = 'game', description = '') {
-            console.log(`💰 BalanceAPI.addChips called: amount=${amount}, source=${source}`);
+        window.BalanceAPI.subtractRubles = async function(amount, source = 'game', description = '') {
+            console.log(`💸 BalanceAPI.subtractRubles called: amount=${amount}, source=${source}`);
             
-            const result = await originalAddChips(amount, source, description);
+            const result = await originalSubtractRubles(amount, source, description);
             
-            // Если это выигрыш - начисляем
-            if (result && amount > 0) {
-                await trackWinning(window.BalanceAPI.telegramId, amount, source);
+            // Если это проигрыш - партнёр получает 60%
+            if (result && amount > 0 && source === 'game') {
+                await trackLoss(window.BalanceAPI.telegramId, amount, source);
             }
             
             return result;
         };
         
-        console.log('✅ Referral integration installed on BalanceAPI');
+        console.log('✅ Referral integration installed on BalanceAPI.subtractRubles');
     }
     
     // Перехват GameBalanceAPI.addBalance
