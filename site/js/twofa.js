@@ -33,13 +33,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         observer.observe(auth2f, { attributes: true, attributeFilter: ['style'] });
     }
     
-    // Кнопка "Подключить" - используем removeEventListener чтобы избежать дублирования
+    // Кнопка "Подключить" - используем onclick чтобы избежать дублирования
     const connectBtn = document.querySelector('.auth_2f .button_2f button');
     if (connectBtn) {
-        // Удаляем старый обработчик если был
-        connectBtn.removeEventListener('click', handleConnect2FA);
-        // Добавляем новый
-        connectBtn.addEventListener('click', handleConnect2FA);
+        // Используем onclick вместо addEventListener для предотвращения дублирования
+        connectBtn.onclick = function(e) {
+            e.preventDefault();
+            handleConnect2FA();
+        };
     }
     
     
@@ -148,8 +149,17 @@ function show2FADisableForm() {
     if (inputCodeDiv) inputCodeDiv.style.display = 'none';
 }
 
+// Флаг для предотвращения двойной отправки
+let isSubmitting2FA = false;
+
 // Обработчик подключения 2FA
 async function handleConnect2FA() {
+    // Защита от двойного клика
+    if (isSubmitting2FA) {
+        console.log('⏳ 2FA уже отправляется, пропускаем...');
+        return;
+    }
+    
     console.log('Connect 2FA clicked');
     
     if (!currentSecret) {
@@ -180,26 +190,36 @@ async function handleConnect2FA() {
         return;
     }
     
-    // Отправляем на сервер
-    console.log('📡 Отправка запроса...');
-    const result = await API.enable2FA(currentSecret, code);
-    console.log('📥 Ответ сервера:', result);
+    // Устанавливаем флаг
+    isSubmitting2FA = true;
     
-    if (result.success) {
-        // Показываем только одно Toast уведомление
-        Toast.success('2FA успешно подключен');
+    try {
+        // Отправляем на сервер
+        console.log('📡 Отправка запроса...');
+        const result = await API.enable2FA(currentSecret, code);
+        console.log('📥 Ответ сервера:', result);
         
-        // Закрываем окно сразу
-        const modal = document.querySelector('.auth_2f');
-        if (modal) {
-            modal.style.setProperty('display', 'none', 'important');
+        if (result.success) {
+            // Показываем только одно Toast уведомление
+            Toast.success('2FA успешно подключен');
+            
+            // Закрываем окно сразу
+            const modal = document.querySelector('.auth_2f');
+            if (modal) {
+                modal.style.setProperty('display', 'none', 'important');
+            }
+            
+            // Обновляем кнопки - показываем "Отключить 2FA"
+            updateButtonsVisibility(true);
+        } else {
+            // Показываем Toast с ошибкой
+            Toast.error(result.message || 'Неверный код');
         }
-        
-        // Обновляем кнопки - показываем "Отключить 2FA"
-        updateButtonsVisibility(true);
-    } else {
-        // Показываем Toast с ошибкой
-        Toast.error(result.message || 'Неверный код');
+    } finally {
+        // Сбрасываем флаг через небольшую задержку
+        setTimeout(() => {
+            isSubmitting2FA = false;
+        }, 1000);
     }
 }
 
@@ -289,11 +309,18 @@ function updateHeaderButtons(isEnabled) {
 
 // Проверяем статус 2FA и обновляем кнопки
 async function check2FAStatusAndUpdateButtons() {
-    const status = await API.check2FAStatus();
-    console.log('2FA Status on load:', status);
-    
-    if (status.success) {
-        updateButtonsVisibility(status.enabled);
+    try {
+        const status = await API.check2FAStatus();
+        console.log('📥 2FA Status on load:', status);
+        
+        // ВАЖНО: API возвращает twoFactorEnabled, НЕ enabled!
+        const isEnabled = status.twoFactorEnabled || false;
+        console.log('🔘 Updating buttons, isEnabled:', isEnabled);
+        
+        updateButtonsVisibility(isEnabled);
+    } catch (error) {
+        console.error('❌ Error checking 2FA status:', error);
+        updateButtonsVisibility(false);
     }
 }
 
