@@ -424,7 +424,7 @@
         const allData = extractMetricData(timeline, currentMetric);
         const allDates = timeline.dates;
 
-        // ГРУППИРУЕМ данные в МАКСИМУМ 7 точек
+        // ГРУППИРУЕМ данные в РОВНО 7 точек
         const MAX_POINTS = 7;
         let labels = [];
         let data = [];
@@ -434,21 +434,13 @@
             labels = allDates.map(dateStr => formatDateLabel(dateStr));
             data = allData;
         } else {
-            // Группируем данные
-            const groupSize = Math.ceil(allDates.length / MAX_POINTS);
-            
+            // Группируем данные - РОВНО 7 точек
             for (let i = 0; i < MAX_POINTS; i++) {
-                const startIdx = i * groupSize;
-                const endIdx = Math.min(startIdx + groupSize, allDates.length);
+                // Вычисляем индекс точки равномерно распределяя по всем данным
+                const index = Math.floor((i / (MAX_POINTS - 1)) * (allDates.length - 1));
                 
-                if (startIdx >= allDates.length) break;
-                
-                // Берём ПОСЛЕДНЮЮ дату из группы (кумулятивное значение)
-                const lastDateIdx = endIdx - 1;
-                const dateStr = allDates[lastDateIdx];
-                
-                labels.push(formatDateLabel(dateStr));
-                data.push(allData[lastDateIdx]); // Кумулятивное значение на конец группы
+                labels.push(formatDateLabel(allDates[index]));
+                data.push(allData[index]); // Кумулятивное значение
             }
         }
 
