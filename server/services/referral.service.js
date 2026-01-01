@@ -351,6 +351,7 @@ class ReferralService {
     /**
      * Add sub-partner earnings (5% from partner's income)
      * Called automatically when partner earns money
+     * NOTE: 5% добавляется напрямую к balance супер-партнёра
      */
     static async addSubPartnerEarnings(partnerId, partnerEarnings) {
         try {
@@ -370,7 +371,13 @@ class ReferralService {
             
             console.log(`💎 Sub-partner ${superPartnerId} will earn ${subPartnerCut}₽ (5% of partner ${partnerId}'s ${partnerEarnings}₽)`);
             
-            // Update super-partner's sub_partner_earnings
+            // Update super-partner's balance (users.balance)
+            await db.runAsync(
+                'UPDATE users SET balance = balance + ? WHERE id = ?',
+                [subPartnerCut, superPartnerId]
+            );
+            
+            // Update sub_partner_earnings для статистики
             await db.runAsync(
                 'UPDATE referral_stats SET sub_partner_earnings = sub_partner_earnings + ? WHERE user_id = ?',
                 [subPartnerCut, superPartnerId]
