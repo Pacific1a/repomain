@@ -66,14 +66,14 @@
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 3, // Точки ВСЕГДА видны (маленькие)
-                    pointHoverRadius: 3, // При наведении НЕ увеличиваются
+                    pointRadius: 5, // Точки ВСЕГДА видны
+                    pointHoverRadius: 5, // При наведении НЕ увеличиваются
                     pointBackgroundColor: metrics[currentMetric].color,
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 1,
+                    pointBorderWidth: 2,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 1,
+                    pointHoverBorderWidth: 2,
                     clip: false
                 }]
             },
@@ -240,26 +240,8 @@
         myChart.data.datasets[0].pointBackgroundColor = metric.color; // Цвет точек!
         myChart.data.datasets[0].pointHoverBackgroundColor = metric.color;
         
-        // Обновляем данные
-        const data = extractMetricData(timelineData, currentMetric);
-        myChart.data.datasets[0].data = data;
-        
-        // АДАПТИВНЫЙ размер точек при переключении метрик
-        const pointCount = data.length;
-        let adaptivePointRadius;
-        
-        if (pointCount <= 10) {
-            adaptivePointRadius = 5; // Мало точек - БОЛЬШИЕ точки
-        } else if (pointCount <= 30) {
-            adaptivePointRadius = 4; // Средне - средние точки
-        } else {
-            adaptivePointRadius = 3; // Много - маленькие точки
-        }
-        
-        myChart.data.datasets[0].pointRadius = adaptivePointRadius;
-        myChart.data.datasets[0].pointHoverRadius = adaptivePointRadius;
-        
-        myChart.update();
+        // Обновляем график через updateChartWithTimeline (чтобы была группировка в 7 точек)
+        updateChartWithTimeline(timelineData);
     }
 
     function extractMetricData(timeline, metric) {
@@ -438,65 +420,81 @@
             return;
         }
 
-        // Форматируем даты адаптивно в зависимости от периода
-        const labels = timeline.dates.map(dateStr => {
-            const date = new Date(dateStr);
-            const day = date.getDate();
-            const month = date.getMonth() + 1;
-            
-            // Для разных периодов - разный формат
-            if (currentPeriod === 'week') {
-                // Неделя: короткий день недели + дата
-                const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-                const weekday = weekdays[date.getDay()];
-                return `${weekday} ${day}.${month < 10 ? '0' + month : month}`;
-            } else if (currentPeriod === 'month') {
-                // Месяц: только дата
-                return `${day}.${month < 10 ? '0' + month : month}`;
-            } else if (currentPeriod === 'year') {
-                // Год: месяц + день
-                const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-                const monthName = months[date.getMonth()];
-                return `${day} ${monthName}`;
-            } else {
-                // По умолчанию
-                return `${day}.${month < 10 ? '0' + month : month}`;
-            }
-        });
+        // Извлекаем ВСЕ данные для текущей метрики
+        const allData = extractMetricData(timeline, currentMetric);
+        const allDates = timeline.dates;
 
-        // Извлекаем данные для текущей метрики
-        const data = extractMetricData(timeline, currentMetric);
+        // ГРУППИРУЕМ данные в МАКСИМУМ 7 точек
+        const MAX_POINTS = 7;
+        let labels = [];
+        let data = [];
+
+        if (allDates.length <= MAX_POINTS) {
+            // Если данных мало - показываем все
+            labels = allDates.map(dateStr => formatDateLabel(dateStr));
+            data = allData;
+        } else {
+            // Группируем данные
+            const groupSize = Math.ceil(allDates.length / MAX_POINTS);
+            
+            for (let i = 0; i < MAX_POINTS; i++) {
+                const startIdx = i * groupSize;
+                const endIdx = Math.min(startIdx + groupSize, allDates.length);
+                
+                if (startIdx >= allDates.length) break;
+                
+                // Берём ПОСЛЕДНЮЮ дату из группы (кумулятивное значение)
+                const lastDateIdx = endIdx - 1;
+                const dateStr = allDates[lastDateIdx];
+                
+                labels.push(formatDateLabel(dateStr));
+                data.push(allData[lastDateIdx]); // Кумулятивное значение на конец группы
+            }
+        }
 
         console.log('📊 updateChartWithTimeline:', {
             metric: currentMetric,
-            labelsCount: labels.length,
-            dataCount: data.length,
+            originalPoints: allDates.length,
+            groupedPoints: labels.length,
             labels: labels,
-            data: data,
-            hasData: data.some(v => v > 0)
+            data: data
         });
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = data;
         
-        // АДАПТИВНЫЙ размер точек в зависимости от количества данных
-        const pointCount = data.length;
-        let adaptivePointRadius;
+        // Точки ВСЕГДА видны, размер 5
+        myChart.data.datasets[0].pointRadius = 5;
+        myChart.data.datasets[0].pointHoverRadius = 5;
         
-        if (pointCount <= 10) {
-            adaptivePointRadius = 5; // Мало точек - БОЛЬШИЕ точки
-        } else if (pointCount <= 30) {
-            adaptivePointRadius = 4; // Средне - средние точки
-        } else {
-            adaptivePointRadius = 3; // Много - маленькие точки
-        }
-        
-        myChart.data.datasets[0].pointRadius = adaptivePointRadius;
-        myChart.data.datasets[0].pointHoverRadius = adaptivePointRadius;
-        
-        console.log(`✅ График обновлён (${pointCount} точек, radius: ${adaptivePointRadius})`);
+        console.log(`✅ График обновлён (${labels.length} точек)`);
         
         myChart.update('active');
+    }
+
+    function formatDateLabel(dateStr) {
+        const date = new Date(dateStr);
+        const day = date.getDate();
+        const month = date.getMonth() + 1;
+        
+        // Для разных периодов - разный формат
+        if (currentPeriod === 'week') {
+            // Неделя: короткий день недели + дата
+            const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+            const weekday = weekdays[date.getDay()];
+            return `${weekday} ${day}.${month < 10 ? '0' + month : month}`;
+        } else if (currentPeriod === 'month') {
+            // Месяц: только дата
+            return `${day}.${month < 10 ? '0' + month : month}`;
+        } else if (currentPeriod === 'year') {
+            // Год: месяц + день
+            const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            const monthName = months[date.getMonth()];
+            return `${day} ${monthName}`;
+        } else {
+            // По умолчанию
+            return `${day}.${month < 10 ? '0' + month : month}`;
+        }
     }
 
     function updateStatsCards(stats) {
