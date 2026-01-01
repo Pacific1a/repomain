@@ -1424,16 +1424,7 @@ a{
 	  border-radius: 22px;
 	justify-content: center;
 }
-.ellips{
-	position: absolute;
-    width: 1000px;
-    height: 700px;
-    background: linear-gradient(270deg, #6b06067f, #6b000074);
-    border-radius: 50%;
-    filter: blur(200px);
-    bottom: -27em;
-    left: 20%;
-}
+
 .rectangle {
     max-width: 364px;
     border-radius: 4px;
