@@ -1067,7 +1067,7 @@ font-size: 30px;
 .bg-item{
 	mix-blend-mode: color-dodge;
 	background-size: cover;
-	background-image: url(../site/img/Picture-card-1.png);
+	background-image: url(../img/Picture-card-1.png);
 	width: 100%;
 	position: absolute;
 	bottom: 0px;
@@ -1077,7 +1077,7 @@ font-size: 30px;
 .bg-item-2{
 	mix-blend-mode: color-dodge;
 	background-size: cover;
-	background-image: url(../site/img/Picture-card-2.png);
+	background-image: url(../img/Picture-card-2.png);
 	width: 100%;
 	position: absolute;
 	bottom: 0px;
