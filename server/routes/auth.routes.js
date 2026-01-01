@@ -21,7 +21,8 @@ router.post('/register', [
     body('email').isEmail().withMessage('Invalid email format'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     body('login').isLength({ min: 3 }).withMessage('Login must be at least 3 characters'),
-    body('telegram').optional()
+    body('telegram').optional(),
+    body('referralCode').optional()
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -32,7 +33,7 @@ router.post('/register', [
             });
         }
         
-        const { email, login, password, telegram } = req.body;
+        const { email, login, password, telegram, referralCode } = req.body;
         
         console.log(`📥 /api/auth/register: email=${email}, login=${login}`);
         
@@ -60,23 +61,36 @@ router.post('/register', [
         
         const userId = result.lastID;
         
-        // Create referral stats
-        const referralCode = ReferralService.generateReferralCode(userId);
+        // Find super-partner if referralCode provided
+        let superPartnerId = null;
+        if (referralCode) {
+            console.log(`🔗 Partner registered with referral code: ${referralCode}`);
+            superPartnerId = await ReferralService.findPartnerByCode(referralCode);
+            
+            if (superPartnerId) {
+                console.log(`💎 Super-partner found: ${superPartnerId}`);
+            } else {
+                console.warn(`⚠️ Referral code ${referralCode} not found`);
+            }
+        }
+        
+        // Create referral stats with sub_partner_id
+        const newReferralCode = ReferralService.generateReferralCode(userId);
         await db.runAsync(
-            'INSERT INTO referral_stats (user_id, referral_code) VALUES (?, ?)',
-            [userId, referralCode]
+            'INSERT INTO referral_stats (user_id, referral_code, sub_partner_id) VALUES (?, ?, ?)',
+            [userId, newReferralCode, superPartnerId]
         );
         
         // Generate token
         const token = generateToken(userId);
         
-        console.log(`✅ User registered: id=${userId}, code=${referralCode}`);
+        console.log(`✅ User registered: id=${userId}, code=${newReferralCode}, super-partner=${superPartnerId || 'none'}`);
         
         res.json({
             success: true,
             message: 'Registration successful',
             token,
-            referralCode,
+            referralCode: newReferralCode,
             user: {
                 id: userId,
                 email,

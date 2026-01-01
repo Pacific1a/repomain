@@ -244,4 +244,52 @@ router.get('/partner/referrals', jwtAuth, async (req, res) => {
     }
 });
 
+// ============================================
+// SUB-PARTNER ENDPOINTS (2-level referral)
+// ============================================
+
+/**
+ * GET /api/referral/sub-partners/stats
+ * Get sub-partner statistics (total earnings, partner count)
+ */
+router.get('/sub-partners/stats', jwtAuth, async (req, res) => {
+    try {
+        console.log(`📥 /api/referral/sub-partners/stats: userId=${req.userId}`);
+        
+        const stats = await ReferralService.getSubPartnerStats(req.userId);
+        res.json({ 
+            success: true, 
+            ...stats 
+        });
+    } catch (error) {
+        console.error('❌ /api/referral/sub-partners/stats error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
+
+/**
+ * GET /api/referral/sub-partners/list
+ * Get list of recruited partners
+ */
+router.get('/sub-partners/list', jwtAuth, async (req, res) => {
+    try {
+        console.log(`📥 /api/referral/sub-partners/list: userId=${req.userId}`);
+        
+        const partners = await ReferralService.getSubPartnersList(req.userId);
+        res.json({ 
+            success: true, 
+            partners 
+        });
+    } catch (error) {
+        console.error('❌ /api/referral/sub-partners/list error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+});
+
 module.exports = router;

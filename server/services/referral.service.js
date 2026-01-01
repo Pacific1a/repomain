@@ -332,6 +332,9 @@ class ReferralService {
             
             console.log(`✅ Earnings added: partner=${partnerId}, earnings=${earnings}₽ (60% of ${lossAmount}₽)`);
             
+            // 🔥 SUB-PARTNER LOGIC: Give 5% to super-partner
+            await this.addSubPartnerEarnings(partnerId, earnings);
+            
             return { 
                 success: true, 
                 partnerId, 
@@ -342,6 +345,73 @@ class ReferralService {
         } catch (error) {
             console.error('❌ Error adding earnings:', error);
             throw error;
+        }
+    }
+    
+    /**
+     * Add sub-partner earnings (5% from partner's income)
+     * Called automatically when partner earns money
+     */
+    static async addSubPartnerEarnings(partnerId, partnerEarnings) {
+        try {
+            // Get partner's referral stats to find super-partner
+            const partnerStats = await db.getAsync(
+                'SELECT sub_partner_id FROM referral_stats WHERE user_id = ?',
+                [partnerId]
+            );
+            
+            if (!partnerStats || !partnerStats.sub_partner_id) {
+                // This partner was not referred by another partner
+                return { success: false, message: 'No super-partner' };
+            }
+            
+            const superPartnerId = partnerStats.sub_partner_id;
+            const subPartnerCut = partnerEarnings * 0.05; // 5% from partner's earnings
+            
+            console.log(`💎 Sub-partner ${superPartnerId} will earn ${subPartnerCut}₽ (5% of partner ${partnerId}'s ${partnerEarnings}₽)`);
+            
+            // Update super-partner's sub_partner_earnings
+            await db.runAsync(
+                'UPDATE referral_stats SET sub_partner_earnings = sub_partner_earnings + ? WHERE user_id = ?',
+                [subPartnerCut, superPartnerId]
+            );
+            
+            // Update sub_partners table (or create if not exists)
+            const existingRecord = await db.getAsync(
+                'SELECT id FROM sub_partners WHERE super_partner_id = ? AND partner_id = ?',
+                [superPartnerId, partnerId]
+            );
+            
+            if (existingRecord) {
+                await db.runAsync(
+                    'UPDATE sub_partners SET total_earnings = total_earnings + ?, sub_partner_cut = sub_partner_cut + ? WHERE id = ?',
+                    [partnerEarnings, subPartnerCut, existingRecord.id]
+                );
+            } else {
+                await db.runAsync(
+                    'INSERT INTO sub_partners (super_partner_id, partner_id, total_earnings, sub_partner_cut) VALUES (?, ?, ?, ?)',
+                    [superPartnerId, partnerId, partnerEarnings, subPartnerCut]
+                );
+            }
+            
+            // Save event for history
+            await db.runAsync(
+                'INSERT INTO sub_partner_events (super_partner_id, partner_id, amount, partner_earnings) VALUES (?, ?, ?, ?)',
+                [superPartnerId, partnerId, subPartnerCut, partnerEarnings]
+            );
+            
+            console.log(`✅ Sub-partner earnings added: super=${superPartnerId}, amount=${subPartnerCut}₽`);
+            
+            return {
+                success: true,
+                superPartnerId,
+                subPartnerCut,
+                partnerEarnings
+            };
+        } catch (error) {
+            console.error('❌ Error adding sub-partner earnings:', error);
+            // Don't throw - this is a non-critical feature
+            return { success: false, error: error.message };
         }
     }
     
@@ -584,6 +654,73 @@ class ReferralService {
         } catch (error) {
             console.error('❌ Error in getUserReferrer:', error);
             return null;
+        }
+    }
+    
+    /**
+     * Get sub-partner statistics
+     * Returns total earnings and count of recruited partners
+     */
+    static async getSubPartnerStats(userId) {
+        try {
+            // Get sub_partner_earnings from referral_stats
+            const stats = await db.getAsync(
+                'SELECT sub_partner_earnings FROM referral_stats WHERE user_id = ?',
+                [userId]
+            );
+            
+            const totalEarnings = stats ? stats.sub_partner_earnings : 0;
+            
+            // Get count of recruited partners
+            const countResult = await db.getAsync(
+                'SELECT COUNT(*) as count FROM sub_partners WHERE super_partner_id = ?',
+                [userId]
+            );
+            
+            const partnersCount = countResult ? countResult.count : 0;
+            
+            console.log(`📊 Sub-partner stats: userId=${userId}, earnings=${totalEarnings}, partners=${partnersCount}`);
+            
+            return {
+                totalEarnings: totalEarnings || 0,
+                partnersCount: partnersCount || 0
+            };
+        } catch (error) {
+            console.error('❌ Error getting sub-partner stats:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Get list of recruited partners with their stats
+     */
+    static async getSubPartnersList(userId) {
+        try {
+            const partners = await new Promise((resolve, reject) => {
+                db.all(`
+                    SELECT 
+                        sp.partner_id,
+                        sp.total_earnings,
+                        sp.sub_partner_cut,
+                        sp.joined_at,
+                        u.login as partner_login,
+                        u.email as partner_email
+                    FROM sub_partners sp
+                    LEFT JOIN users u ON u.id = sp.partner_id
+                    WHERE sp.super_partner_id = ?
+                    ORDER BY sp.joined_at DESC
+                `, [userId], (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows || []);
+                });
+            });
+            
+            console.log(`📊 Sub-partners list: userId=${userId}, count=${partners.length}`);
+            
+            return partners;
+        } catch (error) {
+            console.error('❌ Error getting sub-partners list:', error);
+            throw error;
         }
     }
 }

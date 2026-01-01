@@ -206,13 +206,31 @@ const ModalGenerator = {
                     <div class="sub_ref_info">
                         <span>С каждого нового привлеченного Вами партнера, Вам будут производиться реферальные отчисления равные 5% от его дохода</span>
                     </div>
+                    <div class="sub-partner-stats" style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-around; text-align: center;">
+                            <div>
+                                <div style="font-size: 24px; font-weight: bold; color: #b00000;" class="sp-earnings">0₽</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Заработано</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 24px; font-weight: bold; color: #b00000;" class="sp-count">0</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Партнёров</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="field_button">
                         <div class="link-refferal">
-                            <span>Реферальная ссылка:</span>
+                            <span>Реферальная ссылка для партнёров:</span>
                         </div>
                         <div class="btn_parnters">
                             <input type="text" placeholder="https://example.com/?p=xueQ">
                             <button>Скопировать</button>
+                        </div>
+                    </div>
+                    <div class="sub-partners-list" style="margin-top: 20px;">
+                        <h3 style="font-size: 14px; margin-bottom: 10px;">Привлечённые партнёры:</h3>
+                        <div class="sp-list-container" style="max-height: 300px; overflow-y: auto;">
+                            <!-- Динамический список партнёров -->
                         </div>
                     </div>
                 </div>
