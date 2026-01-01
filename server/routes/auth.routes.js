@@ -192,6 +192,16 @@ router.get('/user', jwtAuth, async (req, res) => {
             });
         }
         
+        // Получаем партнерский баланс (60% от потерь рефералов)
+        const partnerStats = await db.getAsync(
+            'SELECT earnings FROM referral_stats WHERE user_id = ?',
+            [req.userId]
+        );
+        
+        const partnerBalance = partnerStats ? (partnerStats.earnings || 0) : 0;
+        
+        console.log(`💰 Partner balance for user ${req.userId}: ${partnerBalance}₽`);
+        
         res.json({
             success: true,
             user: {
@@ -199,7 +209,7 @@ router.get('/user', jwtAuth, async (req, res) => {
                 email: user.email,
                 login: user.login,
                 telegram: user.telegram || '',
-                balance: user.balance,
+                balance: partnerBalance,  // Показываем партнерский баланс (earnings) вместо обычного
                 role: user.role || 'user'
             }
         });
