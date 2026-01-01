@@ -1798,7 +1798,7 @@
   border: 1px solid;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  min-width: 180px;
+  
   max-width: 280px;
 }
 
