@@ -117,16 +117,7 @@ const ModalGenerator = {
                     <div class="button_2f">
                         <button>Подтвердить</button>
                     </div>
-                    <div class="btn_condition">
-                        <div class="succes">
-                            ${ModalGenerator.icons.success}
-                            <span>2FA Успешно добавлено</span>
-                        </div>
-                        <div class="error">
-                            ${ModalGenerator.icons.error}
-                            <span>Неверный код</span>
-                        </div>
-                    </div>
+                    <!-- Модалки успеха/ошибки удалены - используем Toast -->
                 </div>
             </div>
         `,
@@ -387,16 +378,7 @@ const ModalGenerator = {
                         <button>Подключить</button>
                     </div>
                 </div>
-                <div class="btn_condition">
-                    <div class="succes">
-                        ${ModalGenerator.icons.success}
-                        <span>2FA Успешно добавлено</span>
-                    </div>
-                    <div class="error">
-                        ${ModalGenerator.icons.error}
-                        <span>Неверный код</span>
-                    </div>
-                </div>
+                <!-- Модалки успеха/ошибки удалены - используем Toast -->
             </div>
         `,
 

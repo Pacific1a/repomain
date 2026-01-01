@@ -220,56 +220,21 @@ async function handleDisconnect2FA() {
     if (result.success) {
         Toast.success('2FA успешно отключен');
         
-        // Закрываем окно и обновляем кнопки
-        setTimeout(() => {
-            const modal = document.querySelector('.auth_2f');
-            if (modal) {
-                modal.style.setProperty('display', 'none', 'important');
-            }
-            
-            // Обновляем кнопки - показываем "Подключить 2FA"
-            updateButtonsVisibility(false);
-        }, 1000);
+        // Закрываем окно сразу
+        const modal = document.querySelector('.auth_2f');
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+        }
+        
+        // Обновляем кнопки - показываем "Подключить 2FA"
+        updateButtonsVisibility(false);
     } else {
-        showError();
-        setTimeout(() => {
-            hideConditionModals();
-        }, 3000);
+        Toast.error(result.message || 'Ошибка отключения 2FA');
     }
 }
 
-// Показываем модалку успеха
-function showSuccess() {
-    const container = document.querySelector('.btn_condition');
-    const successDiv = document.querySelector('.btn_condition .succes');
-    
-    if (container && successDiv) {
-        container.style.setProperty('display', 'flex', 'important');
-        successDiv.style.setProperty('display', 'flex', 'important');
-    }
-}
-
-// Показываем модалку ошибки
-function showError() {
-    const container = document.querySelector('.btn_condition');
-    const errorDiv = document.querySelector('.btn_condition .error');
-    
-    if (container && errorDiv) {
-        container.style.setProperty('display', 'flex', 'important');
-        errorDiv.style.setProperty('display', 'flex', 'important');
-    }
-}
-
-// Скрываем модалки результата
-function hideConditionModals() {
-    const container = document.querySelector('.btn_condition');
-    const successDiv = document.querySelector('.btn_condition .succes');
-    const errorDiv = document.querySelector('.btn_condition .error');
-    
-    if (container) container.style.setProperty('display', 'none', 'important');
-    if (successDiv) successDiv.style.setProperty('display', 'none', 'important');
-    if (errorDiv) errorDiv.style.setProperty('display', 'none', 'important');
-}
+// Функции showSuccess/showError/hideConditionModals удалены
+// Используем только Toast уведомления для чистого UX
 
 // Обновляем видимость кнопок в зависимости от статуса 2FA
 function updateButtonsVisibility(isEnabled) {
