@@ -1,135 +1,112 @@
-chart.js?v=45:48 ✅ Инициализация графика...
-chart.js?v=45:361 📥 Загрузка данных графика (period: week)...
-auth.js?v=8:18 === Auth.js запущен [ВЕРСИЯ 4] ===
-auth.js?v=8:19 Toast доступен? ✅ ДА
-auth.js?v=8:20 API доступен? ✅ ДА
-auth.js?v=8:38 Данные пользователя из localStorage: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:133 Обновление UI с данными: {id: 4, email: 'kuratormir07@gmail.com', login: 'kuratormir07', telegram: '@asdasf', balance: 0, …}
-auth.js?v=8:140 Баланс обновлен: 0
-auth.js?v=8:147 Актуальный логин установлен: kuratormir07
-auth.js?v=8:154 Актуальный email установлен: kuratormir07@gmail.com
-auth.js?v=8:161 Telegram установлен: @asdasf
-auth.js?v=8:52 📝 Настройка обработчика кнопки Сохранить...
-auth.js?v=8:122 ✅ Обработчик установлен!
-twofa.js?v=17:8 2FA module loaded
-validation.js?v=1:301 Validation.js загружен
-admin.js?v=8:6 Admin module loaded
-admin.js?v=8:17 Получаем роль с сервера...
-modal-handler.js:29 ModalHandler: Инициализация...
-modal-handler.js:375 ModalHandler: Обработчики кнопок настроены
-modal-handler.js:43 ModalHandler: Готов к работе
-twofa.js?v=17:301 2FA Status on load: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-admin.js?v=8:22 Роль пользователя с сервера: user
-admin.js?v=8:45 Обновление UI, isAdmin: false
-admin.js?v=8:50 Найдено админских кнопок: 0
-admin.js?v=8:61 👤 Обычный пользователь - кнопки скрыты
-chart.js?v=45:380 🔍 API Response: {statsData: {…}, timelineDates: Array(7), timelineLength: 7, firstDate: '2025-12-25', lastDate: '2025-12-31', …}
-chart.js?v=45:282 📊 extractMetricData: {metric: 'visits', dates: Array(7), dataPoints: 7, firstValue: 0, lastValue: 2, …}
-chart.js?v=45:434 📊 updateChartWithTimeline: {metric: 'visits', labelsCount: 7, dataCount: 7, labels: Array(7), data: Array(7), …}
-chart.js?v=45:447 ✅ График обновлён
-chart.js?v=45:451 📊 Обновление карточек статистики: {referralCode: '4_MJQ22TV3PNI5J', clicks: 2, firstDeposits: 0, deposits: 0, totalDeposits: '500.00', …}
-chart.js?v=45:462 ✅ Карточки обновлены
-chart.js?v=45:397 ✅ Данные загружены и график обновлён
-modal-handler.js:55 ModalHandler: Модальные окна загружены
-twofa.js?v=17:48 Initializing 2FA...
-twofa.js?v=17:21 2FA modal opened
-twofa.js?v=17:48 Initializing 2FA...
-modal-handler.js:95 ModalHandler: Открыто окно "auth2FA"
-twofa.js?v=17:21 2FA modal opened
-twofa.js?v=17:48 Initializing 2FA...
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-openTwoFAModal @ twofa.js?v=17:411
-(anonymous) @ twofa.js?v=17:392
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
-validation.js?v=1:308 ✅ Валидация инициализирована
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-(anonymous) @ twofa.js?v=17:22
-(anonymous) @ twofa.js?v=17:18
-attributes
-openTwoFAModal @ twofa.js?v=17:409
-(anonymous) @ twofa.js?v=17:392
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-(anonymous) @ twofa.js?v=17:22
-(anonymous) @ twofa.js?v=17:18
-attributes
-open @ modal-handler.js:87
-(anonymous) @ modal-handler.js:371
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
-referral.js?v=1:21 🎁 Referral Manager initializing...
-referral.js?v=1:248 ✅ Автообновление каждые 120с
-referral.js?v=1:261 ✅ ReferralManager инициализирован
-referral.js?v=1:43 📊 Реферальные данные: {referralCode: '4_MJQ22TV3PNI5J', clicks: 2, firstDeposits: 0, deposits: 0, totalDeposits: '500.00', …}
-referral.js?v=1:62 📊 Обработанная статистика: {clicks: 2, firstDeposits: 0, deposits: 0, totalDeposits: '500.00', totalLosses: '500.00', …}
-referral.js?v=1:63 💰 Заработано (60%): 300.00₽
-referral.js?v=1:64 👥 Игроков с проигрышами: 0
-referral.js?v=1:65 💸 Стоимость перехода (15₽ × игроки): -15.00₽
-referral.js?v=1:66 ✅ Чистый баланс: 285.00₽
-referral.js?v=1:67 📊 Сумма депозитов (проигрыши): 500.00₽
-referral.js?v=1:68 👤 Средний доход с игрока: 285.00₽
-referral.js?v=1:106 🔗 Реферальная ссылка: https://t.me/aasasdasdadsddasdbot?start=ref_4_MJQ22TV3PNI5J
-referral.js?v=1:187 🔄 Обновление статистики: {clicks: 2, firstDeposits: 0, deposits: 0, totalDeposits: '500.00', totalLosses: '500.00', …}
-referral.js?v=1:227 ✅ Обновлено .visits-value = 2
-referral.js?v=1:227 ✅ Обновлено .clients-value = 0
-referral.js?v=1:227 ✅ Обновлено .deposits-value = 0
-referral.js?v=1:227 ✅ Обновлено .income-value = 285.00₽
-referral.js?v=1:220 ✅ Статистика обновлена
-referral.js?v=1:149 ✅ UI настроен
-referral.js?v=1:24 ✅ Referral Manager ready
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-twofa.js?v=17:121 Connect 2FA clicked
-modal-handler.js:132 ModalHandler: Окно закрыто
-twofa.js?v=17:48 Initializing 2FA...
-twofa.js?v=17:21 2FA modal opened
-twofa.js?v=17:48 Initializing 2FA...
-modal-handler.js:95 ModalHandler: Открыто окно "auth2FA"
-twofa.js?v=17:21 2FA modal opened
-twofa.js?v=17:48 Initializing 2FA...
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-openTwoFAModal @ twofa.js?v=17:411
-(anonymous) @ twofa.js?v=17:392
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
-twofa.js?v=17:52 2FA Status: {success: true, twoFactorEnabled: false, message: '2FA not implemented yet'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-(anonymous) @ twofa.js?v=17:22
-(anonymous) @ twofa.js?v=17:18
-attributes
-openTwoFAModal @ twofa.js?v=17:409
-(anonymous) @ twofa.js?v=17:392
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
-api.js?v=8:196  POST https://duopartners.xyz/api/2fa/setup 404 (Not Found)
-setup2FA @ api.js?v=8:196
-init2FA @ twofa.js?v=17:59
-await in init2FA
-(anonymous) @ twofa.js?v=17:22
-(anonymous) @ twofa.js?v=17:18
-attributes
-open @ modal-handler.js:87
-(anonymous) @ modal-handler.js:371
-twofa.js?v=17:60 Setup result: {success: false, message: 'Endpoint not found'}
+root@duos:/var/www/duo/server# cd /var/www/duo/server && node scripts/clear-2fa.js &&      cd .. && pm2 restart duo-server
+node:internal/modules/cjs/loader:1143
+  throw err;
+  ^
+
+Error: Cannot find module '/var/www/duo/server/scripts/clear-2fa.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+    at Module._load (node:internal/modules/cjs/loader:981:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v18.20.8
+root@duos:/var/www/duo/server# cd /var/www/duo/server
+root@duos:/var/www/duo/server# node scripts/clear-2fa.js
+node:internal/modules/cjs/loader:1143
+  throw err;
+  ^
+
+Error: Cannot find module '/var/www/duo/server/scripts/clear-2fa.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)
+    at Module._load (node:internal/modules/cjs/loader:981:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v18.20.8
+root@duos:/var/www/duo/server#
+
+
+root@duos:/var/www/duo# pm2 logs duo-server --lines 30
+[TAILING] Tailing last 30 lines for [duo-server] process (change the value with --lines option)
+/root/.pm2/logs/duo-server-error.log last 30 lines:
+0|duo-serv |     at Route.dispatch (/var/www/duo/server/node_modules/express/lib/router/route.js:119:3)
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at /var/www/duo/server/node_modules/express/lib/router/index.js:284:15
+0|duo-serv |     at Function.process_params (/var/www/duo/server/node_modules/express/lib/router/index.js:346:12)
+0|duo-serv | ❌ Error enabling 2FA: TypeError: db.runAsync is not a function
+0|duo-serv |     at /var/www/duo/server/routes/auth.routes.js:331:18
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/route.js:149:13)
+0|duo-serv |     at jwtAuth (/var/www/duo/server/middleware/auth.js:31:9)
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/route.js:149:13)
+0|duo-serv |     at Route.dispatch (/var/www/duo/server/node_modules/express/lib/router/route.js:119:3)
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at /var/www/duo/server/node_modules/express/lib/router/index.js:284:15
+0|duo-serv |     at Function.process_params (/var/www/duo/server/node_modules/express/lib/router/index.js:346:12)
+0|duo-serv | ❌ Error enabling 2FA: TypeError: db.runAsync is not a function
+0|duo-serv |     at /var/www/duo/server/routes/auth.routes.js:331:18
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/route.js:149:13)
+0|duo-serv |     at jwtAuth (/var/www/duo/server/middleware/auth.js:31:9)
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at next (/var/www/duo/server/node_modules/express/lib/router/route.js:149:13)
+0|duo-serv |     at Route.dispatch (/var/www/duo/server/node_modules/express/lib/router/route.js:119:3)
+0|duo-serv |     at Layer.handle [as handle_request] (/var/www/duo/server/node_modules/express/lib/router/layer.js:95:5)
+0|duo-serv |     at /var/www/duo/server/node_modules/express/lib/router/index.js:284:15
+0|duo-serv |     at Function.process_params (/var/www/duo/server/node_modules/express/lib/router/index.js:346:12)
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+
+/root/.pm2/logs/duo-server-out.log last 30 lines:
+0|duo-serv | � Bot Username: @aasasdasdadsddasdbot
+0|duo-serv | ========================================
+0|duo-serv | 
+0|duo-serv | � Bot static files: /var/www/duo/bot
+0|duo-serv | � Partner site static files: /var/www/duo/site
+0|duo-serv | � Uploads directory: /var/www/duo/site/uploads
+0|duo-serv | ✅ Auth routes loaded
+0|duo-serv | ✅ Referral routes loaded
+0|duo-serv | ✅ Balance routes loaded
+0|duo-serv | ✅ Transactions routes loaded
+0|duo-serv | ✅ 2FA routes loaded (stubs)
+0|duo-serv | ✅ Connected to SQLite database: ./data/database.db
+0|duo-serv | ✅ Table [users] ready
+0|duo-serv | ✅ Table [referral_stats] ready
+0|duo-serv | ✅ Table [referrals] ready
+0|duo-serv | ✅ Table [referral_events] ready
+0|duo-serv | ✅ Database initialization complete
+0|duo-serv | ✅ Database ready
+0|duo-serv | ✅ Game handlers registered
+0|duo-serv | ✅ Bot scheduler started
+0|duo-serv | 
+0|duo-serv | ========================================
+0|duo-serv | ✅ SERVER IS RUNNING
+0|duo-serv | ========================================
+0|duo-serv | � Bot miniapp: http://localhost:3000/bot/
+0|duo-serv | � Partner site: http://localhost:3000/partner/
+0|duo-serv | � API: http://localhost:3000/api/
+0|duo-serv | � Health: http://localhost:3000/health
+0|duo-serv | ========================================
+0|duo-serv | 
+
+^C
+root@duos:/var/www/duo#  cd /var/www/duo/server
+root@duos:/var/www/duo/server# node migrations/add-2fa-columns.js
+� Database path: /var/www/duo/server/data/database.db
+� Running migration: Add 2FA columns to users table...
+✅ Database connected
+ℹ️  Column two_factor_secret already exists
+ℹ️  Column two_factor_enabled already exists
+root@duos:/var/www/duo/server#  pm2 restart duo-server
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+[PM2] [duo-server](0) ✓
