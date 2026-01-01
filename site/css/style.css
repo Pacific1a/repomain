@@ -528,7 +528,7 @@ header{
   	filter: drop-shadow(0px 4px 114.9px rgba(123, 117, 117, 0.5));
 }
 .span {
-  	background: linear-gradient(270deg, #b01010, #b00000);
+  	background: linear-gradient(270deg, #FF2020, #FF0000);
   	-webkit-background-clip: text;
   	-webkit-text-fill-color: transparent;
 }
@@ -1183,9 +1183,28 @@ color: #eb0909;
 .title-info{
 	max-width: 400px;
 	text-align: left;
-display: flex;
-align-items: center;
+	display: flex;
+	align-items: center;
+	/* Красивая пунктирная обводка */
+	border: 3px dashed #b00000;
+	border-radius: 12px;
+	padding: 20px 30px;
+	position: relative;
+	/* Легкая анимация при загрузке */
+	animation: borderPulse 3s ease-in-out infinite;
 }
+
+@keyframes borderPulse {
+	0%, 100% {
+		border-color: #b00000;
+		box-shadow: 0 0 10px rgba(176, 0, 0, 0.2);
+	}
+	50% {
+		border-color: #d00000;
+		box-shadow: 0 0 20px rgba(176, 0, 0, 0.4);
+	}
+}
+
 .title-info span{
 	line-height: 35px;
 	font-size: 35px;
@@ -1339,7 +1358,7 @@ a{
     flex: 0 0 auto;
     border-radius: 50px;
     box-shadow: 0px 0px 22px rgba(150, 0, 0, 0.22);
-    background: linear-gradient(270deg, rgba(176, 0, 0, 1) 0%, rgba(138, 0, 0, 1) 100%);
+    background: linear-gradient(270deg, #FF0000 0%, #BD0000 100%);
     opacity: 1;
 }
 
