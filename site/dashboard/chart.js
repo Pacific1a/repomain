@@ -171,6 +171,8 @@
                                 family: 'Inter, sans-serif'
                             },
                             padding: 10,
+                            precision: 0, // Только целые числа (БЕЗ дублей!)
+                            maxTicksLimit: 6, // Максимум 6 меток на Y-axis
                             callback: function(value) {
                                 // Не показываем отрицательные значения
                                 if (value < 0) return '';
