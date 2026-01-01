@@ -239,12 +239,25 @@
         myChart.data.datasets[0].backgroundColor = gradient;
         myChart.data.datasets[0].pointBackgroundColor = metric.color; // Цвет точек!
         myChart.data.datasets[0].pointHoverBackgroundColor = metric.color;
-        myChart.data.datasets[0].pointRadius = 3; // ФИКС: точки всегда видны после переключения
-        myChart.data.datasets[0].pointHoverRadius = 3; // ФИКС: не увеличиваются при наведении
         
         // Обновляем данные
         const data = extractMetricData(timelineData, currentMetric);
         myChart.data.datasets[0].data = data;
+        
+        // АДАПТИВНЫЙ размер точек при переключении метрик
+        const pointCount = data.length;
+        let adaptivePointRadius;
+        
+        if (pointCount <= 10) {
+            adaptivePointRadius = 5; // Мало точек - БОЛЬШИЕ точки
+        } else if (pointCount <= 30) {
+            adaptivePointRadius = 4; // Средне - средние точки
+        } else {
+            adaptivePointRadius = 3; // Много - маленькие точки
+        }
+        
+        myChart.data.datasets[0].pointRadius = adaptivePointRadius;
+        myChart.data.datasets[0].pointHoverRadius = adaptivePointRadius;
         
         myChart.update();
     }
@@ -466,13 +479,24 @@
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = data;
         
-        // ФИКС: точки ВСЕГДА видны для ВСЕХ периодов (не только при переключении метрик)
-        myChart.data.datasets[0].pointRadius = 3;
-        myChart.data.datasets[0].pointHoverRadius = 3;
+        // АДАПТИВНЫЙ размер точек в зависимости от количества данных
+        const pointCount = data.length;
+        let adaptivePointRadius;
+        
+        if (pointCount <= 10) {
+            adaptivePointRadius = 5; // Мало точек - БОЛЬШИЕ точки
+        } else if (pointCount <= 30) {
+            adaptivePointRadius = 4; // Средне - средние точки
+        } else {
+            adaptivePointRadius = 3; // Много - маленькие точки
+        }
+        
+        myChart.data.datasets[0].pointRadius = adaptivePointRadius;
+        myChart.data.datasets[0].pointHoverRadius = adaptivePointRadius;
+        
+        console.log(`✅ График обновлён (${pointCount} точек, radius: ${adaptivePointRadius})`);
         
         myChart.update('active');
-        
-        console.log('✅ График обновлён');
     }
 
     function updateStatsCards(stats) {
