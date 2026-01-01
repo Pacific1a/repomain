@@ -66,14 +66,14 @@
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 0, // Точки НЕ видны по умолчанию (чистая линия)
-                    pointHoverRadius: 8, // Показываются только при наведении
+                    pointRadius: 3, // Точки ВСЕГДА видны (маленькие)
+                    pointHoverRadius: 3, // При наведении НЕ увеличиваются
                     pointBackgroundColor: metrics[currentMetric].color,
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
+                    pointBorderWidth: 1,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 3,
+                    pointHoverBorderWidth: 1,
                     clip: false
                 }]
             },
@@ -151,7 +151,8 @@
                             },
                             maxRotation: 0,
                             autoSkip: true,
-                            maxTicksLimit: 10
+                            maxTicksLimit: 7, // МЕНЬШЕ меток на X-axis (было 10)
+                            autoSkipPadding: 30 // БОЛЬШЕ отступ между метками
                         }
                     },
                     y: {
@@ -238,6 +239,8 @@
         myChart.data.datasets[0].backgroundColor = gradient;
         myChart.data.datasets[0].pointBackgroundColor = metric.color; // Цвет точек!
         myChart.data.datasets[0].pointHoverBackgroundColor = metric.color;
+        myChart.data.datasets[0].pointRadius = 3; // ФИКС: точки всегда видны после переключения
+        myChart.data.datasets[0].pointHoverRadius = 3; // ФИКС: не увеличиваются при наведении
         
         // Обновляем данные
         const data = extractMetricData(timelineData, currentMetric);
@@ -462,6 +465,11 @@
 
         myChart.data.labels = labels;
         myChart.data.datasets[0].data = data;
+        
+        // ФИКС: точки ВСЕГДА видны для ВСЕХ периодов (не только при переключении метрик)
+        myChart.data.datasets[0].pointRadius = 3;
+        myChart.data.datasets[0].pointHoverRadius = 3;
+        
         myChart.update('active');
         
         console.log('✅ График обновлён');
