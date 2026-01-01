@@ -66,14 +66,14 @@
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
-                    pointRadius: 3, // Маленькие точки всегда видны
-                    pointHoverRadius: 6, // Немного больше при наведении
+                    pointRadius: 0, // Точки НЕ видны по умолчанию (чистая линия)
+                    pointHoverRadius: 8, // Показываются только при наведении
                     pointBackgroundColor: metrics[currentMetric].color,
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
                     pointHoverBackgroundColor: metrics[currentMetric].color,
                     pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2,
+                    pointHoverBorderWidth: 3,
                     clip: false
                 }]
             },
@@ -420,12 +420,30 @@
             return;
         }
 
-        // Форматируем даты
+        // Форматируем даты адаптивно в зависимости от периода
         const labels = timeline.dates.map(dateStr => {
             const date = new Date(dateStr);
             const day = date.getDate();
             const month = date.getMonth() + 1;
-            return `${day}.${month}`;
+            
+            // Для разных периодов - разный формат
+            if (currentPeriod === 'week') {
+                // Неделя: короткий день недели + дата
+                const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+                const weekday = weekdays[date.getDay()];
+                return `${weekday} ${day}.${month < 10 ? '0' + month : month}`;
+            } else if (currentPeriod === 'month') {
+                // Месяц: только дата
+                return `${day}.${month < 10 ? '0' + month : month}`;
+            } else if (currentPeriod === 'year') {
+                // Год: месяц + день
+                const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+                const monthName = months[date.getMonth()];
+                return `${day} ${monthName}`;
+            } else {
+                // По умолчанию
+                return `${day}.${month < 10 ? '0' + month : month}`;
+            }
         });
 
         // Извлекаем данные для текущей метрики
