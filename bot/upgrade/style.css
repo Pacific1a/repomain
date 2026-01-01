@@ -250,7 +250,7 @@
   margin-right: -6.00px;
   transform: rotate(-90deg);
   font-family: "Montserrat", Helvetica;
-  font-weight: 500;
+  font-weight: 600;
   color: #ff403e;
   font-size: 14px;
   letter-spacing: 0;
@@ -258,7 +258,6 @@
 }
 
 .upgrade .circle {
-  top: 5px;
   position: relative;
   width: 4px;
   height: 4px;
