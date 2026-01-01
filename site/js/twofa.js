@@ -13,15 +13,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Добавляем обработчики клика на кнопки в header
     setupHeaderButtonsClickHandlers();
     
-    // При открытии модального окна 2FA
+    // При открытии модального окна 2FA (убираем дублирование)
+    let isInitializing = false;  // Флаг для предотвращения множественной инициализации
+    
     const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            const auth2f = document.querySelector('.auth_2f');
-            if (auth2f && auth2f.style.display === 'flex') {
-                console.log('2FA modal opened');
-                init2FA();
-            }
-        });
+        const auth2f = document.querySelector('.auth_2f');
+        if (auth2f && auth2f.style.display === 'flex' && !isInitializing) {
+            console.log('2FA modal opened');
+            isInitializing = true;
+            init2FA().finally(() => {
+                // Задержка перед следующей возможной инициализацией
+                setTimeout(() => { isInitializing = false; }, 1000);
+            });
+        }
     });
     
     const auth2f = document.querySelector('.auth_2f');
@@ -68,36 +72,38 @@ async function init2FA() {
     const status = await API.check2FAStatus();
     console.log('2FA Status:', status);
     
-    if (status.enabled) {
-        // 2FA уже подключен - показываем форму отключения
+    if (status.twoFactorEnabled && status.secret) {
+        // 2FA УЖЕ ПОДКЛЮЧЕН - используем сохранённый secret из БД
+        console.log('✅ 2FA уже подключен, используем сохранённый secret');
+        currentSecret = status.secret;
+        
+        // Генерируем QR код из сохранённого secret
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const otpauthUrl = `otpauth://totp/DUO Partners (${user.login})?secret=${status.secret}&issuer=DUO Partners`;
+        
+        // Показываем форму отключения
         show2FADisableForm();
     } else {
-        // 2FA не подключен - генерируем новый секрет
+        // 2FA НЕ ПОДКЛЮЧЕН - генерируем новый секрет ТОЛЬКО ОДИН РАЗ
         const setupResult = await API.setup2FA();
         console.log('Setup result:', setupResult);
         
-        console.log('🔍 Setup result full:', setupResult);
-        
         if (setupResult.success) {
             currentSecret = setupResult.code || setupResult.secret;
-            console.log('✅ Current secret:', currentSecret);
+            console.log('✅ Current secret (НОВЫЙ):', currentSecret);
             
             // Устанавливаем QR код
             const qrImg = document.querySelector('.auth_2f .auth_qr img');
             if (qrImg) {
                 qrImg.src = setupResult.qrCode;
-                console.log('✅ QR код установлен:', setupResult.qrCode);
-            } else {
-                console.error('❌ Элемент .auth_2f .auth_qr img не найден');
+                console.log('✅ QR код установлен');
             }
             
             // Устанавливаем секрет
             const secretInput = document.querySelector('.auth_2f .input_code input');
             if (secretInput) {
                 secretInput.value = setupResult.code || setupResult.secret || '';
-                console.log('✅ Секретный код установлен:', currentSecret);
-            } else {
-                console.error('❌ Элемент .auth_2f .input_code input не найден');
+                console.log('✅ Секретный код установлен');
             }
             
             // Показываем форму включения

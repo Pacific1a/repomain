@@ -276,21 +276,30 @@ router.get('/2fa/status', jwtAuth, async (req, res) => {
     try {
         const { db: database } = require('../config/database');
         const user = await database.getAsync(
-            'SELECT two_factor_enabled FROM users WHERE id = ?',
+            'SELECT two_factor_enabled, two_factor_secret FROM users WHERE id = ?',
             [req.userId]
         );
         
         const isEnabled = user && user.two_factor_enabled === 1;
+        const secret = isEnabled ? user.two_factor_secret : null;
+        
+        console.log('📋 2FA Status check:', {
+            userId: req.userId,
+            enabled: isEnabled,
+            hasSecret: !!secret
+        });
         
         res.json({
             success: true,
-            twoFactorEnabled: isEnabled
+            twoFactorEnabled: isEnabled,
+            secret: secret  // Возвращаем secret если 2FA включен
         });
     } catch (error) {
         console.error('❌ Error checking 2FA status:', error);
         res.json({
             success: true,
-            twoFactorEnabled: false
+            twoFactorEnabled: false,
+            secret: null
         });
     }
 });
