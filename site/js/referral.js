@@ -100,47 +100,86 @@ class ReferralManager {
         // Генерируем короткий код
         const shortCode = this.referralCode;
         
-        // Создаем ссылку на бота
+        // Создаем ссылку на бота (для игроков)
         this.referralLink = `https://t.me/${botUsername}?start=ref_${shortCode}`;
         
-        console.log('🔗 Реферальная ссылка:', this.referralLink);
+        // Создаем ссылку на сайт (для партнёров)
+        const siteUrl = window.location.origin;
+        this.partnerLink = `${siteUrl}/?partner=${shortCode}`;
+        
+        console.log('🔗 Реферальная ссылка (бот):', this.referralLink);
+        console.log('🔗 Партнёрская ссылка (сайт):', this.partnerLink);
         
         // Обновляем поля в обеих модалках
         this.updateReferralInputs();
     }
     
     updateReferralInputs() {
-        // Обновляем поля в ref_program и sub_partner
-        const refInputs = document.querySelectorAll('.ref_program .btn_parnters input, .sub_partner .btn_parnters input');
-        
-        refInputs.forEach(input => {
-            if (this.referralLink) {
-                input.value = this.referralLink;
-                input.setAttribute('readonly', true);
-                input.style.cursor = 'pointer';
-                
-                // Проверяем что обработчик ещё не навешан
-                if (!input.dataset.handlerAttached) {
-                    // При клике на input - копируем (и останавливаем всплытие события!)
-                    input.addEventListener('click', (e) => {
-                        e.stopPropagation(); // Останавливаем всплытие чтобы не открывать окно повторно
-                        this.copyReferralLink();
-                    });
-                    input.dataset.handlerAttached = 'true';
-                }
+        // Обновляем поле в ref_program (ссылка на бота)
+        const refInput = document.querySelector('.ref_program .btn_parnters input');
+        if (refInput && this.referralLink) {
+            refInput.value = this.referralLink;
+            refInput.setAttribute('readonly', true);
+            refInput.style.cursor = 'pointer';
+            
+            if (!refInput.dataset.handlerAttached) {
+                refInput.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.copyReferralLink();
+                });
+                refInput.dataset.handlerAttached = 'true';
             }
+        }
+        
+        // Обновляем поле в sub_partner (ссылка на сайт)
+        const partnerInput = document.querySelector('.sub_partner .btn_parnters_sub input');
+        if (partnerInput && this.partnerLink) {
+            partnerInput.value = this.partnerLink;
+            partnerInput.setAttribute('readonly', true);
+            partnerInput.style.cursor = 'pointer';
+            
+            if (!partnerInput.dataset.handlerAttached) {
+                partnerInput.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.copyPartnerLink();
+                });
+                partnerInput.dataset.handlerAttached = 'true';
+            }
+        }
+    }
+    
+    copyPartnerLink() {
+        if (!this.partnerLink) {
+            console.warn('⚠️ Партнёрская ссылка не создана');
+            return;
+        }
+        
+        navigator.clipboard.writeText(this.partnerLink).then(() => {
+            console.log('✅ Партнёрская ссылка скопирована:', this.partnerLink);
+            this.showNotification('Партнёрская ссылка скопирована!');
+        }).catch(err => {
+            console.error('❌ Ошибка копирования:', err);
         });
     }
     
     setupUI() {
-        // Обработчик кнопок "Скопировать"
-        const copyButtons = document.querySelectorAll('.ref_program .btn_parnters button, .sub_partner .btn_parnters button');
-        
-        copyButtons.forEach(button => {
-            // Проверяем что обработчик ещё не навешан
+        // Обработчик кнопок "Скопировать" для реферальной программы (бот)
+        const refCopyButtons = document.querySelectorAll('.ref_program .btn_parnters button');
+        refCopyButtons.forEach(button => {
             if (!button.dataset.handlerAttached) {
                 button.addEventListener('click', () => {
                     this.copyReferralLink();
+                });
+                button.dataset.handlerAttached = 'true';
+            }
+        });
+        
+        // Обработчик кнопок "Скопировать" для суб-партнерства (сайт)
+        const subCopyButtons = document.querySelectorAll('.sub_partner .btn_parnters_sub button');
+        subCopyButtons.forEach(button => {
+            if (!button.dataset.handlerAttached) {
+                button.addEventListener('click', () => {
+                    this.copyPartnerLink();
                 });
                 button.dataset.handlerAttached = 'true';
             }

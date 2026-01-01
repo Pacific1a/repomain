@@ -35,14 +35,22 @@ class API {
         return user ? JSON.parse(user) : null;
     }
     
-    static async register(email, login, password, telegram) {
+    static async register(email, login, password, telegram, referralCode = null) {
         try {
+            const payload = { email, login, password, telegram };
+            
+            // Добавляем referralCode если он передан (для sub-партнерства)
+            if (referralCode) {
+                payload.referralCode = referralCode;
+                console.log('📎 Регистрация с партнёрским кодом:', referralCode);
+            }
+            
             const response = await fetch(`${API_BASE_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email, login, password, telegram })
+                body: JSON.stringify(payload)
             });
             
             const data = await response.json();

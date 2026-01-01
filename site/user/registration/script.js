@@ -6,6 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkbox = form.querySelector('input[type="checkbox"]');
     const registerButton = form.querySelector('.login-button');
     
+    // Получаем реферальный код партнёра из URL (?partner=CODE)
+    const urlParams = new URLSearchParams(window.location.search);
+    const partnerCode = urlParams.get('partner');
+    
+    if (partnerCode) {
+        console.log('🔗 Регистрация по партнёрской ссылке:', partnerCode);
+    }
+    
     registerButton.addEventListener('click', async function(e) {
         e.preventDefault();
         
@@ -31,7 +39,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const login = email.split('@')[0];
         
-        const result = await API.register(email, login, password, telegram);
+        // Передаём partnerCode как referralCode для привязки к супер-партнёру
+        const result = await API.register(email, login, password, telegram, partnerCode);
         
         if (result.success) {
             Toast.success('Регистрация успешна! Перенаправление...');
