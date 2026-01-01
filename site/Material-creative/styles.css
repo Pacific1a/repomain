@@ -1424,6 +1424,11 @@ a {
     align-items: center;
     justify-content: center;
 }
+@media (max-width:1024) {
+     .btn span{
+        display: none;
+    }
+}
 @media (max-width: 768px) {
     .support{
         bottom: 90px;

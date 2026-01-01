@@ -13,6 +13,9 @@
     .header-buttons{
         gap: 10px;
     }
+    .btn span{
+        display: none;
+    }
 }
 @media (max-width: 768px) {
     .support{
