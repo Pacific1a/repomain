@@ -156,9 +156,14 @@ class ReferralManager {
         
         navigator.clipboard.writeText(this.partnerLink).then(() => {
             console.log('✅ Партнёрская ссылка скопирована:', this.partnerLink);
-            this.showNotification('Партнёрская ссылка скопирована!');
+            if (typeof Toast !== 'undefined') {
+                Toast.success('Партнёрская ссылка скопирована!');
+            }
         }).catch(err => {
             console.error('❌ Ошибка копирования:', err);
+            if (typeof Toast !== 'undefined') {
+                Toast.error('Не удалось скопировать ссылку');
+            }
         });
     }
     
