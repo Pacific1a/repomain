@@ -1,0 +1,351 @@
+консоль браузера зареганного акка
+chart.js?v=45:48 ✅ Инициализация графика...
+chart.js?v=45:361 📥 Загрузка данных графика (period: week)...
+auth.js?v=8:18 === Auth.js запущен [ВЕРСИЯ 4] ===
+auth.js?v=8:19 Toast доступен? ✅ ДА
+auth.js?v=8:20 API доступен? ✅ ДА
+auth.js?v=8:38 Данные пользователя из localStorage: {id: 9, email: 'asdasgфывasf@gmail.com', login: 'asdasgфывasf', telegram: '@asfga', balance: 0, …}
+auth.js?v=8:133 Обновление UI с данными: {id: 9, email: 'asdasgфывasf@gmail.com', login: 'asdasgфывasf', telegram: '@asfga', balance: 0, …}
+auth.js?v=8:140 Баланс обновлен: 0
+auth.js?v=8:147 Актуальный логин установлен: asdasgфывasf
+auth.js?v=8:154 Актуальный email установлен: asdasgфывasf@gmail.com
+auth.js?v=8:161 Telegram установлен: @asfga
+auth.js?v=8:52 📝 Настройка обработчика кнопки Сохранить...
+auth.js?v=8:122 ✅ Обработчик установлен!
+twofa.js?v=17:8 2FA module loaded
+validation.js?v=1:317 Validation.js загружен
+admin.js?v=8:6 Admin module loaded
+admin.js?v=8:17 Получаем роль с сервера...
+modal-handler.js:29 ModalHandler: Инициализация...
+modal-handler.js:375 ModalHandler: Обработчики кнопок настроены
+modal-handler.js:43 ModalHandler: Готов к работе
+twofa.js?v=17:314 📥 2FA Status on load: {success: true, twoFactorEnabled: false, secret: null}
+twofa.js?v=17:318 🔘 Updating buttons, isEnabled: false
+admin.js?v=8:22 Роль пользователя с сервера: user
+admin.js?v=8:45 Обновление UI, isAdmin: false
+admin.js?v=8:50 Найдено админских кнопок: 0
+admin.js?v=8:61 👤 Обычный пользователь - кнопки скрыты
+chart.js?v=45:380 🔍 API Response: {statsData: {…}, timelineDates: Array(7), timelineLength: 7, firstDate: '2025-12-26', lastDate: '2026-01-01', …}
+chart.js?v=45:282 📊 extractMetricData: {metric: 'visits', dates: Array(7), dataPoints: 7, firstValue: 0, lastValue: 0, …}
+chart.js?v=45:447 📊 updateChartWithTimeline: {metric: 'visits', originalPoints: 7, groupedPoints: 7, labels: Array(7), data: Array(7)}
+chart.js?v=45:462 ✅ График обновлён (7 точек)
+chart.js?v=45:493 📊 Обновление карточек статистики: {referralCode: '9_MJVO8HNOQT9JW', clicks: 0, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', …}
+chart.js?v=45:504 ✅ Карточки обновлены
+chart.js?v=45:397 ✅ Данные загружены и график обновлён
+modal-handler.js:55 ModalHandler: Модальные окна загружены
+validation.js?v=1:324 ✅ Валидация инициализирована
+referral.js?v=1:21 🎁 Referral Manager initializing...
+referral.js?v=1:292 ✅ Автообновление каждые 120с
+referral.js?v=1:305 ✅ ReferralManager инициализирован
+referral.js?v=1:43 📊 Реферальные данные: {referralCode: '9_MJVO8HNOQT9JW', clicks: 0, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', …}
+referral.js?v=1:62 📊 Обработанная статистика: {clicks: 0, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', totalLosses: '0.00', …}
+referral.js?v=1:63 💰 Заработано (60%): 0.00₽
+referral.js?v=1:64 👥 Игроков с проигрышами: 0
+referral.js?v=1:65 💸 Стоимость перехода (15₽ × игроки): -0.00₽
+referral.js?v=1:66 ✅ Чистый баланс: 0.00₽
+referral.js?v=1:67 📊 Сумма депозитов (проигрыши): 0.00₽
+referral.js?v=1:68 👤 Средний доход с игрока: 0.00₽
+referral.js?v=1:110 🔗 Реферальная ссылка (бот): https://t.me/aasasdasdadsddasdbot?start=ref_9_MJVO8HNOQT9JW
+referral.js?v=1:111 🔗 Партнёрская ссылка (сайт): https://duopartners.xyz/?partner=9_MJVO8HNOQT9JW
+referral.js?v=1:231 🔄 Обновление статистики: {clicks: 0, firstDeposits: 0, deposits: 0, totalDeposits: '0.00', totalLosses: '0.00', …}
+referral.js?v=1:271 ✅ Обновлено .visits-value = 0
+referral.js?v=1:271 ✅ Обновлено .clients-value = 0
+referral.js?v=1:271 ✅ Обновлено .deposits-value = 0
+referral.js?v=1:271 ✅ Обновлено .income-value = 0.00₽
+referral.js?v=1:264 ✅ Статистика обновлена
+referral.js?v=1:193 ✅ UI настроен
+referral.js?v=1:24 ✅ Referral Manager ready
+
+
+
+
+
+
+
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+[PM2] [duo-server](0) ✓
+┌────┬───────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name          │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ duo-bot       │ default     │ N/A     │ fork    │ 679746   │ 3D     │ 224… │ online    │ 0%       │ 153.0mb  │ root     │ disabled │
+│ 0  │ duo-server    │ default     │ 2.0.0   │ fork    │ 741367   │ 0s     │ 153  │ online    │ 0%       │ 15.0mb   │ root     │ disabled │
+└────┴───────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@duos:/var/www/duo#  pm2 logs duo-server --lines 20
+[TAILING] Tailing last 20 lines for [duo-server] process (change the value with --lines option)
+/root/.pm2/logs/duo-server-error.log last 20 lines:
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+
+/root/.pm2/logs/duo-server-out.log last 20 lines:
+0|duo-serv | ✅ 2FA routes loaded (stubs)
+0|duo-serv | ✅ Connected to SQLite database: ./data/database.db
+0|duo-serv | ✅ Table [users] ready
+0|duo-serv | ✅ Table [referral_stats] ready
+0|duo-serv | ✅ Table [referrals] ready
+0|duo-serv | ✅ Table [referral_events] ready
+0|duo-serv | ✅ Database initialization complete
+0|duo-serv | ✅ Database ready
+0|duo-serv | ✅ Game handlers registered
+0|duo-serv | ✅ Bot scheduler started
+0|duo-serv | 
+0|duo-serv | ========================================
+0|duo-serv | ✅ SERVER IS RUNNING
+0|duo-serv | ========================================
+0|duo-serv | � Bot miniapp: http://localhost:3000/bot/
+0|duo-serv | � Partner site: http://localhost:3000/partner/
+0|duo-serv | � API: http://localhost:3000/api/
+0|duo-serv | � Health: http://localhost:3000/health
+0|duo-serv | ========================================
+0|duo-serv | 
+
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats: userId=7
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats/timeline: userId=7, period=week
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/auth/user: userId=7
+0|duo-server  | � 2FA Status check: { userId: 7, enabled: false, hasSecret: false }
+0|duo-server  | � Partner balance for user 7: 0₽
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '7_MJVO3JB2CUSNX',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats: userId=7
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats/timeline: userId=7, period=week
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/auth/user: userId=7
+0|duo-server  | � 2FA Status check: { userId: 7, enabled: false, hasSecret: false }
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '7_MJVO3JB2CUSNX',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | � Partner balance for user 7: 0₽
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats: userId=7
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '7_MJVO3JB2CUSNX',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats: userId=7
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '7_MJVO3JB2CUSNX',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | ✅ JWT Auth: userId=7
+0|duo-server  | � /api/referral/partner/stats: userId=7
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '7_MJVO3JB2CUSNX',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | � /api/auth/register: email=asdasgфывf@gmail.com, login=asdasgфывf
+0|duo-server  | ✅ User registered: id=8, code=8_MJVO60J29BGBV, super-partner=none
+0|duo-server  | ✅ JWT Auth: userId=8
+0|duo-server  | � /api/referral/partner/stats/timeline: userId=8, period=week
+0|duo-server  | ✅ JWT Auth: userId=8
+0|duo-server  | � /api/referral/partner/stats: userId=8
+0|duo-server  | ✅ JWT Auth: userId=8
+0|duo-server  | ✅ JWT Auth: userId=8
+0|duo-server  | � /api/auth/user: userId=8
+0|duo-server  | � 2FA Status check: { userId: 8, enabled: false, hasSecret: false }
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '8_MJVO60J29BGBV',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+0|duo-server  | � Partner balance for user 8: 0₽
+0|duo-server  | ✅ JWT Auth: userId=8
+0|duo-server  | � /api/referral/partner/stats: userId=8
+0|duo-server  | � getPartnerStats debug: playersCount=0, lostPlayersCount=0, earnings=0
+0|duo-server  | � Sending stats: {
+0|duo-server  |   referralCode: '8_MJVO60J29BGBV',
+0|duo-server  |   clicks: 0,
+0|duo-server  |   firstDeposits: 0,
+0|duo-server  |   deposits: 0,
+0|duo-server  |   totalDeposits: '0.00',
+0|duo-server  |   totalLosses: '0.00',
+0|duo-server  |   earnings: '0.00',
+0|duo-server  |   costPerClick: '0.00',
+0|duo-server  |   avgIncomePerPlayer: '0.00',
+0|duo-server  |   netEarnings: '0.00',
+0|duo-server  |   playersCount: 0,
+0|duo-server  |   lostPlayersCount: 0
+0|duo-server  | }
+^C
+root@duos:/var/www/duo# cd /var/www/duo
+root@duos:/var/www/duo# git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        bot/.env
+        bot/autoshop/-H
+        bot/autoshop/-d
+        bot/autoshop/.env
+        bot/autoshop/a.out
+        bot/autoshop/tgbot/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/data/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/data/__pycache__/config.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_category.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_helper.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_item.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_payments.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_position.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_purchases.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_refill.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_settings.cpython-312.pyc
+        bot/autoshop/tgbot/database/__pycache__/db_users.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin_page.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin_prod.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/inline_user.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/inline_user_page.cpython-312.pyc
+        bot/autoshop/tgbot/keyboards/__pycache__/reply_main.cpython-312.pyc
+        bot/autoshop/tgbot/middlewares/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/middlewares/__pycache__/middleware_throttling.cpython-312.pyc
+        bot/autoshop/tgbot/middlewares/__pycache__/middleware_users.cpython-312.pyc
+        bot/autoshop/tgbot/routers/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/routers/__pycache__/main_errors.cpython-312.pyc
+        bot/autoshop/tgbot/routers/__pycache__/main_missed.cpython-312.pyc
+        bot/autoshop/tgbot/routers/__pycache__/main_start.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/admin_functions.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/admin_menu.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/admin_payment.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/admin_products.cpython-312.pyc
+        bot/autoshop/tgbot/routers/admin/__pycache__/admin_settings.cpython-312.pyc
+        bot/autoshop/tgbot/routers/user/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/routers/user/__pycache__/user_menu.cpython-312.pyc
+        bot/autoshop/tgbot/routers/user/__pycache__/user_products.cpython-312.pyc
+        bot/autoshop/tgbot/routers/user/__pycache__/user_transactions.cpython-312.pyc
+        bot/autoshop/tgbot/services/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/services/__pycache__/api_cactuspay.cpython-312.pyc
+        bot/autoshop/tgbot/services/__pycache__/api_qiwi.cpython-312.pyc
+        bot/autoshop/tgbot/services/__pycache__/api_session.cpython-312.pyc
+        bot/autoshop/tgbot/services/__pycache__/api_yoomoney.cpython-312.pyc
+        bot/autoshop/tgbot/utils/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/utils/__pycache__/const_functions.cpython-312.pyc
+        bot/autoshop/tgbot/utils/__pycache__/misc_functions.cpython-312.pyc
+        bot/autoshop/tgbot/utils/__pycache__/text_functions.cpython-312.pyc
+        bot/autoshop/tgbot/utils/misc/__pycache__/__init__.cpython-312.pyc
+        bot/autoshop/tgbot/utils/misc/__pycache__/bot_commands.cpython-312.pyc
+        bot/autoshop/tgbot/utils/misc/__pycache__/bot_filters.cpython-312.pyc
+        bot/autoshop/tgbot/utils/misc/__pycache__/bot_logging.cpython-312.pyc
+        bot/autoshop/tgbot/utils/misc/__pycache__/bot_models.cpython-312.pyc
+        bot/autoshop/venv/
+        bot/server/
+        ecosystem.config.js
+        server/database.sqlite
+        server/server.js.backup
+        site/chart.min.js
+        site/server/
+        ystemctl status nginx
+
+nothing added to commit but untracked files present (use "git add" to track)
+root@duos:/var/www/duo# git log --oneline -3
+d8094b1 (HEAD -> main, origin/main, origin/HEAD) fix: Use Toast for partner link copy notifications and remove log file
+077d7d6 feat: Simplify sub-partner system with website referral link
+4b030fc feat: Add sub-partner system (2-level referral)
+root@duos:/var/www/duo# pm2 restart duo-server --update-env
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+[PM2] [duo-server](0) ✓
+┌────┬───────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name          │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ duo-bot       │ default     │ N/A     │ fork    │ 679746   │ 3D     │ 224… │ online    │ 0%       │ 153.0mb  │ root     │ disabled │
+│ 0  │ duo-server    │ default     │ 2.0.0   │ fork    │ 741453   │ 0s     │ 154  │ online    │ 0%       │ 12.1mb   │ root     │ disabled │
+└────┴───────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@duos:/var/www/duo# git log --oneline -1
+d8094b1 (HEAD -> main, origin/main, origin/HEAD) fix: Use Toast for partner link copy notifications and remove log file
+root@duos:/var/www/duo#
+
