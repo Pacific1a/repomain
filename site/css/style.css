@@ -590,7 +590,7 @@ header{
   	position: absolute;
   	top: -1px;
   	left: -1px;
-  	box-shadow: 0px 0px 119.3px rgba(128, 18, 18, 0.33);
+  	box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
@@ -635,7 +635,7 @@ header{
   	align-items: center;
   	height: 14.7px;
   	flex-shrink: 0;
-  	text-shadow: 0px 0px 22px rgba(255, 81, 81, 0.22);
+  	text-shadow: none;
 }
 .div15 {
   	width: 259.1px;
@@ -650,7 +650,7 @@ header{
   	align-items: center;
   	height: 37.3px;
   	flex-shrink: 0;
-  	text-shadow: 0px 0px 15px rgba(172, 29, 29, 0.22);
+  	text-shadow: none;
   	z-index: 3;
 }
 
@@ -658,7 +658,7 @@ header{
   	position: absolute;
   	top: 59.84px;
   	left: 255.29px;
-  	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 119.3px rgba(128, 18, 18, 0.33);
+  	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 20px rgba(0, 0, 0, 0.3);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
@@ -685,14 +685,14 @@ header{
   	align-items: center;
   	height: 37.3px;
   	flex-shrink: 0;
-  	text-shadow: 0px 0px 15px rgba(170, 61, 61, 0.22);
+  	text-shadow: none;
 }
 .payments {
 	transition: 0.5s ease;
   	position: absolute;
   	top: 123.63px;
   	left: 552.43px;
-  	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 119.3px rgba(128, 18, 18, 0.33);
+  	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 20px rgba(0, 0, 0, 0.3);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
@@ -982,7 +982,7 @@ header{
 	transition: all 0.3s ease;
   }
   
-  /* Заголовок (closed = белый фон) */
+  /* Заголовок закрытый = ЧЁРНАЯ кнопка с КРАСНЫМ текстом */
   .accordion-header {
 	height: 70px;
 	display: flex;
@@ -990,14 +990,15 @@ header{
 	justify-content: space-between;
 	padding: 0 26px;
 	cursor: pointer;
-	background: linear-gradient(90deg, #ff2828, #ff1414);
+	background: linear-gradient(90deg, #1b1212, #2c1e1e);
+	color: #ff2828;
 	transition: all 0.3s ease;
   }
   
-  /* Заголовок в открытом состоянии */
+  /* Заголовок открытый = КРАСНАЯ кнопка с ЧЁРНЫМ текстом */
   .accordion-item.active .accordion-header {
-	background: linear-gradient(90deg, #1b1212, #2c1e1e);
-	color: #FF2525;
+	background: linear-gradient(90deg, #ff2828, #ff1414);
+	color: #000000;
   }
   
   /* Контент */
@@ -1162,6 +1163,20 @@ height: 110px;
 	align-items: center;
 	justify-content: space-around;
 	flex-direction: row;
+}
+
+/* Декоративные рисунки под текстом карточек */
+.card-decoration{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: auto;
+	max-height: 150px;
+	object-fit: contain;
+	opacity: 0.8;
+	pointer-events: none;
+	z-index: 0;
 }
 .title-block{
 	min-width: 430px;
@@ -1343,12 +1358,10 @@ a{
 	width: clamp(30px, 10vw, 40px);
 }
 .text-wrapper-5{
-	transition: 0.5s ease-in;
-	display: flex
-;
+	/* REMOVED: transition animation */
+	display: flex;
     width: 250px;
 	height: 70px;
-
     align-items: center;
     justify-content: center;
     gap: 2px;
