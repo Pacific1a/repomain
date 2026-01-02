@@ -149,6 +149,19 @@ header{
   	text-shadow: 0px 0px 12px rgba(255, 255, 255, 0.16);
   	z-index: 3;
 }
+.partners-program{
+	font-family: var(--NexaRegular)!important;
+	letter-spacing: 1px;
+	font-weight: 100;
+	border-radius: 100px;
+	padding: 12px 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	background-color: rgb(180, 43, 43, 10%);
+	border: 2px solid rgb(255, 103, 103, 10%);
+}
 .partners-program-1 {
   	position: absolute;
   	top: 215.27px;
@@ -237,21 +250,24 @@ header{
   	background-color: #000;
 }
 .block-1 {
-	padding: 40px 20px 100px 20px;
-	overflow: hidden;
-  	position: relative;
-	height: 85vh;
-	width: 100%;	
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 10px;	
-  	background-image: url(../img/Rectangle.png);
-  	background-size: cover;
-  	background-repeat: no-repeat;
-  	background-position: top;
-  	font-size: 18px;
-	box-shadow: 0px -94px 250px rgba(0, 0, 0, 0.3) inset;
+	padding: 40px 20px 100px;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  background-color: #060606;
+  background-image: url("../img/bgs.png");
+
+  background-repeat: no-repeat;       /* ⬅ повторяем */
+  background-size: 100%;      /* ⬅ размер квадрата */
+  background-position: 0 0;        /* ⬅ без смещения */
+
+  font-size: 18px;
+  box-shadow: 0px -100px 350px #060606ab inset;
 }
 .site-background-icon {
   	width: 1920px;
@@ -488,15 +504,15 @@ header{
   	color: #fff;
 }
 .frame-group {
-  	width: 1920px;
+  	width: 100%;
   	background: #0F0D0D;
-  	height: 100vh;
   	overflow: hidden;
   	flex-shrink: 0;
   	display: flex;
   	flex-direction: column;
   	align-items: center;
   	justify-content: flex-start;
+	background-image: url(../img/bgs-2.png);
   	padding: 75px 0px;
   	box-sizing: border-box;
   	position: relative;
@@ -588,15 +604,13 @@ header{
 .design {
 	transition: 0.5s ease;
   	position: absolute;
-  	top: -1px;
-  	left: -1px;
   	box-shadow: 0px 0px 119.3px rgba(128, 18, 18, 0.33);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
   	box-sizing: border-box;
   	width: 358.6px;
-  	height: 208.1px;
+  	height: 208px;
   	display: flex;
   	flex-direction: column;
   	align-items: center;
@@ -614,7 +628,6 @@ header{
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	
   	width: 47.4px;
   	position: absolute;
   	margin: 0 !important;
@@ -656,15 +669,14 @@ header{
 
 .performance {
   	position: absolute;
-  	top: 59.84px;
-  	left: 255.29px;
+  	left: 270px;
   	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 119.3px rgba(128, 18, 18, 0.33);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
   	box-sizing: border-box;
   	width: 358.6px;
-  	height: 208.1px;
+  	height: 208px;
   	display: flex;
   	flex-direction: column;
   	align-items: center;
@@ -690,15 +702,14 @@ header{
 .payments {
 	transition: 0.5s ease;
   	position: absolute;
-  	top: 123.63px;
-  	left: 552.43px;
+  	left: 570px;
   	box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 119.3px rgba(128, 18, 18, 0.33);
   	border-radius: 24px;
   	background: linear-gradient(180deg, #9a1414, #451111);
   	border: 2px solid #ff1919;
   	box-sizing: border-box;
   	width: 358.6px;
-  	height: 208.1px;
+  	height: 208px;
   	display: flex;
   	flex-direction: column;
   	align-items: center;
@@ -1244,26 +1255,42 @@ a{
 	text-decoration: none;
 }
 .log-button{
-	color: black;
-	display: flex
-	;
-		flex-direction: column;
-		width: 153.99px;
-		height: 45px;
+		position: relative;
+		overflow: hidden;
+		color: black;
+		display: flex;
+		width: 174px;
+		height: 52px;
+		font-size: 16px;
 		align-items: center;
 		justify-content: center;
 		gap: 10px;
+		font-weight: 100;
 		position: relative;
 		border-radius: 22px;
-		background: linear-gradient(270deg, rgba(176, 0, 0, 1) 0%, rgba(138, 0, 0, 1) 100%);	
+		z-index: 1;
+		background: linear-gradient(270deg, #ED2A2A 0%, #F02424 100%);	
+}
+.log-button::before{
+	content: "";
+	position: absolute;
+	background: white;
+	width: 20px;
+	filter: blur(35px);
+	transform: rotatez(45deg);
+	z-index: -1;
+	height: 100px;
+}
+.log-button span{
+	letter-spacing: 0.5px;
 }
 .reg-button{
-	color: #fff;
-	display: flex
-	;
-		flex-direction: column;
-		width: 110px;
-		height: 46px;
+		color: #E2A7A7;
+		display: flex;
+		gap: 10px;
+		width: 124px;
+		height: 52px;
+		font-size: 16px;
 		align-items: center;
 		justify-content: center;
 		position: relative;
@@ -1271,33 +1298,24 @@ a{
 		border-radius: 22px;	
 }
 
-.logo span{
-	position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 583px;
-    height: auto;
-    margin-top: -1.00px;
-    text-shadow: 0px 0px 22px rgba(150, 0, 0, 0.22);
-    background: linear-gradient(270deg, rgba(176, 0, 0, 1) 0%, rgba(138, 0, 0, 1) 100%);
+.logo{
+	text-transform: uppercase;
+	font-size: 26px;
+	background-color: rgba(0, 0, 0, 0.25);
+	border-radius: 20px;
+	padding: 5px 16px;
+}
+
+.col-w{
+	color: white;
+}
+.col-r{
+	 background: linear-gradient(200deg, #FF3535 0%, #C01515 100%);
     -webkit-background-clip: text !important;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     text-fill-color: transparent;
-    font-weight: 400;
-    color: transparent;
-    font-size: 26px;
-    letter-spacing: 1px;
-    line-height: 22px;
-    text-transform: uppercase;
-    white-space: nowrap;
 }
-
-
-
-
 
 
 
@@ -1425,82 +1443,64 @@ a{
 	justify-content: center;
 }
 
-.rectangle {
-    max-width: 364px;
-    border-radius: 4px;
-    position: relative;
-    flex: 1;
-    flex-grow: 1;
-    height: 3px;
-    box-shadow: 0px 0px 22px rgba(150, 0, 0, 0.22);
-    background: linear-gradient(270deg, rgba(176, 0, 0, 1) 0%, rgba(138, 0, 0, 1) 100%);
+
+.become-a-partner:nth-child(1){
+	color: black;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 30px;
+	position: relative;
+	overflow: hidden;
+	border-radius: 41px;
+	background: linear-gradient(270deg, #ED2A2A, #F02424);
 }
-.rectangle-2{
-	max-width: 411px;
-    border-radius: 3px;
-    position: relative;
-    flex: 1;
-    flex-grow: 1;
-    height: 3px;
-    box-shadow: 0px 0px 22px rgba(150, 0, 0, 0.22);
-    background: linear-gradient(270deg, rgba(176, 0, 0, 1) 0%, rgba(138, 0, 0, 1) 100%);
+.become-a-partner:nth-child(1)::before{
+	content: "";
+	position: absolute;
+	background: white;
+	width: 20px;
+	filter: blur(30px);
+	transform: rotatez(45deg);
+	z-index: 0;
+	height: 100px;
 }
-.top-line{
-	display: flex
-;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 0px 0px 0px 40px;
-    position: relative;
-    align-self: stretch;
-    flex: 0 0 auto;
+.become-a-partner:nth-child(2){
+	color: black;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 30px;
+	position: relative;
+	overflow: hidden;
+	border-radius: 41px;
+	color: #FF8C8C;
+	border: 2px solid rgb(255, 103, 103, 10%);
+	background: rgb(180, 43, 43, 10%);
 }
-.bottom-line{
-	display: flex
-	;
-		align-items: flex-end;
-		padding: 0px 40px 0px 0px;
-		position: relative;
-		align-self: stretch;
-		width: 100%;
-		flex: 0 0 auto;
-}
-.partners-program{
-	display: flex
-	;
-		flex-direction: column;
-		align-items: center;
-		gap: 12px;
-		position: relative;
-		align-self: stretch;
-		width: 100%;
-		flex: 0 0 auto;
+.texts{
+		gap: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1;
+	position: relative;
 }
 .content{
-	display: flex
-;
+	display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 55px;
+    gap: 20px;
     position: relative;
+	top: 4em;
     flex: 0 0 auto;
 }
-.text-wrapper-3{
-	align-self: stretch;
-    text-shadow: 0px 4px 114.9px #7b757580;
-    color: #ffffff;
-    font-size: 18px;
-    text-align: center;
-    line-height: 30px;
-    position: relative;
-    display: flex;
-	margin: 0;
-    align-items: center;
-    justify-content: center;
-    font-weight: 400;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+.btns-main{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 30px;
 }
 .text-wrapper-4{
 	width: 874px;
@@ -1508,7 +1508,7 @@ a{
     margin: 0 auto;
     text-align: center;
     text-shadow: 0px 0px 22px #b8131338;
-    color: #b71313;
+    color: #818181;
     font-size: clamp(16px, 0.56vw + 13.98px, 22px);
     line-height: clamp(16px, 0.56vw + 13.98px, 22px);
     position: relative;
@@ -1525,29 +1525,31 @@ a{
 
 .p{
 	position: relative;
-    display: block;
     text-align: center;
     width: 874px;
     max-width: 874px;
+	height: 180px;
     margin: 0 auto;
     margin-top: -1.00px;
     text-shadow: 0px 4px 114.9px #7b757580;
     font-weight: 400;
-    color: #ffffff;
-	font-size: clamp(28px, 3.7vw, 68px);
-
+    background: linear-gradient(90deg, #AEA0A0 0%, #FFFFFF 50%, #AEA0A0 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	font-weight: 900;
+	font-size: 84px;
+	line-height: 1;
     letter-spacing: 0;
-    line-height: clamp(28px, 5vw, 68px);
     white-space: normal;
     hyphens: none;
 }
 	.text{
-		display: flex
-		;
+			display: flex;
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			gap: 35px;
+			gap: 15px;
 			position: relative;
 			align-self: stretch;
 			width: 100%;

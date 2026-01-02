@@ -2,6 +2,7 @@
   --NexaRegular: "NexaRegular";
   --NexaHeavy: "NexaHeavy";
   --NexaBook: "NexaBook";
+  --heavi: "heavi"
 }
 @font-face {
       font-family: "NexaRegular";
@@ -18,3 +19,7 @@
       src: url("NexaTextBook.otf")
         format("opentype");
     }
+@font-face {
+  font-family: "heavi";
+  src: url(nexa-heavy-regular.ttf);
+}

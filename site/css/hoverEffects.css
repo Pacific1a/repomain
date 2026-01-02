@@ -95,11 +95,6 @@
     filter: brightness(0.7) blur(2px);
     transform: scale(0.9);
 }
-.text-wrapper-5:hover{
-    border-radius: 50px;
-    transform: translateY(-5px)  scale(1.15); 
-    box-shadow: 0px 0px 30px rgba(255, 0, 0, 0.357);
-}
 
 /* Отключаем hover эффекты карточек на мобильных устройствах */
 @media (max-width: 768px) {

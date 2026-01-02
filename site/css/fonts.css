@@ -1,5 +1,5 @@
-.logo span{
-    font-family: var(--NexaHeavy);
+.logo span, .ft{
+    font-family: var(--heavi);
     font-weight: 900;
 }
 
@@ -14,7 +14,8 @@ aside
 .auth_info span,
 .sts_nav,
 .code,
-.dashboard.mobile-menu
+.dashboard.mobile-menu,
+.p
 {
     font-family: var(--NexaRegular);
 }
