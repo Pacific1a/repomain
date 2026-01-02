@@ -505,6 +505,7 @@ header{
 }
 .frame-group {
   	width: 100%;
+	height: 100vh;
   	background: #0F0D0D;
   	overflow: hidden;
   	flex-shrink: 0;
@@ -565,7 +566,7 @@ header{
 	position: relative;
 	z-index: 10;
   	box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  	background-color: #601313;
+  	background: linear-gradient(250deg, #ff20202d 0%, #ff00002d 100%);
   	border: 2px dashed #ff2020;
   	box-sizing: border-box;
   	height: 60px;
@@ -579,7 +580,7 @@ header{
   	flex: 1;
   	position: relative;
   	line-height: 60px;
-  	background: linear-gradient(270deg, #b01010, #b00000);
+  	background: linear-gradient(0deg, #EA4040, #DA1C1C);
   	-webkit-background-clip: text;
   	-webkit-text-fill-color: transparent;
   	display: flex;
@@ -741,7 +742,7 @@ header{
   	justify-content: center;
   	position: relative;
   	gap: 50px;
-	  background: #0F0D0D;
+	background: linear-gradient(0deg, #040404 0%, #060606 100%);
   	color: #ff6d6d;
 }
 .bg-mask{
@@ -945,7 +946,7 @@ header{
 .block-4-wrapper {
 	height: 100vh;
   	width: 1920px;
-    background: #0F0D0D;
+    background: linear-gradient(180deg, #040404 0%, #060606 100%);
   	display: flex;
   	flex-direction: column;
   	align-items: center;
@@ -956,13 +957,26 @@ header{
   	color: #1f1717;
 }
 .block-4 {
+	position: relative;
   	align-self: stretch;
-  	height: 345px;
+	height: 100%;
   	display: flex;
   	flex-direction: column;
   	align-items: center;
   	justify-content: center;
   	gap: 45px;
+	z-index: 1;
+}
+.ellipseso{
+	width: 300px;
+	height: 300px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	transform: translatey(100%);
+	z-index: 0;
+	filter: blur(250px);
+	background-color: #FD2828;	
 }
 .div25 {
   	align-self: stretch;
@@ -1007,7 +1021,7 @@ header{
   
   /* Заголовок в открытом состоянии */
   .accordion-item.active .accordion-header {
-	background: linear-gradient(90deg, #1b1212, #2c1e1e);
+	background: linear-gradient(90deg, #1B1212, #3C2929);
 	color: #FF2525;
   }
   
@@ -1097,7 +1111,7 @@ font-size: 30px;
 }
 .banners{
 	gap: 15px;
-	overflow: hidden;
+    overflow: hidden;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -1106,7 +1120,7 @@ font-size: 30px;
     border-radius: 33px;
     box-shadow: 11px 22px 22px rgba(0, 0, 0, 0.11), 0px 0px 119.3px rgba(83, 42, 42, 0.33);
     border: 3px solid #ff1919;
-    background: linear-gradient(-30.48deg, rgba(0, 0, 0, 0), rgba(255, 150, 150, 0.1)), linear-gradient(180deg, #bc1515, #451111);
+    background: linear-gradient(-30.48deg, rgba(0, 0, 0, 0), rgba(255, 150, 150, 0.1)), linear-gradient(180deg, #a80d0d, #140303);
     width: 391px;
     height: 440px;
 }
@@ -1141,7 +1155,7 @@ height: 110px;
 }
 .info-card span{
 	 font-size: 20px;
-	color: #b00000;
+	color: #ff0000;
 }
 .two{
 	height: 110px !important;
@@ -1175,22 +1189,25 @@ height: 110px;
 	flex-direction: row;
 }
 .title-block{
-min-width: 430px;
+padding: 30px 35px;
 position: relative;
-max-width: 600px;
-width: 35%;
-border-radius: 15px;
+border-radius: 100px;
 background-color: #580f0f;
-border: 3px dashed #ff1212;
 box-sizing: border-box;
-height: 153px;
 text-align: left;
 display: flex;
 align-items: center;
 font-size: 42px;
 justify-content: center;
+}
 
-
+.title-block svg {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+pointer-events: none;
 }
 .title-info{
 	max-width: 400px;
@@ -1208,7 +1225,7 @@ justify-content: center;
 }
 .vector-1{
 	background-image: url(../img/angle-right.png);
-	width: 200px;
+	width: 205px;
 	object-fit: contain;
 	height: 250px;
 	position: relative;
@@ -1224,11 +1241,11 @@ background-image: url(../img/agle-left.png);
 	background-repeat: no-repeat;
 }
 .vectors-angle{
-	    display: flex
-;
+	    display: flex;
     align-items: center;
     justify-content: space-around;
-    top: 3.5em;
+    top: 3.02em;
+    gap: 48px;
     width: 20em;
     position: absolute;
 }
