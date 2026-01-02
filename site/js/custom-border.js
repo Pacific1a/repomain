@@ -1,14 +1,13 @@
 // Функция для создания кастомного dashed border
 function createCustomDashedBorder(element, options = {}) {
     const {
-        strokeWidth = 5,        // Толщина линии
-        dashLength = 20,        // Длина штриха
-        gapLength = 15,         // Расстояние между штрихами
+        strokeWidth = 3,        // Толщина линии
+        dashLength = 25,        // Длина штриха
+        gapLength = 12,         // Расстояние между штрихами
         color = '#ff1212',      // Цвет
         borderRadius = 100      // Радиус скругления
     } = options;
 
-    const rect = element.getBoundingClientRect();
     const width = element.offsetWidth;
     const height = element.offsetHeight;
 
