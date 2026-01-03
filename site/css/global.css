@@ -1,11 +1,14 @@
 html, body {
   scroll-behavior: smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  overflow-y: scroll;
   margin: 0;
+  padding: 0;
 }
 
-body::-webkit-scrollbar {
-  display: none;
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  overflow-x: hidden;
 }
