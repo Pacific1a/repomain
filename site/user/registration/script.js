@@ -23,26 +23,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const telegram = usernameInput.value.trim();
         
         if (!email || !password || !passwordConfirm || !telegram) {
-            Toast.warning('Пожалуйста, заполните все поля');
+            Toast.warning('Заполните все обязательные поля');
             return;
         }
         
         // Проверка email (только английские буквы)
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
-            Toast.error('Email должен содержать только английские буквы');
+            Toast.error('Недопустимый формат Email. Используйте только латиницу');
             return;
         }
         
         // Проверка пароля (только английские буквы и цифры)
         const passwordRegex = /^[a-zA-Z0-9]+$/;
         if (!passwordRegex.test(password)) {
-            Toast.error('Пароль должен содержать только английские буквы и цифры');
+            Toast.error('Недопустимые символы в пароле. Разрешены только латинские буквы и цифры');
             return;
         }
         
         if (password.length < 6) {
-            Toast.error('Пароль должен быть минимум 6 символов');
+            Toast.error('Пароль должен содержать минимум 6 символов');
             return;
         }
         
@@ -54,12 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Проверка Telegram username (должна быть хотя бы одна буква)
         const telegramRegex = /^@?(?=.*[a-zA-Z])[a-zA-Z0-9_]{5,32}$/;
         if (!telegramRegex.test(telegram)) {
-            Toast.error('Telegram username должен содержать минимум одну английскую букву (5-32 символа). Только цифры нельзя!');
+            Toast.error('Некорректный Telegram username. Требования: 5-32 символа, минимум одна латинская буква, допускаются цифры и подчеркивание');
             return;
         }
         
         if (!checkbox.checked) {
-            Toast.warning('Необходимо принять правила');
+            Toast.warning('Необходимо принять условия пользовательского соглашения');
             return;
         }
         
@@ -69,15 +69,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const result = await API.register(email, login, password, telegram, partnerCode);
         
         if (result.success) {
-            Toast.success('Регистрация успешна! Перенаправление...');
+            Toast.success('Регистрация успешно завершена');
             setTimeout(() => {
                 window.location.href = '../../dashboard/index.html';
             }, 1000);
         } else {
-            const errorMsg = result.errors 
-                ? result.errors.map(e => e.msg).join('<br>')
-                : result.message;
-            Toast.error('Ошибка регистрации: ' + errorMsg, 5000);
+            // Проверяем если аккаунт уже существует
+            if (result.message && result.message.includes('already exists')) {
+                Toast.error('Учётная запись с указанным Email или логином уже зарегистрирована в системе', 5000);
+            } else {
+                const errorMsg = result.errors 
+                    ? result.errors.map(e => e.msg).join('<br>')
+                    : result.message;
+                Toast.error('Ошибка регистрации: ' + errorMsg, 5000);
+            }
         }
     });
 });

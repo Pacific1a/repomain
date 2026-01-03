@@ -19,17 +19,17 @@ const QRCode = require('qrcode');
  */
 router.post('/register', [
     body('email')
-        .isEmail().withMessage('Invalid email format')
-        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).withMessage('Email must contain only English letters'),
+        .isEmail().withMessage('Недопустимый формат Email')
+        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).withMessage('Email должен содержать только латинские символы'),
     body('password')
-        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
-        .matches(/^[a-zA-Z0-9]+$/).withMessage('Password must contain only English letters and numbers'),
+        .isLength({ min: 6 }).withMessage('Пароль должен содержать минимум 6 символов')
+        .matches(/^[a-zA-Z0-9]+$/).withMessage('Пароль должен содержать только латинские буквы и цифры'),
     body('login')
-        .isLength({ min: 3 }).withMessage('Login must be at least 3 characters')
-        .matches(/^[a-zA-Z0-9_]+$/).withMessage('Login must contain only English letters, numbers and underscore'),
+        .isLength({ min: 3 }).withMessage('Логин должен содержать минимум 3 символа')
+        .matches(/^[a-zA-Z0-9_]+$/).withMessage('Логин должен содержать только латинские буквы, цифры и подчеркивание'),
     body('telegram')
         .optional()
-        .matches(/^@?(?=.*[a-zA-Z])[a-zA-Z0-9_]{5,32}$/).withMessage('Telegram username must contain at least one letter (5-32 characters)'),
+        .matches(/^@?(?=.*[a-zA-Z])[a-zA-Z0-9_]{5,32}$/).withMessage('Некорректный формат Telegram username. Требования: 5-32 символа, минимум одна латинская буква'),
     body('referralCode').optional()
 ], async (req, res) => {
     try {
@@ -54,7 +54,7 @@ router.post('/register', [
         if (existing) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Email or login already exists' 
+                message: 'Учётная запись с указанным Email или логином уже зарегистрирована в системе. Используйте другие данные или воспользуйтесь функцией восстановления пароля' 
             });
         }
         
