@@ -27,8 +27,34 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Проверка email (только английские буквы)
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            Toast.error('Email должен содержать только английские буквы');
+            return;
+        }
+        
+        // Проверка пароля (только английские буквы и цифры)
+        const passwordRegex = /^[a-zA-Z0-9]+$/;
+        if (!passwordRegex.test(password)) {
+            Toast.error('Пароль должен содержать только английские буквы и цифры');
+            return;
+        }
+        
+        if (password.length < 6) {
+            Toast.error('Пароль должен быть минимум 6 символов');
+            return;
+        }
+        
         if (password !== passwordConfirm) {
             Toast.error('Пароли не совпадают');
+            return;
+        }
+        
+        // Проверка Telegram username (только английские символы)
+        const telegramRegex = /^@?[a-zA-Z0-9_]{5,32}$/;
+        if (!telegramRegex.test(telegram)) {
+            Toast.error('Telegram username должен содержать только английские буквы, цифры и подчеркивание (5-32 символа)');
             return;
         }
         

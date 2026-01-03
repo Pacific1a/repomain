@@ -18,10 +18,18 @@ const QRCode = require('qrcode');
  * Register new partner
  */
 router.post('/register', [
-    body('email').isEmail().withMessage('Invalid email format'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('login').isLength({ min: 3 }).withMessage('Login must be at least 3 characters'),
-    body('telegram').optional(),
+    body('email')
+        .isEmail().withMessage('Invalid email format')
+        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).withMessage('Email must contain only English letters'),
+    body('password')
+        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+        .matches(/^[a-zA-Z0-9]+$/).withMessage('Password must contain only English letters and numbers'),
+    body('login')
+        .isLength({ min: 3 }).withMessage('Login must be at least 3 characters')
+        .matches(/^[a-zA-Z0-9_]+$/).withMessage('Login must contain only English letters, numbers and underscore'),
+    body('telegram')
+        .optional()
+        .matches(/^@?[a-zA-Z0-9_]{5,32}$/).withMessage('Telegram username must be 5-32 English letters, numbers or underscore'),
     body('referralCode').optional()
 ], async (req, res) => {
     try {
