@@ -46,11 +46,18 @@ class CustomScrollbar {
     }
 
     attachEvents() {
-        // Обновление при скролле
+        // Обновление при скролле - мгновенное с requestAnimationFrame
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            this.updateThumb();
-            this.showScrollbar();
-        });
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    this.updateThumb();
+                    this.showScrollbar();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
 
         // Обновление при ресайзе окна
         window.addEventListener('resize', () => {
@@ -69,11 +76,16 @@ class CustomScrollbar {
         document.addEventListener('mousemove', (e) => {
             if (!this.isDragging) return;
             
+            e.preventDefault();
+            
             const deltaY = e.clientY - this.startY;
             const scrollRatio = document.documentElement.scrollHeight / window.innerHeight;
             const newScrollTop = this.startScrollTop + (deltaY * scrollRatio);
             
-            window.scrollTo(0, newScrollTop);
+            // Мгновенный скролл без задержки
+            window.requestAnimationFrame(() => {
+                window.scrollTo(0, newScrollTop);
+            });
         });
 
         document.addEventListener('mouseup', () => {
@@ -141,7 +153,7 @@ class CustomScrollbar {
             if (!this.isDragging && !this.scrollbar.matches(':hover')) {
                 this.scrollbar.classList.remove('visible');
             }
-        }, 1000); // Скрыть через 1 секунду
+        }, 800); // Скрыть через 0.8 секунды
     }
 }
 

@@ -39,7 +39,7 @@ body {
     z-index: 9999;
     pointer-events: auto;
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.1s ease;
 }
 
 .custom-scrollbar.visible {
@@ -63,6 +63,7 @@ body {
     box-shadow: 0 0 10px rgba(237, 42, 42, 0.4);
     cursor: pointer;
     transition: width 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    /* Убрали transition для transform - мгновенное движение */
     will-change: transform;
 }
 
