@@ -29,7 +29,7 @@ router.post('/register', [
         .matches(/^[a-zA-Z0-9_]+$/).withMessage('Login must contain only English letters, numbers and underscore'),
     body('telegram')
         .optional()
-        .matches(/^@?[a-zA-Z0-9_]{5,32}$/).withMessage('Telegram username must be 5-32 English letters, numbers or underscore'),
+        .matches(/^@?(?=.*[a-zA-Z])[a-zA-Z0-9_]{5,32}$/).withMessage('Telegram username must contain at least one letter (5-32 characters)'),
     body('referralCode').optional()
 ], async (req, res) => {
     try {

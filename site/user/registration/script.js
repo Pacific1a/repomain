@@ -51,10 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Проверка Telegram username (только английские символы)
-        const telegramRegex = /^@?[a-zA-Z0-9_]{5,32}$/;
+        // Проверка Telegram username (должна быть хотя бы одна буква)
+        const telegramRegex = /^@?(?=.*[a-zA-Z])[a-zA-Z0-9_]{5,32}$/;
         if (!telegramRegex.test(telegram)) {
-            Toast.error('Telegram username должен содержать только английские буквы, цифры и подчеркивание (5-32 символа)');
+            Toast.error('Telegram username должен содержать минимум одну английскую букву (5-32 символа). Только цифры нельзя!');
             return;
         }
         
