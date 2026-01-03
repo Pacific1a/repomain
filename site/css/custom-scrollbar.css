@@ -1,0 +1,99 @@
+/* ============================================
+   СКРЫТИЕ НАТИВНОГО СКРОЛЛБАРА
+   ============================================ */
+
+/* WebKit браузеры (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: none;
+}
+
+/* IE 10+ */
+html {
+    -ms-overflow-style: none;
+}
+
+/* Убираем стандартное поведение */
+body {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   КАСТОМНЫЙ JS СКРОЛЛБАР
+   ============================================ */
+
+.custom-scrollbar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 10px;
+    height: 100vh;
+    background: transparent;
+    z-index: 9999;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-scrollbar.visible {
+    opacity: 1;
+}
+
+.custom-scrollbar.hover {
+    opacity: 1 !important;
+}
+
+/* Ползунок */
+.custom-scrollbar-thumb {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    min-height: 40px;
+    background: linear-gradient(180deg, #ED2A2A, #B00000);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(237, 42, 42, 0.4);
+    cursor: pointer;
+    transition: width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+/* Hover на ползунок */
+.custom-scrollbar:hover .custom-scrollbar-thumb,
+.custom-scrollbar-thumb:hover {
+    width: 8px;
+    background: linear-gradient(180deg, #FF3535, #ED2A2A);
+    box-shadow: 0 0 15px rgba(255, 53, 53, 0.6);
+}
+
+/* Активное состояние (drag) */
+.custom-scrollbar-thumb:active {
+    width: 8px;
+    background: linear-gradient(180deg, #FF5555, #FF3535);
+    box-shadow: 0 0 20px rgba(255, 85, 85, 0.8);
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Мобильные устройства - скрываем скролл */
+@media (max-width: 768px) {
+    .custom-scrollbar {
+        display: none;
+    }
+}
