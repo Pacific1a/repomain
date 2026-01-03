@@ -20,7 +20,7 @@ const QRCode = require('qrcode');
 router.post('/register', [
     body('email')
         .isEmail().withMessage('Недопустимый формат Email')
-        .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).withMessage('Email должен содержать только латинские символы'),
+        .matches(/^(?=.*[a-zA-Z])[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/).withMessage('Email должен содержать минимум одну латинскую букву. Использование только цифр не допускается'),
     body('password')
         .isLength({ min: 6 }).withMessage('Пароль должен содержать минимум 6 символов')
         .matches(/^[a-zA-Z0-9]+$/).withMessage('Пароль должен содержать только латинские буквы и цифры'),

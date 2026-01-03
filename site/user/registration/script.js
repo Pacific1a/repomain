@@ -27,10 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Проверка email (только английские буквы)
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        // Проверка email (должна быть хотя бы одна буква, как в Google)
+        const emailRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
-            Toast.error('Недопустимый формат Email. Используйте только латиницу');
+            Toast.error('Недопустимый формат Email. Требования: минимум одна латинская буква, допускаются цифры, точки и спецсимволы');
             return;
         }
         
