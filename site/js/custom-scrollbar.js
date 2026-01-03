@@ -46,17 +46,10 @@ class CustomScrollbar {
     }
 
     attachEvents() {
-        // Обновление при скролле - мгновенное с requestAnimationFrame
-        let ticking = false;
+        // Обновление при скролле - ПРЯМОЕ без задержки
         window.addEventListener('scroll', () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    this.updateThumb();
-                    this.showScrollbar();
-                    ticking = false;
-                });
-                ticking = true;
-            }
+            this.updateThumb();
+            this.showScrollbar();
         }, { passive: true });
 
         // Обновление при ресайзе окна
@@ -82,10 +75,8 @@ class CustomScrollbar {
             const scrollRatio = document.documentElement.scrollHeight / window.innerHeight;
             const newScrollTop = this.startScrollTop + (deltaY * scrollRatio);
             
-            // Мгновенный скролл без задержки
-            window.requestAnimationFrame(() => {
-                window.scrollTo(0, newScrollTop);
-            });
+            // Прямой скролл без обёрток
+            window.scrollTo(0, newScrollTop);
         });
 
         document.addEventListener('mouseup', () => {
@@ -134,12 +125,13 @@ class CustomScrollbar {
         const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight * 0.6, 30);
         this.thumb.style.height = thumbHeight + 'px';
         
-        // Позиция ползунка
+        // Позиция ползунка с GPU ускорением (translate3d)
         const scrollRatio = scrollTop / (scrollHeight - clientHeight);
         const maxThumbTop = clientHeight - thumbHeight;
         const thumbTop = scrollRatio * maxThumbTop;
         
-        this.thumb.style.transform = `translateY(${thumbTop}px)`;
+        // translate3d вместо translateY - GPU acceleration
+        this.thumb.style.transform = `translate3d(-50%, ${thumbTop}px, 0)`;
     }
 
     showScrollbar() {
