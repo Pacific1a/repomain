@@ -1618,6 +1618,7 @@ a{
     font-weight: 900;
     font-size: 90px;
     line-height: 1;
+	height: 2.15em;
 }
 	.text{
 			display: flex;
