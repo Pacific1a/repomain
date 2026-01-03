@@ -83,7 +83,7 @@ class CustomScrollbar {
             }
         });
 
-        // Клик по треку (не по ползунку)
+        // Клик по треку (не по ползунку) - мгновенный скролл
         this.scrollbar.addEventListener('click', (e) => {
             if (e.target === this.thumb) return;
             
@@ -92,10 +92,7 @@ class CustomScrollbar {
             const clickRatio = (clickY - scrollbarRect.top) / scrollbarRect.height;
             const targetScroll = clickRatio * (document.documentElement.scrollHeight - window.innerHeight);
             
-            window.scrollTo({
-                top: targetScroll,
-                behavior: 'smooth'
-            });
+            window.scrollTo(0, targetScroll);
         });
 
         // Hover эффекты
@@ -121,8 +118,8 @@ class CustomScrollbar {
         
         this.scrollbar.style.display = 'block';
         
-        // Высота ползунка пропорциональна видимой области
-        const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 40);
+        // Высота ползунка короче (уменьшили коэффициент)
+        const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight * 0.6, 30);
         this.thumb.style.height = thumbHeight + 'px';
         
         // Позиция ползунка
@@ -144,7 +141,7 @@ class CustomScrollbar {
             if (!this.isDragging && !this.scrollbar.matches(':hover')) {
                 this.scrollbar.classList.remove('visible');
             }
-        }, 1500); // Скрыть через 1.5 секунды
+        }, 1000); // Скрыть через 1 секунду
     }
 }
 
