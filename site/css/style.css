@@ -1,75 +1,71 @@
-/* Кастомный скроллбар */
+/* ============================================
+   КАСТОМНЫЙ СКРОЛЛБАР
+   ============================================ */
+
+/* Основной контейнер скроллбара */
 ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
+	width: 10px;
+	height: 10px;
 }
 
+/* Убираем стрелочки полностью */
 ::-webkit-scrollbar-button {
-	display: block !important;
-	width: 0px !important;
-	height: 0px !important;
-	background: transparent !important;
-	background-image: none !important;
-	border: none !important;
-	padding: 0 !important;
-	margin: 0 !important;
-}
-
-::-webkit-scrollbar-button:single-button {
 	display: none !important;
-	width: 0px !important;
-	height: 0px !important;
+	width: 0 !important;
+	height: 0 !important;
 }
 
-::-webkit-scrollbar-button:start:decrement,
-::-webkit-scrollbar-button:end:increment {
-	display: none !important;
-	width: 0px !important;
-	height: 0px !important;
-	background: transparent !important;
-}
-
-::-webkit-scrollbar-button:vertical:start:decrement,
-::-webkit-scrollbar-button:vertical:end:increment,
-::-webkit-scrollbar-button:horizontal:start:decrement,
-::-webkit-scrollbar-button:horizontal:end:increment {
-	display: none !important;
-	width: 0px !important;
-	height: 0px !important;
-}
-
+/* Трек (фон) скроллбара - ПРОЗРАЧНЫЙ */
 ::-webkit-scrollbar-track {
-	background: #060606;
+	background: transparent;
 }
 
 ::-webkit-scrollbar-track-piece {
-	background: #060606;
+	background: transparent;
 }
 
+/* Ползунок скроллбара - красный градиент */
 ::-webkit-scrollbar-thumb {
 	background: linear-gradient(180deg, #ED2A2A, #B00000);
 	border-radius: 10px;
 	box-shadow: 0 0 10px rgba(237, 42, 42, 0.4);
 	min-height: 40px;
+	border: 2px solid transparent;
+	background-clip: padding-box;
 }
 
+/* Ховер на ползунок */
 ::-webkit-scrollbar-thumb:hover {
 	background: linear-gradient(180deg, #FF3535, #ED2A2A);
 	box-shadow: 0 0 15px rgba(255, 53, 53, 0.6);
+	background-clip: padding-box;
 }
 
+/* Активное состояние ползунка */
 ::-webkit-scrollbar-thumb:active {
 	background: linear-gradient(180deg, #FF5555, #FF3535);
+	background-clip: padding-box;
 }
 
+/* Угол где встречаются два скролла - ПРОЗРАЧНЫЙ */
 ::-webkit-scrollbar-corner {
-	background: #060606;
+	background: transparent;
 }
 
-/* Firefox */
-html {
+/* Firefox - тонкий скролл с прозрачным фоном */
+* {
 	scrollbar-width: thin;
-	scrollbar-color: #ED2A2A #060606;
+	scrollbar-color: #ED2A2A transparent;
+}
+
+/* Делаем скролл overlay (не занимает места) */
+html {
+	overflow: overlay;
+	scrollbar-gutter: stable;
+}
+
+body {
+	overflow: overlay;
 }
 
 .site {
