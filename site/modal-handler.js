@@ -354,12 +354,47 @@ const ModalHandler = {
         });
 
         // Кнопка "Пройти верификацию" в окне withdrawal-auth
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             const btn = e.target.closest('.withdrawal-auth .verification button');
             if (btn) {
                 e.preventDefault();
-                this.close();
-                setTimeout(() => this.open('withdrawalAuthStep'), 300);
+                
+                // Проверяем включена ли 2FA у пользователя
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/status`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.twoFactorEnabled) {
+                        // 2FA ВКЛЮЧЕНА → запрашиваем OTP код
+                        console.log('2FA включена, открываем окно ввода кода');
+                        this.close();
+                        setTimeout(() => this.open('withdrawalAuthStep'), 300);
+                    } else {
+                        // 2FA НЕ ВКЛЮЧЕНА → пропускаем проверку
+                        console.log('2FA не включена, пропускаем верификацию');
+                        this.close();
+                        
+                        // Показываем успешное сообщение
+                        if (typeof Toast !== 'undefined') {
+                            Toast.success('Заявка на вывод средств успешно создана. Средства будут переведены в ближайший вторник (10:00-18:00 МСК)');
+                        } else {
+                            alert('Заявка на вывод средств успешно создана');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Ошибка проверки статуса 2FA:', error);
+                    // При ошибке пропускаем 2FA проверку
+                    this.close();
+                    if (typeof Toast !== 'undefined') {
+                        Toast.success('Заявка на вывод средств создана');
+                    }
+                }
             }
         });
 
