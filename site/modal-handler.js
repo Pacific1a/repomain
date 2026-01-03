@@ -371,28 +371,33 @@ const ModalHandler = {
                     const data = await response.json();
                     
                     if (data.success && data.twoFactorEnabled) {
-                        // 2FA ВКЛЮЧЕНА → запрашиваем OTP код
+                        // 2FA ВКЛЮЧЕНА → открываем окно ввода OTP кода
                         console.log('2FA включена, открываем окно ввода кода');
                         this.close();
                         setTimeout(() => this.open('withdrawalAuthStep'), 300);
                     } else {
-                        // 2FA НЕ ВКЛЮЧЕНА → пропускаем проверку
-                        console.log('2FA не включена, пропускаем верификацию');
-                        this.close();
+                        // 2FA НЕ ВКЛЮЧЕНА → требуем подключить 2FA
+                        console.log('2FA не включена, требуется подключение');
                         
-                        // Показываем успешное сообщение
                         if (typeof Toast !== 'undefined') {
-                            Toast.success('Заявка на вывод средств успешно создана. Средства будут переведены в ближайший вторник (10:00-18:00 МСК)');
+                            Toast.warning('Для вывода средств необходимо подключить Google Authenticator (2FA). Перенаправление в настройки...');
                         } else {
-                            alert('Заявка на вывод средств успешно создана');
+                            alert('Для вывода средств необходимо подключить Google Authenticator (2FA)');
                         }
+                        
+                        // Закрываем текущее окно и открываем настройки 2FA
+                        this.close();
+                        setTimeout(() => {
+                            this.open('auth2FA');
+                        }, 2000);
                     }
                 } catch (error) {
                     console.error('Ошибка проверки статуса 2FA:', error);
-                    // При ошибке пропускаем 2FA проверку
-                    this.close();
+                    // При ошибке показываем уведомление о необходимости 2FA
                     if (typeof Toast !== 'undefined') {
-                        Toast.success('Заявка на вывод средств создана');
+                        Toast.error('Ошибка проверки 2FA. Убедитесь что Google Authenticator подключен');
+                    } else {
+                        alert('Ошибка проверки 2FA');
                     }
                 }
             }
