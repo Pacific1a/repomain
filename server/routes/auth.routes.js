@@ -349,7 +349,7 @@ router.post('/2fa/enable', jwtAuth, async (req, res) => {
             secret: secret,
             encoding: 'base32',
             token: token,
-            window: 2 // Allow 2 steps before/after (60 seconds tolerance)
+            window: 1 // Allow 1 step before/after (30 seconds tolerance)
         });
         
         if (!verified) {
@@ -428,7 +428,7 @@ router.post('/2fa/verify-withdrawal', jwtAuth, async (req, res) => {
             secret: user.two_factor_secret,
             encoding: 'base32',
             token: token,
-            window: 2 // Allow 2 steps before/after (60 seconds tolerance)
+            window: 1 // Allow 1 step before/after (30 seconds tolerance)
         });
         
         if (!verified) {
