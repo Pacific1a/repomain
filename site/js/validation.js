@@ -344,9 +344,11 @@ function setupWithdrawal2FAHandlers() {
         });
     });
     
-    // Обработчик кнопки "Продолжить"
+    // Обработчик кнопки "Продолжить" (ТОЛЬКО 1 РАЗ!)
     const continueBtn = modal.querySelector('.button_2f button');
-    if (continueBtn) {
+    if (continueBtn && !continueBtn.hasAttribute('data-handler-attached')) {
+        continueBtn.setAttribute('data-handler-attached', 'true');
+        
         continueBtn.addEventListener('click', async () => {
             const isValid = await verify2FAForWithdrawal();
             
