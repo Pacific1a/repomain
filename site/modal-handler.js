@@ -257,14 +257,14 @@ const ModalHandler = {
         
         // Получаем баланс пользователя
         const user = API.getUserFromStorage();
-        if (!user || !user.balance) {
+        if (!user) {
             if (typeof Toast !== 'undefined') {
-                Toast.error('Ошибка получения баланса');
+                Toast.error('Ошибка получения данных пользователя');
             }
             return;
         }
         
-        const balance = parseFloat(user.balance);
+        const balance = parseFloat(user.balance || 0);
         const MIN_WITHDRAWAL = 2000;
         
         console.log('ModalHandler: Баланс пользователя:', balance + '₽');
