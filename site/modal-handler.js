@@ -296,11 +296,19 @@ const ModalHandler = {
      * Настройка обработчиков кнопок внутри модальных окон
      */
     setupModalButtons() {
+        // Флаг чтобы избежать дублирования обработчиков
+        if (this._buttonsSetup) {
+            console.log('ModalHandler: Обработчики кнопок уже настроены');
+            return;
+        }
+        this._buttonsSetup = true;
+
         // Кнопка "Настроить автовыплаты" в окне witd_funds
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('.witd_funds .button_funds button');
             if (btn) {
                 e.preventDefault();
+                e.stopPropagation();
                 this.close();
                 setTimeout(() => this.open('autoWithdrawal'), 300);
             }
@@ -311,6 +319,7 @@ const ModalHandler = {
             const btn = e.target.closest('.funds_sts .button_sts button');
             const isFundsSts = e.target.closest('.auto-redirect-tuesday');
             if (btn && isFundsSts) {
+                e.stopPropagation();
                 e.preventDefault();
                 
                 // Валидация кошелька перед продолжением
@@ -348,6 +357,7 @@ const ModalHandler = {
             const btn = e.target.closest('.withdrawal-schedule .button_sts button');
             if (btn) {
                 e.preventDefault();
+                e.stopPropagation();
                 this.close();
                 setTimeout(() => this.open('withdrawalAuth'), 300);
             }
@@ -358,6 +368,7 @@ const ModalHandler = {
             const btn = e.target.closest('.withdrawal-auth .verification button');
             if (btn) {
                 e.preventDefault();
+                e.stopPropagation();
                 
                 // Проверяем включена ли 2FA у пользователя
                 try {
