@@ -5,10 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const Database = require('better-sqlite3');
-const path = require('path');
+const { db } = require('../config/database');
 
-const dbPath = path.join(__dirname, '../database.db');
 const BOT_SECRET = process.env.WITHDRAWAL_BOT_SECRET || 'your-secret-key-here';
 
 /**
@@ -42,87 +40,66 @@ router.post('/approve', verifyBotSecret, (req, res) => {
             });
         }
 
-        const db = new Database(dbPath);
+        // Получаем заявку
+        const request = await db.getAsync(`
+            SELECT 
+                wr.id,
+                wr.user_id,
+                wr.amount,
+                wr.status,
+                u.balance
+            FROM withdrawal_requests wr
+            JOIN users u ON wr.user_id = u.id
+            WHERE wr.id = ?
+        `, [requestId]);
 
-        try {
-            // Начинаем транзакцию
-            db.prepare('BEGIN').run();
-
-            // Получаем заявку
-            const request = db.prepare(`
-                SELECT 
-                    wr.id,
-                    wr.user_id,
-                    wr.amount,
-                    wr.status,
-                    u.balance
-                FROM withdrawal_requests wr
-                JOIN users u ON wr.user_id = u.id
-                WHERE wr.id = ?
-            `).get(requestId);
-
-            if (!request) {
-                db.prepare('ROLLBACK').run();
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Заявка не найдена' 
-                });
-            }
-
-            // Проверяем что заявка ещё не обработана
-            if (request.status !== 'pending') {
-                db.prepare('ROLLBACK').run();
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Заявка уже обработана' 
-                });
-            }
-
-            // Обновляем статус заявки
-            db.prepare(`
-                UPDATE withdrawal_requests
-                SET 
-                    status = 'approved',
-                    processed_at = CURRENT_TIMESTAMP,
-                    processed_by = ?
-                WHERE id = ?
-            `).run(adminName, requestId);
-
-            // ОБНУЛЯЕМ баланс пользователя
-            db.prepare(`
-                UPDATE users
-                SET balance = 0
-                WHERE id = ?
-            `).run(request.user_id);
-
-            // Логируем в консоль
-            console.log(`✅ Заявка #${requestId} одобрена админом ${adminName}`);
-            console.log(`   Пользователь ID: ${request.user_id}`);
-            console.log(`   Сумма: ${request.amount}₽`);
-            console.log(`   Баланс обнулён: ${request.balance}₽ → 0₽`);
-
-            // Коммитим транзакцию
-            db.prepare('COMMIT').run();
-
-            res.json({
-                success: true,
-                message: 'Заявка одобрена, баланс обнулён',
-                requestId,
-                userId: request.user_id,
-                amount: request.amount,
-                oldBalance: request.balance,
-                newBalance: 0
+        if (!request) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Заявка не найдена' 
             });
-
-        } catch (error) {
-            // Откатываем при ошибке
-            try {
-                db.prepare('ROLLBACK').run();
-            } catch {}
-            throw error;
-        } finally {
-            db.close();
         }
+
+        // Проверяем что заявка ещё не обработана
+        if (request.status !== 'pending') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Заявка уже обработана' 
+            });
+        }
+
+        // Обновляем статус заявки
+        await db.runAsync(`
+            UPDATE withdrawal_requests
+            SET 
+                status = 'approved',
+                processed_at = CURRENT_TIMESTAMP,
+                processed_by = ?
+            WHERE id = ?
+        `, [adminName, requestId]);
+
+        // ОБНУЛЯЕМ баланс пользователя
+        await db.runAsync(`
+            UPDATE users
+            SET balance = 0
+            WHERE id = ?
+        `, [request.user_id]);
+
+        // Логируем в консоль
+        console.log(`✅ Заявка #${requestId} одобрена админом ${adminName}`);
+        console.log(`   Пользователь ID: ${request.user_id}`);
+        console.log(`   Сумма: ${request.amount}₽`);
+        console.log(`   Баланс обнулён: ${request.balance}₽ → 0₽`);
+
+        res.json({
+            success: true,
+            message: 'Заявка одобрена, баланс обнулён',
+            requestId,
+            userId: request.user_id,
+            amount: request.amount,
+            oldBalance: request.balance,
+            newBalance: 0
+        });
 
     } catch (error) {
         console.error('Ошибка одобрения заявки:', error);
@@ -148,57 +125,50 @@ router.post('/reject', verifyBotSecret, (req, res) => {
             });
         }
 
-        const db = new Database(dbPath);
+        // Получаем заявку
+        const request = await db.getAsync(`
+            SELECT id, user_id, amount, status
+            FROM withdrawal_requests
+            WHERE id = ?
+        `, [requestId]);
 
-        try {
-            // Получаем заявку
-            const request = db.prepare(`
-                SELECT id, user_id, amount, status
-                FROM withdrawal_requests
-                WHERE id = ?
-            `).get(requestId);
-
-            if (!request) {
-                return res.status(404).json({ 
-                    success: false, 
-                    message: 'Заявка не найдена' 
-                });
-            }
-
-            // Проверяем что заявка ещё не обработана
-            if (request.status !== 'pending') {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Заявка уже обработана' 
-                });
-            }
-
-            // Обновляем статус заявки
-            db.prepare(`
-                UPDATE withdrawal_requests
-                SET 
-                    status = 'rejected',
-                    processed_at = CURRENT_TIMESTAMP,
-                    processed_by = ?,
-                    admin_comment = ?
-                WHERE id = ?
-            `).run(adminName, comment || 'Отклонено', requestId);
-
-            // Логируем
-            console.log(`❌ Заявка #${requestId} отклонена админом ${adminName}`);
-            console.log(`   Пользователь ID: ${request.user_id}`);
-            console.log(`   Сумма: ${request.amount}₽`);
-            console.log(`   Баланс НЕ изменён`);
-
-            res.json({
-                success: true,
-                message: 'Заявка отклонена',
-                requestId
+        if (!request) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Заявка не найдена' 
             });
-
-        } finally {
-            db.close();
         }
+
+        // Проверяем что заявка ещё не обработана
+        if (request.status !== 'pending') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Заявка уже обработана' 
+            });
+        }
+
+        // Обновляем статус заявки
+        await db.runAsync(`
+            UPDATE withdrawal_requests
+            SET 
+                status = 'rejected',
+                processed_at = CURRENT_TIMESTAMP,
+                processed_by = ?,
+                admin_comment = ?
+            WHERE id = ?
+        `, [adminName, comment || 'Отклонено', requestId]);
+
+        // Логируем
+        console.log(`❌ Заявка #${requestId} отклонена админом ${adminName}`);
+        console.log(`   Пользователь ID: ${request.user_id}`);
+        console.log(`   Сумма: ${request.amount}₽`);
+        console.log(`   Баланс НЕ изменён`);
+
+        res.json({
+            success: true,
+            message: 'Заявка отклонена',
+            requestId
+        });
 
     } catch (error) {
         console.error('Ошибка отклонения заявки:', error);

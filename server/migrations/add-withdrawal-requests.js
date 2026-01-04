@@ -3,17 +3,45 @@
  * Система ручных выплат через Telegram бота
  */
 
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, '../database.db');
-const db = new Database(dbPath);
+const dbPath = path.join(__dirname, '../data/database.db');
 
 console.log('🔄 Начинаем миграцию: добавление таблицы withdrawal_requests...\n');
+console.log('📁 База данных:', dbPath);
 
-try {
-    // Создаём таблицу заявок на вывод
-    db.exec(`
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.error('❌ Ошибка подключения к базе:', err.message);
+        process.exit(1);
+    }
+    console.log('✅ Подключение к базе данных установлено\n');
+});
+
+// Функция для выполнения SQL с промисами
+function runSQL(sql) {
+    return new Promise((resolve, reject) => {
+        db.run(sql, function(err) {
+            if (err) reject(err);
+            else resolve(this);
+        });
+    });
+}
+
+function getOne(sql) {
+    return new Promise((resolve, reject) => {
+        db.get(sql, (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+        });
+    });
+}
+
+async function migrate() {
+    try {
+        // Создаём таблицу заявок на вывод
+        await runSQL(`
         CREATE TABLE IF NOT EXISTS withdrawal_requests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -46,49 +74,60 @@ try {
             
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
-    `);
+        `);
 
-    console.log('✅ Таблица withdrawal_requests создана');
+        console.log('✅ Таблица withdrawal_requests создана');
 
-    // Индексы для быстрого поиска
-    db.exec(`
-        CREATE INDEX IF NOT EXISTS idx_withdrawal_user_id ON withdrawal_requests(user_id);
-        CREATE INDEX IF NOT EXISTS idx_withdrawal_status ON withdrawal_requests(status);
-        CREATE INDEX IF NOT EXISTS idx_withdrawal_created_at ON withdrawal_requests(created_at DESC);
-    `);
+        // Индексы для быстрого поиска
+        await runSQL(`CREATE INDEX IF NOT EXISTS idx_withdrawal_user_id ON withdrawal_requests(user_id);`);
+        await runSQL(`CREATE INDEX IF NOT EXISTS idx_withdrawal_status ON withdrawal_requests(status);`);
+        await runSQL(`CREATE INDEX IF NOT EXISTS idx_withdrawal_created_at ON withdrawal_requests(created_at DESC);`);
 
-    console.log('✅ Индексы созданы');
+        console.log('✅ Индексы созданы');
 
-    // Проверяем что таблица создана
-    const tableCheck = db.prepare(`
-        SELECT name FROM sqlite_master 
-        WHERE type='table' AND name='withdrawal_requests'
-    `).get();
+        // Проверяем что таблица создана
+        const tableCheck = await getOne(`
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='withdrawal_requests'
+        `);
 
-    if (tableCheck) {
-        console.log('\n✅ Миграция успешно завершена!');
-        console.log('\n📊 Структура таблицы:');
-        console.log('   - id: уникальный ID заявки');
-        console.log('   - user_id: ID пользователя');
-        console.log('   - email: email пользователя');
-        console.log('   - telegram_username: @username из Telegram');
-        console.log('   - amount: сумма вывода');
-        console.log('   - usdt_address: USDT TRC20 адрес');
-        console.log('   - referrals_count: сколько рефералов');
-        console.log('   - total_earnings: сколько заработал');
-        console.log('   - status: pending/approved/rejected');
-        console.log('   - created_at: дата создания');
-        console.log('   - processed_at: дата обработки');
-        console.log('   - processed_by: кто обработал');
-        console.log('   - telegram_message_id: ID сообщения в боте');
-        console.log('   - admin_comment: комментарий админа\n');
-    } else {
-        throw new Error('Таблица не была создана!');
+        if (tableCheck) {
+            console.log('\n✅ Миграция успешно завершена!');
+            console.log('\n📊 Структура таблицы:');
+            console.log('   - id: уникальный ID заявки');
+            console.log('   - user_id: ID пользователя');
+            console.log('   - email: email пользователя');
+            console.log('   - telegram_username: @username из Telegram');
+            console.log('   - amount: сумма вывода');
+            console.log('   - usdt_address: USDT TRC20 адрес');
+            console.log('   - referrals_count: сколько рефералов');
+            console.log('   - total_earnings: сколько заработал');
+            console.log('   - status: pending/approved/rejected');
+            console.log('   - created_at: дата создания');
+            console.log('   - processed_at: дата обработки');
+            console.log('   - processed_by: кто обработал');
+            console.log('   - telegram_message_id: ID сообщения в боте');
+            console.log('   - admin_comment: комментарий админа\n');
+        } else {
+            throw new Error('Таблица не была создана!');
+        }
+
+    } catch (error) {
+        console.error('❌ Ошибка миграции:', error.message);
+        db.close();
+        process.exit(1);
     }
 
-} catch (error) {
-    console.error('❌ Ошибка миграции:', error.message);
-    process.exit(1);
-} finally {
-    db.close();
+    // Закрываем соединение
+    db.close((err) => {
+        if (err) {
+            console.error('❌ Ошибка закрытия БД:', err.message);
+        } else {
+            console.log('✅ Соединение с БД закрыто');
+        }
+        process.exit(0);
+    });
 }
+
+// Запускаем миграцию
+migrate();
