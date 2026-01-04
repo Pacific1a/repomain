@@ -94,20 +94,11 @@ function removeErrorMessage(inputElement) {
 /**
  * Создание заявки на вывод средств
  * Вызывается после успешной 2FA верификации
+ * @param {string} usdtAddress - USDT TRC20 адрес для вывода
  */
-async function createWithdrawalRequest() {
+async function createWithdrawalRequest(usdtAddress) {
     try {
-        // Получаем адрес кошелька из модального окна (может быть в withdrawal-auth-step или withdrawal-schedule)
-        const usdtInput = document.querySelector('.withdrawal-auth-step input[name="usdt_address"], .withdrawal-schedule input[name="usdt_address"]');
-        
-        if (!usdtInput) {
-            console.error('❌ Поле адреса не найдено');
-            Toast.error('Ошибка: не найдено поле для адреса кошелька');
-            return;
-        }
-        
-        const usdtAddress = usdtInput.value.trim();
-        console.log('📍 USDT адрес из поля:', usdtAddress);
+        console.log('📍 USDT адрес из параметра:', usdtAddress);
         
         // Получаем баланс пользователя (выводим ВСЁ)
         const user = API.getUserFromStorage();
@@ -156,11 +147,7 @@ async function createWithdrawalRequest() {
         
         if (result.success) {
             console.log('✅ Заявка на вывод создана:', result);
-            Toast.success('Заявка на вывод успешно создана! Ожидайте обработки администратором.');
-            
-            // Очищаем поля
-            amountInput.value = '';
-            usdtInput.value = '';
+            Toast.success('Заявка на вывод средств успешно создана! Ожидайте обработки администратором.', 5000);
             
             // Закрываем все модальные окна
             document.querySelectorAll('.withdrawal-schedule, .withdrawal-auth-step').forEach(modal => {
@@ -360,14 +347,18 @@ function setupWithdrawal2FAHandlers() {
             const isValid = await verify2FAForWithdrawal();
             
             if (isValid) {
+                // СНАЧАЛА получаем адрес USDT пока окно еще открыто!
+                const usdtInput = document.querySelector('.withdrawal-auth-step input[name="usdt_address"], .withdrawal-schedule input[name="usdt_address"]');
+                const usdtAddress = usdtInput ? usdtInput.value.trim() : '';
+                
                 // Закрываем модальное окно 2FA
                 modal.style.display = 'none';
                 
                 // Показываем одно уведомление
                 Toast.success('Код подтверждён. Создаём заявку на вывод...');
                 
-                // Создаём заявку на вывод через API
-                await createWithdrawalRequest();
+                // Создаём заявку на вывод через API с адресом
+                await createWithdrawalRequest(usdtAddress);
             }
         });
     }
