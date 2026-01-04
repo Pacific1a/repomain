@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/database');
+const { jwtAuth } = require('../middleware/auth');
 const axios = require('axios');
 
 /**
@@ -13,7 +14,7 @@ const axios = require('axios');
  * Создание заявки на вывод средств
  * После успешной 2FA верификации
  */
-router.post('/request', async (req, res) => {
+router.post('/request', jwtAuth, async (req, res) => {
     try {
         const userId = req.userId;
         if (!userId) {
