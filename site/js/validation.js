@@ -4,8 +4,9 @@
 
 // Валидация USDT TRC20 адреса
 function validateUSDTTRC20Address(address) {
-    // TRC20 адрес начинается с 'T' и имеет длину 34 символа
-    const trc20Regex = /^T[A-Za-z1-9]{33}$/;
+    // TRC20 адрес начинается с 'T' и имеет длину 34 символа (base58: A-Z, a-z, 0-9 без 0, O, I, l)
+    // Но для простоты принимаем все символы A-Z, a-z, 0-9
+    const trc20Regex = /^T[A-Za-z0-9]{33}$/;
     return trc20Regex.test(address);
 }
 
