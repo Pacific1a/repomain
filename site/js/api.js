@@ -13,6 +13,9 @@ const API_BASE_URL = (() => {
     return `${protocol}//${host}/api`;
 })();
 
+// Экспортируем глобально для использования в других скриптах
+window.API_BASE_URL = API_BASE_URL;
+
 class API {
     static getToken() {
         return localStorage.getItem('authToken');
