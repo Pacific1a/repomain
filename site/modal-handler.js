@@ -247,10 +247,9 @@ const ModalHandler = {
 
     /**
      * Логика открытия окна вывода средств
-     * УПРОЩЕННАЯ ЛОГИКА:
-     * 1. Получаем актуальный баланс из базы данных через API
-     * 2. Баланс < 2000₽ → показываем ошибку, НЕ открываем окна
-     * 3. Баланс >= 2000₽ → проверяем 2FA и открываем окно
+     * ПОСЛЕДОВАТЕЛЬНОСТЬ ОКОН:
+     * 1. Баланс < 2000₽ → окно "Вывод недоступен" (withdrawal)
+     * 2. Баланс >= 2000₽ → окно "Автовывод" (autoWithdrawal) → кнопка → окно "Верификация 2FA" (withdrawalAuth) → кнопка → окно "Ввод OTP" (withdrawalAuthStep)
      */
     async openWithdrawal() {
         console.log('ModalHandler: Открытие окна вывода средств...');
@@ -271,52 +270,17 @@ const ModalHandler = {
         const MIN_WITHDRAWAL = 2000;
         
         console.log('ModalHandler: Актуальный баланс из БД:', balance + '₽');
-        
-        console.log('ModalHandler: Баланс пользователя:', balance + '₽');
         console.log('ModalHandler: Минимум для вывода:', MIN_WITHDRAWAL + '₽');
         
         // Проверяем достаточно ли средств
         if (balance < MIN_WITHDRAWAL) {
-            // НЕТ ДЕНЕГ → Только ошибка, БЕЗ окон
-            console.log('ModalHandler: Недостаточно средств для вывода');
-            if (typeof Toast !== 'undefined') {
-                Toast.error(`Недостаточно средств для вывода. Минимальная сумма: ${MIN_WITHDRAWAL}₽`, 5000);
-            }
-            return; // НЕ ОТКРЫВАЕМ ОКНА!
-        }
-        
-        // ЕСТЬ ДЕНЬГИ → Проверяем 2FA и показываем окно
-        console.log('ModalHandler: Достаточно средств, проверяем 2FA...');
-        
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/status`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (data.success && data.twoFactorEnabled) {
-                // 2FA ВКЛЮЧЕНА → Сразу показываем окно с формой (адрес + код)
-                console.log('ModalHandler: 2FA включена, открываем окно с формой вывода');
-                this.open('withdrawalAuthStep');
-            } else {
-                // 2FA НЕ ВКЛЮЧЕНА → Показываем окно подключения 2FA
-                console.log('ModalHandler: 2FA не включена, показываем окно подключения');
-                if (typeof Toast !== 'undefined') {
-                    Toast.warning('Для вывода средств необходимо подключить двухфакторную аутентификацию (2FA)', 4000);
-                }
-                setTimeout(() => {
-                    this.open('auth2FA');
-                }, 1000);
-            }
-        } catch (error) {
-            console.error('ModalHandler: Ошибка проверки 2FA:', error);
-            if (typeof Toast !== 'undefined') {
-                Toast.error('Системная ошибка при проверке двухфакторной аутентификации');
-            }
+            // НЕТ ДЕНЕГ → Окно "Вывод недоступен"
+            console.log('ModalHandler: Недостаточно средств, открываем окно "Вывод недоступен"');
+            this.open('withdrawal');
+        } else {
+            // ЕСТЬ ДЕНЬГИ → Окно "Автовывод средств"
+            console.log('ModalHandler: Достаточно средств, открываем окно автовывода');
+            this.open('autoWithdrawal');
         }
     },
 
