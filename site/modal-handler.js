@@ -272,18 +272,20 @@ const ModalHandler = {
         console.log('ModalHandler: Актуальный баланс из БД:', balance + '₽');
         console.log('ModalHandler: Минимум для вывода:', MIN_WITHDRAWAL + '₽');
         
-        // Проверяем день недели и время
+        // Проверяем день недели и время ПО МОСКОВСКОМУ ВРЕМЕНИ (UTC+3)
         const now = new Date();
-        const dayOfWeek = now.getDay(); // 0 = Воскресенье, 2 = Вторник
-        const hour = now.getHours();
+        const moscowTime = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Moscow" }));
+        const dayOfWeek = moscowTime.getDay(); // 0 = Воскресенье, 2 = Вторник
+        const hour = moscowTime.getHours();
         
         const isTuesday = dayOfWeek === 2;
         const isWithdrawalTime = hour >= 10 && hour < 18;
         
-        console.log('ModalHandler: День недели:', dayOfWeek, '(2 = вторник)');
-        console.log('ModalHandler: Час:', hour);
+        console.log('ModalHandler: Московское время:', moscowTime.toLocaleString('ru-RU'));
+        console.log('ModalHandler: День недели (МСК):', dayOfWeek, '(2 = вторник)');
+        console.log('ModalHandler: Час (МСК):', hour);
         console.log('ModalHandler: Вторник?', isTuesday);
-        console.log('ModalHandler: Время 10-18?', isWithdrawalTime);
+        console.log('ModalHandler: Время 10-18 (МСК)?', isWithdrawalTime);
         
         // Проверяем ВСЕ условия для вывода
         if (balance < MIN_WITHDRAWAL) {
