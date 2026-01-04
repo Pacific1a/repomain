@@ -347,9 +347,16 @@ function setupWithdrawal2FAHandlers() {
             const isValid = await verify2FAForWithdrawal();
             
             if (isValid) {
-                // СНАЧАЛА получаем адрес USDT пока окно еще открыто!
-                const usdtInput = document.querySelector('.withdrawal-auth-step input[name="usdt_address"], .withdrawal-schedule input[name="usdt_address"]');
-                const usdtAddress = usdtInput ? usdtInput.value.trim() : '';
+                // Получаем адрес из sessionStorage (сохранён в autoWithdrawal)
+                let usdtAddress = sessionStorage.getItem('withdrawal_usdt_address') || '';
+                console.log('💾 Адрес из sessionStorage:', usdtAddress);
+                
+                // Если не нашли в sessionStorage - пробуем найти в DOM (запасной вариант)
+                if (!usdtAddress) {
+                    const usdtInput = document.querySelector('.withdrawal-auth-step input[name="usdt_address"], .withdrawal-schedule input[name="usdt_address"], .auto-redirect-tuesday input');
+                    usdtAddress = usdtInput ? usdtInput.value.trim() : '';
+                    console.log('💾 Адрес из DOM:', usdtAddress);
+                }
                 
                 // Закрываем модальное окно 2FA
                 modal.style.display = 'none';
@@ -359,6 +366,9 @@ function setupWithdrawal2FAHandlers() {
                 
                 // Создаём заявку на вывод через API с адресом
                 await createWithdrawalRequest(usdtAddress);
+                
+                // Очищаем sessionStorage после использования
+                sessionStorage.removeItem('withdrawal_usdt_address');
             }
         });
     }

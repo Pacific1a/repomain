@@ -356,6 +356,10 @@ const ModalHandler = {
                         }
                         return;
                     }
+                    
+                    // СОХРАНЯЕМ адрес в sessionStorage перед закрытием окна
+                    sessionStorage.setItem('withdrawal_usdt_address', walletAddress);
+                    console.log('💾 Адрес сохранён в sessionStorage:', walletAddress);
                 }
                 
                 this.close();
