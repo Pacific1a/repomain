@@ -97,14 +97,17 @@ function removeErrorMessage(inputElement) {
  */
 async function createWithdrawalRequest() {
     try {
-        // Получаем адрес кошелька из модального окна
-        const usdtInput = document.querySelector('.withdrawal-schedule input[name="usdt_address"]');
+        // Получаем адрес кошелька из модального окна (может быть в withdrawal-auth-step или withdrawal-schedule)
+        const usdtInput = document.querySelector('.withdrawal-auth-step input[name="usdt_address"], .withdrawal-schedule input[name="usdt_address"]');
         
         if (!usdtInput) {
             console.error('❌ Поле адреса не найдено');
             Toast.error('Ошибка: не найдено поле для адреса кошелька');
             return;
         }
+        
+        const usdtAddress = usdtInput.value.trim();
+        console.log('📍 USDT адрес из поля:', usdtAddress);
         
         // Получаем баланс пользователя (выводим ВСЁ)
         const user = API.getUserFromStorage();
@@ -114,7 +117,6 @@ async function createWithdrawalRequest() {
         }
         
         const amount = parseFloat(user.balance);
-        const usdtAddress = usdtInput.value.trim();
         
         // Валидация суммы
         if (!amount || amount <= 0) {
@@ -128,10 +130,14 @@ async function createWithdrawalRequest() {
             return;
         }
         
-        if (!usdtAddress || !usdtAddress.startsWith('T') || usdtAddress.length !== 34) {
-            Toast.error('Некорректный USDT TRC20 адрес');
+        // Валидация адреса через функцию
+        if (!usdtAddress || !validateUSDTTRC20Address(usdtAddress)) {
+            console.error('❌ Некорректный адрес:', usdtAddress);
+            Toast.error('Некорректный адрес кошелька. Укажите действительный USDT TRC20 адрес.', 5000);
             return;
         }
+        
+        console.log('✅ USDT адрес валидный:', usdtAddress);
         
         // Отправляем запрос на создание заявки
         const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/withdrawal/request`, {
