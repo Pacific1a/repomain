@@ -214,17 +214,8 @@ router.get('/user', jwtAuth, async (req, res) => {
             });
         }
         
-        // Получаем партнерский баланс (60% от потерь рефералов) + субпартнёрский (5%)
-        const partnerStats = await db.getAsync(
-            'SELECT earnings, sub_partner_earnings FROM referral_stats WHERE user_id = ?',
-            [req.userId]
-        );
-        
-        const earnings = partnerStats ? (partnerStats.earnings || 0) : 0;
-        const subPartnerEarnings = partnerStats ? (partnerStats.sub_partner_earnings || 0) : 0;
-        const totalBalance = earnings + subPartnerEarnings;
-        
-        console.log(`💰 Partner balance for user ${req.userId}: ${earnings}₽ (referral) + ${subPartnerEarnings}₽ (sub-partner) = ${totalBalance}₽`);
+        // ИСПОЛЬЗУЕМ РЕАЛЬНЫЙ БАЛАНС ИЗ БД, НЕ ВЫЧИСЛЯЕМ!
+        console.log(`💰 Balance from database for user ${req.userId}: ${user.balance}₽`);
         
         res.json({
             success: true,
@@ -233,7 +224,7 @@ router.get('/user', jwtAuth, async (req, res) => {
                 email: user.email,
                 login: user.login,
                 telegram: user.telegram || '',
-                balance: totalBalance,  // Показываем общий баланс (earnings + sub_partner_earnings)
+                balance: user.balance || 0,  // РЕАЛЬНЫЙ баланс из таблицы users
                 role: user.role || 'user'
             }
         });
