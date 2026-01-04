@@ -254,9 +254,6 @@ bot.on('message', async (msg) => {
             await rejectWithdrawal(requestId, adminName, reason);
             
             // Обновляем исходное сообщение
-            const newText = (await bot.getUpdates()).result
-                .find(u => u.message?.message_id === messageId)?.message?.text || '';
-            
             const updatedText = `${msg.reply_to_message?.text || ''}\n\n❌ <b>ОТКЛОНЕНО</b>\n👤 ${adminName}\n📝 Причина: <i>${reason}</i>`;
             
             await bot.editMessageText(updatedText, {
