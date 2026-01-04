@@ -332,25 +332,67 @@ function setupCodeInputs() {
     const codeInputs = document.querySelectorAll('.auth_2f .type_code .code');
     
     codeInputs.forEach((input, index) => {
-        // Автопереход на следующее поле
+        // Только цифры при вводе
+        input.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Обработка ввода
         input.addEventListener('input', function(e) {
+            // Оставляем только цифры и первый символ
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 1);
+            
+            // Автопереход на следующее поле
             if (this.value.length === 1 && index < codeInputs.length - 1) {
                 codeInputs[index + 1].focus();
             }
         });
         
-        // Backspace - переход на предыдущее поле
+        // Обработка клавиш
         input.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && this.value.length === 0 && index > 0) {
+            // Backspace - удалить и перейти назад
+            if (e.key === 'Backspace') {
+                if (this.value.length === 0 && index > 0) {
+                    // Поле пустое - переходим назад и очищаем
+                    e.preventDefault();
+                    codeInputs[index - 1].focus();
+                    codeInputs[index - 1].value = '';
+                } else {
+                    // Поле не пустое - просто очищаем
+                    this.value = '';
+                    e.preventDefault();
+                }
+            }
+            
+            // Delete - очистить текущее поле
+            if (e.key === 'Delete') {
+                this.value = '';
+                e.preventDefault();
+            }
+            
+            // Стрелка влево
+            if (e.key === 'ArrowLeft' && index > 0) {
                 codeInputs[index - 1].focus();
+                e.preventDefault();
+            }
+            
+            // Стрелка вправо
+            if (e.key === 'ArrowRight' && index < codeInputs.length - 1) {
+                codeInputs[index + 1].focus();
+                e.preventDefault();
+            }
+            
+            // Если вводим цифру в заполненное поле - заменяем
+            if (/[0-9]/.test(e.key) && this.value.length === 1) {
+                this.value = '';
             }
         });
         
-        // Только цифры
-        input.addEventListener('keypress', function(e) {
-            if (!/[0-9]/.test(e.key)) {
-                e.preventDefault();
-            }
+        // Автовыделение при фокусе
+        input.addEventListener('focus', function() {
+            this.select();
         });
         
         // Вставка кода из буфера
