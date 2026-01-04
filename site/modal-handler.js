@@ -247,9 +247,9 @@ const ModalHandler = {
 
     /**
      * Логика открытия окна вывода средств
-     * ПОСЛЕДОВАТЕЛЬНОСТЬ ОКОН:
-     * 1. Баланс < 2000₽ → окно "Вывод недоступен" (withdrawal)
-     * 2. Баланс >= 2000₽ → окно "Автовывод" (autoWithdrawal) → кнопка → окно "Верификация 2FA" (withdrawalAuth) → кнопка → окно "Ввод OTP" (withdrawalAuthStep)
+     * ПОСЛЕДОВАТЕЛЬНОСТЬ:
+     * 1. НЕ вторник ИЛИ баланс < 2000₽ → окно "Вывод недоступен" (withdrawal)
+     * 2. Вторник 10-18 И баланс >= 2000₽ → окно "Вывод по расписанию" (withdrawalSchedule) → кнопка → окно "Верификация" (withdrawalAuth) → кнопка → окно "OTP" (withdrawalAuthStep)
      */
     async openWithdrawal() {
         console.log('ModalHandler: Открытие окна вывода средств...');
@@ -272,15 +272,32 @@ const ModalHandler = {
         console.log('ModalHandler: Актуальный баланс из БД:', balance + '₽');
         console.log('ModalHandler: Минимум для вывода:', MIN_WITHDRAWAL + '₽');
         
-        // Проверяем достаточно ли средств
+        // Проверяем день недели и время
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0 = Воскресенье, 2 = Вторник
+        const hour = now.getHours();
+        
+        const isTuesday = dayOfWeek === 2;
+        const isWithdrawalTime = hour >= 10 && hour < 18;
+        
+        console.log('ModalHandler: День недели:', dayOfWeek, '(2 = вторник)');
+        console.log('ModalHandler: Час:', hour);
+        console.log('ModalHandler: Вторник?', isTuesday);
+        console.log('ModalHandler: Время 10-18?', isWithdrawalTime);
+        
+        // Проверяем ВСЕ условия для вывода
         if (balance < MIN_WITHDRAWAL) {
-            // НЕТ ДЕНЕГ → Окно "Вывод недоступен"
-            console.log('ModalHandler: Недостаточно средств, открываем окно "Вывод недоступен"');
+            // Недостаточно средств
+            console.log('ModalHandler: Недостаточно средств (< 2000₽)');
+            this.open('withdrawal');
+        } else if (!isTuesday || !isWithdrawalTime) {
+            // Не вторник или не то время
+            console.log('ModalHandler: Не вторник или не рабочее время');
             this.open('withdrawal');
         } else {
-            // ЕСТЬ ДЕНЬГИ → Окно "Автовывод средств"
-            console.log('ModalHandler: Достаточно средств, открываем окно автовывода');
-            this.open('autoWithdrawal');
+            // ВСЁ ОК: вторник 10-18 и баланс >= 2000₽
+            console.log('ModalHandler: Вторник 10-18 и достаточно средств → открываем форму');
+            this.open('withdrawalSchedule');
         }
     },
 
