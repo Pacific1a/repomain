@@ -214,11 +214,12 @@ async function approveWithdrawal(requestId, adminName) {
 /**
  * Отклонение заявки
  */
-async function rejectWithdrawal(requestId, adminName) {
+async function rejectWithdrawal(requestId, adminName, comment) {
     try {
         await axios.post(`${SERVER_API_URL}/api/withdrawal/reject`, {
             requestId,
-            adminName
+            adminName,
+            comment
         }, {
             headers: {
                 'X-Bot-Secret': BOT_SECRET
