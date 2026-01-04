@@ -5,14 +5,15 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../config/database');
+const { jwtAuth } = require('../middleware/auth');
 
 /**
  * GET /api/notifications/unread
  * Получить непрочитанные уведомления пользователя
  */
-router.get('/unread', async (req, res) => {
+router.get('/unread', jwtAuth, async (req, res) => {
     try {
-        const userId = req.user?.userId;
+        const userId = req.userId;
         if (!userId) {
             return res.status(401).json({ 
                 success: false, 
@@ -51,9 +52,9 @@ router.get('/unread', async (req, res) => {
  * POST /api/notifications/mark-read/:id
  * Отметить уведомление как прочитанное
  */
-router.post('/mark-read/:id', async (req, res) => {
+router.post('/mark-read/:id', jwtAuth, async (req, res) => {
     try {
-        const userId = req.user?.userId;
+        const userId = req.userId;
         const notificationId = req.params.id;
 
         if (!userId) {
@@ -87,9 +88,9 @@ router.post('/mark-read/:id', async (req, res) => {
  * POST /api/notifications/mark-all-read
  * Отметить все уведомления как прочитанные
  */
-router.post('/mark-all-read', async (req, res) => {
+router.post('/mark-all-read', jwtAuth, async (req, res) => {
     try {
-        const userId = req.user?.userId;
+        const userId = req.userId;
 
         if (!userId) {
             return res.status(401).json({ 
