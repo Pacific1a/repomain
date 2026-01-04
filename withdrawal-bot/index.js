@@ -151,10 +151,14 @@ bot.on('callback_query', async (query) => {
             });
 
             // Убираем кнопки
-            await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
-                chat_id: chatId,
-                message_id: messageId
-            });
+            try {
+                await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                    chat_id: chatId,
+                    message_id: messageId
+                });
+            } catch (e) {
+                // Игнорируем ошибку "message is not modified"
+            }
 
             await bot.answerCallbackQuery(query.id, {
                 text: '✅ Заявка одобрена! Баланс пользователя обнулён.',
@@ -263,10 +267,14 @@ bot.on('message', async (msg) => {
             });
             
             // Убираем кнопки
-            await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
-                chat_id: originalChatId,
-                message_id: messageId
-            });
+            try {
+                await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                    chat_id: originalChatId,
+                    message_id: messageId
+                });
+            } catch (e) {
+                // Игнорируем ошибку "message is not modified"
+            }
             
             // Удаляем сообщение с запросом причины
             try {
