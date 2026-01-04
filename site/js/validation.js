@@ -96,17 +96,23 @@ function removeErrorMessage(inputElement) {
  */
 async function createWithdrawalRequest() {
     try {
-        // Получаем данные из модального окна вывода
-        const amountInput = document.querySelector('.withdrawal-schedule input[name="amount"]');
+        // Получаем адрес кошелька из модального окна
         const usdtInput = document.querySelector('.withdrawal-schedule input[name="usdt_address"]');
         
-        if (!amountInput || !usdtInput) {
-            console.error('❌ Поля суммы или адреса не найдены');
-            Toast.error('Ошибка: не найдены поля для вывода');
+        if (!usdtInput) {
+            console.error('❌ Поле адреса не найдено');
+            Toast.error('Ошибка: не найдено поле для адреса кошелька');
             return;
         }
         
-        const amount = parseFloat(amountInput.value);
+        // Получаем баланс пользователя (выводим ВСЁ)
+        const user = API.getUserFromStorage();
+        if (!user || !user.balance) {
+            Toast.error('Невозможно получить баланс пользователя');
+            return;
+        }
+        
+        const amount = parseFloat(user.balance);
         const usdtAddress = usdtInput.value.trim();
         
         // Валидация
