@@ -15,7 +15,7 @@ const axios = require('axios');
  */
 router.post('/request', async (req, res) => {
     try {
-        const userId = req.user?.userId;
+        const userId = req.userId;
         if (!userId) {
             return res.status(401).json({ 
                 success: false, 
