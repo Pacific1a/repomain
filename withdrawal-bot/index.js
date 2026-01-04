@@ -11,6 +11,7 @@ const axios = require('axios');
 // Конфигурация
 const BOT_TOKEN = process.env.WITHDRAWAL_BOT_TOKEN;
 const ADMIN_IDS = (process.env.ADMIN_IDS || '').split(',').map(id => parseInt(id.trim()));
+const CHAT_ID = parseInt(process.env.CHAT_ID || '0'); // ID группового чата
 const BOT_SECRET = process.env.BOT_SECRET || 'your-secret-key-here';
 const SERVER_API_URL = process.env.SERVER_API_URL || 'http://localhost:3001';
 const PORT = process.env.PORT || 3002;
@@ -25,6 +26,11 @@ if (ADMIN_IDS.length === 0 || ADMIN_IDS[0] === 0) {
     process.exit(1);
 }
 
+if (!CHAT_ID || CHAT_ID === 0) {
+    console.error('❌ CHAT_ID не настроен в .env');
+    process.exit(1);
+}
+
 // Создаём бота
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
@@ -34,6 +40,7 @@ app.use(express.json());
 
 console.log('🤖 Withdrawal Bot запущен!');
 console.log(`👥 Админы: ${ADMIN_IDS.join(', ')}`);
+console.log(`💬 Чат для заявок: ${CHAT_ID}`);
 
 /**
  * Приём заявки от партнёрского сервера
@@ -88,19 +95,19 @@ app.post('/api/withdrawal', async (req, res) => {
             ]
         };
 
-        // Отправляем всем админам
-        for (const adminId of ADMIN_IDS) {
-            try {
-                await bot.sendMessage(adminId, message, {
-                    parse_mode: 'HTML',
-                    reply_markup: keyboard
-                });
-            } catch (error) {
-                console.error(`Ошибка отправки админу ${adminId}:`, error.message);
-            }
+        // Отправляем в групповой чат
+        try {
+            await bot.sendMessage(CHAT_ID, message, {
+                parse_mode: 'HTML',
+                reply_markup: keyboard
+            });
+            console.log(`✅ Заявка #${requestId} отправлена в чат ${CHAT_ID}`);
+        } catch (error) {
+            console.error(`❌ Ошибка отправки в чат ${CHAT_ID}:`, error.message);
+            return res.status(500).json({ error: 'Failed to send to chat', details: error.message });
         }
 
-        res.json({ success: true, message: 'Sent to admins' });
+        res.json({ success: true, message: 'Sent to chat' });
 
     } catch (error) {
         console.error('Ошибка обработки заявки:', error);
@@ -114,14 +121,16 @@ app.post('/api/withdrawal', async (req, res) => {
 bot.on('callback_query', async (query) => {
     const chatId = query.message.chat.id;
     const messageId = query.message.message_id;
+    const userId = query.from.id;
     const data = query.data;
 
-    // Проверяем что это админ
-    if (!ADMIN_IDS.includes(chatId)) {
+    // Проверяем что это админ (по ID пользователя, не чата)
+    if (!ADMIN_IDS.includes(userId)) {
         await bot.answerCallbackQuery(query.id, {
             text: '❌ У вас нет прав для этого действия',
             show_alert: true
         });
+        console.log(`❌ Попытка доступа от не-админа: ${userId} (@${query.from.username || 'unknown'})`);
         return;
     }
 
