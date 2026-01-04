@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function checkUnreadNotifications() {
     try {
         const token = localStorage.getItem('authToken');
-        if (!token) return;
+        if (!token) return; // Выходим если пользователь не авторизован
 
         const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/notifications/unread`, {
             headers: {
