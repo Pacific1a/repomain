@@ -185,7 +185,7 @@ const ModalGenerator = {
                     </div>
                     <div class="walet_sts">
                         <span>Кошелек USDT TRC20</span>
-                        <input type="address" placeholder="Введите адрес кошелька">
+                        <input type="text" name="usdt_address" placeholder="Введите адрес кошелька">
                     </div>
                     <div class="button_sts">
                         <button>Запросить выплату</button>
@@ -332,7 +332,7 @@ const ModalGenerator = {
                     </div>
                     <div class="walet_sts">
                         <span>Кошелек USDT TRC20</span>
-                        <input type="address" placeholder="Введите адрес кошелька">
+                        <input type="text" name="usdt_address" placeholder="Введите адрес кошелька">
                     </div>
                     <div class="button_sts">
                         <button>Запросить выплату</button>
