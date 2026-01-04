@@ -170,6 +170,10 @@ console.log('✅ Withdrawal routes loaded');
 app.use('/api/withdrawal', require('./routes/withdrawal-admin.routes'));
 console.log('✅ Withdrawal admin routes loaded');
 
+// Notifications routes
+app.use('/api/notifications', require('./routes/notifications.routes'));
+console.log('✅ Notifications routes loaded');
+
 // ============================================
 // ROOT ROUTES
 // ============================================

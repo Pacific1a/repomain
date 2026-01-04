@@ -69,8 +69,8 @@ router.post('/request', async (req, res) => {
             });
         }
 
-        // Проверяем минимальную сумму вывода (например 100₽)
-        const MIN_WITHDRAWAL = 100;
+        // Проверяем минимальную сумму вывода (2000₽)
+        const MIN_WITHDRAWAL = 2000;
         if (amount < MIN_WITHDRAWAL) {
             return res.status(400).json({ 
                 success: false, 

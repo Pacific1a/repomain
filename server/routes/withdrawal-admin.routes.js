@@ -85,6 +85,16 @@ router.post('/approve', verifyBotSecret, (req, res) => {
             WHERE id = ?
         `, [request.user_id]);
 
+        // Создаём уведомление для пользователя
+        await db.runAsync(`
+            INSERT INTO withdrawal_notifications (user_id, request_id, status, message)
+            VALUES (?, ?, 'approved', ?)
+        `, [
+            request.user_id,
+            requestId,
+            `Ваша заявка на вывод ${request.amount}₽ одобрена! Средства будут переведены в ближайшее время.`
+        ]);
+
         // Логируем в консоль
         console.log(`✅ Заявка #${requestId} одобрена админом ${adminName}`);
         console.log(`   Пользователь ID: ${request.user_id}`);
@@ -158,10 +168,25 @@ router.post('/reject', verifyBotSecret, (req, res) => {
             WHERE id = ?
         `, [adminName, comment || 'Отклонено', requestId]);
 
+        // Создаём уведомление для пользователя
+        const notificationMessage = comment 
+            ? `Ваша заявка на вывод ${request.amount}₽ отклонена. Причина: ${comment}`
+            : `Ваша заявка на вывод ${request.amount}₽ отклонена.`;
+        
+        await db.runAsync(`
+            INSERT INTO withdrawal_notifications (user_id, request_id, status, message)
+            VALUES (?, ?, 'rejected', ?)
+        `, [
+            request.user_id,
+            requestId,
+            notificationMessage
+        ]);
+
         // Логируем
         console.log(`❌ Заявка #${requestId} отклонена админом ${adminName}`);
         console.log(`   Пользователь ID: ${request.user_id}`);
         console.log(`   Сумма: ${request.amount}₽`);
+        console.log(`   Причина: ${comment || 'не указана'}`);
         console.log(`   Баланс НЕ изменён`);
 
         res.json({

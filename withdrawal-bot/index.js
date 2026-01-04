@@ -162,26 +162,24 @@ bot.on('callback_query', async (query) => {
             });
 
         } else if (action === 'reject') {
-            // Отклонение заявки
-            await rejectWithdrawal(requestId, query.from.username || query.from.first_name);
-
-            // Обновляем сообщение
-            const newText = query.message.text + '\n\n❌ <b>ОТКЛОНЕНО</b>\n👤 ' + (query.from.username ? `@${query.from.username}` : query.from.first_name);
-            await bot.editMessageText(newText, {
-                chat_id: chatId,
-                message_id: messageId,
-                parse_mode: 'HTML'
-            });
-
-            // Убираем кнопки
-            await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
-                chat_id: chatId,
-                message_id: messageId
-            });
-
+            // Отклонение заявки - запрашиваем причину
             await bot.answerCallbackQuery(query.id, {
-                text: '❌ Заявка отклонена',
-                show_alert: false
+                text: '❌ Отклонение заявки. Введите причину в следующем сообщении.',
+                show_alert: true
+            });
+
+            // Сохраняем состояние ожидания причины
+            global.waitingForReason = global.waitingForReason || {};
+            global.waitingForReason[userId] = {
+                requestId,
+                chatId,
+                messageId,
+                adminName: query.from.username || query.from.first_name
+            };
+
+            // Отправляем запрос причины
+            await bot.sendMessage(chatId, `💬 Введите причину отклонения заявки #${requestId}:`, {
+                reply_to_message_id: messageId
             });
         }
 
@@ -231,6 +229,66 @@ async function rejectWithdrawal(requestId, adminName) {
         throw error;
     }
 }
+
+/**
+ * Обработка текстовых сообщений (для причины отклонения)
+ */
+bot.on('message', async (msg) => {
+    // Игнорируем команды
+    if (msg.text && msg.text.startsWith('/')) return;
+    
+    const userId = msg.from.id;
+    const chatId = msg.chat.id;
+    
+    // Проверяем есть ли ожидание причины от этого админа
+    if (global.waitingForReason && global.waitingForReason[userId]) {
+        const { requestId, chatId: originalChatId, messageId, adminName } = global.waitingForReason[userId];
+        const reason = msg.text;
+        
+        // Удаляем состояние ожидания
+        delete global.waitingForReason[userId];
+        
+        try {
+            // Отклоняем заявку с причиной
+            await rejectWithdrawal(requestId, adminName, reason);
+            
+            // Обновляем исходное сообщение
+            const newText = (await bot.getUpdates()).result
+                .find(u => u.message?.message_id === messageId)?.message?.text || '';
+            
+            const updatedText = `${msg.reply_to_message?.text || ''}\n\n❌ <b>ОТКЛОНЕНО</b>\n👤 ${adminName}\n📝 Причина: <i>${reason}</i>`;
+            
+            await bot.editMessageText(updatedText, {
+                chat_id: originalChatId,
+                message_id: messageId,
+                parse_mode: 'HTML'
+            });
+            
+            // Убираем кнопки
+            await bot.editMessageReplyMarkup({ inline_keyboard: [] }, {
+                chat_id: originalChatId,
+                message_id: messageId
+            });
+            
+            // Удаляем сообщение с запросом причины
+            try {
+                await bot.deleteMessage(chatId, msg.reply_to_message?.message_id);
+            } catch {}
+            
+            // Удаляем сообщение с причиной
+            try {
+                await bot.deleteMessage(chatId, msg.message_id);
+            } catch {}
+            
+            // Подтверждение
+            await bot.sendMessage(chatId, `✅ Заявка #${requestId} отклонена с причиной: "${reason}"`);
+            
+        } catch (error) {
+            console.error('Ошибка отклонения с причиной:', error);
+            await bot.sendMessage(chatId, `❌ Ошибка отклонения заявки: ${error.message}`);
+        }
+    }
+});
 
 /**
  * Команда /start
