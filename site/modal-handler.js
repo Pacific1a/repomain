@@ -286,39 +286,36 @@ const ModalHandler = {
         }
         
         // ЕСТЬ ДЕНЬГИ → Проверяем 2FA и показываем окно
-        {
-            // ЕСТЬ ДЕНЬГИ → Проверяем 2FA и показываем окно
-            console.log('ModalHandler: Достаточно средств, проверяем 2FA...');
+        console.log('ModalHandler: Достаточно средств, проверяем 2FA...');
+        
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             
-            try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/status`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.twoFactorEnabled) {
-                    // 2FA ВКЛЮЧЕНА → Сразу показываем окно с кодом
-                    console.log('ModalHandler: 2FA включена, открываем окно ввода данных');
-                    this.open('withdrawalAuthStep');
-                } else {
-                    // 2FA НЕ ВКЛЮЧЕНА → Требуем подключить
-                    console.log('ModalHandler: 2FA не включена, требуется подключение');
-                    if (typeof Toast !== 'undefined') {
-                        Toast.warning('Для вывода средств необходимо подключить Google Authenticator (2FA)', 3000);
-                    }
-                    setTimeout(() => {
-                        this.open('auth2FA');
-                    }, 1000);
-                }
-            } catch (error) {
-                console.error('Ошибка проверки 2FA:', error);
+            const data = await response.json();
+            
+            if (data.success && data.twoFactorEnabled) {
+                // 2FA ВКЛЮЧЕНА → Сразу показываем окно с формой (адрес + код)
+                console.log('ModalHandler: 2FA включена, открываем окно с формой вывода');
+                this.open('withdrawalAuthStep');
+            } else {
+                // 2FA НЕ ВКЛЮЧЕНА → Показываем окно подключения 2FA
+                console.log('ModalHandler: 2FA не включена, показываем окно подключения');
                 if (typeof Toast !== 'undefined') {
-                    Toast.error('Ошибка проверки 2FA');
+                    Toast.warning('Для вывода средств необходимо подключить двухфакторную аутентификацию (2FA)', 4000);
                 }
+                setTimeout(() => {
+                    this.open('auth2FA');
+                }, 1000);
+            }
+        } catch (error) {
+            console.error('ModalHandler: Ошибка проверки 2FA:', error);
+            if (typeof Toast !== 'undefined') {
+                Toast.error('Системная ошибка при проверке двухфакторной аутентификации');
             }
         }
     },
