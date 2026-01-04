@@ -203,7 +203,7 @@ async function verify2FAForWithdrawal() {
         
         if (result.success) {
             console.log('✅ 2FA код верный - вывод разрешён');
-            Toast.success('Код подтверждён');
+            // Уведомление показывается позже, не здесь
             return true;
         } else {
             console.log('❌ 2FA код неверный');
@@ -357,8 +357,8 @@ function setupWithdrawal2FAHandlers() {
                 // Закрываем модальное окно 2FA
                 modal.style.display = 'none';
                 
-                // Показываем успешное сообщение
-                Toast.success('2FA верификация пройдена. Создаём заявку на вывод...');
+                // Показываем одно уведомление
+                Toast.success('Код подтверждён. Создаём заявку на вывод...');
                 
                 // Создаём заявку на вывод через API
                 await createWithdrawalRequest();
