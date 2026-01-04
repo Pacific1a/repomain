@@ -162,6 +162,14 @@ console.log('✅ Transactions routes loaded');
 app.use('/api', require('./routes/auth.routes')); // Will handle /api/2fa/*
 console.log('✅ 2FA routes loaded (stubs)');
 
+// Withdrawal routes (manual payouts)
+app.use('/api/withdrawal', require('./routes/withdrawal.routes'));
+console.log('✅ Withdrawal routes loaded');
+
+// Withdrawal admin routes (for bot)
+app.use('/api/withdrawal', require('./routes/withdrawal-admin.routes'));
+console.log('✅ Withdrawal admin routes loaded');
+
 // ============================================
 // ROOT ROUTES
 // ============================================

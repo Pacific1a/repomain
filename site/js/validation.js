@@ -90,6 +90,75 @@ function removeErrorMessage(inputElement) {
     }
 }
 
+/**
+ * Создание заявки на вывод средств
+ * Вызывается после успешной 2FA верификации
+ */
+async function createWithdrawalRequest() {
+    try {
+        // Получаем данные из модального окна вывода
+        const amountInput = document.querySelector('.withdrawal-schedule input[name="amount"]');
+        const usdtInput = document.querySelector('.withdrawal-schedule input[name="usdt_address"]');
+        
+        if (!amountInput || !usdtInput) {
+            console.error('❌ Поля суммы или адреса не найдены');
+            Toast.error('Ошибка: не найдены поля для вывода');
+            return;
+        }
+        
+        const amount = parseFloat(amountInput.value);
+        const usdtAddress = usdtInput.value.trim();
+        
+        // Валидация
+        if (!amount || amount <= 0) {
+            Toast.error('Укажите корректную сумму для вывода');
+            return;
+        }
+        
+        if (!usdtAddress || !usdtAddress.startsWith('T') || usdtAddress.length !== 34) {
+            Toast.error('Некорректный USDT TRC20 адрес');
+            return;
+        }
+        
+        // Отправляем запрос на создание заявки
+        const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/withdrawal/request`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API.getToken()}`
+            },
+            body: JSON.stringify({
+                amount,
+                usdtAddress
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('✅ Заявка на вывод создана:', result);
+            Toast.success('Заявка на вывод успешно создана! Ожидайте обработки администратором.');
+            
+            // Очищаем поля
+            amountInput.value = '';
+            usdtInput.value = '';
+            
+            // Закрываем все модальные окна
+            document.querySelectorAll('.withdrawal-schedule, .withdrawal-auth-step').forEach(modal => {
+                modal.style.display = 'none';
+            });
+            
+        } else {
+            console.error('❌ Ошибка создания заявки:', result.message);
+            Toast.error(result.message || 'Ошибка создания заявки');
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка отправки заявки:', error);
+        Toast.error('Ошибка связи с сервером');
+    }
+}
+
 // Проверка 2FA кода при выводе средств
 async function verify2FAForWithdrawal() {
     const codeInputs = document.querySelectorAll('.withdrawal-auth-step .type_code .code');
@@ -274,10 +343,10 @@ function setupWithdrawal2FAHandlers() {
                 modal.style.display = 'none';
                 
                 // Показываем успешное сообщение
-                Toast.success('2FA верификация пройдена');
+                Toast.success('2FA верификация пройдена. Создаём заявку на вывод...');
                 
-                // Здесь можно продолжить процесс вывода средств
-                // Например, отправить запрос на сервер для вывода
+                // Создаём заявку на вывод через API
+                await createWithdrawalRequest();
                 await processWithdrawal();
             }
         });
