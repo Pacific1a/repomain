@@ -247,48 +247,71 @@ const ModalHandler = {
 
     /**
      * Логика открытия окна вывода средств
-     * Последовательность:
-     * - НЕ вторник: witd_funds → funds_sts → withdrawal-auth → withdrawal-auth-step
-     * - Вторник 10-18: withdrawal-schedule → withdrawal-auth → withdrawal-auth-step
-     * 
-     * ДЛЯ ТЕСТИРОВАНИЯ:
-     * В консоли браузера выполните:
-     * window.FORCE_TUESDAY = true; // Включить режим вторника
-     * window.FORCE_TUESDAY = false; // Вернуть реальный день
+     * УПРОЩЕННАЯ ЛОГИКА:
+     * 1. Проверяем баланс
+     * 2. Баланс < 2000₽ → показываем окно "Недостаточно средств"
+     * 3. Баланс >= 2000₽ → сразу показываем окно с 2FA кодом
      */
-    openWithdrawal() {
-        const now = new Date();
-        let dayOfWeek = now.getDay(); // 0 = Воскресенье, 2 = Вторник
-        let hour = now.getHours();
-
-        // Тестовый режим - можно принудительно установить вторник
-        if (window.FORCE_TUESDAY === true) {
-            dayOfWeek = 2; // Вторник
-            hour = 12; // Полдень
-            console.log('ModalHandler: ТЕСТОВЫЙ РЕЖИМ - Принудительно установлен ВТОРНИК 12:00');
-        }
-
-        // Отладочная информация
-        console.log('ModalHandler: Текущая дата:', now.toLocaleString('ru-RU'));
-        console.log('ModalHandler: День недели:', dayOfWeek, '(0=Вс, 1=Пн, 2=Вт, 3=Ср, 4=Чт, 5=Пт, 6=Сб)');
-        console.log('ModalHandler: Текущий час:', hour);
-
-        // Проверяем: вторник и время с 10:00 до 18:00
-        const isTuesday = dayOfWeek === 2;
-        const isWithdrawalTime = hour >= 10 && hour < 18;
+    async openWithdrawal() {
+        console.log('ModalHandler: Открытие окна вывода средств...');
         
-        console.log('ModalHandler: Это вторник?', isTuesday);
-        console.log('ModalHandler: Рабочее время (10-18)?', isWithdrawalTime);
-        console.log('ModalHandler: Вывод доступен?', isTuesday && isWithdrawalTime);
-
-        if (isTuesday && isWithdrawalTime) {
-            // ВТОРНИК 10-18: Открываем окно с формой вывода
-            console.log('ModalHandler: Открываем форму вывода (вторник 10-18)');
-            this.open('withdrawalSchedule');
+        // Получаем баланс пользователя
+        const user = API.getUserFromStorage();
+        if (!user || !user.balance) {
+            if (typeof Toast !== 'undefined') {
+                Toast.error('Ошибка получения баланса');
+            }
+            return;
+        }
+        
+        const balance = parseFloat(user.balance);
+        const MIN_WITHDRAWAL = 2000;
+        
+        console.log('ModalHandler: Баланс пользователя:', balance + '₽');
+        console.log('ModalHandler: Минимум для вывода:', MIN_WITHDRAWAL + '₽');
+        
+        // Проверяем достаточно ли средств
+        if (balance < MIN_WITHDRAWAL) {
+            // НЕТ ДЕНЕГ → Показываем окно с ошибкой
+            console.log('ModalHandler: Недостаточно средств для вывода');
+            if (typeof Toast !== 'undefined') {
+                Toast.error(`Недостаточно средств для вывода. Минимум: ${MIN_WITHDRAWAL}₽, у вас: ${balance.toFixed(2)}₽`, 5000);
+            }
+            this.open('withdrawal'); // Окно "Вывод недоступен"
         } else {
-            // НЕ ВТОРНИК: Открываем окно "Вывод недоступен"
-            console.log('ModalHandler: Открываем окно "Вывод недоступен"');
-            this.open('withdrawal');
+            // ЕСТЬ ДЕНЬГИ → Проверяем 2FA и показываем окно
+            console.log('ModalHandler: Достаточно средств, проверяем 2FA...');
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${window.API_BASE_URL || 'https://duopartners.xyz/api'}/2fa/status`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.twoFactorEnabled) {
+                    // 2FA ВКЛЮЧЕНА → Сразу показываем окно с кодом
+                    console.log('ModalHandler: 2FA включена, открываем окно ввода данных');
+                    this.open('withdrawalAuthStep');
+                } else {
+                    // 2FA НЕ ВКЛЮЧЕНА → Требуем подключить
+                    console.log('ModalHandler: 2FA не включена, требуется подключение');
+                    if (typeof Toast !== 'undefined') {
+                        Toast.warning('Для вывода средств необходимо подключить Google Authenticator (2FA)', 3000);
+                    }
+                    setTimeout(() => {
+                        this.open('auth2FA');
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Ошибка проверки 2FA:', error);
+                if (typeof Toast !== 'undefined') {
+                    Toast.error('Ошибка проверки 2FA');
+                }
+            }
         }
     },
 
