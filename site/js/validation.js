@@ -404,15 +404,19 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Валидация инициализирована');
     }, 500);
     
-    // Реинициализация при открытии модальных окон
+    // Реинициализация при открытии модальных окон (ТОЛЬКО 1 РАЗ!)
+    let withdrawal2FAHandlersInitialized = false;
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             const withdrawalModal = document.querySelector('.withdrawal-auth-step');
             if (withdrawalModal && withdrawalModal.style.display === 'flex') {
-                console.log('Модальное окно 2FA открыто - реинициализация');
-                setTimeout(() => {
-                    setupWithdrawal2FAHandlers();
-                }, 100);
+                if (!withdrawal2FAHandlersInitialized) {
+                    console.log('Модальное окно 2FA открыто - инициализация обработчиков');
+                    withdrawal2FAHandlersInitialized = true;
+                    setTimeout(() => {
+                        setupWithdrawal2FAHandlers();
+                    }, 100);
+                }
             }
         });
     });
