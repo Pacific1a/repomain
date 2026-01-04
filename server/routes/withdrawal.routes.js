@@ -140,7 +140,7 @@ router.post('/request', async (req, res) => {
  * GET /api/withdrawal/history
  * История заявок пользователя
  */
-router.get('/history', (req, res) => {
+router.get('/history', async (req, res) => {
     try {
         const userId = req.user?.userId;
         if (!userId) {
