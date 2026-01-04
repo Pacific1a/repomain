@@ -248,24 +248,29 @@ const ModalHandler = {
     /**
      * Логика открытия окна вывода средств
      * УПРОЩЕННАЯ ЛОГИКА:
-     * 1. Проверяем баланс
-     * 2. Баланс < 2000₽ → показываем окно "Недостаточно средств"
-     * 3. Баланс >= 2000₽ → сразу показываем окно с 2FA кодом
+     * 1. Получаем актуальный баланс из базы данных через API
+     * 2. Баланс < 2000₽ → показываем ошибку, НЕ открываем окна
+     * 3. Баланс >= 2000₽ → проверяем 2FA и открываем окно
      */
     async openWithdrawal() {
         console.log('ModalHandler: Открытие окна вывода средств...');
         
-        // Получаем баланс пользователя
-        const user = API.getUserFromStorage();
-        if (!user) {
+        // Получаем АКТУАЛЬНЫЙ баланс из базы данных через API
+        console.log('ModalHandler: Запрос актуального баланса с сервера...');
+        const result = await API.getUserFromServer();
+        
+        if (!result.success || !result.user) {
+            console.error('ModalHandler: Ошибка получения данных с сервера');
             if (typeof Toast !== 'undefined') {
-                Toast.error('Ошибка получения данных пользователя');
+                Toast.error('Ошибка получения данных пользователя с сервера');
             }
             return;
         }
         
-        const balance = parseFloat(user.balance || 0);
+        const balance = parseFloat(result.user.balance || 0);
         const MIN_WITHDRAWAL = 2000;
+        
+        console.log('ModalHandler: Актуальный баланс из БД:', balance + '₽');
         
         console.log('ModalHandler: Баланс пользователя:', balance + '₽');
         console.log('ModalHandler: Минимум для вывода:', MIN_WITHDRAWAL + '₽');
