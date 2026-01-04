@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ждем немного, чтобы модальные окна успели создаться
     setTimeout(() => {
         setupWalletValidation();
-        setupWithdrawal2FAHandlers();
+        // НЕ вызываем setupWithdrawal2FAHandlers() здесь - будет вызван через MutationObserver
         setupAutoWithdrawalSwitch();
         console.log('✅ Валидация инициализирована');
     }, 500);
