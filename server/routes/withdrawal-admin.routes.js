@@ -29,7 +29,7 @@ function verifyBotSecret(req, res, next) {
  * POST /api/withdrawal/approve
  * Одобрение заявки - обнуляет баланс пользователя
  */
-router.post('/approve', verifyBotSecret, (req, res) => {
+router.post('/approve', verifyBotSecret, async (req, res) => {
     try {
         const { requestId, adminName } = req.body;
 
@@ -124,7 +124,7 @@ router.post('/approve', verifyBotSecret, (req, res) => {
  * POST /api/withdrawal/reject
  * Отклонение заявки - баланс НЕ трогается
  */
-router.post('/reject', verifyBotSecret, (req, res) => {
+router.post('/reject', verifyBotSecret, async (req, res) => {
     try {
         const { requestId, adminName, comment } = req.body;
 
