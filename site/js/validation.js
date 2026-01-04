@@ -115,9 +115,15 @@ async function createWithdrawalRequest() {
         const amount = parseFloat(user.balance);
         const usdtAddress = usdtInput.value.trim();
         
-        // Валидация
+        // Валидация суммы
         if (!amount || amount <= 0) {
-            Toast.error('Укажите корректную сумму для вывода');
+            Toast.error('Недостаточно средств для вывода');
+            return;
+        }
+        
+        // Проверка минимальной суммы 2000₽
+        if (amount < 2000) {
+            Toast.error('Минимальная сумма вывода: 2000₽. У вас на балансе: ' + amount.toFixed(2) + '₽');
             return;
         }
         
@@ -353,7 +359,6 @@ function setupWithdrawal2FAHandlers() {
                 
                 // Создаём заявку на вывод через API
                 await createWithdrawalRequest();
-                await processWithdrawal();
             }
         });
     }
