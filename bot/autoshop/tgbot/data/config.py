@@ -20,9 +20,9 @@ PATH_LOGS = "tgbot/data/logs.log"  # Путь к Логам
 # По умолчанию используем локальный сервер на продакшен хосте
 import os
 SERVER_API_URL = os.getenv('SERVER_URL', 'http://77.239.125.70:3000')  # URL нового унифицированного сервера
-PARTNER_API_SECRET = os.getenv('PARTNER_API_SECRET', 'e1e6547a80623ab936abfe561a8a0871')  # Секретный ключ для webhook
+PARTNER_API_SECRET = os.getenv('PARTNER_API_SECRET', 'da856eb8e85ad0e4df2e0aa22906f45ebb8cecf60638b76074fa968b2649b5f3')  # Секретный ключ для webhook
 print(f"📡 Используется SERVER_URL: {SERVER_API_URL}")
-print(f"🔑 PARTNER_API_SECRET установлен: {'✅' if PARTNER_API_SECRET == 'e1e6547a80623ab936abfe561a8a0871' else '⚠️ КЛЮЧ ОТЛИЧАЕТСЯ!'}")
+print(f"🔑 PARTNER_API_SECRET установлен: {'✅' if PARTNER_API_SECRET else '❌'}")
 
 
 # Получение администраторов бота
