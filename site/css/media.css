@@ -166,6 +166,9 @@
 }
 }
 @media (max-width: 578px){
+    .partners-program{
+        font-size: 15px;
+    }
     .btns-main{
         flex-direction: column;
     }
