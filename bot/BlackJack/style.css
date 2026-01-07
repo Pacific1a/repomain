@@ -1455,11 +1455,11 @@
 }
 .add-funds {
   display: flex;
-  width: 110px;
+  width: 100px;
   height: 35px;
   align-items: center;
   gap: 8px;
-  padding: 8px 11px;
+  padding: 5px;
   position: relative;
   border-radius: 10px;
   border: 1px solid;
