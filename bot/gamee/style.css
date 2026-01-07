@@ -70,7 +70,10 @@
   letter-spacing: -0.75px;
   line-height: normal;
   position: absolute;
-  width: 78px;
+  max-width: 78px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .game .add-funds {

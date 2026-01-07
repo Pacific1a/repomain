@@ -74,6 +74,10 @@
   font-size: 24px;
   letter-spacing: 0;
   line-height: normal;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile .element {

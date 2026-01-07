@@ -70,7 +70,10 @@
   color: transparent;
   font-size: 15px;
   letter-spacing: -0.75px;
-  width: 78px;
+  max-width: 78px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .swap .add-funds {

@@ -98,6 +98,9 @@ a:focus {
   letter-spacing: -0.75px;
   line-height: normal;
   white-space: nowrap;
+  max-width: 78px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mines .frame {
