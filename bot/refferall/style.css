@@ -283,7 +283,7 @@
     letter-spacing: 0;
     line-height: normal;
     white-space: nowrap;
-    max-width: 78px;
+    max-width: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
