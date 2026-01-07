@@ -1,4 +1,10 @@
 @media (max-width: 1024px) {
+    .p{
+        font-size: 72px;
+    }
+    .text-wrapper-4{
+        font-size: 20px;
+    }
     .div25{
         font-size: 40px;
     }
@@ -24,6 +30,25 @@
 }
 }
 @media (max-width: 768px) {
+    .pr{
+        color: red;
+    }
+    .u, .o{
+        display: none;
+    }
+    .col-r{
+        display: none;
+    }
+    .logo{
+        padding: 15px 16px;
+        font-size: 20px;
+    }
+    .log-button{
+        padding: 3px 5px;
+    }
+    .p{
+        font-size: 56px;
+    }
     .title-card{
         width: 84%;
     }
@@ -81,6 +106,9 @@
     position: fixed;
         right: 25px;
   }
+  .text-wrapper-4{
+        font-size: 16px;
+    }
 
   .site-loginreg-buttons {
     display: none; /* Скрываем старые кнопки на мобиле */
@@ -147,6 +175,9 @@
 }
 }
 @media (max-width: 578px){
+    .btns-main{
+        flex-direction: column;
+    }
     .title-info span{
         font-size: 30px;
         text-align: center;
@@ -197,11 +228,19 @@
 }
 
 @media (max-width: 480px){
+
+    .p{
+        font-size: 40px;
+    }
     .buttons{
         gap: 5px;
     }
-    .logo span{
+    .logo span {
+        padding: 0px 1px;
         font-size: 16px; 
+    }
+    .text-wrapper-4{
+        font-size: 14px;
     }
     .reg-button, .log-button{
         font-size: 14px;
@@ -275,5 +314,12 @@
 }
 }
 
-
+@media (max-width: 360px) {
+     .text-wrapper-4 {
+    font-size: 15px;
+  }
+    .p{
+        font-size: 32px;
+    }
+}
 

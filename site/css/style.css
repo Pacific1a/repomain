@@ -1260,8 +1260,7 @@ background-image: url(../img/agle-left.png);
 
 
 	.buttons{
-		display: flex
-		;
+		display: flex;
 			flex-wrap: nowrap;
 			min-width: 154px;
 			align-items: center;
@@ -1279,7 +1278,7 @@ a{
 		overflow: hidden;
 		color: black;
 		display: flex;
-		width: 174px;
+		padding: 3px 15px; /* ≈ 170–180px */
 		height: 52px;
 		font-size: 16px;
 		align-items: center;
@@ -1308,7 +1307,7 @@ a{
 		color: #E2A7A7;
 		display: flex;
 		gap: 10px;
-		width: 124px;
+		 padding: 3px 15px; /* ≈ 120–130px */
 		height: 52px;
 		font-size: 16px;
 		align-items: center;
