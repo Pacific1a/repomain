@@ -63,6 +63,11 @@
     letter-spacing: -0.80px;
     line-height: normal;
     margin: 0;
+    /* Переопределяем ellipsis для loader */
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
 }
 
 .loading .div {
@@ -148,7 +153,7 @@
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
 #page-preloader {
-  display: none;
+  display: flex;
   position: fixed;
   top: 0;
   left: 0;
@@ -156,7 +161,7 @@
   height: 100%;
   background-color: #151414;
   z-index: 999999;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.3s ease;
   overflow: hidden;
 }
