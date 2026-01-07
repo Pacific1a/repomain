@@ -8,7 +8,7 @@
 html,
 body {
   margin: 0px;
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
 }
 /* a blue color as a generic focus style */
