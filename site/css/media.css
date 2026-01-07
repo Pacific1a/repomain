@@ -30,15 +30,6 @@
 }
 }
 @media (max-width: 768px) {
-    .pr{
-        color: red;
-    }
-    .u, .o{
-        display: none;
-    }
-    .col-r{
-        display: none;
-    }
     .logo{
         padding: 15px 16px;
         font-size: 20px;
