@@ -8,6 +8,12 @@ function createCustomDashedBorder(element, options = {}) {
         borderRadius = 100      // Радиус скругления
     } = options;
 
+    // Удаляем старый SVG если существует
+    const oldSvg = element.querySelector('svg');
+    if (oldSvg) {
+        oldSvg.remove();
+    }
+
     const width = element.offsetWidth;
     const height = element.offsetHeight;
 
@@ -35,16 +41,48 @@ function createCustomDashedBorder(element, options = {}) {
     element.appendChild(svg);
 }
 
+// Debounce функция для оптимизации
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Применяем к элементу с классом .title-block
 document.addEventListener('DOMContentLoaded', () => {
     const titleBlock = document.querySelector('.title-block');
-    if (titleBlock) {
-        createCustomDashedBorder(titleBlock, {
-            strokeWidth: 3,
-            dashLength: 25,      // Длиннее линии
-            gapLength: 12,       // Меньше промежуток
-            color: '#ff1212',
-            borderRadius: 70
-        });
+    if (!titleBlock) return;
+
+    const borderOptions = {
+        strokeWidth: 3,
+        dashLength: 25,      // Длиннее линии
+        gapLength: 12,       // Меньше промежуток
+        color: '#ff1212',
+        borderRadius: 70
+    };
+
+    // Создаём рамку при загрузке
+    createCustomDashedBorder(titleBlock, borderOptions);
+
+    // Пересоздаём рамку при изменении размера окна
+    const handleResize = debounce(() => {
+        createCustomDashedBorder(titleBlock, borderOptions);
+    }, 150);
+
+    window.addEventListener('resize', handleResize);
+
+    // Используем ResizeObserver для более точного отслеживания
+    if (typeof ResizeObserver !== 'undefined') {
+        const resizeObserver = new ResizeObserver(debounce(() => {
+            createCustomDashedBorder(titleBlock, borderOptions);
+        }, 100));
+        
+        resizeObserver.observe(titleBlock);
     }
 });
