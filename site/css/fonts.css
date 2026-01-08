@@ -15,7 +15,10 @@ aside
 .sts_nav,
 .code,
 .dashboard.mobile-menu,
-.p
+.p,
+.title-card h3,
+.content-title button,
+.author-root
 {
     font-family: var(--NexaRegular);
 }

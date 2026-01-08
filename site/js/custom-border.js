@@ -5,7 +5,7 @@ function createCustomDashedBorder(element, options = {}) {
         dashLength = 25,        // Длина штриха
         gapLength = 12,         // Расстояние между штрихами
         color = '#ff1212',      // Цвет
-        borderRadius = 100      // Радиус скругления
+        borderRadius = 50      // Радиус скругления
     } = options;
 
     // Удаляем старый SVG если существует
@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const borderOptions = {
         strokeWidth: 3,
         dashLength: 25,      // Длиннее линии
-        gapLength: 12,       // Меньше промежуток
+        gapLength: 15,       // Меньше промежуток
         color: '#ff1212',
-        borderRadius: 70
+        borderRadius: 60
     };
 
     // Создаём рамку при загрузке
