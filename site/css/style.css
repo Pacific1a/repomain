@@ -1088,7 +1088,8 @@ header{
   }
   
 footer{
-	background: linear-gradient(90deg, #160A0A, #0B0505);
+	background-image: url(../img/rectangle-2.png);
+	
 	display: flex;
 	align-items: center;
 	justify-content: space-around;
