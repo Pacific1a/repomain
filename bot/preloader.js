@@ -4,7 +4,8 @@
 (function() {
   'use strict';
 
-  const STORAGE_KEY = 'mainPageLoaded';
+  // Уникальный ключ для каждой страницы
+  const STORAGE_KEY = 'pageLoaded_' + window.location.pathname.replace(/[^a-zA-Z0-9]/g, '_');
   const SPINNER_MIN_DURATION = 500; // Минимальное время показа спиннера (0.5 секунды)
 
   // Проверяем - была ли уже загрузка в этой сессии
@@ -25,28 +26,14 @@
     }
   }
 
-  // Получаем все изображения для предзагрузки
+  // Получаем ТОЛЬКО критичные изображения для предзагрузки
   function getImagesToPreload() {
     const images = [];
     
-    // 1. Изображения из <link rel="preload">
+    // ТОЛЬКО изображения из <link rel="preload">
     document.querySelectorAll('link[rel="preload"][as="image"]').forEach(link => {
       const href = link.getAttribute('href');
       if (href) images.push(href);
-    });
-
-    // 2. Изображения из CSS (background-image) - основные элементы
-    const elementsWithBg = document.querySelectorAll('[style*="background-image"]');
-    elementsWithBg.forEach(el => {
-      const style = el.style.backgroundImage;
-      const match = style.match(/url\(['"]?([^'"]+)['"]?\)/);
-      if (match && match[1]) images.push(match[1]);
-    });
-
-    // 3. Все <img> на странице
-    document.querySelectorAll('img').forEach(img => {
-      if (img.src) images.push(img.src);
-      if (img.dataset.src) images.push(img.dataset.src);
     });
 
     // Убираем дубликаты
@@ -84,7 +71,7 @@
       setTimeout(() => {
         cleanup();
         resolve({ src, success: false, timeout: true });
-      }, 10000); // 10 секунд на изображение
+      }, 5000); // 5 секунд на изображение
 
       img.src = src;
     });
