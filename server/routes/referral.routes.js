@@ -20,9 +20,9 @@ const { jwtAuth } = require('../middleware/auth');
  */
 router.post('/register', webhookAuth, async (req, res) => {
     try {
-        const { userId, referrerId } = req.body;
+        const { userId, referrerId, nickname, photoUrl } = req.body;
         
-        console.log(`📥 /api/referral/register: userId=${userId}, referrerId=${referrerId}`);
+        console.log(`📥 /api/referral/register: userId=${userId}, referrerId=${referrerId}, nickname=${nickname || 'N/A'}`);
         
         if (!userId || !referrerId) {
             return res.status(400).json({ 
@@ -31,7 +31,7 @@ router.post('/register', webhookAuth, async (req, res) => {
             });
         }
         
-        const result = await ReferralService.registerClick(referrerId, userId);
+        const result = await ReferralService.registerClick(referrerId, userId, nickname, photoUrl);
         res.json(result);
     } catch (error) {
         console.error('❌ /api/referral/register error:', error);

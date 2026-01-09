@@ -121,9 +121,9 @@ class ReferralService {
      * Register click on referral link
      * Called when user opens bot via referral link
      */
-    static async registerClick(referralCode, userId) {
+    static async registerClick(referralCode, userId, nickname = null, photoUrl = null) {
         try {
-            console.log(`🔗 Register click: code=${referralCode}, user=${userId}`);
+            console.log(`🔗 Register click: code=${referralCode}, user=${userId}, nickname=${nickname || 'N/A'}`);
             
             // Find partner
             const partnerId = await this.findPartnerByCode(referralCode);
@@ -158,6 +158,15 @@ class ReferralService {
             console.log(`✅ Click registered: partner=${partnerId}, user=${userId}`);
             
             if (existing) {
+                // Update nickname and photo if provided
+                if (nickname || photoUrl) {
+                    await db.runAsync(
+                        'UPDATE referrals SET nickname = COALESCE(?, nickname), photo_url = COALESCE(?, photo_url) WHERE id = ?',
+                        [nickname, photoUrl, existing.id]
+                    );
+                    console.log(`📝 Updated user info for existing referral: ${nickname || 'N/A'}`);
+                }
+                
                 return { 
                     success: true, 
                     alreadyExists: true, 
@@ -166,13 +175,13 @@ class ReferralService {
                 };
             }
             
-            // Create new referral record
+            // Create new referral record with user info
             const result = await db.runAsync(
-                'INSERT INTO referrals (partner_id, referral_user_id) VALUES (?, ?)',
-                [partnerId, userId]
+                'INSERT INTO referrals (partner_id, referral_user_id, nickname, photo_url) VALUES (?, ?, ?, ?)',
+                [partnerId, userId, nickname, photoUrl]
             );
             
-            console.log(`✅ New referral created: id=${result.lastID}`);
+            console.log(`✅ New referral created: id=${result.lastID}, nickname=${nickname || 'N/A'}`);
             
             return { 
                 success: true, 
@@ -600,6 +609,8 @@ class ReferralService {
             const referrals = await db.allAsync(`
                 SELECT 
                     referral_user_id as userId,
+                    nickname,
+                    photo_url as photoUrl,
                     first_deposit_amount as firstDeposit,
                     total_deposits as totalDeposits,
                     total_earnings as totalEarnings,
