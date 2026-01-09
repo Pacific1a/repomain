@@ -84,17 +84,14 @@
     return Promise.all(images.map(src => loadImage(src)));
   }
 
-  // Показываем спиннер
+  // Показываем спиннер (loader уже показан через inline script)
   function showSpinner() {
     const spinner = document.getElementById('page-preloader');
     if (spinner) {
-      spinner.style.display = 'flex';
-      // Небольшая задержка для применения display
-      setTimeout(() => {
-        spinner.style.opacity = '1';
-        spinner.classList.add('active');
-      }, 10);
+      // Loader уже виден из inline script, просто добавляем класс
+      spinner.classList.add('active');
       document.body.style.overflow = 'hidden';
+      console.log('📺 showSpinner: Loader активен');
     }
   }
 
@@ -120,15 +117,14 @@
 
   // Основная функция загрузки
   async function initPreloader() {
-    // Если первая загрузка уже была в этой сессии мини-аппа - НЕ показываем loader
+    // Если первая загрузка уже была в этой сессии мини-аппа
     if (wasInitialLoadComplete()) {
-      console.log('✅ Первая загрузка уже выполнена в этой сессии, loader не показываем');
-      // Сразу показываем контент
-      showContent();
+      console.log('✅ JS: Первая загрузка уже выполнена, контент уже показан');
+      // Контент уже показан через inline script
       return;
     }
 
-    console.log('🎬 Первая загрузка мини-аппа, показываем loader...');
+    console.log('🎬 JS: Первая загрузка мини-аппа, loader уже показан через inline script');
 
     const startTime = Date.now();
     showSpinner();

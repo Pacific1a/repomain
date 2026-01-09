@@ -1011,6 +1011,30 @@ button {
     </script>
     <script src="transactions-live.js" defer></script>
     
+    <!-- Inline script - показываем loader ДО загрузки JS -->
+    <script>
+      (function() {
+        try {
+          // Проверяем флаг СИНХРОННО
+          var isComplete = sessionStorage.getItem('initialLoadComplete') === 'true';
+          
+          if (!isComplete) {
+            // Флага нет - показываем loader СРАЗУ
+            var style = document.createElement('style');
+            style.textContent = '#page-preloader { display: flex !important; opacity: 1 !important; }';
+            document.head.appendChild(style);
+            console.log('🎬 Inline: Показываем loader');
+          } else {
+            // Флаг есть - показываем контент СРАЗУ
+            document.body.classList.add('loader-complete');
+            console.log('✅ Inline: Контент без loader');
+          }
+        } catch (e) {
+          console.error('Inline script error:', e);
+        }
+      })();
+    </script>
+    
     <!-- ПОЛНЫЙ PRELOADER ИЗ ПАПКИ loader/ (показывается только 1 раз за сессию) -->
     <div id="page-preloader">
       <main class="loading" role="main" aria-live="polite" aria-busy="true">
