@@ -161,26 +161,22 @@
     <link rel="preload" as="image" href="https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true" />
   
   <style>
-    /* ========== CLS OPTIMIZATION (Cumulative Layout Shift) ========== */
-
-/* Предотвращаем скачки при загрузке шрифтов */
 body {
   font-display: swap;
 }
 
-/* Резервируем место для всех изображений */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* Фиксируем размеры для изображений без явных атрибутов */
+
 img:not([width]):not([height]) {
   aspect-ratio: attr(width) / attr(height);
 }
 
-/* Специфично для изображений кейсов */
+
 .content-window-item img,
 .win-window-item img,
 .item-preview-item img {
@@ -191,7 +187,7 @@ img:not([width]):not([height]) {
   display: block;
 }
 
-/* Фиксируем высоту контейнеров для предотвращения CLS */
+
 .modal-window {
   contain: layout;
 }
@@ -211,19 +207,19 @@ img:not([width]):not([height]) {
   contain: layout;
 }
 
-/* Оптимизация для анимаций (не вызывают reflow) */
+
 .content-window-item {
   transform: translateZ(0);
   backface-visibility: hidden;
 }
 
-/* Предотвращаем скачки при загрузке фоновых изображений */
+
 [style*="background-image"] {
   background-size: cover;
   background-position: center;
 }
 
-/* Placeholder для изображений пока грузятся */
+
 img:not([src]),
 img[src=""],
 img[src="#"] {
@@ -599,7 +595,7 @@ button {
         </div>
         <div class="add-funds">
           <img class="img" src="https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/image.svg" loading="lazy" />
-          <div class="div">Deposite</div>
+          <a href=""><div class="div">Deposite</div></a>
         </div>
         <div class="balance-1">
           <div class="group-ico-1">
