@@ -95,10 +95,15 @@
                 if (response.ok) {
                     const data = await response.json();
                     this.referralCode = data.referralCode;
-                    this.referralBalance = data.referralBalance || 0;
+                    // Referral balance = ОБЩАЯ СУММА ДЕПОЗИТОВ всех рефералов
+                    this.referralBalance = data.totalDeposits || 0;
+                    // Заработок партнера (10% от депозитов)
+                    this.earnings = data.totalEarnings || 0;
                     this.referrals = data.referrals || [];
                     
                     console.log('📊 Реферальные данные:', data);
+                    console.log(`💰 Referral balance (сумма депозитов): ${this.referralBalance}₽`);
+                    console.log(`💵 Earnings (10% заработок): ${this.earnings}₽`);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
                     // Загружаем данные пользователей через Telegram Bot API
@@ -356,9 +361,11 @@
                 const nicknameEl = card.querySelector('.text-wrapper-13');
                 if (nicknameEl) nicknameEl.textContent = nickname;
                 
+                // Deposited = сколько игрок положил на баланс (его депозиты)
                 const winningsEl = card.querySelector('.text-wrapper-14');
-                if (winningsEl) winningsEl.textContent = `Deposited | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
+                if (winningsEl) winningsEl.textContent = `Deposited | ${(referral.totalDeposits || 0).toFixed(2)}₽`;
                 
+                // Your Profit = заработок партнера с этого игрока (10% от депозитов)
                 const earningsEl = card.querySelector('.text-wrapper-15');
                 if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2) + '₽';
                 
