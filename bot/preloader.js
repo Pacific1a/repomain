@@ -6,7 +6,7 @@
 
   // Общий ключ для ВСЕЙ сессии мини-аппа (не зависит от страницы)
   const STORAGE_KEY = 'initialLoadComplete';
-  const SPINNER_MIN_DURATION = 500; // Минимальное время показа спиннера (0.5 секунды)
+  const SPINNER_MIN_DURATION = 10000; // Минимальное время показа спиннера (10 секунд)
 
   // Проверяем - была ли уже первая загрузка в этой сессии мини-аппа
   function wasInitialLoadComplete() {
