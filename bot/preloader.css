@@ -153,7 +153,7 @@
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
 
-/* По умолчанию все скрыто */
+/* По умолчанию: loader ПОКАЗАН, контент СКРЫТ */
 body {
   overflow: hidden;
 }
@@ -165,7 +165,7 @@ body {
 }
 
 #page-preloader {
-  display: none;
+  display: flex;  /* Показан по умолчанию! */
   position: fixed;
   top: 0;
   left: 0;
@@ -173,18 +173,12 @@ body {
   height: 100%;
   background-color: #151414;
   z-index: 999999;
-  opacity: 0;
+  opacity: 1;  /* Виден по умолчанию! */
   transition: opacity 0.3s ease;
   overflow: hidden;
 }
 
-/* Когда нужен loader - показываем его СРАЗУ */
-body.show-loader #page-preloader {
-  display: flex !important;
-  opacity: 1 !important;
-}
-
-/* Когда loader завершен - показываем контент */
+/* Когда loader завершен - показываем контент, скрываем loader */
 body.loader-complete #app {
   opacity: 1;
   visibility: visible;
@@ -197,6 +191,7 @@ body.loader-complete {
 
 body.loader-complete #page-preloader {
   display: none !important;
+  opacity: 0;
 }
 
 #page-preloader.active {
