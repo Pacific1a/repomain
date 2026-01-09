@@ -272,7 +272,7 @@
             // Обновляем реферальный баланс
             const balanceEl = document.querySelector('.ref-balance .text-wrapper-7');
             if (balanceEl) {
-                balanceEl.textContent = '$' + this.referralBalance.toFixed(2);
+                balanceEl.textContent = this.referralBalance.toFixed(2) + '₽';
                 console.log('✅ Обновлен реферальный баланс:', this.referralBalance);
             } else {
                 console.warn('⚠️ Элемент .ref-balance .text-wrapper-7 не найден');
@@ -360,7 +360,7 @@
                 if (winningsEl) winningsEl.textContent = `Deposited | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
                 
                 const earningsEl = card.querySelector('.text-wrapper-15');
-                if (earningsEl) earningsEl.textContent = '$' + (referral.totalEarnings || 0).toFixed(2);
+                if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2) + '₽';
                 
                 template.parentNode.insertBefore(card, template.nextSibling);
             });
