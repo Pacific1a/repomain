@@ -8,6 +8,8 @@
     <style>
       body { overflow: hidden; }
       #app { opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+      
+      /* Контейнер loader */
       #page-preloader {
         display: flex !important;
         position: fixed;
@@ -24,6 +26,125 @@
         gap: 22px;
         padding: 21px 62px;
       }
+      
+      /* Внутренние элементы loader */
+      #page-preloader .loading {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        width: 100%;
+        position: relative;
+        background-color: #151414;
+      }
+      
+      #page-preloader .token {
+        position: relative;
+        align-self: stretch;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        aspect-ratio: 1 / 1;
+        object-fit: contain;
+      }
+      
+      #page-preloader .text-wrapper {
+        position: relative;
+        align-self: stretch;
+        font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 16px;
+        text-align: center;
+        letter-spacing: -0.80px;
+        line-height: normal;
+        margin: 0;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        max-width: none !important;
+      }
+      
+      #page-preloader .div {
+        width: 100%;
+        position: relative;
+        align-self: stretch;
+        font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        color: #555555;
+        font-size: 14px;
+        text-align: center;
+        letter-spacing: -0.70px;
+        line-height: normal;
+        margin: 0;
+      }
+      
+      #page-preloader .load-icon {
+        display: flex;
+        flex-direction: column;
+        height: 62px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+        position: relative;
+        align-self: stretch;
+        width: 100%;
+      }
+      
+      #page-preloader .icon {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        margin-top: -4px;
+        margin-bottom: -4px;
+      }
+      
+      #page-preloader .icon svg {
+        animation: spin 1.2s linear infinite;
+      }
+      
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      
+      #page-preloader .authentication {
+        position: relative;
+        align-self: stretch;
+        font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
+        font-weight: 500;
+        color: #c5c5c5;
+        font-size: 15px;
+        text-align: center;
+        line-height: normal;
+        margin: 0;
+      }
+      
+      #page-preloader .bot {
+        position: relative;
+        width: 298px;
+        height: 21px;
+      }
+      
+      #page-preloader .text-wrapper-3 {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 17px;
+        text-align: center;
+        letter-spacing: 0;
+        line-height: normal;
+        margin: 0;
+      }
+      
+      /* Завершение loader */
       body.loader-complete #page-preloader { display: none !important; opacity: 0; }
       body.loader-complete #app { opacity: 1; visibility: visible; }
       body.loader-complete { overflow: auto; }
