@@ -89,7 +89,11 @@
     const spinner = document.getElementById('page-preloader');
     if (spinner) {
       spinner.style.display = 'flex';
-      spinner.classList.add('active');
+      // Небольшая задержка для применения display
+      setTimeout(() => {
+        spinner.style.opacity = '1';
+        spinner.classList.add('active');
+      }, 10);
       document.body.style.overflow = 'hidden';
     }
   }
@@ -98,6 +102,7 @@
   function hideSpinner() {
     const spinner = document.getElementById('page-preloader');
     if (spinner) {
+      spinner.style.opacity = '0';
       spinner.classList.add('fade-out');
       
       setTimeout(() => {
@@ -110,10 +115,10 @@
 
   // Основная функция загрузки
   async function initPreloader() {
-    // Если первая загрузка уже была в этой сессии мини-аппа - скрываем loader
+    // Если первая загрузка уже была в этой сессии мини-аппа - НЕ показываем loader
     if (wasInitialLoadComplete()) {
       console.log('✅ Первая загрузка уже выполнена в этой сессии, loader не показываем');
-      hideSpinner();
+      // Loader скрыт в CSS по умолчанию - ничего не делаем
       return;
     }
 
