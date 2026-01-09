@@ -190,14 +190,12 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                     except Exception as db_err:
                                         print(f"❌ Error saving referrer to DB: {db_err}")
                                     
-                                    await message.answer(
-                                        "🎁 Вы перешли по реферальной ссылке!\n"
-                                        "Ваш партнёр будет получать 60% от ваших проигрышей."
-                                    )
+                                    # Убрали сообщение - только логирование
                                     print(f"✅ Referral registered: {user_id} -> {referrer_id}")
-                                    return  # Остановить выполнение, чтобы не показывать "Бот готов к использованию"
+                                    # НЕ делаем return - пользователь увидит обычное приветствие
                                 elif result.get('message') == 'Already referred':
-                                    await message.answer("ℹ️ Вы уже зарегистрированы по реферальной ссылке ранее.")
+                                    # Убрали сообщение - пользователь уже знает
+                                    print(f"ℹ️ User {user_id} already referred")
                                 else:
                                     print(f"⚠️ Unexpected response: status={resp.status}, result={result}")
                         except aiohttp.ClientError as e:

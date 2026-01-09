@@ -156,14 +156,10 @@ class ReferralManager {
         
         navigator.clipboard.writeText(this.partnerLink).then(() => {
             console.log('✅ Партнёрская ссылка скопирована:', this.partnerLink);
-            if (typeof Toast !== 'undefined') {
-                Toast.success('Партнёрская ссылка скопирована!');
-            }
+            // Убрали Toast notification
         }).catch(err => {
             console.error('❌ Ошибка копирования:', err);
-            if (typeof Toast !== 'undefined') {
-                Toast.error('Не удалось скопировать ссылку');
-            }
+            // Убрали Toast notification
         });
     }
     
@@ -195,7 +191,8 @@ class ReferralManager {
     
     async copyReferralLink() {
         if (!this.referralLink) {
-            Toast.warning('Ссылка не сгенерирована');
+            // Убрали Toast.warning
+            console.warn('⚠️ Ссылка не сгенерирована');
             return;
         }
         
@@ -207,7 +204,7 @@ class ReferralManager {
         
         try {
             await navigator.clipboard.writeText(this.referralLink);
-            Toast.success('Ссылка скопирована!');
+            // Убрали Toast.success
             console.log('✅ Ссылка скопирована');
         } catch (error) {
             // Fallback
@@ -217,7 +214,7 @@ class ReferralManager {
             input.select();
             document.execCommand('copy');
             document.body.removeChild(input);
-            Toast.success('Ссылка скопирована!');
+            // Убрали Toast.success
             console.log('✅ Ссылка скопирована (fallback)');
         } finally {
             // Разблокируем через 1 секунду
