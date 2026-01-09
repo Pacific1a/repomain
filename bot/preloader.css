@@ -42,15 +42,6 @@
     width: 100%;
 }
 
-.loading .token {
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-}
 
 .loading .text-wrapper {
     position: relative;
