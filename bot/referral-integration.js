@@ -1,21 +1,21 @@
 // ============================================
 // ИНТЕГРАЦИЯ РЕФЕРАЛЬНОЙ СИСТЕМЫ С ИГРАМИ
 // ============================================
-// Этот файл добавляет автоматическое начисление процентов при ПРОИГРЫШАХ игроков
-// Партнёр получает 60% от суммы проигрыша реферала
+// Этот файл добавляет автоматическое начисление процентов при ДЕПОЗИТАХ игроков
+// Партнёр получает 10% от суммы депозита реферала
 
 (function() {
     'use strict';
     
-    // Функция для начисления профита рефереру при ПРОИГРЫШЕ игрока
-    const trackLoss = async (userId, lossAmount, source) => {
-        console.log(`💸 Loss detected: ${lossAmount}₽ from ${source}`);
+    // Функция для начисления профита рефереру при ДЕПОЗИТЕ игрока
+    const trackDeposit = async (userId, depositAmount, source) => {
+        console.log(`💰 Deposit detected: ${depositAmount}₽ from ${source}`);
         
         if (window.ReferralSystem) {
             try {
-                // Партнёр получает 60% от проигрыша
-                await window.ReferralSystem.addReferralEarnings(userId, lossAmount);
-                console.log(`✅ Referral bonus processed for ${userId}: ${lossAmount}₽ loss`);
+                // Партнёр получает 10% от депозита
+                await window.ReferralSystem.addReferralEarnings(userId, depositAmount);
+                console.log(`✅ Referral bonus processed for ${userId}: ${depositAmount}₽ deposit`);
             } catch (e) {
                 console.error('❌ Referral bonus error:', e);
             }
@@ -24,24 +24,24 @@
         }
     };
     
-    // Перехват BalanceAPI.subtractRubles - ЭТО ПРОИГРЫШИ!
+    // Перехват BalanceAPI.addRubles - ЭТО ДЕПОЗИТЫ!
     if (window.BalanceAPI) {
-        const originalSubtractRubles = window.BalanceAPI.subtractRubles.bind(window.BalanceAPI);
+        const originalAddRubles = window.BalanceAPI.addRubles.bind(window.BalanceAPI);
         
-        window.BalanceAPI.subtractRubles = async function(amount, source = 'game', description = '') {
-            console.log(`💸 BalanceAPI.subtractRubles called: amount=${amount}₽, source=${source}`);
+        window.BalanceAPI.addRubles = async function(amount, source = 'deposit', description = '') {
+            console.log(`💰 BalanceAPI.addRubles called: amount=${amount}₽, source=${source}`);
             
-            const result = await originalSubtractRubles(amount, source, description);
+            const result = await originalAddRubles(amount, source, description);
             
-            // Если это проигрыш в игре - партнёр получает 60%
-            if (result && amount > 0 && source === 'game') {
-                await trackLoss(window.BalanceAPI.telegramId, amount, source);
+            // Если это депозит - партнёр получает 10%
+            if (result && amount > 0 && (source === 'deposit' || source === 'refill')) {
+                await trackDeposit(window.BalanceAPI.telegramId, amount, source);
             }
             
             return result;
         };
         
-        console.log('✅ Referral integration installed on BalanceAPI.subtractRubles');
+        console.log('✅ Referral integration installed on BalanceAPI.addRubles');
     }
     
     // Подтверждаем загрузку после инициализации

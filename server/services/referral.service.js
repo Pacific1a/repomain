@@ -299,12 +299,12 @@ class ReferralService {
     
     /**
      * Add earnings to partner
-     * Called when referred user loses money in game
-     * Partner gets 60% of the loss
+     * Called when referred user makes a deposit
+     * Partner gets 10% of the deposit
      */
-    static async addEarnings(referralCode, referralUserId, lossAmount) {
+    static async addEarnings(referralCode, referralUserId, depositAmount) {
         try {
-            console.log(`📈 Add earnings: referralUser=${referralUserId}, loss=${lossAmount}`);
+            console.log(`📈 Add earnings: referralUser=${referralUserId}, deposit=${depositAmount}`);
             
             // Find the partner who referred this user
             const partnerId = await this.findPartnerByReferralUserId(referralUserId);
@@ -317,20 +317,20 @@ class ReferralService {
                 };
             }
             
-            const earnings = lossAmount * 0.6;  // 60% to partner
+            const earnings = depositAmount * 0.1;  // 10% to partner
             
-            console.log(`💰 Partner ${partnerId} will earn ${earnings}₽ (60% of ${lossAmount}₽ loss)`);
+            console.log(`💰 Partner ${partnerId} will earn ${earnings}₽ (10% of ${depositAmount}₽ deposit)`);
             
-            // Update partner stats (earnings AND total_losses)
+            // Update partner stats (earnings AND total_deposits)
             await db.runAsync(
-                'UPDATE referral_stats SET earnings = earnings + ?, total_losses = total_losses + ? WHERE user_id = ?',
-                [earnings, lossAmount, partnerId]
+                'UPDATE referral_stats SET earnings = earnings + ?, total_deposits = total_deposits + ? WHERE user_id = ?',
+                [earnings, depositAmount, partnerId]
             );
             
             // Update referral record
             await db.runAsync(
-                'UPDATE referrals SET total_earnings = total_earnings + ? WHERE partner_id = ? AND referral_user_id = ?',
-                [earnings, partnerId, referralUserId]
+                'UPDATE referrals SET total_earnings = total_earnings + ?, total_deposits = total_deposits + ? WHERE partner_id = ? AND referral_user_id = ?',
+                [earnings, depositAmount, partnerId, referralUserId]
             );
             
             // Save event for timeline
@@ -339,7 +339,7 @@ class ReferralService {
                 [partnerId, referralUserId, 'earning', earnings]
             );
             
-            console.log(`✅ Earnings added: partner=${partnerId}, earnings=${earnings}₽ (60% of ${lossAmount}₽)`);
+            console.log(`✅ Earnings added: partner=${partnerId}, earnings=${earnings}₽ (10% of ${depositAmount}₽)`);
             
             // 🔥 SUB-PARTNER LOGIC: Give 5% to super-partner
             await this.addSubPartnerEarnings(partnerId, earnings);
@@ -348,7 +348,7 @@ class ReferralService {
                 success: true, 
                 partnerId, 
                 earnings,
-                lossAmount,
+                depositAmount,
                 message: `Partner earned ${earnings}₽` 
             };
         } catch (error) {

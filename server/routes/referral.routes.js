@@ -102,30 +102,34 @@ router.post('/update-deposit', webhookAuth, async (req, res) => {
 
 /**
  * POST /api/referral/add-earnings
- * Add earnings to partner when referred user loses money
- * Partner gets 60% of the loss
+ * Add earnings to partner when referred user makes a deposit
+ * Partner gets 10% of the deposit
  * PUBLIC endpoint for miniapp
  * 
- * Body: { referralUserId: "1889923046", lossAmount: 100 }
+ * Body: { referralUserId: "1889923046", depositAmount: 100 }
+ * Legacy: also accepts lossAmount for backwards compatibility
  */
 router.post('/add-earnings', async (req, res) => {
     try {
-        const { referralUserId, lossAmount, userId } = req.body;
+        const { referralUserId, depositAmount, lossAmount, userId } = req.body;
         
         // Принимаем либо referralUserId либо userId для совместимости
         const actualUserId = referralUserId || userId;
         
-        console.log(`📥 /api/referral/add-earnings: referralUser=${actualUserId}, loss=${lossAmount}₽`);
+        // Принимаем depositAmount или lossAmount (legacy)
+        const actualAmount = depositAmount || lossAmount;
         
-        if (!actualUserId || !lossAmount) {
+        console.log(`📥 /api/referral/add-earnings: referralUser=${actualUserId}, deposit=${actualAmount}₽`);
+        
+        if (!actualUserId || !actualAmount) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Missing referralUserId (or userId) and lossAmount' 
+                message: 'Missing referralUserId (or userId) and depositAmount' 
             });
         }
         
         // addEarnings теперь ищет партнёра по referralUserId
-        const result = await ReferralService.addEarnings(null, actualUserId, lossAmount);
+        const result = await ReferralService.addEarnings(null, actualUserId, actualAmount);
         res.json(result);
     } catch (error) {
         console.error('❌ /api/referral/add-earnings error:', error);

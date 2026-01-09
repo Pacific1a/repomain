@@ -1,128 +1,107 @@
-root@duos:/var/www/duo# nano bot/autoshop/settings.ini
-  GNU nano 7.2                                                                                               bot/autoshop/settings.ini
-[settings]
-token=8172657942:AAEaHf7zEYNfs_KKIyed-HzvsUKYELgxnOw
-admin_id=6147555067, 6996858071
+root@duos:/var/www/duo# cat > bot/autoshop/settings.ini << 'EOF'
+> [settings]
+>      token=8172657942:AAEaHf7zEYNfs_KKIyed-HzvsUKYELgxnOw
+>      admin_id=6147555067, 6996858071
+> EOF
+root@duos:/var/www/duo# cat -A bot/autoshop/settings.ini
+[settings]$
+     token=8172657942:AAEaHf7zEYNfs_KKIyed-HzvsUKYELgxnOw$
+     admin_id=6147555067, 6996858071$
+root@duos:/var/www/duo# pm2 restart duo-bot
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [duo-bot](ids: [ 4 ])
+[PM2] [duo-bot](4) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 4  │ duo-bot           │ default     │ N/A     │ fork    │ 980167   │ 0s     │ 944  │ online    │ 0%       │ 6.5mb    │ root     │ disabled │
+│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 978412   │ 47m    │ 256  │ online    │ 1.4%     │ 78.7mb   │ root     │ disabled │
+│ 3  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 978415   │ 47m    │ 14   │ online    │ 0%       │ 74.7mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@duos:/var/www/duo# sleep 3
+root@duos:/var/www/duo# pm2 logs duo-bot --lines 20 --nostream
+� Используется SERVER_URL: http://77.239.125.70:3000
+4|duo-bot  | � PARTNER_API_SECRET установлен: ✅
+4|duo-bot  | DB was found(1/8)
+4|duo-bot  | DB was found(2/8)
+4|duo-bot  | DB was found(3/8)
+4|duo-bot  | DB was found(4/8)
+4|duo-bot  | DB was found(5/8)
+4|duo-bot  | DB was found(6/8)
+4|duo-bot  | DB was found(7/8)
+4|duo-bot  | DB was found(8/8)
+4|duo-bot  | ~~~~~ Bot was started - @aasasdasdadsddasdbot ~~~~~
+4|duo-bot  | ~~~~~ TG developer - @djimbox ~~~~~
+4|duo-bot  | 
+
+root@duos:/var/www/duo#
 
 
 
 
-                                                                                                               [ Read 3 lines ]
-^G Help           ^O Write Out      ^W Where Is       ^K Cut            ^T Execute        ^C Location       M-U Undo          M-A Set Mark      M-] To Bracket    M-Q Previous      ^B Back           ^◂ Prev Word      ^A Home
-^X Exit           ^R Read File      ^\ Replace        ^U Paste          ^J Justify        ^/ Go To Line     M-E Redo          M-6 Copy          ^Q Where Was      M-W Next          ^F Forward        ^▸ Next Word      ^E End
-        server/database.sqlite
-        server/server.js.backup
-        site/chart.min.js
-        site/server/
-        withdrawal-bot/package-lock.json
-        ystemctl status nginx
 
-root@duos:/var/www/duo# git checkout --theirs bot/autoshop/settings.ini
-Updated 1 path from the index
-root@duos:/var/www/duo# nano bot/autoshop/settings.ini
-root@duos:/var/www/duo# git add bot/autoshop/settings.ini
-root@duos:/var/www/duo# git add bot/autoshop/settings.ini
-root@duos:/var/www/duo# git commit -m "Resolve settings.ini conflict"
-[main 0a1f310] Resolve settings.ini conflict
- Committer: root <root@duos.play2go.cloud>
-Your name and email address were configured automatically based
-on your username and hostname. Please check that they are accurate.
-You can suppress this message by setting them explicitly. Run the
-following command and follow the instructions in your editor to edit
-your configuration file:
 
-    git config --global --edit
 
-After doing this, you may fix the identity used for this commit with:
 
-    git commit --amend --reset-author
 
- 3 files changed, 2 insertions(+), 2 deletions(-)
-root@duos:/var/www/duo# git checkout --ours bot/autoshop/settings.ini
-Updated 0 paths from the index
-root@duos:/var/www/duo# git add bot/autoshop/settings.ini
-root@duos:/var/www/duo# git commit -m "Resolve settings.ini conflict"
-On branch main
-Your branch is ahead of 'origin/main' by 1 commit.
-  (use "git push" to publish your local commits)
 
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   bot/autoshop/tgbot/data/database.db
-        modified:   bot/autoshop/tgbot/data/logs.log
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        a.out
-        backups/
-        bot/.env
-        bot/autoshop/-H
-        bot/autoshop/-d
-        bot/autoshop/.env
-        bot/autoshop/a.out
-        bot/autoshop/tgbot/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/data/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/data/__pycache__/config.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_category.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_helper.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_item.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_payments.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_position.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_purchases.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_refill.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_settings.cpython-312.pyc
-        bot/autoshop/tgbot/database/__pycache__/db_users.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin_page.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/inline_admin_prod.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/inline_user.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/inline_user_page.cpython-312.pyc
-        bot/autoshop/tgbot/keyboards/__pycache__/reply_main.cpython-312.pyc
-        bot/autoshop/tgbot/middlewares/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/middlewares/__pycache__/middleware_throttling.cpython-312.pyc
-        bot/autoshop/tgbot/middlewares/__pycache__/middleware_users.cpython-312.pyc
-        bot/autoshop/tgbot/routers/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/routers/__pycache__/main_errors.cpython-312.pyc
-        bot/autoshop/tgbot/routers/__pycache__/main_missed.cpython-312.pyc
-        bot/autoshop/tgbot/routers/__pycache__/main_start.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/admin_functions.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/admin_menu.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/admin_payment.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/admin_products.cpython-312.pyc
-        bot/autoshop/tgbot/routers/admin/__pycache__/admin_settings.cpython-312.pyc
-        bot/autoshop/tgbot/routers/user/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/routers/user/__pycache__/user_menu.cpython-312.pyc
-        bot/autoshop/tgbot/routers/user/__pycache__/user_products.cpython-312.pyc
-        bot/autoshop/tgbot/routers/user/__pycache__/user_transactions.cpython-312.pyc
-        bot/autoshop/tgbot/services/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/services/__pycache__/api_cactuspay.cpython-312.pyc
-        bot/autoshop/tgbot/services/__pycache__/api_qiwi.cpython-312.pyc
-        bot/autoshop/tgbot/services/__pycache__/api_session.cpython-312.pyc
-        bot/autoshop/tgbot/services/__pycache__/api_yoomoney.cpython-312.pyc
-        bot/autoshop/tgbot/utils/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/utils/__pycache__/const_functions.cpython-312.pyc
-        bot/autoshop/tgbot/utils/__pycache__/misc_functions.cpython-312.pyc
-        bot/autoshop/tgbot/utils/__pycache__/text_functions.cpython-312.pyc
-        bot/autoshop/tgbot/utils/misc/__pycache__/__init__.cpython-312.pyc
-        bot/autoshop/tgbot/utils/misc/__pycache__/bot_commands.cpython-312.pyc
-        bot/autoshop/tgbot/utils/misc/__pycache__/bot_filters.cpython-312.pyc
-        bot/autoshop/tgbot/utils/misc/__pycache__/bot_logging.cpython-312.pyc
-        bot/autoshop/tgbot/utils/misc/__pycache__/bot_models.cpython-312.pyc
-        bot/autoshop/venv/
-        bot/server/
-        duo-bot-logs.txt
-        duo-bot-realtime.log
-        ecosystem.config.js
-        server/database.sqlite
-        server/server.js.backup
-        site/chart.min.js
-        site/server/
-        withdrawal-bot/package-lock.json
-        ystemctl status nginx
 
-no changes added to commit (use "git add" and/or "git commit -a")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+root@duos:/var/www/duo# ы
+ыы: command not found
+root@duos:/var/www/duo# ы
+ыы: command not found
+root@duos:/var/www/duo# grep -n "my_referrals"
+
+^C
+root@duos:/var/www/duo# grep -n "my_referrals"
+^C
+root@duos:/var/www/duo# bot/autoshop/tgbot/routers/user/user_referrals.py | head -5
+-bash: bot/autoshop/tgbot/routers/user/user_referrals.py: Permission denied
 root@duos:/var/www/duo#

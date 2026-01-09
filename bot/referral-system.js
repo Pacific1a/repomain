@@ -272,7 +272,7 @@
             // Обновляем реферальный баланс
             const balanceEl = document.querySelector('.ref-balance .text-wrapper-7');
             if (balanceEl) {
-                balanceEl.textContent = this.referralBalance.toFixed(2);
+                balanceEl.textContent = '$' + this.referralBalance.toFixed(2);
                 console.log('✅ Обновлен реферальный баланс:', this.referralBalance);
             } else {
                 console.warn('⚠️ Элемент .ref-balance .text-wrapper-7 не найден');
@@ -360,7 +360,7 @@
                 if (winningsEl) winningsEl.textContent = `Deposited | ${(referral.totalWinnings || 0).toFixed(2)}₽`;
                 
                 const earningsEl = card.querySelector('.text-wrapper-15');
-                if (earningsEl) earningsEl.textContent = (referral.totalEarnings || 0).toFixed(2);
+                if (earningsEl) earningsEl.textContent = '$' + (referral.totalEarnings || 0).toFixed(2);
                 
                 template.parentNode.insertBefore(card, template.nextSibling);
             });
@@ -418,17 +418,17 @@
             }
         }
         
-        // Метод для начисления процентов партнёру (вызывается когда реферал проигрывает)
-        async addReferralEarnings(referralUserId, lossAmount) {
+        // Метод для начисления процентов партнёру (вызывается когда реферал делает депозит)
+        async addReferralEarnings(referralUserId, depositAmount) {
             try {
-                console.log(`📤 Sending earnings: referralUser=${referralUserId}, loss=${lossAmount}₽`);
+                console.log(`📤 Sending earnings: referralUser=${referralUserId}, deposit=${depositAmount}₽`);
                 
                 const response = await fetch(`${SERVER_URL}/api/referral/add-earnings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         referralUserId: referralUserId.toString(),
-                        lossAmount: lossAmount
+                        depositAmount: depositAmount
                     })
                 });
                 
