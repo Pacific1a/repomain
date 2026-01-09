@@ -134,6 +134,23 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                 
                 # Проверяем, что пользователь не пытается пригласить сам себя
                 if referrer_id != user_id:
+                    # Получить данные пользователя
+                    user_nickname = message.from_user.username or None
+                    user_full_name = message.from_user.full_name or f"User{message.from_user.id}"
+                    
+                    # Попробовать получить фото профиля
+                    user_photo_url = None
+                    try:
+                        photos = await bot.get_user_profile_photos(message.from_user.id, limit=1)
+                        if photos.total_count > 0:
+                            file_id = photos.photos[0][-1].file_id
+                            file = await bot.get_file(file_id)
+                            user_photo_url = f"https://api.telegram.org/file/bot{bot.token}/{file.file_path}"
+                    except Exception as photo_err:
+                        print(f"⚠️ Could not get user photo: {photo_err}")
+                    
+                    print(f"👤 User info: nickname={user_nickname or user_full_name}, photo={bool(user_photo_url)}")
+                    
                     # Отправляем на сервер для регистрации
                     async with aiohttp.ClientSession() as session:
                         try:
@@ -141,7 +158,9 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                 f"{SERVER_API_URL}/api/referral/register",
                                 json={
                                     "userId": user_id,
-                                    "referrerId": referrer_id
+                                    "referrerId": referrer_id,
+                                    "nickname": user_nickname or user_full_name,
+                                    "photoUrl": user_photo_url
                                 },
                                 headers={
                                     'X-API-Secret': PARTNER_API_SECRET
