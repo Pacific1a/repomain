@@ -152,6 +152,29 @@
 }
 
 /* ========== OVERLAY ДЛЯ PRELOADER ========== */
+
+/* Скрываем контент ДО проверки loader */
+body {
+  overflow: hidden;
+}
+
+#app {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+/* Когда loader завершен - показываем контент */
+body.loader-complete #app {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+}
+
+body.loader-complete {
+  overflow: auto;
+}
+
 #page-preloader {
   display: none;  /* Скрыт по умолчанию - показываем через JS */
   position: fixed;
