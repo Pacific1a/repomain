@@ -171,17 +171,16 @@
     let left = r.left - parentRect.left;
     let SELECT_W = r.width;
     
-    // Для крайних элементов добавляем небольшой padding для визуального баланса
-    const EDGE_PADDING = 8; // отступ от края контейнера
+    // Для крайних элементов добавляем padding для визуального баланса
+    const EDGE_PADDING = 10; // отступ от края контейнера для баланса
     
-    // Для первого элемента (All)
+    // Для первого и последнего элементов - одинаковый padding для симметричного центрирования
     if (isFirst) {
-      SELECT_W = r.width + 12; // небольшое увеличение для баланса
+      SELECT_W = r.width + 14; // padding для визуального баланса
       left = EDGE_PADDING; // отступ от левого края
     }
-    // Для последнего элемента (High)  
     else if (isLast) {
-      SELECT_W = r.width + 12; // небольшое увеличение для баланса
+      SELECT_W = r.width + 14; // padding для визуального баланса
       left = parentRect.width - SELECT_W - EDGE_PADDING; // отступ от правого края
     }
     
