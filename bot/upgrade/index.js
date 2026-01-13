@@ -377,9 +377,10 @@ function updatePrizeDisplay(desiredPrize) {
   img.style.filter = 'drop-shadow(0 4px 12px rgba(255, 255, 255, 0.3))';
   img.loading = 'lazy';
   
-  // Путь к картинке приза (используем GitHub)
+  // Путь к картинке приза
   const prizeValue = Math.round(desiredPrize);
-  img.src = `https://raw.githubusercontent.com/Pacific1a/img/main/upgrade/token-2.png`;
+  // Используем локальный путь к иконке фишки
+  img.src = 'https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true';
   
   img.onerror = () => {
     // Fallback если картинка не загрузилась

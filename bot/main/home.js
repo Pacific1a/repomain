@@ -162,14 +162,25 @@
     const parentRect = sectionMenu.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     
-    // Используем реальную ширину элемента + небольшой padding
+    // Используем реальную ширину элемента
     const SELECT_W = r.width;
     
     // Позиция select точно под элементом
     let left = r.left - parentRect.left;
     
-    // Clamp within container
-    left = Math.max(0, Math.min(left, parentRect.width - SELECT_W));
+    // Получаем все элементы фильтров (без select-filter)
+    const filterItems = $$('.section-menu > *').filter(el => !el.classList.contains('select-filter'));
+    const isFirst = filterItems[0] === el;
+    const isLast = filterItems[filterItems.length - 1] === el;
+    
+    // Для первого элемента прижимаем к левому краю
+    if (isFirst) {
+      left = 0;
+    }
+    // Для последнего элемента прижимаем к правому краю
+    else if (isLast) {
+      left = parentRect.width - SELECT_W;
+    }
     
     selectIndicator.style.width = SELECT_W + 'px';
     selectIndicator.style.transform = `translateX(${left}px)`;
