@@ -152,7 +152,7 @@
   // Section menu filters
   // =====================
   const sectionMenu = $('.section-menu');
-  const selectIndicator = sectionMenu ? sectionMenu.querySelector('.select') : null;
+  const selectIndicator = sectionMenu ? sectionMenu.querySelector('.select-filter') : null;
   const caseContainer = $('.case-card');
   const caseCards = caseContainer ? $$('.case-card > .cards', document) : [];
   const originalOrder = caseCards.slice();
@@ -241,8 +241,8 @@
 
   function bindFilters(){
     if (!sectionMenu) return;
-    // Query items by order, excluding .select
-    const items = $$('.section-menu > *').filter(el=>!el.classList.contains('select'));
+    // Query items by order, excluding .select-filter
+    const items = $$('.section-menu > *').filter(el=>!el.classList.contains('select-filter'));
     const [allItem, chipsItem, newItem, lowItem, highItem] = items;
 
     if (allItem){
