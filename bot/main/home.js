@@ -161,11 +161,16 @@
     if (!selectIndicator || !el) return;
     const parentRect = sectionMenu.getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    const SELECT_W = 74; // must match CSS width
-    // Center select under the element
-    let left = (r.left - parentRect.left) + (r.width / 2) - (SELECT_W / 2);
+    
+    // Используем реальную ширину элемента + небольшой padding
+    const SELECT_W = r.width;
+    
+    // Позиция select точно под элементом
+    let left = r.left - parentRect.left;
+    
     // Clamp within container
     left = Math.max(0, Math.min(left, parentRect.width - SELECT_W));
+    
     selectIndicator.style.width = SELECT_W + 'px';
     selectIndicator.style.transform = `translateX(${left}px)`;
   }
