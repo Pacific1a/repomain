@@ -171,18 +171,22 @@
     let left = r.left - parentRect.left;
     let SELECT_W = r.width;
     
-    // Для крайних элементов добавляем padding для визуального баланса
-    const EDGE_PADDING = 10; // отступ от края контейнера для баланса
-    
-    // Для первого и последнего элементов - одинаковый padding для симметричного центрирования
-    if (isFirst) {
-      SELECT_W = r.width + 14; // padding для визуального баланса
-      left = EDGE_PADDING; // отступ от левого края
+    // Только для All и High - делаем select шире и центрируем относительно элемента
+    if (isFirst || isLast) {
+      const EXTRA_WIDTH = 12; // дополнительная ширина для All и High
+      SELECT_W = r.width + EXTRA_WIDTH;
+      
+      // Центрируем select относительно элемента
+      const elementCenter = (r.left - parentRect.left) + r.width / 2;
+      left = elementCenter - SELECT_W / 2;
+      
+      // Проверяем, не выходит ли за границы контейнера
+      if (left < 0) left = 0;
+      if (left + SELECT_W > parentRect.width) {
+        left = parentRect.width - SELECT_W;
+      }
     }
-    else if (isLast) {
-      SELECT_W = r.width + 14; // padding для визуального баланса
-      left = parentRect.width - SELECT_W - EDGE_PADDING; // отступ от правого края
-    }
+    // Для остальных элементов (Chips, New, Low) - select точно по размеру элемента
     
     selectIndicator.style.width = SELECT_W + 'px';
     selectIndicator.style.transform = `translateX(${left}px)`;
