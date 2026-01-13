@@ -238,6 +238,12 @@ buttons.forEach((button) => {
     setActiveMultiplier(button);
     multiplier = toNumber(button.textContent.replace('x', '')) || 1;
     refreshSummaryViews();
+    
+    // Обновляем картинку приза если ставка уже применена
+    if (betApplied && betAmount > 0) {
+      const desiredPrize = betAmount * multiplier;
+      updatePrizeDisplay(desiredPrize);
+    }
   });
 });
 
@@ -355,6 +361,34 @@ betInputEl?.addEventListener('input', () => {
   refreshSummaryViews();
 });
 
+// Функция обновления картинки приза в центре
+function updatePrizeDisplay(desiredPrize) {
+  const prizeContainer = document.querySelector('.group-2');
+  if (!prizeContainer) return;
+  
+  // Очищаем контейнер
+  prizeContainer.innerHTML = '';
+  
+  // Создаем изображение
+  const img = document.createElement('img');
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'contain';
+  img.style.filter = 'drop-shadow(0 4px 12px rgba(255, 255, 255, 0.3))';
+  img.loading = 'lazy';
+  
+  // Путь к картинке приза (используем GitHub)
+  const prizeValue = Math.round(desiredPrize);
+  img.src = `https://raw.githubusercontent.com/Pacific1a/img/main/upgrade/token-2.png`;
+  
+  img.onerror = () => {
+    // Fallback если картинка не загрузилась
+    prizeContainer.innerHTML = `<div style="color: #fff; font-size: 24px; font-weight: bold;">${prizeValue}₽</div>`;
+  };
+  
+  prizeContainer.appendChild(img);
+}
+
 // Кнопка Apply — валидирует и «применяет» ставку (не меняем баланс, только фиксация)
 if (applyBtn) {
   applyBtn.addEventListener('click', () => {
@@ -389,6 +423,10 @@ if (applyBtn) {
     
     betAmount = inputAmount; // сохраняем чистую ставку (без x)
     betApplied = true;
+    
+    // Обновляем картинку приза
+    const desiredPrize = betAmount * multiplier;
+    updatePrizeDisplay(desiredPrize);
     
     // Разблокируем кнопку Upgrade после успешного Apply
     if (upgradeBtn) {
