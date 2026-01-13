@@ -167,19 +167,22 @@
     const isFirst = filterItems[0] === el;
     const isLast = filterItems[filterItems.length - 1] === el;
     
-    // Ширина и позиция select
-    let SELECT_W = r.width;
+    // Базовая позиция - точно под элементом
     let left = r.left - parentRect.left;
+    let SELECT_W = r.width;
     
-    // Для первого элемента (All) - добавляем padding и прижимаем к левому краю
+    // Для крайних элементов добавляем небольшой padding для визуального баланса
+    const EDGE_PADDING = 8; // отступ от края контейнера
+    
+    // Для первого элемента (All)
     if (isFirst) {
-      SELECT_W = r.width + 16; // добавляем 16px для лучшего центрирования
-      left = 0;
+      SELECT_W = r.width + 12; // небольшое увеличение для баланса
+      left = EDGE_PADDING; // отступ от левого края
     }
-    // Для последнего элемента (High) - добавляем padding и прижимаем к правому краю
+    // Для последнего элемента (High)  
     else if (isLast) {
-      SELECT_W = r.width + 16; // добавляем 16px для лучшего центрирования
-      left = parentRect.width - SELECT_W;
+      SELECT_W = r.width + 12; // небольшое увеличение для баланса
+      left = parentRect.width - SELECT_W - EDGE_PADDING; // отступ от правого края
     }
     
     selectIndicator.style.width = SELECT_W + 'px';
