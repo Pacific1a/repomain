@@ -1475,15 +1475,10 @@
 }
 .img-block img{
   width: 100%;
-  /* УБРАЛИ transform - он размывает на мобильных! */
-  /* Принудительная четкость без GPU acceleration */
+  /* Оставляем минимальную оптимизацию без изменения цвета */
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* Резкость через фильтр */
-  filter: contrast(1.15) saturate(1.1);
-  -webkit-filter: contrast(1.15) saturate(1.1);
 }
 
 .content-window-item{
