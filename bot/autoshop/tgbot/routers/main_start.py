@@ -218,13 +218,17 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
     # Приветственное сообщение с баннером и inline-кнопками
     welcome_text = "🔥 Добро пожаловать в TwinsUp! 🍀"
     
-    # URL баннера (замените на ваш баннер)
-    banner_url = "https://raw.githubusercontent.com/Pacific1a/img/main/banner/welcome.jpg"
+    # Путь к локальному баннеру
+    import os
+    banner_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'banner', 'welcome.jpg')
     
     try:
+        # Отправляем фото из локального файла
+        from aiogram.types import FSInputFile
+        photo = FSInputFile(banner_path)
         await bot.send_photo(
             chat_id=message.from_user.id,
-            photo=banner_url,
+            photo=photo,
             caption=welcome_text,
             reply_markup=user_welcome_finl(bot_username)
         )
