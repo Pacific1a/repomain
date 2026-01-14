@@ -1,85 +1,28 @@
-(venv) root@duos:/var/www/duo/bot/autoshop# pm2 restart duo-bot
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-bot](ids: [ 7 ])
-[PM2] [duo-bot](7) ✓
-┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 7  │ duo-bot           │ default     │ N/A     │ fork    │ 1076002  │ 0s     │ 108  │ online    │ 0%       │ 7.6mb    │ root     │ disabled │
-│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 1070295  │ 66m    │ 271  │ online    │ 0%       │ 79.8mb   │ root     │ disabled │
-│ 3  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 978415   │ 4D     │ 14   │ online    │ 0%       │ 64.1mb   │ root     │ disabled │
-└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-(venv) root@duos:/var/www/duo/bot/autoshop# git add .
-git(venv) root@duos:/var/www/duo/bot/autoshop# git pull origin main
-remote: Enumerating objects: 14, done.
-remote: Counting objects: 100% (14/14), done.
-remote: Compressing objects: 100% (4/4), done.
-remote: Total 8 (delta 3), reused 8 (delta 3), pack-reused 0 (from 0)
-Unpacking objects: 100% (8/8), 2.42 MiB | 8.99 MiB/s, done.
+root@duos:/var/www/duo# cd /var/www/duo
+root@duos:/var/www/duo#      git pull origin main
+o-serverremote: Enumerating objects: 9, done.
+remote: Counting objects: 100% (9/9), done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 5 (delta 4), reused 5 (delta 4), pack-reused 0 (from 0)
+Unpacking objects: 100% (5/5), 1.18 KiB | 404.00 KiB/s, done.
 From https://github.com/Pacific1a/repomain
  * branch            main       -> FETCH_HEAD
-   f61ae9c..08425dd  main       -> origin/main
-Auto packing the repository in background for optimum performance.
-See "git help gc" for manual housekeeping.
-Updating f61ae9c..08425dd
-Fast-forward
-Auto packing the repository in background for optimum performance.
-See "git help gc" for manual housekeeping.
- bot/autoshop/banner/welcome.jpg | Bin 2231282 -> 0 bytes
- bot/autoshop/banner/welcome.png | Bin 0 -> 2303603 bytes
- image.png                       | Bin 118293 -> 224760 bytes
- log.log                         | 338 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----------------------------------------------------
- 4 files changed, 238 insertions(+), 100 deletions(-)
- delete mode 100644 bot/autoshop/banner/welcome.jpg
- create mode 100644 bot/autoshop/banner/welcome.png
-(venv) root@duos:/var/www/duo/bot/autoshop# pm2 restart duo-bot
+   20c1395..e106e52  main       -> origin/main
+Updating d858e20..e106e52
+error: Your local changes to the following files would be overwritten by merge:
+        bot/autoshop/settings.ini
+Please commit your changes or stash them before you merge.
+Aborting
+
+root@duos:/var/www/duo#      pm2 restart duo-server
 Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-bot](ids: [ 7 ])
-[PM2] [duo-bot](7) ✓
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+[PM2] [duo-server](0) ✓
 ┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
 │ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
 ├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 7  │ duo-bot           │ default     │ N/A     │ fork    │ 1076076  │ 0s     │ 109  │ online    │ 0%       │ 7.8mb    │ root     │ disabled │
-│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 1070295  │ 67m    │ 271  │ online    │ 0%       │ 79.9mb   │ root     │ disabled │
-│ 3  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 978415   │ 4D     │ 14   │ online    │ 0%       │ 63.8mb   │ root     │ disabled │
+│ 7  │ duo-bot           │ default     │ N/A     │ fork    │ 1131614  │ 13m    │ 198  │ online    │ 0%       │ 225.6mb  │ root     │ disabled │
+│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 1133559  │ 0s     │ 278  │ online    │ 0%       │ 15.3mb   │ root     │ disabled │
+│ 3  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 1130547  │ 17m    │ 15   │ online    │ 0%       │ 71.4mb   │ root     │ disabled │
 └────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-(venv) root@duos:/var/www/duo/bot/autoshop#  pm2 logs duo-bot --lines 30
-[TAILING] Tailing last 30 lines for [duo-bot] process (change the value with --lines option)
-/root/.pm2/logs/duo-bot-error-7.log last 30 lines:
-7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py", line 1654, in _apply_annotations
-7|duo-bot  |     schema = get_inner_schema(source_type)
-7|duo-bot  |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/pydantic/_internal/_schema_generation_shared.py", line 81, in __call__
-7|duo-bot  |     def __call__(self, __source_type: Any) -> core_schema.CoreSchema:
-7|duo-bot  | 
-7|duo-bot  | KeyboardInterrupt
-7|duo-bot  | /var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_custom_emoji_id" has conflict with protected namespace "model_".
-7|duo-bot  | 
-7|duo-bot  | You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
-7|duo-bot  |   warnings.warn(
-7|duo-bot  | /var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/apscheduler/__init__.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg
-_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
-7|duo-bot  |   from pkg_resources import get_distribution, DistributionNotFound
-7|duo-bot  | WARNING | 14-01-2026 01:03:10 | main.py:59 | BOT WAS STARTED
-7|duo-bot  | WARNING | 14-01-2026 01:12:47 | dispatcher.py:515 | Received SIGINT signal
-7|duo-bot  | /var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/pydantic/_internal/_fields.py:149: UserWarning: Field "model_custom_emoji_id" has conflict with protected namespace "model_".
-7|duo-bot  | 
-7|duo-bot  | You may be able to resolve this warning by setting `model_config['protected_namespaces'] = ()`.
-7|duo-bot  |   warnings.warn(
-7|duo-bot  | 
-� Используется SERVER_URL: http://77.239.125.70:3000
-7|duo-bot  | � PARTNER_API_SECRET установлен: ✅
-7|duo-bot  | DB was found(1/8)
-7|duo-bot  | DB was found(2/8)
-7|duo-bot  | DB was found(3/8)
-7|duo-bot  | DB was found(4/8)
-7|duo-bot  | DB was found(5/8)
-7|duo-bot  | DB was found(6/8)
-7|duo-bot  | DB was found(7/8)
-7|duo-bot  | DB was found(8/8)
-7|duo-bot  | ~~~~~ Bot was started - @aasasdasdadsddasdbot ~~~~~
-7|duo-bot  | ~~~~~ TG developer - @djimbox ~~~~~
-7|duo-bot  | 
-7|duo-bot  | ⚠️ Error sending photo: HTTP Client says - ClientOSError: [Errno 2] Can not write request body for https://api.telegram.org/bot8172657942:AAEaHf7zEYNfs_KKIyed-HzvsUKYELgxnOw/sendPhoto
-7|duo-bot  | ⚠️ Error sending photo: HTTP Client says - ClientOSError: [Errno 2] Can not write request body for https://api.telegram.org/bot8172657942:AAEaHf7zEYNfs_KKIyed-HzvsUKYELgxnOw/sendPhoto
-
+root@duos:/var/www/duo#
