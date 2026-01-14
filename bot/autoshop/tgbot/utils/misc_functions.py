@@ -32,7 +32,8 @@ async def startup_notify(bot: Bot, arSession: ARS):
             """),
         )
 
-        await check_update(bot, arSession)
+        # ОТКЛЮЧЕНО: Реклама от автора бота (TON play spam)
+        # await check_update(bot, arSession)
 
 
 # Автоматическая очистка ежедневной статистики после 00:00:15
