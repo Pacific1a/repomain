@@ -1402,6 +1402,8 @@
   flex-direction: column;
   border-radius: 18px;
   background: linear-gradient(90deg, #282828 0%, #333333c9 100%);
+  /* Важно: не обрезать дочерние элементы (HOT badge) */
+  overflow: visible;
 }
 .text-block span{
   display: flex;
@@ -1451,6 +1453,8 @@
   border-radius: 12px;
   top: 5px;
   left: 5px;
+  /* Поверх всех элементов */
+  z-index: 10;
 }
 .crown{
   /* Изменено: border вместо outline для корректного скругления */
