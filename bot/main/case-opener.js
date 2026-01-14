@@ -192,13 +192,16 @@
         const img = document.createElement('img');
         const prizeData = getPrizeImages(prize, isChipsCase);
         
-        // Фиксируем размеры для предотвращения CLS
-        img.width = 110;
-        img.height = 110;
+        // УБРАЛИ width/height атрибуты - размер контролируется через CSS
+        // Это позволяет браузеру загружать более четкие версии на Retina
         img.src = prizeData.preview;
         img.alt = isChipsCase ? `${prize} chips` : `${prize}₽`;
         img.loading = 'lazy'; // Ленивая загрузка для ускорения
         img.decoding = 'async';
+        // Добавляем стили напрямую для четкости на Retina
+        img.style.width = '110px';
+        img.style.height = '110px';
+        img.style.imageRendering = '-webkit-optimize-contrast';
         
         itemPreview.appendChild(img);
       });
@@ -266,10 +269,11 @@
       const img = document.createElement('img');
       const prizeData = getPrizeImages(prize, currentCase.isChipsCase);
       
-      // Фиксируем размеры для предотвращения CLS
-      img.width = 110;
-      img.height = 110;
+      // УБРАЛИ width/height атрибуты для поддержки Retina
       img.src = prizeData.spin;
+      img.style.width = '110px';
+      img.style.height = '110px';
+      img.style.imageRendering = '-webkit-optimize-contrast';
       img.alt = currentCase.isChipsCase ? `${prize} chips` : `${prize}₽`;
       img.dataset.value = prize;
       img.dataset.color = prizeData.color;
@@ -518,10 +522,11 @@
     winItem.innerHTML = '';
     const winImg = document.createElement('img');
     
-    // Фиксируем размеры для предотвращения CLS
-    winImg.width = 110;
-    winImg.height = 110;
+    // УБРАЛИ width/height атрибуты для поддержки Retina
     winImg.src = winImagePath;
+    winImg.style.width = '110px';
+    winImg.style.height = '110px';
+    winImg.style.imageRendering = '-webkit-optimize-contrast';
     winImg.alt = `WIN ${wonPrize}₽`;
     winImg.loading = 'eager';
     winImg.decoding = 'async';
