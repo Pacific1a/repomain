@@ -1473,7 +1473,7 @@
 }
 .img-block img{
   width: 100%;
-  /* Четкость для Retina дисплеев */
+  /* Четкость для обложек кейсов на Retina дисплеях */
   image-rendering: -webkit-optimize-contrast;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;

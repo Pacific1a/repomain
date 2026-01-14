@@ -82,29 +82,28 @@
     
     if (isChips) {
       // Пути для кейсов за фишки
-      // ИЗМЕНЕНО: Используем WebP для лучшего качества и меньшего размера
       const paths = {
-        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Chips-case/${color}/${prize}-chips-${color}.webp`,
-        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/preview-chips/${prize}-chips-${color}-preview.webp`,
-        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${prize}-chips-${color}.webp`,
+        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Chips-case/${color}/${prize}-chips-${color}.png`,
+        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/preview-chips/${prize}-chips-${color}-preview.png`,
+        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Win-chips/${prize}-chips-${color}.png`,
         color: color
       };
       return paths;
     } else {
       // Пути для кейсов за рубли
-      // ИЗМЕНЕНО: Используем WebP для лучшего качества и меньшего размера
+      // ВАЖНО: Папка называется purple, но ФАЙЛЫ внутри названы puple (с опечаткой!)
       const previewColor = color === 'purple' ? 'puple' : color;
       
       const paths = {
-        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Case-tokens/${color}/${prize}-r-${color}.webp`,
-        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/${prize}-r-${previewColor}.webp`,
-        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${color}/${prize}-r-${color}.webp`,
+        spin: `https://raw.githubusercontent.com/Pacific1a/img/main/main/Case-tokens/${color}/${prize}-r-${color}.png`,
+        preview: `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/purple/${prize}-r-${previewColor}.png`,
+        win: `https://raw.githubusercontent.com/Pacific1a/img/main/main/win-tokens/${color}/${prize}-r-${color}.png`,
         color: color
       };
       
       // Для не-purple цветов используем обычный путь
       if (color !== 'purple') {
-        paths.preview = `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/${color}/${prize}-r-${color}.webp`;
+        paths.preview = `https://raw.githubusercontent.com/Pacific1a/img/main/main/prewiew-tokens/${color}/${prize}-r-${color}.png`;
       }
       
       return paths;

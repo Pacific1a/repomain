@@ -313,11 +313,11 @@
         
         // Все доступные призы из папки main/img
         this.prizesPool = [
-            'https://raw.githubusercontent.com/Pacific1a/img/main/main/imgALL/very-high-prize.webp',
-            'https://raw.githubusercontent.com/Pacific1a/img/main/main/imgALL/medium-prize.webp',
-            'https://raw.githubusercontent.com/Pacific1a/img/main/main/imgALL/low-prize.webp',
-            'https://raw.githubusercontent.com/Pacific1a/img/main/main/imgALL/very-low-prize.webp',
-            'https://raw.githubusercontent.com/Pacific1a/img/main/main/imgALL/ultra-low-prize.webp'
+            'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/very-high-prize.svg',
+            'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/medium-prize.svg',
+            'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/low-prize.svg',
+            'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/very-low-prize.svg',
+            'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/imgALL/ultra-low-prize.svg'
         ];
         
         this.conveyorSpeed = 0.5;
