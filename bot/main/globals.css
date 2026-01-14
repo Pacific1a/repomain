@@ -6,6 +6,18 @@
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Улучшение качества изображений на мобильных */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: high-quality;
+  -ms-interpolation-mode: bicubic;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+}
 html,
 body {
   margin: 0px;
