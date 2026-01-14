@@ -238,7 +238,6 @@
 .upgrade .frame {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   align-self: stretch;
   flex: 0 0 auto;
   flex-direction: column;
@@ -261,6 +260,7 @@
 }
 
 .upgrade .circle {
+  top: 4px;
   position: relative;
   width: 4px;
   height: 4px;

@@ -233,7 +233,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   position: relative;
   align-self: stretch;
   flex: 0 0 auto;
@@ -257,6 +256,7 @@
   position: relative;
   width: 4px;
   height: 4px;
+  top: 4px;
   background-color: #ff3e45;
   border-radius: 2px;
   box-shadow: -0.3px 0.3px 0px #ab2a2e;
