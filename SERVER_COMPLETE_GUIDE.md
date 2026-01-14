@@ -23,6 +23,8 @@ pm2 restart duo-server
 git add . 
 git commit -m "111"
 git push
+
+git pull origin main
 ```
 curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc2NjY3OTY1NiwiZXhwIjoxNzY3Mjg0NDU2fQ.aocObCtvpeIoKK2qI9DBMShkxzpAyBEfBOAQpra0rkc"
      http://localhost:3000/api/referral/partner/stats
