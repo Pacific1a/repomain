@@ -28,8 +28,9 @@ async def scheduler_start(bot: Bot, arSession: ARS):
     BOT_SCHEDULER.add_job(update_profit_week, trigger="cron", day_of_week="mon", hour=0, minute=0, second=10)
     BOT_SCHEDULER.add_job(update_profit_day, trigger="cron", hour=0, minute=0, second=15, args=(bot,))
     BOT_SCHEDULER.add_job(autobackup_admin, trigger="cron", hour=0, args=(bot,))
-    BOT_SCHEDULER.add_job(check_update, trigger="cron", hour=0, args=(bot, arSession,))
-    BOT_SCHEDULER.add_job(check_mail, trigger="cron", hour=12, args=(bot, arSession,))
+    # ОТКЛЮЧЕНО: Реклама от автора бота (TON play spam)
+    # BOT_SCHEDULER.add_job(check_update, trigger="cron", hour=0, args=(bot, arSession,))
+    # BOT_SCHEDULER.add_job(check_mail, trigger="cron", hour=12, args=(bot, arSession,))
 
 
 # Запуск бота и базовых функций
@@ -51,8 +52,9 @@ async def main():
         await autosettings_unix()  # Автонастройка UNIX времени в БД
         await set_commands(bot)  # Установка команд
         await check_bot_username(bot)  # Проверка юзернейма бота в БД
-        await check_update(bot, arSession)  # Проверка обновлений
-        await check_mail(bot, arSession)  # Оповещение обновлений
+        # ОТКЛЮЧЕНО: Реклама от автора бота (TON play spam)
+        # await check_update(bot, arSession)  # Проверка обновлений
+        # await check_mail(bot, arSession)  # Оповещение обновлений
         await startup_notify(bot, arSession)  # Рассылка при запуске бота
         await scheduler_start(bot, arSession)  # Подключение шедулеров
 
