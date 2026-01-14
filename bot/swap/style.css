@@ -8,7 +8,7 @@
   position: relative;
   background: 
     linear-gradient(#151414b4, #151414b4), /* затемнение */
-    url("https://github.com/Pacific1a/img/blob/main/swap/Background.png?raw=true") center/cover no-repeat;
+    url("assets/bg.png") center/cover no-repeat;
   background-size: cover;
   background-position: center center;
   height: 100%;
