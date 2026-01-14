@@ -1,28 +1,193 @@
-root@duos:/var/www/duo# cd /var/www/duo
-root@duos:/var/www/duo#      git pull origin main
-o-serverremote: Enumerating objects: 9, done.
-remote: Counting objects: 100% (9/9), done.
-remote: Compressing objects: 100% (1/1), done.
-remote: Total 5 (delta 4), reused 5 (delta 4), pack-reused 0 (from 0)
-Unpacking objects: 100% (5/5), 1.18 KiB | 404.00 KiB/s, done.
-From https://github.com/Pacific1a/repomain
- * branch            main       -> FETCH_HEAD
-   20c1395..e106e52  main       -> origin/main
-Updating d858e20..e106e52
-error: Your local changes to the following files would be overwritten by merge:
-        bot/autoshop/settings.ini
-Please commit your changes or stash them before you merge.
-Aborting
+/root/.pm2/logs/duo-bot-error-7.log last 100 lines:
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+7|duo-bot  |     response = await self.update.wrap_outer_middleware(
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/middlewares/middleware_users.py", line 25, in __call__
+7|duo-bot  |     Userx.add(user_id, user_login.lower(), user_name)
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/database/db_users.py", line 44, in add
+7|duo-bot  |     con.execute(
+7|duo-bot  | sqlite3.OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | ERROR | 14-01-2026 21:34:14 | dispatcher.py:325 | Cause exception while process update id=235051113 by bot id=7716009607
+7|duo-bot  | OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | Traceback (most recent call last):
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 320, in _process_update
+7|duo-bot  |     response = await self.feed_update(bot, update, **kwargs)
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+7|duo-bot  |     response = await self.update.wrap_outer_middleware(
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/middlewares/middleware_users.py", line 25, in __call__
+7|duo-bot  |     Userx.add(user_id, user_login.lower(), user_name)
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/database/db_users.py", line 44, in add
+7|duo-bot  |     con.execute(
+7|duo-bot  | sqlite3.OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | ERROR | 14-01-2026 21:34:14 | dispatcher.py:325 | Cause exception while process update id=235051114 by bot id=7716009607
+7|duo-bot  | OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | Traceback (most recent call last):
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 320, in _process_update
+7|duo-bot  |     response = await self.feed_update(bot, update, **kwargs)
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+7|duo-bot  |     response = await self.update.wrap_outer_middleware(
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await 7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/middlewares/middleware_users.py", line 25, in __call__
+7|duo-bot  |     Userx.add(user_id, user_login.lower(), user_name)
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/database/db_users.py", line 44, in add
+7|duo-bot  |     con.execute(
+7|duo-bot  | sqlite3.OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | ERROR | 14-01-2026 21:34:14 | dispatcher.py:325 | Cause exception while process update id=235051113 by bot id=7716009607
+7|duo-bot  | OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | Traceback (most recent call last):
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 320, in _process_update
+7|duo-bot  |     response = await self.feed_update(bot, update, **kwargs)
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+7|duo-bot  |     response = await self.update.wrap_outer_middleware(
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/middlewares/middleware_users.py", line 25, in __call__
+7|duo-bot  |     Userx.add(user_id, user_login.lower(), user_name)
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/database/db_users.py", line 44, in add
+7|duo-bot  |     con.execute(
+7|duo-bot  | sqlite3.OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | ERROR | 14-01-2026 21:34:14 | dispatcher.py:325 | Cause exception while process update id=235051114 by bot id=7716009607
+7|duo-bot  | OperationalError: table storage_users has no column named user_referrer
+7|duo-bot  | Traceback (most recent call last):
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 320, in _process_update
+7|duo-bot  |     response = await self.feed_update(bot, update, **kwargs)
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 164, in feed_update
+7|duo-bot  |     response = await self.update.wrap_outer_middleware(
+7|duo-bot  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 27, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 58, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 43, in __call__
+7|duo-bot  |     return await handler(event, data)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 126, in trigger
+7|duo-bot  |     return await wrapped_inner(event, kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 71, in call
+7|duo-bot  |     return await wrapped()
+7|duo-bot  |            ^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 283, in _listen_update
+7|duo-bot  |     return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 161, in propagate_event
+7|duo-bot  |     return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+7|duo-bot  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/middlewares/middleware_users.py", line 25, in __call__
+7|duo-bot  |     Userx.add(user_id, user_login.lower(), user_name)
+7|duo-bot  |   File "/var/www/duo/bot/autoshop/tgbot/database/db_users.py", line 44, in add
+7|duo-bot  |     con.execute(
+7|duo-bot  | sqlite3.OperationalError: table storage_users has no column named user_referrer
 
-root@duos:/var/www/duo#      pm2 restart duo-server
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
-[PM2] [duo-server](0) ✓
-┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 7  │ duo-bot           │ default     │ N/A     │ fork    │ 1131614  │ 13m    │ 198  │ online    │ 0%       │ 225.6mb  │ root     │ disabled │
-│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 1133559  │ 0s     │ 278  │ online    │ 0%       │ 15.3mb   │ root     │ disabled │
-│ 3  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 1130547  │ 17m    │ 15   │ online    │ 0%       │ 71.4mb   │ root     │ disabled │
-└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-root@duos:/var/www/duo#
+root@duos:~#
