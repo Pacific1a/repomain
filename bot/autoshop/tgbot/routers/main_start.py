@@ -220,7 +220,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
     
     # Путь к локальному баннеру
     import os
-    banner_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'banner', 'welcome.png')
+    banner_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'banner', 'welcome.jpg')
     
     try:
         # Отправляем фото из локального файла
