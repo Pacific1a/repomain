@@ -9,14 +9,17 @@
 
 /* Улучшение качества изображений на мобильных */
 img {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: high-quality;
+  /* Убираем принудительное сглаживание - пусть браузер решает */
+  image-rendering: auto;
   -ms-interpolation-mode: bicubic;
+  /* Аппаратное ускорение для четкости */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  /* Убираем размытие от субпиксельного рендеринга */
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 html,
 body {

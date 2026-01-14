@@ -266,10 +266,10 @@
   position: relative;
   width: 53px;
   height: 53px;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: high-quality;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 .main .high-prize {
@@ -317,10 +317,10 @@
   position: relative;
   width: 52px;
   height: 53px;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: high-quality;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 .main .banner {
@@ -1493,12 +1493,16 @@
   object-fit: contain;
   position: relative;
   z-index: 2;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  /* Убрали filter - он может размывать на мобильных */
+  /* filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); */
   transition: all 0.3s ease;
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: high-quality;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  /* Принудительная четкость */
+  -webkit-filter: contrast(1.05);
+  filter: contrast(1.05);
 }
 
 /* Обертка для создания мутного фона позади каждой фишки */
@@ -1604,12 +1608,16 @@
   position: relative;
   z-index: 2;
   transition: all 0.3s ease;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  /* Убрали filter - он может размывать */
+  /* filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); */
   display: block;
   image-rendering: -webkit-optimize-contrast;
-  image-rendering: high-quality;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  /* Принудительная четкость */
+  -webkit-filter: contrast(1.05);
+  filter: contrast(1.05);
 }
 
 .item-preview-item img:hover {
