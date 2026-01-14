@@ -155,7 +155,12 @@ app.use('/api/balance', require('./routes/balance.routes'));
 console.log('✅ Balance routes loaded');
 
 // Transactions routes (for bot)
-app.use('/api/transactions', require('./routes/transactions.routes'));
+const transactionsRoutes = require('./routes/transactions.routes');
+app.use('/api/transactions', transactionsRoutes);
+// Set Socket.IO instance for transactions routes (will be called after io is created)
+if (typeof transactionsRoutes.setIO === 'function') {
+    transactionsRoutes.setIO(io);
+}
 console.log('✅ Transactions routes loaded');
 
 // 2FA routes (stubs)

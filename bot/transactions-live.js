@@ -80,7 +80,11 @@
             try {
                 const response = await fetch(`${SERVER_URL}/api/transactions/${this.telegramId}?limit=20`);
                 if (response.ok) {
-                    this.transactions = await response.json();
+                    const data = await response.json();
+                    // Сервер возвращает { success, telegramId, transactions }
+                    this.transactions = data.transactions || data || [];
+                    // Сортируем по timestamp (новые первые)
+                    this.transactions.sort((a, b) => b.timestamp - a.timestamp);
                     this.render();
                 } else {
                     console.warn('⚠️ No transactions found');

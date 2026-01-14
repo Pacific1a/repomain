@@ -9,6 +9,15 @@ const router = express.Router();
 // In-memory transactions storage
 const transactions = new Map();
 
+// Socket.IO instance (will be set by server.js)
+let io = null;
+
+// Function to set Socket.IO instance
+router.setIO = function(ioInstance) {
+    io = ioInstance;
+    console.log('✅ Transactions routes: Socket.IO instance set');
+};
+
 /**
  * GET /api/transactions/:telegramId
  * Get user transactions
@@ -63,6 +72,12 @@ router.post('/:telegramId', async (req, res) => {
         transactions.get(telegramId).push(transaction);
         
         console.log(`✅ Transaction added: ${telegramId} ${type} ${amount}`);
+        
+        // Отправляем WebSocket событие
+        if (io) {
+            io.emit(`transaction_added_${telegramId}`, transaction);
+            console.log(`📡 WebSocket event sent: transaction_added_${telegramId}`);
+        }
         
         res.json({
             success: true,

@@ -248,12 +248,22 @@
             return false;
         }
         
-        async addRubles(amount, source = 'game', description = '') {
-            return await this.addMoney(amount, 0, source, description);
+        async addRubles(amount, source = 'game', description = '', isWin = false) {
+            const result = await this.addMoney(amount, 0, source, description);
+            // Если это выигрыш, сохраняем дополнительную транзакцию с типом 'win'
+            if (result && isWin) {
+                await this.saveTransaction('win', amount, source, description || `Выигрыш ${amount}₽`);
+            }
+            return result;
         }
         
-        async addChips(amount, source = 'game', description = '') {
-            return await this.addMoney(0, amount, source, description);
+        async addChips(amount, source = 'game', description = '', isWin = false) {
+            const result = await this.addMoney(0, amount, source, description);
+            // Если это выигрыш, сохраняем дополнительную транзакцию с типом 'win'
+            if (result && isWin) {
+                await this.saveTransaction('win', amount, source, description || `Выигрыш ${amount} chips`);
+            }
+            return result;
         }
         
         hasEnoughRubles(amount) {
