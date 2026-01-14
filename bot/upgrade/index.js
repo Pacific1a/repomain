@@ -366,28 +366,12 @@ function updatePrizeDisplay(desiredPrize) {
   const prizeContainer = document.querySelector('.group-2');
   if (!prizeContainer) return;
   
-  // Очищаем контейнер
+  // Очищаем контейнер - убираем картинку чтобы не накладывалась на колесо
   prizeContainer.innerHTML = '';
   
-  // Создаем изображение
-  const img = document.createElement('img');
-  img.style.width = '100%';
-  img.style.height = '100%';
-  img.style.objectFit = 'contain';
-  img.style.filter = 'drop-shadow(0 4px 12px rgba(255, 255, 255, 0.3))';
-  img.loading = 'lazy';
-  
-  // Путь к картинке приза
-  const prizeValue = Math.round(desiredPrize);
-  // Используем локальный путь к иконке фишки
-  img.src = 'https://github.com/Pacific1a/img/blob/main/imgALL/Group%209.png?raw=true';
-  
-  img.onerror = () => {
-    // Fallback если картинка не загрузилась
-    prizeContainer.innerHTML = `<div style="color: #fff; font-size: 24px; font-weight: bold;">${prizeValue}₽</div>`;
-  };
-  
-  prizeContainer.appendChild(img);
+  // Можно добавить текст приза если нужно
+  // const prizeValue = Math.round(desiredPrize);
+  // prizeContainer.innerHTML = `<div style="color: #fff; font-size: 20px; font-weight: 600; text-align: center;">${prizeValue} Chips</div>`;
 }
 
 // Кнопка Apply — валидирует и «применяет» ставку (не меняем баланс, только фиксация)
@@ -403,11 +387,11 @@ if (applyBtn) {
       return;
     }
     if (inputAmount < 50) {
-      showToast('Минимальная ставка 50₽');
+      showToast('Минимальная ставка 50 фишек');
       return;
     }
     if (inputAmount > 1000) {
-      showToast('Максимальная ставка 1000₽');
+      showToast('Максимальная ставка 1000 фишек');
       return;
     }
     

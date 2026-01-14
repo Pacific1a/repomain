@@ -9,6 +9,7 @@
     // Курс обмена: 1 рубль = 1 фишка (можно настроить)
     const EXCHANGE_RATE = 1;
     const MIN_AMOUNT = 1;
+    const RUBLES_TO_CHIPS_FEE = 0.10; // 10% комиссия при обмене рублей на фишки
     const CHIPS_TO_RUBLES_FEE = 0.05; // 5% комиссия при обмене фишек на рубли
 
     // Элементы UI
@@ -619,9 +620,10 @@
 
         // Начисляем фишки
         const chipsToAdd = parseFloat(tokensAmount.toFixed(2));
+        const fee = parseFloat((rublesAmount * RUBLES_TO_CHIPS_FEE).toFixed(2));
         window.BalanceAPI.addChips(chipsToAdd);
 
-        showNotification(`Обменяно: ${rublesAmount.toFixed(2)} ₽ → ${chipsToAdd.toFixed(2)} Chips`);
+        showNotification(`Обменяно: ${rublesAmount.toFixed(2)} ₽ → ${chipsToAdd.toFixed(2)} Chips (комиссия ${fee.toFixed(2)} ₽)`);
 
         // Сбрасываем поля
         resetInputs();
@@ -671,10 +673,12 @@
     }
 
     /**
-     * Расчет фишек из рублей
+     * Расчет фишек из рублей (с учетом комиссии 10%)
      */
     function calculateTokensFromRubles(rubles) {
-        return rubles * EXCHANGE_RATE;
+        const baseAmount = rubles * EXCHANGE_RATE;
+        const fee = baseAmount * RUBLES_TO_CHIPS_FEE;
+        return baseAmount - fee;
     }
 
     /**
