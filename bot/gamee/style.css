@@ -289,7 +289,7 @@
   width: 108px;
   height: 62px;
   box-shadow: 0px 0px 22px #86283838;
-  background-image: url("https://raw.githubusercontent.com/Pacific1a/img/8b90f6c37d5e886868f770ce9ad4325333934d48/gamee/rectangle-28.svg");
+  background-image: url("assets/selected.png");
   background-size: 100% 100%;
   overflow: hidden;
   z-index: 0;
@@ -301,8 +301,6 @@
   height: 58px;
   top: -5px;
   left: 9.7px;
-  background-image: url("https://raw.githubusercontent.com/Pacific1a/img/8b90f6c37d5e886868f770ce9ad4325333934d48/gamee/rectangle-29.svg");
-  background-size: 100% 100%;
 }
 
 .game .vector {
@@ -367,13 +365,6 @@
   line-height: normal;
 }
 
-.game .no-selected {
-  position: relative;
-  width: 108px;
-  height: 62px;
-  background-image: url("https://raw.githubusercontent.com/Pacific1a/img/8b90f6c37d5e886868f770ce9ad4325333934d48/gamee/rectangle-28-1.svg");
-  background-size: 100% 100%;
-}
 
 .game .overlap-group-2 {
   position: relative;
@@ -443,7 +434,7 @@
   width: 158px;
   height: 110px;
   border-radius: 15px;
-  background-image: url("https://github.com/Pacific1a/img/blob/main/gamee/mask-group.png?raw=true");
+  background-image: url("assets/crash.png");
   background-size: cover;
   background-position: 50% 50%;
 }
@@ -483,7 +474,7 @@
   width: 158px;
   height: 110px;
   border-radius: 15px;
-  background-image: url("https://github.com/Pacific1a/img/blob/main/gamee/rooll.png?raw=true");
+  background-image: url("assets/roll.png");
   background-size: cover;
   background-position: 50% 50%;
 }
@@ -494,7 +485,7 @@
   width: 160px;
   height: 120px;
   margin-right: -2.00px;
-  background-image: url("https://github.com/Pacific1a/img/blob/main/gamee/mask-group-2.png?raw=true");
+  background-image: url("assets/speedcash.png");
   background-size: cover;
   background-position: 50% 50%;
 }
