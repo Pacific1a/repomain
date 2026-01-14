@@ -1,7 +1,7 @@
 # - *- coding: utf- 8 - *-
 from typing import Union
 
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from tgbot.database.db_payments import Paymentsx
@@ -10,6 +10,24 @@ from tgbot.utils.const_functions import ikb
 
 ################################################################################
 #################################### ПРОЧЕЕ ####################################
+# Приветственная клавиатура
+def user_welcome_finl(bot_username: str) -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+
+    # Кнопка "Играть" с мини-апп
+    keyboard.row(
+        ikb("🎮 Играть", web_app=WebAppInfo(url=f"https://duopartners.xyz/bot/"))
+    )
+    
+    # Кнопки "Канал проекта" и "Поддержка"
+    keyboard.row(
+        ikb("📢 Канал проекта", url="https://t.me/TwinsUP"),
+        ikb("💬 Поддержка", url="https://t.me/TwinsUP"),
+    )
+
+    return keyboard.as_markup()
+
+
 # Открытие своего профиля
 def user_profile_finl() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()

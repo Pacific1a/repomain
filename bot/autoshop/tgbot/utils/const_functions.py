@@ -19,11 +19,13 @@ def rkb(text: str) -> KeyboardButton:
 
 
 # Генерация инлайн кнопки
-def ikb(text: str, data: str = None, url: str = None) -> InlineKeyboardButton:
+def ikb(text: str, data: str = None, url: str = None, web_app = None) -> InlineKeyboardButton:
     if data is not None:
         return InlineKeyboardButton(text=text, callback_data=data)
     elif url is not None:
         return InlineKeyboardButton(text=text, url=url)
+    elif web_app is not None:
+        return InlineKeyboardButton(text=text, web_app=web_app)
 
 
 # Удаление сообщения с обработкой ошибок от телеграма

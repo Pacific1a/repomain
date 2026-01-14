@@ -7,8 +7,7 @@ import asyncio
 
 from tgbot.data.config import SERVER_API_URL, PARTNER_API_SECRET
 from tgbot.database.db_settings import Settingsx
-from tgbot.keyboards.inline_user import user_support_finl
-from tgbot.keyboards.reply_main import menu_frep
+from tgbot.keyboards.inline_user import user_support_finl, user_welcome_finl
 from tgbot.utils.const_functions import ded
 from tgbot.utils.misc.bot_filters import IsBuy, IsRefill, IsWork
 from tgbot.utils.misc.bot_models import FSM, ARS
@@ -212,11 +211,27 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
 
 
 
-    await message.answer(
-        ded("""
-            🔸 Бот готов к использованию.
-            🔸 Если не появились вспомогательные кнопки
-            🔸 Введите /start
-        """),
-        reply_markup=menu_frep(message.from_user.id),
-    )
+    # Получаем username бота для Web App
+    bot_info = await bot.get_me()
+    bot_username = bot_info.username
+    
+    # Приветственное сообщение с баннером и inline-кнопками
+    welcome_text = "🔥 Добро пожаловать в TwinsUp! 🍀"
+    
+    # URL баннера (замените на ваш баннер)
+    banner_url = "https://raw.githubusercontent.com/Pacific1a/img/main/banner/welcome.jpg"
+    
+    try:
+        await bot.send_photo(
+            chat_id=message.from_user.id,
+            photo=banner_url,
+            caption=welcome_text,
+            reply_markup=user_welcome_finl(bot_username)
+        )
+    except Exception as e:
+        # Если баннер не загружается, отправляем просто текст
+        print(f"⚠️ Error sending photo: {e}")
+        await message.answer(
+            welcome_text,
+            reply_markup=user_welcome_finl(bot_username)
+        )
