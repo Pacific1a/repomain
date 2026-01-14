@@ -1475,14 +1475,15 @@
 }
 .img-block img{
   width: 100%;
-  /* Четкость для обложек кейсов на Retina дисплеях */
+  /* УБРАЛИ transform - он размывает на мобильных! */
+  /* Принудительная четкость без GPU acceleration */
   image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  /* Принудительная резкость через фильтр */
-  filter: contrast(1.1) brightness(1.05);
-  -webkit-filter: contrast(1.1) brightness(1.05);
+  /* Резкость через фильтр */
+  filter: contrast(1.15) saturate(1.1);
+  -webkit-filter: contrast(1.15) saturate(1.1);
 }
 
 .content-window-item{
