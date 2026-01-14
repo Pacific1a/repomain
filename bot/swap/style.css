@@ -441,24 +441,11 @@
   height: 26px;
 }
 
-.swap .ellipse-3 {
-  position: absolute;
-  width: 23px;
-  height: 23px;
-  top: 0;
-  left: 0;
-  background-color: #292626;
-  border-radius: 11.5px;
-  box-shadow:
-    0px 1px 2px #2825250d, 0px 4px 4px #2825250a, 0px 9px 6px #28252508, 0px 17px 7px #28252503, 0px 26px 7px transparent;
-}
-
 .swap .icon-2 {
   position: absolute;
   width: 25px;
   height: 24px;
-  top: 2px;
-  left: 1px;
+  left: -5px;
 }
 
 .swap .text-wrapper-8 {
