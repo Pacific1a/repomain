@@ -14,15 +14,15 @@ from tgbot.utils.const_functions import ikb
 def user_welcome_finl(bot_username: str) -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
 
-    # Кнопка "Играть" с мини-апп
+    # Все кнопки на всю ширину (каждая на отдельной строке)
     keyboard.row(
         ikb("🎮 Играть", web_app=WebAppInfo(url=f"https://duopartners.xyz/bot/"))
     )
-    
-    # Кнопки "Канал проекта" и "Поддержка"
     keyboard.row(
-        ikb("📢 Канал проекта", url="https://t.me/TwinsUP"),
-        ikb("💬 Поддержка", url="https://t.me/TwinsUP"),
+        ikb("📢 Канал проекта", url="https://t.me/TwinsUP")
+    )
+    keyboard.row(
+        ikb("💬 Поддержка", url="https://t.me/TwinsUP")
     )
 
     return keyboard.as_markup()
