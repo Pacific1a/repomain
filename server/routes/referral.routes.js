@@ -334,12 +334,34 @@ router.post('/withdraw', async (req, res) => {
             [amount, userId]
         );
         
+        // Обнуляем total_earnings у всех рефералов этого партнёра (визуально красиво)
+        await db.runAsync(
+            'UPDATE referrals SET total_earnings = 0 WHERE partner_id = ?',
+            [userId]
+        );
+        console.log(`✅ Reset total_earnings for all referrals of partner ${userId}`);
+        
         // Add to main balance (via bot database)
         const sqlite3 = require('sqlite3').verbose();
         const path = require('path');
         const botDbPath = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
         const botDb = new sqlite3.Database(botDbPath);
         
+        // Получаем текущий баланс
+        const currentBalance = await new Promise((resolve, reject) => {
+            botDb.get(
+                'SELECT user_balance FROM storage_users WHERE user_id = ?',
+                [userId],
+                (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row ? row.user_balance : 0);
+                }
+            );
+        });
+        
+        const newBalance = currentBalance + amountToAdd;
+        
+        // Обновляем баланс
         await new Promise((resolve, reject) => {
             botDb.run(
                 'UPDATE storage_users SET user_balance = user_balance + ? WHERE user_id = ?',
@@ -352,6 +374,8 @@ router.post('/withdraw', async (req, res) => {
         });
         
         botDb.close();
+        
+        console.log(`✅ Balance updated: ${currentBalance}₽ + ${amountToAdd}₽ = ${newBalance}₽`);
         
         console.log(`✅ Withdrawal: user=${userId}, amount=${amount}₽, commission=${commission}₽, added=${amountToAdd}₽`);
         

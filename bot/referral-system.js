@@ -276,22 +276,32 @@
                     
                     // Обновляем реферальный баланс
                     this.referralBalance = 0;
+                    
+                    // Обнуляем Your Profit у всех рефералов (визуально красиво)
+                    this.referrals.forEach(ref => {
+                        ref.totalEarnings = 0;
+                    });
+                    
+                    // Обновляем UI с обнулёнными earnings
                     this.updateUI();
                     
                     // КРИТИЧНО: Обновляем основной баланс
                     if (window.BalanceAPI) {
                         console.log('🔄 Загружаем обновлённый баланс...');
+                        const oldBalance = window.BalanceAPI.getRubles();
+                        
                         await window.BalanceAPI.loadBalance();
                         
                         // Дополнительно обновляем визуал
                         window.BalanceAPI.updateVisual();
                         
-                        console.log(`✅ Баланс обновлён: ${window.BalanceAPI.getRubles()}₽`);
+                        const newBalance = window.BalanceAPI.getRubles();
+                        console.log(`✅ Баланс обновлён: ${oldBalance}₽ → ${newBalance}₽ (+${amountToWithdraw.toFixed(2)}₽)`);
                     }
                     
                     // Показываем уведомление с задержкой (чтобы баланс обновился)
                     setTimeout(() => {
-                        this.showNotification(`Выведено ${amountToWithdraw.toFixed(2)}₽ на основной баланс`);
+                        this.showNotification(`✅ Выведено ${amountToWithdraw.toFixed(2)}₽ на основной баланс`);
                     }, 500);
                 } else {
                     const error = await response.json();
