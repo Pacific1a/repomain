@@ -162,7 +162,7 @@ router.get('/:userId', async (req, res) => {
             balance: stats.balance || 0,
             totalReferrals: stats.total_referrals || 0,
             totalDeposits: stats.total_deposits || 0,
-            totalEarnings: stats.total_earnings || 0,
+            totalEarnings: stats.earnings || 0,  // ✅ ИСПРАВЛЕНО: earnings вместо total_earnings
             referrals: referrals || []
         });
     } catch (error) {
