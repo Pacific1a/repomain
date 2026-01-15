@@ -231,18 +231,34 @@
                 return;
             }
             
-            // Рассчитываем комиссию 5%
-            const commission = this.referralBalance * 0.05;
+            // Рассчитываем комиссию 10%
+            const commission = this.referralBalance * 0.10;
             const amountToWithdraw = this.referralBalance - commission;
             
-            // Подтверждение
-            const confirmed = confirm(
-                `Вывести ${this.referralBalance.toFixed(2)}₽?\n` +
-                `Комиссия 5%: ${commission.toFixed(2)}₽\n` +
-                `Вы получите: ${amountToWithdraw.toFixed(2)}₽`
-            );
-            
-            if (!confirmed) return;
+            // Подтверждение с правильным заголовком
+            if (window.Telegram?.WebApp) {
+                const confirmed = await new Promise((resolve) => {
+                    window.Telegram.WebApp.showPopup({
+                        title: 'TwinsUp',
+                        message: `Вывести ${this.referralBalance.toFixed(2)}₽?\n\nКомиссия 10%: ${commission.toFixed(2)}₽\nВы получите: ${amountToWithdraw.toFixed(2)}₽`,
+                        buttons: [
+                            { id: 'cancel', type: 'cancel' },
+                            { id: 'confirm', type: 'ok', text: 'Вывести' }
+                        ]
+                    }, (buttonId) => {
+                        resolve(buttonId === 'confirm');
+                    });
+                });
+                if (!confirmed) return;
+            } else {
+                // Fallback для браузера
+                const confirmed = confirm(
+                    `Вывести ${this.referralBalance.toFixed(2)}₽?\n` +
+                    `Комиссия 10%: ${commission.toFixed(2)}₽\n` +
+                    `Вы получите: ${amountToWithdraw.toFixed(2)}₽`
+                );
+                if (!confirmed) return;
+            }
             
             try {
                 const response = await fetch(`${SERVER_URL}/api/referral/withdraw`, {
