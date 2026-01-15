@@ -2,6 +2,10 @@
 (function() {
   'use strict';
 
+  // ⚠️ ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ загрузки изображений призов с GitHub
+  // Установите false чтобы отключить загрузку изображений
+  const ENABLE_PRIZE_IMAGES = false;
+
   const CASE_CONFIG = {
     // Кейсы за рубли
     279: [50, 100, 150, 200, 250, 300, 350, 400, 500, 700, 777, 888, 1500],
@@ -78,6 +82,17 @@
 
   // Функция для получения путей к изображениям с учетом рандомного цвета
   function getPrizeImages(prize, isChips = false) {
+    // ⚠️ ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ: не загружаем изображения с GitHub
+    if (!ENABLE_PRIZE_IMAGES) {
+      console.log('⚠️ Prize images loading is disabled');
+      return {
+        spin: '',
+        preview: '',
+        win: '',
+        color: 'gray'
+      };
+    }
+    
     const color = getRandomColor(prize, isChips);
     
     if (isChips) {
