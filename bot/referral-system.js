@@ -278,35 +278,49 @@
                     this.referralBalance = 0;
                     
                     // 2. МОМЕНТАЛЬНО обнуляем Your Profit у всех рефералов
-                    this.referrals.forEach(ref => {
+                    console.log(`🔄 Обнуляем earnings у ${this.referrals.length} рефералов...`);
+                    this.referrals.forEach((ref, index) => {
+                        console.log(`   Реферал #${index+1}: ${ref.referral_user_id || ref.userId}, earnings: ${ref.totalEarnings}₽ → 0₽`);
                         ref.totalEarnings = 0;
                     });
                     
-                    // 3. Обновляем UI реферальной системы
+                    // 3. Обновляем UI реферальной системы (с обнулёнными earnings)
                     this.updateUI();
                     console.log('✅ Referral balance и Your Profit обнулены моментально');
+                    console.log('📊 После обнуления:', this.referrals.map(r => `${r.userId}: ${r.totalEarnings}₽`));
                     
-                    // 4. КРИТИЧНО: Перезагружаем основной баланс с сервера
+                    // 4. КРИТИЧНО: Обновляем основной баланс НАПРЯМУЮ
                     if (window.BalanceAPI) {
                         const oldBalance = window.BalanceAPI.getRubles();
+                        const newBalance = oldBalance + amountToWithdraw;
                         
-                        // Отключаем автоматические перезагрузки на время
-                        const wasAutoReloading = window.BalanceAPI._preventAutoReload || false;
-                        window.BalanceAPI._preventAutoReload = true;
-                        
-                        // Загружаем баланс с сервера (там уже обновлённый)
-                        await window.BalanceAPI.loadBalance();
-                        
-                        // Возвращаем автоперезагрузку
-                        setTimeout(() => {
-                            window.BalanceAPI._preventAutoReload = wasAutoReloading;
-                        }, 5000);
-                        
-                        const newBalance = window.BalanceAPI.getRubles();
-                        console.log(`✅ Баланс обновлён с сервера: ${oldBalance.toFixed(2)}₽ → ${newBalance.toFixed(2)}₽`);
-                        
-                        // Принудительно обновляем визуал
+                        // Устанавливаем новый баланс БЕЗ загрузки с сервера
+                        window.BalanceAPI.balance.rubles = newBalance;
                         window.BalanceAPI.updateVisual();
+                        
+                        console.log(`✅ Баланс обновлён: ${oldBalance.toFixed(2)}₽ + ${amountToWithdraw.toFixed(2)}₽ = ${newBalance.toFixed(2)}₽`);
+                        console.log('⚠️ Баланс установлен ЛОКАЛЬНО - НЕ перезагружается с сервера');
+                        
+                        // Через 3 секунды тихо синхронизируем с сервером (без визуала)
+                        setTimeout(async () => {
+                            try {
+                                const response = await fetch(`${SERVER_URL}/api/balance/${this.telegramId}`);
+                                if (response.ok) {
+                                    const serverData = await response.json();
+                                    const serverBalance = parseFloat(serverData.rubles) || 0;
+                                    console.log(`🔄 Синхронизация с сервером: локально=${newBalance}₽, сервер=${serverBalance}₽`);
+                                    
+                                    // Если на сервере другой баланс - НЕ обновляем (чтобы не было скачков)
+                                    if (Math.abs(serverBalance - newBalance) < 0.01) {
+                                        console.log('✅ Баланс синхронизирован');
+                                    } else {
+                                        console.warn('⚠️ Расхождение с сервером - пропускаем обновление');
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('⚠️ Ошибка синхронизации:', e);
+                            }
+                        }, 3000);
                     }
                     
                     // 5. Показываем уведомление
