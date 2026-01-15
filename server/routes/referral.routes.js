@@ -379,20 +379,10 @@ router.post('/withdraw', async (req, res) => {
         
         console.log(`✅ Withdrawal: user=${userId}, amount=${amount}₽, commission=${commission}₽, added=${amountToAdd}₽`);
         
-        // Отправляем WebSocket событие для обновления баланса
-        const io = require('../server').io;
-        if (io) {
-            io.emit(`balance_updated_${userId}`, {
-                telegramId: userId,
-                rubles: amountToAdd,
-                action: 'referral_withdrawal'
-            });
-            io.emit('balance_updated', {
-                telegramId: userId,
-                action: 'referral_withdrawal'
-            });
-            console.log(`📡 WebSocket event sent: balance_updated_${userId}`);
-        }
+        // ⚠️ НЕ ОТПРАВЛЯЕМ WebSocket событие!
+        // Клиент сам обновит баланс локально, чтобы не было перезаписи
+        // WebSocket отправлял только amountToAdd, что перезаписывало полный баланс на эту сумму
+        console.log('⚠️ WebSocket event НЕ отправлен - клиент обновит баланс локально');
         
         res.json({
             success: true,
