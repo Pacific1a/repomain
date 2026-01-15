@@ -235,7 +235,7 @@
     position: relative;
     justify-content: center;
     height: inherit;
-    gap: 5px;
+    gap: 0px;
     flex: 0 0 auto;
 }
 
