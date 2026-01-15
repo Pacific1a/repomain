@@ -231,6 +231,13 @@
 
   function applyFilter(type){
     if (!caseCards.length) return;
+    
+    // Сбрасываем анимацию для всех карточек
+    caseCards.forEach(card => {
+      card.style.animation = 'none';
+      card.offsetHeight; // trigger reflow
+    });
+    
     switch(type){
       case 'low':
         sortCardsAsc();
@@ -261,6 +268,15 @@
         restoreOriginalOrder();
         break;
     }
+    
+    // Запускаем анимацию снова для видимых карточек
+    requestAnimationFrame(() => {
+      caseCards.forEach(card => {
+        if (card.style.display !== 'none') {
+          card.style.animation = '';
+        }
+      });
+    });
   }
 
   function bindFilters(){

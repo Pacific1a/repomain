@@ -198,6 +198,7 @@
       card
     };
 
+    const modalOverlay = document.querySelector('.modal-overlay');
     const modal = document.querySelector('.modal-window');
     const caseLoader = document.getElementById('case-loader');
     const modalContent = modal.querySelector('.modal-window-content');
@@ -207,7 +208,9 @@
     const winWindow = modal.querySelector('.win-window');
     
     // ОТКРЫВАЕМ МОДАЛКУ В РЕЖИМЕ ЗАГРУЗКИ (компактная)
-    modal.classList.add('loading-state');
+    if (modalOverlay) {
+      modalOverlay.classList.add('loading-state');
+    }
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     
@@ -258,7 +261,9 @@
     // ЧЕРЕЗ 1.5 СЕК: скрываем loader и показываем контент
     setTimeout(() => {
       // Убираем режим загрузки (модалка растянется под контент)
-      modal.classList.remove('loading-state');
+      if (modalOverlay) {
+        modalOverlay.classList.remove('loading-state');
+      }
       
       // Скрываем loader
       if (caseLoader) {

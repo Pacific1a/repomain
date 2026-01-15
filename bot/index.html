@@ -526,21 +526,21 @@ button {
   flex-direction: column;
 }
 
-/* Модалка компактная во время загрузки */
-.modal-window.loading-state {
+/* Модалка компактная во время загрузки - только окно, не содержимое! */
+.modal-overlay.loading-state .modal-window {
   height: 305px !important;
   max-height: 305px !important;
   overflow: hidden !important;
   transition: height 0.4s ease, max-height 0.4s ease;
 }
 
-.modal-window.loading-state .modal-window-content {
+.modal-overlay.loading-state .modal-window-content {
   opacity: 0 !important;
   visibility: hidden !important;
 }
 
-/* После загрузки - полная высота */
-.modal-window:not(.loading-state) {
+/* После загрузки - полная высота окна */
+.modal-overlay:not(.loading-state) .modal-window {
   height: calc(100% - 80px) !important;
   max-height: calc(100% - 80px) !important;
   transition: height 0.4s ease, max-height 0.4s ease;
