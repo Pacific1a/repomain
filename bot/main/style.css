@@ -398,13 +398,10 @@
   /* МАКСИМАЛЬНО ЯРКИЙ БЕЛЫЙ для активной точки */
   background-color: #ffffff !important;
   border-radius: 3px;
-  /* ОЧЕНЬ СИЛЬНОЕ свечение - видно на всех баннерах! */
-  box-shadow: 
-    0 0 12px 4px rgba(255, 255, 255, 1),
-    0 0 8px 2px rgba(255, 255, 255, 0.9),
-    0 0 4px 1px rgba(255, 255, 255, 0.8) !important;
+  /* Умеренное свечение - строго и выражено */
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8) !important;
   /* Немного больше для выделения */
-  transform: scale(1.15) !important;
+  transform: scale(1.1) !important;
   transition: all 0.3s ease !important;
 }
 
@@ -1485,8 +1482,7 @@
   z-index: 10;
 }
 .crown{
-  outline: 1px solid #FFD865;
-  outline-offset: -1px;
+  outline: 2px solid #FFD865;
   border-radius: 12px;
 }
 .col-red{

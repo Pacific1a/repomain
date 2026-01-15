@@ -54,9 +54,9 @@
             font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
             font-weight: 600;
             color: #ffffff;
-            font-size: 22px;
+            font-size: 18px;
             text-align: center;
-            letter-spacing: 0.9px;
+            letter-spacing: 0;
             line-height: normal;
             margin: 0;
             overflow: visible !important;
@@ -122,7 +122,7 @@
       
       /* Последняя фаза успешной аутентификации - меньший шрифт */
       #page-preloader .authentication .auth-success {
-        font-size: 13px !important;
+        font-size: 16px !important;
         color: #4ade80 !important;
         letter-spacing: -0.65px;
       }
@@ -1216,27 +1216,24 @@ button {
                   progressBar.style.width = `${visualPercent}%`;
                 }
                 
-                // Обновляем текст статуса загрузки (ТОЛЬКО 3 ФРАЗЫ!)
+                // Обновляем текст статуса загрузки (3 ФРАЗЫ с правильными порогами!)
                 const authStatus = document.getElementById('auth-status');
-                if (visualPercent >= 100) {
+                if (visualPercent >= 85) {
+                  // Финальная фаза
                   statusElement.textContent = 'Launching app...';
                   if (authStatus) {
                     authStatus.className = 'auth auth-success';
                     authStatus.textContent = 'Authentication successful';
                   }
-                } else if (visualPercent >= 66) {
-                  statusElement.textContent = 'Almost ready...';
-                  if (authStatus) {
-                    authStatus.className = 'auth';
-                    authStatus.textContent = 'Loading info';
-                  }
-                } else if (visualPercent >= 33) {
+                } else if (visualPercent >= 40) {
+                  // Средняя фаза (40-85%)
                   statusElement.textContent = 'Loading...';
                   if (authStatus) {
                     authStatus.className = 'auth';
                     authStatus.textContent = 'Loading info';
                   }
                 } else {
+                  // Начальная фаза (0-40%)
                   statusElement.textContent = 'Initializing...';
                   if (authStatus) {
                     authStatus.className = 'auth';
