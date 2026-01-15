@@ -1231,8 +1231,10 @@ button {
                 
                 // Обновляем текст статуса загрузки (3 ФРАЗЫ с правильными порогами!)
                 const authStatus = document.getElementById('auth-status');
+                
+                // ВСЕГДА обновляем текст в зависимости от процента
                 if (visualPercent >= 85) {
-                  // Финальная фаза
+                  // Финальная фаза (85-100%)
                   statusElement.textContent = 'Launching app...';
                   if (authStatus) {
                     authStatus.className = 'auth auth-success';
@@ -1253,6 +1255,9 @@ button {
                     authStatus.textContent = 'Connecting to Telegram';
                   }
                 }
+                
+                // Логируем для отладки (можно убрать потом)
+                console.log(`Loader: ${visualPercent}% - "${authStatus?.textContent}"`);
               }
             });
           } catch (e) {
