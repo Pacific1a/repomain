@@ -94,21 +94,6 @@ class SmoothCyclicalConveyor {
             .smooth-prize img:hover {
                 filter: brightness(1.1) saturate(1.1);
             }
-            
-            .circle {
-                animation: pulse 2s infinite;
-            }
-            
-            @keyframes pulse {
-                0%, 100% { 
-                    opacity: 1; 
-                    transform: scale(1); 
-                }
-                50% { 
-                    opacity: 0.7; 
-                    transform: scale(1.2); 
-                }
-            }
         `;
         document.head.appendChild(style);
     }

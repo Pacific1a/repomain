@@ -229,13 +229,13 @@
 }
 
 .main .frame {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  align-self: stretch;
-  flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    position: relative;
+    height: inherit;
+    flex: 0 0 auto;
 }
 
 .main .text-wrapper-5 {
@@ -260,8 +260,7 @@
   background-color: #ff3e45;
   border-radius: 2px;
   box-shadow: -0.3px 0.3px 0px #ab2a2e;
-  /* Увеличен отступ для телефона - на ПК норм, на телефоне прилипала */
-  margin-left: 12px;
+  margin-left: 2px;
 }
 
 .main .img-2 {

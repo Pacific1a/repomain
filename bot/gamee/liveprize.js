@@ -95,9 +95,6 @@ class SmoothCyclicalConveyor {
                 filter: brightness(1.1) saturate(1.1);
             }
             
-            .circle {
-                animation: pulse 2s infinite;
-            }
             
             @keyframes pulse {
                 0%, 100% { 

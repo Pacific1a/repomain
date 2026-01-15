@@ -131,21 +131,6 @@ class RealtimeLivePrizes {
                 }
             }
             
-            .circle {
-                animation: pulse 2s infinite;
-            }
-            
-            @keyframes pulse {
-                0%, 100% { 
-                    opacity: 1; 
-                    transform: scale(1); 
-                }
-                50% { 
-                    opacity: 0.7; 
-                    transform: scale(1.2); 
-                }
-            }
-            
             /* Статус подключения */
             .ws-status {
                 position: absolute;
