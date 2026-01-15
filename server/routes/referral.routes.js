@@ -296,4 +296,78 @@ router.get('/sub-partners/list', jwtAuth, async (req, res) => {
     }
 });
 
+/**
+ * POST /api/referral/withdraw
+ * Withdraw referral earnings to main balance
+ */
+router.post('/withdraw', async (req, res) => {
+    try {
+        const { userId, amount } = req.body;
+        
+        console.log(`📥 /api/referral/withdraw: userId=${userId}, amount=${amount}`);
+        
+        if (!userId || !amount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing userId or amount'
+            });
+        }
+        
+        // Get user stats
+        const stats = await ReferralService.getOrCreateReferralStats(userId);
+        
+        if (stats.earnings < amount) {
+            return res.status(400).json({
+                success: false,
+                message: 'Недостаточно средств'
+            });
+        }
+        
+        // Calculate commission (10%)
+        const commission = amount * 0.10;
+        const amountToAdd = amount - commission;
+        
+        // Deduct from referral earnings
+        const db = require('../config/database').db;
+        await db.runAsync(
+            'UPDATE referral_stats SET earnings = earnings - ? WHERE user_id = ?',
+            [amount, userId]
+        );
+        
+        // Add to main balance (via bot database)
+        const sqlite3 = require('sqlite3').verbose();
+        const path = require('path');
+        const botDbPath = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
+        const botDb = new sqlite3.Database(botDbPath);
+        
+        await new Promise((resolve, reject) => {
+            botDb.run(
+                'UPDATE storage_users SET user_balance = user_balance + ? WHERE user_id = ?',
+                [amountToAdd, userId],
+                (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                }
+            );
+        });
+        
+        botDb.close();
+        
+        console.log(`✅ Withdrawal: user=${userId}, amount=${amount}₽, commission=${commission}₽, added=${amountToAdd}₽`);
+        
+        res.json({
+            success: true,
+            message: `Выведено ${amountToAdd.toFixed(2)}₽ на основной баланс`,
+            amount: amountToAdd,
+            commission
+        });
+    } catch (error) {
+        console.error('❌ /api/referral/withdraw error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
 module.exports = router;
