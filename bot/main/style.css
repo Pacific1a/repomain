@@ -504,6 +504,11 @@
   transform: scale(1.05);
 }
 
+/* Клик - анимация нажатия */
+.main .section-menu > *:not(.select-filter):active {
+  transform: scale(0.95);
+}
+
 /* Активное состояние фильтра */
 .main .section-menu > *.active .text-wrapper-9,
 .main .section-menu > *.active .text-wrapper-10,
