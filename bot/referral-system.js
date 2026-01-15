@@ -95,19 +95,19 @@
                 if (response.ok) {
                     const data = await response.json();
                     this.referralCode = data.referralCode;
-                    // Referral balance = ОБЩАЯ СУММА ДЕПОЗИТОВ всех рефералов
-                    this.referralBalance = data.totalDeposits || 0;
-                    // Заработок партнера (10% от депозитов)
-                    this.earnings = data.totalEarnings || 0;
+                    // Referral balance = ЗАРАБОТОК ПАРТНЕРА (10% от всех депозитов)
+                    this.referralBalance = data.totalEarnings || 0;
+                    // Общая сумма депозитов всех рефералов
+                    this.totalDeposits = data.totalDeposits || 0;
                     this.referrals = data.referrals || [];
                     
                     console.log('📊 Реферальные данные:', data);
-                    console.log(`💰 Referral balance (сумма депозитов): ${this.referralBalance}₽`);
-                    console.log(`💵 Earnings (10% заработок): ${this.earnings}₽`);
+                    console.log(`💰 Referral balance (ЗАРАБОТОК партнера): ${this.referralBalance}₽`);
+                    console.log(`💵 Total deposits (сумма депозитов рефералов): ${this.totalDeposits}₽`);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
-                    // 🔄 ПРИНУДИТЕЛЬНО перегенерируем ссылку (на случай смены бота)
-                    this.generateReferralLink();
+                    // 🔄 Генерируем ссылку БЕЗ уведомления (тихо)
+                    this.generateReferralLink(true);
                     
                     // Загружаем данные пользователей через Telegram Bot API
                     if (this.referrals.length > 0) {
@@ -166,7 +166,7 @@
             console.log('✅ UI initialized');
         }
         
-        generateReferralLink() {
+        generateReferralLink(silent = false) {
             if (!this.referralCode) {
                 this.referralCode = this.telegramId;
             }
@@ -185,19 +185,23 @@
             }
             
             console.log('🔗 Реферальная ссылка:', this.referralLink, 'код:', shortCode);
-            this.showNotification('Ссылка создана! Нажмите "Copy" для копирования');
+            
+            // Показываем уведомление только если НЕ silent режим
+            if (!silent) {
+                this.showNotification('Ссылка создана! Нажмите "Copy" для копирования');
+            }
         }
 
         async copyReferralLink() {
             if (!this.referralLink) {
-                this.generateReferralLink();
+                this.generateReferralLink(false); // Показываем уведомление при ручной генерации
                 return;
             }
             
             try {
                 // Копируем в буфер обмена
                 await navigator.clipboard.writeText(this.referralLink);
-                this.showNotification('Ссылка скопирована');
+                // ⚠️ УБРАЛИ УВЕДОМЛЕНИЕ при копировании
                 console.log('✅ Ссылка скопирована');
             } catch (error) {
                 // Fallback для Telegram WebApp
@@ -215,7 +219,7 @@
                     input.select();
                     document.execCommand('copy');
                     document.body.removeChild(input);
-                    this.showNotification('Ссылка скопирована');
+                    // ⚠️ УБРАЛИ УВЕДОМЛЕНИЕ
                 }
                 console.log('✅ Ссылка скопирована (fallback)');
             }
