@@ -115,7 +115,7 @@
         font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
         font-weight: 500;
         color: #c5c5c5;
-        font-size: 15px;
+        font-size: 13px;
         text-align: center;
         line-height: normal;
         margin: 0;
@@ -1198,7 +1198,7 @@ button {
                   progressBar.style.width = `${visualPercent}%`;
                 }
                 
-                // Обновляем текст статуса загрузки
+                // Обновляем текст статуса загрузки (ТОЛЬКО 3 ФРАЗЫ!)
                 const authStatus = document.getElementById('auth-status');
                 if (visualPercent >= 100) {
                   statusElement.textContent = 'Launching app...';
@@ -1206,29 +1206,23 @@ button {
                     authStatus.className = 'auth auth-success';
                     authStatus.textContent = 'Authentication successful';
                   }
-                } else if (visualPercent >= 75) {
+                } else if (visualPercent >= 66) {
                   statusElement.textContent = 'Almost ready...';
                   if (authStatus) {
                     authStatus.className = 'auth';
-                    authStatus.textContent = 'Loading data...';
+                    authStatus.textContent = 'Loading info';
                   }
-                } else if (visualPercent >= 50) {
-                  statusElement.textContent = 'Loading resources...';
+                } else if (visualPercent >= 33) {
+                  statusElement.textContent = 'Loading...';
                   if (authStatus) {
                     authStatus.className = 'auth';
-                    authStatus.textContent = 'Connecting to Telegram...';
-                  }
-                } else if (visualPercent >= 25) {
-                  statusElement.textContent = 'Loading images...';
-                  if (authStatus) {
-                    authStatus.className = 'auth';
-                    authStatus.textContent = 'Connecting to Telegram...';
+                    authStatus.textContent = 'Loading info';
                   }
                 } else {
                   statusElement.textContent = 'Initializing...';
                   if (authStatus) {
                     authStatus.className = 'auth';
-                    authStatus.textContent = 'Connecting to Telegram...';
+                    authStatus.textContent = 'Connecting to Telegram';
                   }
                 }
               }

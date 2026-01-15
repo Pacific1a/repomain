@@ -243,17 +243,32 @@
 
     modal.querySelector('.open-btn button').disabled = false;
     modal.querySelector('.keep-it').style.display = 'none';
+    
+    // ПЛАВНАЯ ЗАГРУЗКА: сначала показываем модалку с loader
     modal.style.display = 'flex';
+    modal.style.opacity = '0';
     document.body.style.overflow = 'hidden';
     isSpinning = false;
     wonPrize = null;
     
-    // СКРЫВАЕМ LOADER КЕЙСА через 1 секунду (имитация загрузки)
+    // Плавное появление модалки
+    requestAnimationFrame(() => {
+      modal.style.transition = 'opacity 0.3s ease';
+      modal.style.opacity = '1';
+    });
+    
+    // СКРЫВАЕМ LOADER КЕЙСА через 1.5 секунды (имитация загрузки данных)
     setTimeout(() => {
       if (caseLoader) {
-        caseLoader.classList.remove('active');
+        caseLoader.style.transition = 'opacity 0.4s ease';
+        caseLoader.style.opacity = '0';
+        
+        setTimeout(() => {
+          caseLoader.classList.remove('active');
+          caseLoader.style.opacity = '1'; // Возвращаем для следующего раза
+        }, 400);
       }
-    }, 1000);
+    }, 1500);
   }
 
   function populateSpinItems(container, prizes) {
