@@ -528,13 +528,22 @@ button {
 
 /* Модалка компактная во время загрузки */
 .modal-window.loading-state {
-  min-height: 300px !important;
-  height: auto !important;
+  height: 305px !important;
+  max-height: 305px !important;
+  overflow: hidden !important;
+  transition: height 0.4s ease, max-height 0.4s ease;
 }
 
 .modal-window.loading-state .modal-window-content {
   opacity: 0 !important;
   visibility: hidden !important;
+}
+
+/* После загрузки - полная высота */
+.modal-window:not(.loading-state) {
+  height: calc(100% - 80px) !important;
+  max-height: calc(100% - 80px) !important;
+  transition: height 0.4s ease, max-height 0.4s ease;
 }
 
 .case-loader.active {
