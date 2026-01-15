@@ -1457,11 +1457,9 @@
   z-index: 10;
 }
 .crown{
-  /* Изменено: border вместо outline для корректного скругления */
-  border: 1px solid #FFD865;
-  border-radius: 18px;
-  /* Компенсация border чтобы размер не изменился */
-  box-sizing: border-box;
+  outline: 1px solid #FFD865;
+  outline-offset: -1px;
+  border-radius: 12px;
 }
 .col-red{
   background: linear-gradient(90deg, #CA3959 0%, #CA3959 100%)!important;
@@ -1549,9 +1547,6 @@
   z-index: 100 !important;
   pointer-events: none;
   object-fit: contain !important;
-  /* Скругление углов индикатора */
-  border-radius: 4px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* Виньетка под цвет модального окна - плавный переход */
