@@ -121,6 +121,13 @@
         margin: 0;
       }
       
+      /* Последняя фаза успешной аутентификации - меньший шрифт */
+      #page-preloader .authentication .auth-success {
+        font-size: 13px !important;
+        color: #4ade80 !important;
+        letter-spacing: -0.65px;
+      }
+      
       #page-preloader .bot {
         position: relative;
         width: 298px;
@@ -507,6 +514,56 @@ button {
   transition: opacity 0.3s ease;
 }
 
+/* === LOADER ДЛЯ КЕЙСА === */
+.case-loader {
+  display: none; /* По умолчанию скрыт */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(21, 20, 20, 0.98);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.case-loader.active {
+  display: flex !important;
+}
+
+.case-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.case-loader-spinner {
+  width: 50px;
+  height: 50px;
+}
+
+.spinner-icon {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.case-loader-text {
+  font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: -0.80px;
+  margin: 0;
+}
+
     </style>
   </head>
   <body>
@@ -550,7 +607,7 @@ button {
           </svg>
         </div>
         <p class="authentication">
-         <span class="auth">Authentication succesful</span>
+         <span class="auth" id="auth-status">Connecting to Telegram...</span>
         </p>
         <div class="bot">
           <div class="text-wrapper-3">@TestingForaGeyBot</div>
@@ -1134,22 +1191,45 @@ button {
               fallbackTimeout: 30000,
               baseUrl: window.location.href,
               onProgress: ({ percent }) => {
-                // Плавная визуализация для красоты
+                // Плавная визуализация для красоты с фейковыми этапами
                 const visualPercent = Math.min(100, Math.max(0, percent));
                 progressElement.textContent = `${Math.round(visualPercent)}%`;
                 if (progressBar) {
                   progressBar.style.width = `${visualPercent}%`;
                 }
+                
+                // Обновляем текст статуса загрузки
+                const authStatus = document.getElementById('auth-status');
                 if (visualPercent >= 100) {
                   statusElement.textContent = 'Launching app...';
+                  if (authStatus) {
+                    authStatus.className = 'auth auth-success';
+                    authStatus.textContent = 'Authentication successful';
+                  }
                 } else if (visualPercent >= 75) {
                   statusElement.textContent = 'Almost ready...';
+                  if (authStatus) {
+                    authStatus.className = 'auth';
+                    authStatus.textContent = 'Loading data...';
+                  }
                 } else if (visualPercent >= 50) {
                   statusElement.textContent = 'Loading resources...';
+                  if (authStatus) {
+                    authStatus.className = 'auth';
+                    authStatus.textContent = 'Connecting to Telegram...';
+                  }
                 } else if (visualPercent >= 25) {
                   statusElement.textContent = 'Loading images...';
+                  if (authStatus) {
+                    authStatus.className = 'auth';
+                    authStatus.textContent = 'Connecting to Telegram...';
+                  }
                 } else {
                   statusElement.textContent = 'Initializing...';
+                  if (authStatus) {
+                    authStatus.className = 'auth';
+                    authStatus.textContent = 'Connecting to Telegram...';
+                  }
                 }
               }
             });

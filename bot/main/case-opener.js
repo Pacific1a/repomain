@@ -199,10 +199,16 @@
     };
 
     const modal = document.querySelector('.modal-window');
+    const caseLoader = document.getElementById('case-loader');
     const titleWindow = modal.querySelector('.title-window span');
     const itemPreview = modal.querySelector('.item-preview-item');
     const contentWindow = modal.querySelector('.content-window-item');
     const winWindow = modal.querySelector('.win-window');
+    
+    // ПОКАЗЫВАЕМ LOADER КЕЙСА
+    if (caseLoader) {
+      caseLoader.classList.add('active');
+    }
 
     if (titleWindow) {
       titleWindow.textContent = caseName;
@@ -241,6 +247,13 @@
     document.body.style.overflow = 'hidden';
     isSpinning = false;
     wonPrize = null;
+    
+    // СКРЫВАЕМ LOADER КЕЙСА через 1 секунду (имитация загрузки)
+    setTimeout(() => {
+      if (caseLoader) {
+        caseLoader.classList.remove('active');
+      }
+    }, 1000);
   }
 
   function populateSpinItems(container, prizes) {

@@ -260,6 +260,8 @@
   background-color: #ff3e45;
   border-radius: 2px;
   box-shadow: -0.3px 0.3px 0px #ab2a2e;
+  /* Отодвинуть от текста "Live" на 8px вместо стандартного gap */
+  margin-left: 8px;
 }
 
 .main .img-2 {
@@ -394,21 +396,29 @@
   height: 6px;
   background-color: #fff5f5;
   border-radius: 3px;
+  /* Яркое свечение для активной точки */
+  box-shadow: 0 0 8px 2px rgba(255, 245, 245, 0.9);
 }
 
 .main .ellipse-5 {
   position: relative;
   width: 6px;
   height: 6px;
-  background-color: #fff5f538;
+  /* Увеличена прозрачность с 0.22 до 0.45 для лучшей видимости */
+  background-color: #fff5f573;
   border-radius: 3px;
+  /* Легкое свечение для неактивных точек */
+  box-shadow: 0 0 4px 1px rgba(255, 245, 245, 0.3);
 }
 .main .ellipse-6 {
   position: relative;
   width: 6px;
   height: 6px;
-  background-color: #fff5f538;
+  /* Увеличена прозрачность с 0.22 до 0.45 для лучшей видимости */
+  background-color: #fff5f573;
   border-radius: 3px;
+  /* Легкое свечение для неактивных точек */
+  box-shadow: 0 0 4px 1px rgba(255, 245, 245, 0.3);
 }
 .MORE-button a{
   display: flex;
@@ -1471,6 +1481,8 @@
   display: flex;
   align-items: center;
   justify-content: end;
+  /* Сдвинуть крестик правее на 3px */
+  padding-right: 3px;
 }
 .img-block{
   width: 100%;
