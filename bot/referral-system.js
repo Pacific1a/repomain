@@ -106,6 +106,9 @@
                     console.log(`💵 Earnings (10% заработок): ${this.earnings}₽`);
                     console.log(`📊 Количество рефералов: ${this.referrals.length}`);
                     
+                    // 🔄 ПРИНУДИТЕЛЬНО перегенерируем ссылку (на случай смены бота)
+                    this.generateReferralLink();
+                    
                     // Загружаем данные пользователей через Telegram Bot API
                     if (this.referrals.length > 0) {
                         await this.loadUserProfiles();
@@ -172,7 +175,7 @@
             const shortCode = parseInt(this.referralCode).toString(36).toUpperCase();
             
             // Генерируем ссылку
-            const botUsername = 'aasasdasdadsddasdbot'; // ИМЯ ВАШЕГО БОТА
+            const botUsername = 'TestingForaGeyBot'; // ИМЯ ВАШЕГО БОТА
             this.referralLink = `https://t.me/${botUsername}?start=${shortCode}`;
             
             // Обновляем текст в кнопке invite-button

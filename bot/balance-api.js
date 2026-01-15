@@ -35,11 +35,12 @@
             // Подключаем WebSocket для обновлений в реальном времени
             this.connectWebSocket();
             
-            // Периодическая синхронизация каждые 30 секунд
-            setInterval(() => this.loadBalance(), 30000);
+            // ⚠️ ОТКЛЮЧЕНА автоперезагрузка - полагаемся на WebSocket
+            // Раньше: setInterval(() => this.loadBalance(), 30000);
+            // Проблема: перезагрузка могла "восстанавливать" баланс после списания
             
             this.isReady = true;
-            console.log('✅ Balance API ready');
+            console.log('✅ Balance API ready (WebSocket mode)');
         }
         
         getTelegramId() {
