@@ -200,16 +200,28 @@
 
     const modal = document.querySelector('.modal-window');
     const caseLoader = document.getElementById('case-loader');
+    const modalContent = modal.querySelector('.modal-window-content');
     const titleWindow = modal.querySelector('.title-window span');
     const itemPreview = modal.querySelector('.item-preview-item');
     const contentWindow = modal.querySelector('.content-window-item');
     const winWindow = modal.querySelector('.win-window');
     
-    // ПОКАЗЫВАЕМ LOADER КЕЙСА
+    // ОТКРЫВАЕМ МОДАЛКУ С LOADER
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // СКРЫВАЕМ ВЕСЬ КОНТЕНТ КЕЙСА
+    if (modalContent) {
+      modalContent.style.opacity = '0';
+      modalContent.style.visibility = 'hidden';
+    }
+    
+    // ПОКАЗЫВАЕМ LOADER
     if (caseLoader) {
       caseLoader.classList.add('active');
     }
-
+    
+    // ПОДГОТАВЛИВАЕМ КОНТЕНТ (пока скрытый)
     if (titleWindow) {
       titleWindow.textContent = caseName;
       titleWindow.setAttribute('style', caseStyle);
@@ -218,16 +230,12 @@
     if (itemPreview) {
       itemPreview.innerHTML = '';
       prizes.forEach(prize => {
-        // ⚠️ ВРЕМЕННО ОТКЛЮЧЕНО: не создаем <img> элементы
-        // Создаем только div контейнеры для ручного наполнения через HTML
         const container = document.createElement('div');
         container.className = 'prize-preview-container';
         container.setAttribute('data-prize', prize);
         container.setAttribute('data-is-chips', isChipsCase);
         container.style.width = '110px';
         container.style.height = '110px';
-        // Здесь вы можете добавить свой HTML через innerHTML
-        // container.innerHTML = '<img src="..." />' или любой другой контент
         
         itemPreview.appendChild(container);
       });
@@ -243,30 +251,27 @@
 
     modal.querySelector('.open-btn button').disabled = false;
     modal.querySelector('.keep-it').style.display = 'none';
-    
-    // ПЛАВНАЯ ЗАГРУЗКА: сначала показываем модалку с loader
-    modal.style.display = 'flex';
-    modal.style.opacity = '0';
-    document.body.style.overflow = 'hidden';
     isSpinning = false;
     wonPrize = null;
     
-    // Плавное появление модалки
-    requestAnimationFrame(() => {
-      modal.style.transition = 'opacity 0.3s ease';
-      modal.style.opacity = '1';
-    });
-    
-    // СКРЫВАЕМ LOADER КЕЙСА через 1.5 секунды (имитация загрузки данных)
+    // ЧЕРЕЗ 1.5 СЕК: скрываем loader и показываем контент
     setTimeout(() => {
+      // Скрываем loader
       if (caseLoader) {
         caseLoader.style.transition = 'opacity 0.4s ease';
         caseLoader.style.opacity = '0';
         
         setTimeout(() => {
           caseLoader.classList.remove('active');
-          caseLoader.style.opacity = '1'; // Возвращаем для следующего раза
+          caseLoader.style.opacity = '1';
         }, 400);
+      }
+      
+      // Показываем контент плавно
+      if (modalContent) {
+        modalContent.style.transition = 'opacity 0.5s ease, visibility 0s';
+        modalContent.style.opacity = '1';
+        modalContent.style.visibility = 'visible';
       }
     }, 1500);
   }
