@@ -274,16 +274,25 @@
                     const data = await response.json();
                     console.log('✅ Вывод выполнен:', data);
                     
-                    // Обновляем балансы
+                    // Обновляем реферальный баланс
                     this.referralBalance = 0;
                     this.updateUI();
                     
-                    // Обновляем основной баланс через BalanceAPI
+                    // КРИТИЧНО: Обновляем основной баланс
                     if (window.BalanceAPI) {
+                        console.log('🔄 Загружаем обновлённый баланс...');
                         await window.BalanceAPI.loadBalance();
+                        
+                        // Дополнительно обновляем визуал
+                        window.BalanceAPI.updateVisual();
+                        
+                        console.log(`✅ Баланс обновлён: ${window.BalanceAPI.getRubles()}₽`);
                     }
                     
-                    this.showNotification(`Выведено ${amountToWithdraw.toFixed(2)}₽ на основной баланс`);
+                    // Показываем уведомление с задержкой (чтобы баланс обновился)
+                    setTimeout(() => {
+                        this.showNotification(`Выведено ${amountToWithdraw.toFixed(2)}₽ на основной баланс`);
+                    }, 500);
                 } else {
                     const error = await response.json();
                     this.showNotification(`Ошибка: ${error.message}`);

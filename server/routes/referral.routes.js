@@ -355,11 +355,27 @@ router.post('/withdraw', async (req, res) => {
         
         console.log(`✅ Withdrawal: user=${userId}, amount=${amount}₽, commission=${commission}₽, added=${amountToAdd}₽`);
         
+        // Отправляем WebSocket событие для обновления баланса
+        const io = require('../server').io;
+        if (io) {
+            io.emit(`balance_updated_${userId}`, {
+                telegramId: userId,
+                rubles: amountToAdd,
+                action: 'referral_withdrawal'
+            });
+            io.emit('balance_updated', {
+                telegramId: userId,
+                action: 'referral_withdrawal'
+            });
+            console.log(`📡 WebSocket event sent: balance_updated_${userId}`);
+        }
+        
         res.json({
             success: true,
             message: `Выведено ${amountToAdd.toFixed(2)}₽ на основной баланс`,
             amount: amountToAdd,
-            commission
+            commission,
+            newBalance: amountToAdd  // Новый баланс для обновления UI
         });
     } catch (error) {
         console.error('❌ /api/referral/withdraw error:', error);
