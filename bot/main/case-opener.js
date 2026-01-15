@@ -204,21 +204,18 @@
     if (itemPreview) {
       itemPreview.innerHTML = '';
       prizes.forEach(prize => {
-        const img = document.createElement('img');
-        const prizeData = getPrizeImages(prize, isChipsCase);
+        // ⚠️ ВРЕМЕННО ОТКЛЮЧЕНО: не создаем <img> элементы
+        // Создаем только div контейнеры для ручного наполнения через HTML
+        const container = document.createElement('div');
+        container.className = 'prize-preview-container';
+        container.setAttribute('data-prize', prize);
+        container.setAttribute('data-is-chips', isChipsCase);
+        container.style.width = '110px';
+        container.style.height = '110px';
+        // Здесь вы можете добавить свой HTML через innerHTML
+        // container.innerHTML = '<img src="..." />' или любой другой контент
         
-        // УБРАЛИ width/height атрибуты - размер контролируется через CSS
-        // Это позволяет браузеру загружать более четкие версии на Retina
-        img.src = prizeData.preview;
-        img.alt = isChipsCase ? `${prize} chips` : `${prize}₽`;
-        img.loading = 'lazy'; // Ленивая загрузка для ускорения
-        img.decoding = 'async';
-        // Добавляем стили напрямую для четкости на Retina
-        img.style.width = '110px';
-        img.style.height = '110px';
-        img.style.imageRendering = '-webkit-optimize-contrast';
-        
-        itemPreview.appendChild(img);
+        itemPreview.appendChild(container);
       });
     }
 
@@ -535,18 +532,20 @@
     }
     
     winItem.innerHTML = '';
-    const winImg = document.createElement('img');
     
-    // УБРАЛИ width/height атрибуты для поддержки Retina
-    winImg.src = winImagePath;
-    winImg.style.width = '110px';
-    winImg.style.height = '110px';
-    winImg.style.imageRendering = '-webkit-optimize-contrast';
-    winImg.alt = `WIN ${wonPrize}₽`;
-    winImg.loading = 'eager';
-    winImg.decoding = 'async';
+    // ⚠️ ВРЕМЕННО ОТКЛЮЧЕНО: не создаем <img> элементы
+    // Создаем только div контейнер для ручного наполнения через HTML
+    const winContainer = document.createElement('div');
+    winContainer.className = 'prize-win-container';
+    winContainer.setAttribute('data-prize', wonPrize);
+    winContainer.setAttribute('data-is-chips', currentCase.isChipsCase);
+    winContainer.setAttribute('data-color', window.winningColor || 'gray');
+    winContainer.style.width = '110px';
+    winContainer.style.height = '110px';
+    // Здесь вы можете добавить свой HTML через innerHTML
+    // winContainer.innerHTML = '<img src="..." />' или любой другой контент
     
-    winItem.appendChild(winImg);
+    winItem.appendChild(winContainer);
     
     console.log('🏆 Showing win:', wonPrize + '₽', window.winningColor);
     
