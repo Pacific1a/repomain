@@ -30,8 +30,9 @@ class GlobalBalance {
             }
         });
         
-        // Синхронизируем с сервером каждые 30 секунд
-        setInterval(() => this.syncWithServer(), 30000);
+        // ⚠️ ОТКЛЮЧЕНА автоперезагрузка - полагаемся на WebSocket
+        // Раньше: setInterval(() => this.syncWithServer(), 30000);
+        // Проблема: восстанавливал баланс каждые 30 секунд!
     }
     
     getTelegramId() {
