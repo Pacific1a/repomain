@@ -206,7 +206,8 @@
     const contentWindow = modal.querySelector('.content-window-item');
     const winWindow = modal.querySelector('.win-window');
     
-    // ОТКРЫВАЕМ МОДАЛКУ С LOADER
+    // ОТКРЫВАЕМ МОДАЛКУ В РЕЖИМЕ ЗАГРУЗКИ (компактная)
+    modal.classList.add('loading-state');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     
@@ -256,6 +257,9 @@
     
     // ЧЕРЕЗ 1.5 СЕК: скрываем loader и показываем контент
     setTimeout(() => {
+      // Убираем режим загрузки (модалка растянется под контент)
+      modal.classList.remove('loading-state');
+      
       // Скрываем loader
       if (caseLoader) {
         caseLoader.style.transition = 'opacity 0.4s ease';

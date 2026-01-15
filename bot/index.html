@@ -526,6 +526,17 @@ button {
   flex-direction: column;
 }
 
+/* Модалка компактная во время загрузки */
+.modal-window.loading-state {
+  min-height: 300px !important;
+  height: auto !important;
+}
+
+.modal-window.loading-state .modal-window-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
 .case-loader.active {
   display: flex !important;
 }
@@ -1203,7 +1214,7 @@ button {
                 'https://github.com/Pacific1a/img/blob/main/imgALL/mask-group-3.png?raw=true',
                 'https://raw.githubusercontent.com/Pacific1a/img/af9521ea7091209117e10a6160ad12ff29d7364e/main/all-icon.svg',
               ],
-              minDisplayTime: 5000,
+              minDisplayTime: 3000,
               fallbackTimeout: 30000,
               baseUrl: window.location.href,
               onProgress: ({ percent }) => {
