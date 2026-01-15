@@ -57,6 +57,9 @@ const io = socketIo(server, {
     transports: ['websocket', 'polling']
 });
 
+// Экспортируем io для использования в других модулях (например referral withdraw)
+module.exports.io = io;
+
 // Trust proxy (for Nginx)
 app.set('trust proxy', 1);
 
