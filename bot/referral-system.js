@@ -274,31 +274,42 @@
                     const data = await response.json();
                     console.log('✅ Вывод выполнен:', data);
                     
-                    // Обновляем реферальный баланс
+                    // 1. МОМЕНТАЛЬНО обнуляем реферальный баланс
                     this.referralBalance = 0;
                     
-                    // ⚠️ НЕ ПЕРЕЗАГРУЖАЕМ данные рефералов сразу! Ждём 2 секунды
-                    // Чтобы БД успела обновиться
-                    setTimeout(async () => {
-                        // Перезагружаем данные рефералов с сервера
-                        await this.loadReferralData();
-                        console.log('✅ Данные рефералов обновлены после вывода');
-                    }, 2000);
+                    // 2. МОМЕНТАЛЬНО обнуляем Your Profit у всех рефералов
+                    this.referrals.forEach(ref => {
+                        ref.totalEarnings = 0;
+                    });
                     
-                    // КРИТИЧНО: Обновляем основной баланс ВРУЧНУЮ (не loadBalance!)
+                    // 3. Обновляем UI реферальной системы
+                    this.updateUI();
+                    console.log('✅ Referral balance и Your Profit обнулены моментально');
+                    
+                    // 4. КРИТИЧНО: Перезагружаем основной баланс с сервера
                     if (window.BalanceAPI) {
                         const oldBalance = window.BalanceAPI.getRubles();
-                        const newBalance = oldBalance + amountToWithdraw;
                         
-                        // Устанавливаем новый баланс НАПРЯМУЮ без загрузки с сервера
-                        window.BalanceAPI.balance.rubles = newBalance;
+                        // Отключаем автоматические перезагрузки на время
+                        const wasAutoReloading = window.BalanceAPI._preventAutoReload || false;
+                        window.BalanceAPI._preventAutoReload = true;
+                        
+                        // Загружаем баланс с сервера (там уже обновлённый)
+                        await window.BalanceAPI.loadBalance();
+                        
+                        // Возвращаем автоперезагрузку
+                        setTimeout(() => {
+                            window.BalanceAPI._preventAutoReload = wasAutoReloading;
+                        }, 5000);
+                        
+                        const newBalance = window.BalanceAPI.getRubles();
+                        console.log(`✅ Баланс обновлён с сервера: ${oldBalance.toFixed(2)}₽ → ${newBalance.toFixed(2)}₽`);
+                        
+                        // Принудительно обновляем визуал
                         window.BalanceAPI.updateVisual();
-                        
-                        console.log(`✅ Баланс обновлён: ${oldBalance}₽ → ${newBalance}₽ (+${amountToWithdraw.toFixed(2)}₽)`);
-                        console.log('⚠️ Баланс обновлён ЛОКАЛЬНО, без запроса к серверу');
                     }
                     
-                    // Показываем уведомление
+                    // 5. Показываем уведомление
                     this.showNotification(`✅ Выведено ${amountToWithdraw.toFixed(2)}₽ на основной баланс`);
                 } else {
                     const error = await response.json();
