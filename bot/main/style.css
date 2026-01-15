@@ -390,18 +390,32 @@
   flex-grow: 1;
 }
 
-.main .ellipse-4 {
+/* Активная точка - применяется к любому ellipse с классом 'active' */
+.main .ellipse-3 > div.active {
   position: relative;
   width: 6px;
   height: 6px;
   /* МАКСИМАЛЬНО ЯРКИЙ БЕЛЫЙ для активной точки */
-  background-color: #ffffff;
+  background-color: #ffffff !important;
   border-radius: 3px;
   /* ОЧЕНЬ СИЛЬНОЕ свечение - видно на всех баннерах! */
   box-shadow: 
     0 0 12px 4px rgba(255, 255, 255, 1),
     0 0 8px 2px rgba(255, 255, 255, 0.9),
-    0 0 4px 1px rgba(255, 255, 255, 0.8);
+    0 0 4px 1px rgba(255, 255, 255, 0.8) !important;
+  /* Немного больше для выделения */
+  transform: scale(1.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.main .ellipse-4 {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  /* Неактивная по умолчанию */
+  background-color: #fff5f573;
+  border-radius: 3px;
+  box-shadow: 0 0 4px 1px rgba(255, 245, 245, 0.3);
 }
 
 .main .ellipse-5 {

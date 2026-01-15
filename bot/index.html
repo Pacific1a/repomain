@@ -49,20 +49,19 @@
       }
       
       #page-preloader .text-wrapper {
-        position: relative;
-        align-self: stretch;
-        font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
-        font-weight: 600;
-        color: #ffffff;
-        font-size: 16px;
-        text-align: center;
-        letter-spacing: -0.80px;
-        line-height: normal;
-        margin: 0;
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
-        max-width: none !important;
+            position: relative;
+            align-self: stretch;
+            font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 0.9px;
+            line-height: normal;
+            margin: 0;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            max-width: none !important;
       }
       
       #page-preloader .div {
@@ -115,7 +114,7 @@
         font-family: "Montserrat-Medium", Helvetica, Arial, sans-serif;
         font-weight: 500;
         color: #c5c5c5;
-        font-size: 13px;
+        font-size: 16px;
         text-align: center;
         line-height: normal;
         margin: 0;
@@ -988,6 +987,25 @@ button {
     </div>
 
     <div class="modal-window">
+      <!-- Loader для кейса -->
+      <div class="case-loader" id="case-loader">
+        <div class="case-loader-content">
+          <div class="case-loader-spinner">
+            <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
+              <circle cx="25" cy="25" r="23" stroke="#2C2C2D" stroke-width="4"/>
+              <circle cx="25" cy="25" r="23" stroke="url(#paint_case_loader)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50 100"/>
+              <defs>
+                <linearGradient id="paint_case_loader" x1="46.5" y1="43.5" x2="-4.07692" y2="14.5769" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FF6B6B"/>
+                  <stop offset="1" stop-color="#2C2C2D" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <p class="case-loader-text">Loading case info...</p>
+        </div>
+      </div>
+      
       <div class="exit">
         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
           <path d="M16.3904 0.390382C16.1403 0.140421 15.8013 0 15.4477 0C15.0942 0 14.7551 0.140421 14.505 0.390382L8.39038 6.50505L2.27572 0.390382C2.02568 0.140421 1.6866 0 1.33305 0C0.979496 0 0.640419 0.140421 0.390382 0.390382C0.140421 0.640419 0 0.979496 0 1.33305C0 1.6866 0.140421 2.02568 0.390382 2.27572L6.50505 8.39038L0.390382 14.505C0.140421 14.7551 0 15.0942 0 15.4477C0 15.8013 0.140421 16.1403 0.390382 16.3904C0.640419 16.6403 0.979496 16.7808 1.33305 16.7808C1.6866 16.7808 2.02568 16.6403 2.27572 16.3904L8.39038 10.2757L14.505 16.3904C14.7551 16.6403 15.0942 16.7808 15.4477 16.7808C15.8013 16.7808 16.1403 16.6403 16.3904 16.3904C16.6403 16.1403 16.7808 15.8013 16.7808 15.4477C16.7808 15.0942 16.6403 14.7551 16.3904 14.505L10.2757 8.39038L16.3904 2.27572C16.6403 2.02568 16.7808 1.6866 16.7808 1.33305C16.7808 0.979496 16.6403 0.640419 16.3904 0.390382Z" fill="#EDEDED"/>

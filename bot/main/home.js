@@ -69,11 +69,13 @@
     // update ellipse indicators
     if (ellipseDots.length){
       ellipseDots.forEach((d, i)=>{
-        d.classList.toggle('active', i === (idx % banners.length));
-        // minimal inline style feedback if no CSS present
-        d.style.opacity = i === (idx % banners.length) ? '1' : '0.45';
-        d.style.transform = i === (idx % banners.length) ? 'scale(1.08)' : 'scale(1)';
-        d.style.transition = 'all .2s ease';
+        // ВАЖНО: НЕ используем inline стили! Только класс 'active'
+        // CSS стили в style.css обеспечат яркое свечение
+        if (i === (idx % banners.length)) {
+          d.classList.add('active');
+        } else {
+          d.classList.remove('active');
+        }
       });
     }
   }
