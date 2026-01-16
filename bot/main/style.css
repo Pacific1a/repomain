@@ -395,12 +395,10 @@
   position: relative;
   width: 6px;
   height: 6px;
-  /* МАКСИМАЛЬНО ЯРКИЙ БЕЛЫЙ для активной точки */
-  background-color: #ffffff !important;
+  /* Чуть темнее белого */
+  background-color: #e8e8e8 !important;
   border-radius: 3px;
-  /* Умеренное свечение - строго и выражено */
-  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8) !important;
-  /* Немного больше для выделения */
+  /* БЕЗ тени - просто точка */
   transform: scale(1.1) !important;
   transition: all 0.3s ease !important;
 }
@@ -1521,6 +1519,9 @@
 .labuba{
   outline: 2px solid #51b0d8;
   border-radius: 12px;
+}
+.no-bg{
+  background-image: none;
 }
 .col-red{
   background: linear-gradient(90deg, #CA3959 0%, #CA3959 100%)!important;

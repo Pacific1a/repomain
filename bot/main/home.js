@@ -142,8 +142,10 @@
       swiping = false;
       const changed = e.changedTouches && e.changedTouches[0];
       const dx = changed ? (changed.clientX - touchStartX) : 0;
-      if (dx <= -SWIPE_THRESHOLD) nextBanner();
-      else if (dx >= SWIPE_THRESHOLD) prevBanner();
+      // Свайп ВЛЕВО (dx отрицательный) → следующий баннер (вправо)
+      // Свайп ВПРАВО (dx положительный) → предыдущий баннер (влево)
+      if (dx <= -SWIPE_THRESHOLD) prevBanner();  // Было nextBanner() - ИСПРАВЛЕНО!
+      else if (dx >= SWIPE_THRESHOLD) nextBanner();  // Было prevBanner() - ИСПРАВЛЕНО!
       startAutoRotate();
     });
     // auto-rotate
