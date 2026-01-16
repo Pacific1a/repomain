@@ -1,12 +1,87 @@
-// Case opening logic with balance integration
+// Case opening logic with NFT system
 (function() {
   'use strict';
 
-  // ⚠️ ВРЕМЕННОЕ ОТКЛЮЧЕНИЕ загрузки изображений призов с GitHub
-  // Установите false чтобы отключить загрузку изображений
-  const ENABLE_PRIZE_IMAGES = false;
-
+  // ================================
+  // ОПТИМИЗИРОВАННАЯ КОНФИГУРАЦИЯ NFT КЕЙСОВ
+  // ================================
+  // Меньше кейсов = быстрее загрузка
+  // Цены = стоимость NFT внутри (как у фишек)
+  // Локальные изображения в /bot/cases/
+  
   const CASE_CONFIG = {
+    // === ОСНОВНЫЕ КЕЙСЫ (6 штук) ===
+    'Crown': { 
+      prices: [50, 100, 200, 300, 500],  // 5 NFT вместо 8
+      chips: false, 
+      color: '#DD7C17',
+      cover: 'cases/crown-cover.png',  // Обложка кейса
+      nftFolder: 'cases/crown/'         // Папка с NFT внутри
+    },
+    'Empire': { 
+      prices: [100, 200, 300, 500, 800], 
+      chips: false, 
+      color: '#C98119',
+      cover: 'cases/empire-cover.png',
+      nftFolder: 'cases/empire/'
+    },
+    'Pulse': { 
+      prices: [150, 250, 400, 600, 1000], 
+      chips: false, 
+      color: '#219AAC',
+      cover: 'cases/pulse-cover.png',
+      nftFolder: 'cases/pulse/'
+    },
+    'Street': { 
+      prices: [200, 300, 500, 800, 1200], 
+      chips: false, 
+      color: '#B58E15',
+      cover: 'cases/street-cover.png',
+      nftFolder: 'cases/street/'
+    },
+    'Frost': { 
+      prices: [250, 400, 600, 1000, 1500], 
+      chips: false, 
+      color: '#27A2BF',
+      cover: 'cases/frost-cover.png',
+      nftFolder: 'cases/frost/'
+    },
+    'Ascent': { 
+      prices: [500, 800, 1200, 2000, 3000], 
+      chips: false, 
+      color: '#219AAC',
+      cover: 'cases/ascent-cover.png',
+      nftFolder: 'cases/ascent/'
+    },
+    
+    // === CHIPS КЕЙСЫ (3 штуки) ===
+    'Crown Chips': { 
+      prices: [50, 100, 200, 300, 500], 
+      chips: true, 
+      color: '#DD7C17',
+      cover: 'cases/crown-chips-cover.png',
+      nftFolder: 'cases/crown-chips/'
+    },
+    'Pulse Chips': { 
+      prices: [150, 250, 400, 600, 1000], 
+      chips: true, 
+      color: '#219AAC',
+      cover: 'cases/pulse-chips-cover.png',
+      nftFolder: 'cases/pulse-chips/'
+    },
+    'Ascent Chips': { 
+      prices: [300, 500, 800, 1200, 2000], 
+      chips: true, 
+      color: '#219AAC',
+      cover: 'cases/ascent-chips-cover.png',
+      nftFolder: 'cases/ascent-chips/'
+    },
+  };
+  
+  // ИТОГО: 9 кейсов (было 16) - оптимизация загрузки!
+  
+  // СТАРАЯ СИСТЕМА (сохранена для отката)
+  const OLD_CASE_CONFIG = {
     // Кейсы за рубли (более адекватная экономика)
     // Формат: [частые маленькие призы, средние призы, редкие большие призы]
     // RTP ~75-80% (казино зарабатывает 20-25%)
