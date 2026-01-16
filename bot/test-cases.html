@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎁 Тест Кейсов - NFT System</title>
+  
+  <!-- Подключаем стили -->
+  <link rel="stylesheet" href="main/globals.css">
+  <link rel="stylesheet" href="main/styleguide.css">
+  <link rel="stylesheet" href="main/style.css">
+  
+  <style>
+    body {
+      background: #151414;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .test-header {
+      background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .test-header h1 {
+      font-family: "Montserrat-Bold", Helvetica;
+      color: #ffffff;
+      font-size: 32px;
+      margin: 0 0 10px 0;
+      text-align: center;
+    }
+    
+    .test-header p {
+      font-family: "Montserrat", Helvetica;
+      color: #ffffffa8;
+      font-size: 14px;
+      margin: 5px 0;
+      text-align: center;
+    }
+    
+    .test-controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .test-btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #DD7C17 0%, #C98119 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-family: "Montserrat-SemiBold", Helvetica;
+      font-size: 14px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 12px rgba(221, 124, 23, 0.3);
+    }
+    
+    .test-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(221, 124, 23, 0.4);
+    }
+    
+    .test-btn:active {
+      transform: translateY(0);
+    }
+    
+    .test-btn.secondary {
+      background: linear-gradient(135deg, #219AAC 0%, #1C9AB9 100%);
+      box-shadow: 0 4px 12px rgba(33, 154, 172, 0.3);
+    }
+    
+    .test-cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .test-case-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    .test-case-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      border-color: rgba(255,255,255,0.2);
+    }
+    
+    .test-case-card h3 {
+      font-family: "Montserrat-SemiBold", Helvetica;
+      color: #ffffff;
+      font-size: 16px;
+      margin: 0 0 10px 0;
+      text-align: center;
+    }
+    
+    .test-case-card p {
+      font-family: "Montserrat", Helvetica;
+      color: #ffffffa8;
+      font-size: 12px;
+      margin: 5px 0;
+      text-align: center;
+    }
+    
+    .test-case-card .cover-preview {
+      width: 100%;
+      height: 150px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      font-size: 48px;
+    }
+    
+    .info-box {
+      background: rgba(33, 154, 172, 0.1);
+      border: 1px solid rgba(33, 154, 172, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    
+    .info-box h3 {
+      font-family: "Montserrat-SemiBold", Helvetica;
+      color: #27A2BF;
+      font-size: 16px;
+      margin: 0 0 10px 0;
+    }
+    
+    .info-box ul {
+      font-family: "Montserrat", Helvetica;
+      color: #ffffffa8;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 0;
+      padding-left: 20px;
+    }
+    
+    /* Адаптация модального окна */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <!-- Заголовок тестовой страницы -->
+  <div class="test-header">
+    <h1>🎁 Тестирование Кейсов</h1>
+    <p>Страница для проверки работы кейсов перед деплоем</p>
+    <p><strong>Оптимизация:</strong> 9 кейсов (было 16) | 5 NFT в кейсе (было 8)</p>
+    
+    <div class="test-controls">
+      <button class="test-btn" onclick="location.reload()">🔄 Перезагрузить</button>
+      <button class="test-btn secondary" onclick="scrollToModal()">📦 К Модалке</button>
+      <button class="test-btn secondary" onclick="openConsole()">🛠️ Консоль</button>
+    </div>
+  </div>
+  
+  <!-- Инструкция -->
+  <div class="info-box">
+    <h3>📝 Как пользоваться:</h3>
+    <ul>
+      <li>Кликай на карточки кейсов ниже для открытия</li>
+      <li>Смотри как работает модальное окно</li>
+      <li>Проверяй анимации и плавность</li>
+      <li>Открой консоль (F12) для отладки</li>
+      <li>Подставляй свои NFT картинки в <code>/bot/cases/</code></li>
+    </ul>
+  </div>
+  
+  <div class="info-box" style="background: rgba(221, 124, 23, 0.1); border-color: rgba(221, 124, 23, 0.3);">
+    <h3>🖼️ Структура папок для NFT:</h3>
+    <ul>
+      <li><code>/bot/cases/crown-cover.png</code> - обложка кейса Crown</li>
+      <li><code>/bot/cases/crown/nft-50.png</code> - NFT за 50₽</li>
+      <li><code>/bot/cases/crown/nft-100.png</code> - NFT за 100₽</li>
+      <li><code>/bot/cases/crown/nft-200.png</code> - NFT за 200₽</li>
+      <li>И так далее для каждого кейса...</li>
+    </ul>
+  </div>
+  
+  <!-- Сетка с кейсами для тестирования -->
+  <div class="test-cases-grid" id="test-cases-grid"></div>
+  
+  <!-- Модальное окно (из основного проекта) -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-window">
+      <!-- Loader для кейса -->
+      <div class="case-loader" id="case-loader">
+        <div class="case-loader-content">
+          <div class="case-loader-spinner">
+            <svg class="spinner-icon" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
+              <circle cx="25" cy="25" r="23" stroke="#2C2C2D" stroke-width="4"/>
+              <circle cx="25" cy="25" r="23" stroke="url(#paint_case_loader)" stroke-width="4" stroke-linecap="round" stroke-dasharray="50 100"/>
+              <defs>
+                <linearGradient id="paint_case_loader" x1="46.5" y1="43.5" x2="-4.07692" y2="14.5769" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FF6B6B"/>
+                  <stop offset="1" stop-color="#2C2C2D" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <p class="case-loader-text">Loading case info...</p>
+        </div>
+      </div>
+      
+      <div class="modal-window-content">
+        <div class="title-window">
+          <span></span>
+          <img class="exit" src="https://github.com/Pacific1a/img/blob/main/imgALL/Vector.png?raw=true" alt="Close" onclick="closeModal()"/>
+        </div>
+        <div class="item-preview">
+          <div class="item-preview-item"></div>
+        </div>
+        <div class="content-window">
+          <div class="content-window-item"></div>
+        </div>
+        <div class="open-btn">
+          <button class="button">Open</button>
+        </div>
+        <div class="win-window" style="display: none;">
+          <div class="win-info">
+            <span class="win-title">You won!</span>
+            <span class="win-prize"></span>
+          </div>
+        </div>
+        <div class="possible-prizes">Possible prizes:</div>
+        <div class="keep-it" style="display: none;">
+          <button class="keep-button">Keep it</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Скрипты -->
+  <script src="main/case-opener.js"></script>
+  
+  <script>
+    // Генерируем карточки кейсов для теста
+    const grid = document.getElementById('test-cases-grid');
+    const caseNames = Object.keys(window.CASE_CONFIG || {});
+    
+    caseNames.forEach(caseName => {
+      const config = window.CASE_CONFIG[caseName];
+      const card = document.createElement('div');
+      card.className = 'test-case-card';
+      card.onclick = () => openCase(caseName);
+      
+      card.innerHTML = `
+        <div class="cover-preview">🎁</div>
+        <h3>${caseName}</h3>
+        <p>NFT: ${config.prices.length} шт.</p>
+        <p>Цены: ${Math.min(...config.prices)}₽ - ${Math.max(...config.prices)}₽</p>
+        <p style="color: ${config.color};">● ${config.chips ? 'Chips' : 'Rubles'}</p>
+      `;
+      
+      grid.appendChild(card);
+    });
+    
+    // Функции для открытия кейса
+    function openCase(caseName) {
+      console.log('Opening case:', caseName);
+      const card = document.querySelector(`.cards[data-case="${caseName}"]`);
+      if (card && window.openCaseModal) {
+        window.openCaseModal(card);
+      } else {
+        alert('Кейс: ' + caseName + '\nФункция openCaseModal не найдена. Проверь case-opener.js');
+      }
+    }
+    
+    // Закрытие модалки
+    function closeModal() {
+      const modal = document.getElementById('modal-overlay');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Прокрутка к модалке
+    function scrollToModal() {
+      const modal = document.getElementById('modal-overlay');
+      if (modal) {
+        modal.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    
+    // Открыть консоль
+    function openConsole() {
+      alert('Нажми F12 для открытия консоли разработчика');
+    }
+    
+    console.log('🎁 Test Cases Page Loaded!');
+    console.log('📦 Available cases:', caseNames.length);
+    console.log('🛠️ CASE_CONFIG:', window.CASE_CONFIG);
+  </script>
+</body>
+</html>
