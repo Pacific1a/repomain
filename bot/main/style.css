@@ -1459,9 +1459,12 @@
   align-items: center;
   flex-direction: column;
   border-radius: 18px;
-  background: linear-gradient(90deg, #282828 0%, #333333c9 100%);
+  background-image: url(assets/bgs.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
   /* Важно: не обрезать дочерние элементы (HOT badge) */
-  overflow: visible;
+  overflow: hidden;
 }
 .text-block span{
   display: flex;
@@ -1475,15 +1478,12 @@
   width: 17px;
 }
 .text-block{
-  margin-top: 5px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(90deg, #252424 0%, #201F1F 100%);
-  width: 170px;
-  border-radius: 12px;
-  padding: 8px 5px;
+     height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    background: linear-gradient(90deg, #252424 0%, #201F1F 100%);
+    width: 100%;
 }
 .new-1{
   position: absolute;
@@ -1516,6 +1516,10 @@
 }
 .crown{
   outline: 2px solid #FFD865;
+  border-radius: 12px;
+}
+.labuba{
+  outline: 2px solid #51b0d8;
   border-radius: 12px;
 }
 .col-red{
