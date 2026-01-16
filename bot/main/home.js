@@ -99,11 +99,23 @@
 
   if (bannerEl){
     applyBanner(0);
-    // also allow clicking banner area to switch
+    // Клик по баннеру: левая половина → влево, правая половина → вправо
     bannerEl.addEventListener('click', (e)=>{
       // Игнорируем клики по кнопке "Подробнее" - пусть она работает как ссылка
       if (e.target.closest('.MORE-button')) return;
-      nextBanner();
+      
+      // Определяем где кликнули: левая или правая половина
+      const rect = bannerEl.getBoundingClientRect();
+      const clickX = e.clientX - rect.left; // Позиция клика относительно баннера
+      const halfWidth = rect.width / 2;
+      
+      if (clickX < halfWidth) {
+        // Клик в левой половине → предыдущий баннер
+        prevBanner();
+      } else {
+        // Клик в правой половине → следующий баннер
+        nextBanner();
+      }
     });
     // ellipse indicators click
     if (ellipseDots.length){
@@ -116,9 +128,9 @@
         });
       });
     }
-    // swipe support (touch)
+    // swipe support (touch) - работает от любой точки баннера
     let touchStartX = 0, touchStartY = 0, swiping = false;
-    const SWIPE_THRESHOLD = 40;
+    const SWIPE_THRESHOLD = 30;  // Уменьшен с 40 до 30 для чувствительности
     bannerEl.addEventListener('touchstart', (e)=>{
       if (!e.touches || !e.touches.length) return;
       const t = e.touches[0];
@@ -142,10 +154,18 @@
       swiping = false;
       const changed = e.changedTouches && e.changedTouches[0];
       const dx = changed ? (changed.clientX - touchStartX) : 0;
-      // Свайп ВЛЕВО (dx отрицательный) → следующий баннер (вправо)
-      // Свайп ВПРАВО (dx положительный) → предыдущий баннер (влево)
-      if (dx <= -SWIPE_THRESHOLD) prevBanner();  // Было nextBanner() - ИСПРАВЛЕНО!
-      else if (dx >= SWIPE_THRESHOLD) nextBanner();  // Было prevBanner() - ИСПРАВЛЕНО!
+      const absDx = Math.abs(dx);
+      
+      // Свайп в ту сторону, куда пальцем провели
+      if (absDx >= SWIPE_THRESHOLD) {
+        if (dx < 0) {
+          // Свайп ВЛЕВО (палец влево) → баннер влево
+          prevBanner();
+        } else {
+          // Свайп ВПРАВО (палец вправо) → баннер вправо
+          nextBanner();
+        }
+      }
       startAutoRotate();
     });
     // auto-rotate
