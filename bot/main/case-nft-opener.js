@@ -204,11 +204,22 @@
       container.innerHTML = '';
       container.style.display = 'grid';
       container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
-      container.style.gap = '4px';
-      container.style.padding = '8px';
+      container.style.gap = '2px';
+      container.style.padding = '4px';
       container.style.justifyItems = 'center';
+      
+      // Центрируем последнюю карточку если она одна
+      const itemsPerRow = Math.floor((container.offsetWidth || 300) / 102); // 100px + 2px gap
+      if (prizes.length % itemsPerRow === 1) {
+        // Если последняя карточка одна - центрируем её через grid
+        container.style.gridTemplateColumns = `repeat(auto-fit, minmax(100px, 1fr))`;
+        container.style.justifyContent = 'center';
+      }
+      
+      // Сортируем призы: от дорогих к дешевым (легендарные → обычные)
+      const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
 
-      prizes.forEach((prize, index) => {
+      sortedPrizes.forEach((prize, index) => {
         setTimeout(() => {
           const prizeCard = createPrizeCard(prize);
           container.appendChild(prizeCard);
@@ -249,10 +260,11 @@
     carousel.style.left = '0';
     carousel.style.animation = 'carousel-scroll 20s linear infinite';
 
-    // Генерируем последовательность (15 карточек)
+    // Генерируем последовательность (15 карточек) - от дорогих к дешевым
+    const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
     const demoCount = 15;
     for (let i = 0; i < demoCount; i++) {
-      const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+      const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
       const card = createPrizeCard(randomPrize);
       card.style.flexShrink = '0';
       card.style.opacity = '1';
@@ -430,10 +442,11 @@
       carousel.style.left = '0';
       carousel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
 
-      // Генерируем рандомную последовательность (30-40 карточек)
+      // Генерируем рандомную последовательность (30-40 карточек) - от дорогих к дешевым
+      const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
       const carouselPrizes = [];
       for (let i = 0; i < 35; i++) {
-        const randomPrize = currentCase.prizes[Math.floor(Math.random() * currentCase.prizes.length)];
+        const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
         carouselPrizes.push(randomPrize);
       }
       
