@@ -156,12 +156,16 @@
     }
 
     // Очищаем предыдущий контент
-    if (contentWindow) contentWindow.innerHTML = '';
     if (itemPreview) itemPreview.innerHTML = '';
     if (winWindow) winWindow.innerHTML = '';
 
     // СТАДИЯ 1: ОТОБРАЖЕНИЕ PREVIEW (возможные призы)
     await displayPrizesPreview(itemPreview, config.prizes);
+    
+    // ДЕМОНСТРАЦИЯ: Показываем карусель для красоты (без спина)
+    if (contentWindow) {
+      displayCarouselDemo(contentWindow, config.prizes);
+    }
 
     // Ждём 1 секунду и показываем контент
     setTimeout(() => {
@@ -199,9 +203,9 @@
 
       container.innerHTML = '';
       container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(110px, 1fr))';
-      container.style.gap = '12px';
-      container.style.padding = '16px';
+      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
+      container.style.gap = '8px';
+      container.style.padding = '12px';
       container.style.justifyItems = 'center';
 
       prizes.forEach((prize, index) => {
@@ -224,6 +228,59 @@
   }
 
   // ================================
+  // ДЕМОНСТРАЦИЯ КАРУСЕЛИ (БЕЗ СПИНА)
+  // ================================
+  
+  function displayCarouselDemo(container, prizes) {
+    if (!container) return;
+
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    container.style.overflow = 'hidden';
+    container.style.position = 'relative';
+    container.style.height = '130px';
+    container.style.justifyContent = 'flex-start';
+
+    // Создаём карусель
+    const carousel = document.createElement('div');
+    carousel.style.display = 'flex';
+    carousel.style.gap = '12px';
+    carousel.style.position = 'absolute';
+    carousel.style.left = '0';
+    carousel.style.animation = 'carousel-scroll 20s linear infinite';
+
+    // Генерируем последовательность (15 карточек)
+    const demoCount = 15;
+    for (let i = 0; i < demoCount; i++) {
+      const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+      const card = createPrizeCard(randomPrize);
+      card.style.flexShrink = '0';
+      card.style.opacity = '1';
+      card.style.transform = 'scale(1)';
+      card.style.width = '100px';
+      card.style.height = '100px';
+      carousel.appendChild(card);
+    }
+
+    container.appendChild(carousel);
+
+    // Добавляем keyframes для анимации
+    if (!document.getElementById('carousel-demo-style')) {
+      const style = document.createElement('style');
+      style.id = 'carousel-demo-style';
+      style.textContent = `
+        @keyframes carousel-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    console.log('✨ Демонстрация карусели показана');
+  }
+
+  // ================================
   // СОЗДАНИЕ КАРТОЧКИ ПРИЗА
   // ================================
   
@@ -240,7 +297,7 @@
     const priceBadge = document.createElement('div');
     priceBadge.className = 'prize-price-badge';
     priceBadge.innerHTML = `
-      <div class="prize-currency-icon">₽</div>
+      <img class="prize-currency-icon" src="main/assets/rubles.png" alt="₽">
       <span class="prize-price-value">${prize.price}</span>
     `;
 
