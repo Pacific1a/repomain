@@ -300,12 +300,7 @@
         console.log('✅ Кейс 279₽ загружен!');
         console.log('📊 Призов:', config.prizes.length);
         console.log('💰 RTP:', calculateRTP(config.prizes), '%');
-      })
-      .catch(err => {
-        console.error('❌ Ошибка загрузки конфигурации:', err);
-        document.getElementById('prizes-grid').innerHTML = 
-          '<div style="grid-column: 1/-1; text-align: center; color: #ff6b6b; padding: 20px;">Ошибка загрузки config.json</div>';
-      });
+    })();
     
     // Расчёт RTP
     function calculateRTP(prizes) {
