@@ -51,7 +51,7 @@
   right: 0;
   bottom: 0;
   border: 2.2px solid var(--rarity-color);
-  border-radius: 12px;
+  border-radius: 15px;
   opacity: 0.4;
   pointer-events: none;
   z-index: 3;
@@ -112,17 +112,17 @@
 
 /* === ЦЕНА В УГЛУ (компактная, прозрачная, красивая) === */
 .prize-price-badge {
-  position: absolute;
+     position: absolute;
     top: 3px;
     left: 3px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 3px;
-    height: 1.3em;
-    padding: 4px;
-    width: 3em;
-    border-radius: 9px;
+    gap: 0px;
+    height: 1.7em;
+    padding: 0px 5px 0px 0;
+    width: 4em;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     z-index: 2;
 }
@@ -158,9 +158,9 @@
 
 /* Текст цены */
 .prize-price-value {
-  font-family: "Montserrat-Bold", Helvetica, Arial, sans-serif;
-  font-size: 11px;
-  font-weight: 700;
+  font-family: "Montserrat", Helvetica;;
+  font-size: 15px;
+  font-weight: 400;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   line-height: 1;
@@ -178,7 +178,7 @@
   background: rgba(0, 0, 0, 0.9);
   border: 1px solid var(--rarity-color);
   border-radius: 6px;
-  font-family: "Montserrat-SemiBold", Helvetica, Arial, sans-serif;
+  font-family: "Montserrat", Helvetica;
   font-size: 10px;
   font-weight: 600;
   color: var(--rarity-color);
@@ -238,7 +238,6 @@
 /* === АДАПТАЦИЯ ДЛЯ SPIN (карусель) === */
 .content-window-item .prize-card {
   flex-shrink: 0;
-  margin: 0 8px;
 }
 
 /* === POSSIBLE PRIZES GRID === */
@@ -261,9 +260,9 @@
   }
   
   .prize-price-badge {
-    top: 6px;
-    left: 6px;
-    padding: 3px 6px;
+    top: 4px;
+    left: 4px;
+    padding: 0px 5px 0px 0;
   }
   
   .prize-currency-icon {
@@ -273,6 +272,6 @@
   }
   
   .prize-price-value {
-    font-size: 12px;
+    font-size: 15px;
   }
 }

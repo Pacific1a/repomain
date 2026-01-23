@@ -1,0 +1,295 @@
+(index):594 ✅ Inline: Флаг есть, показываем контент
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_viewport 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_safe_area 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_content_safe_area 
+balance-api.js:21 💰 Balance API initializing...
+balance-api.js:68 ⚠️ No real Telegram ID found, using default for testing
+getTelegramId @ balance-api.js:68
+init @ balance-api.js:24
+BalanceAPI @ balance-api.js:17
+(anonymous) @ balance-api.js:426
+(anonymous) @ balance-api.js:433
+balance-api.js:30 ✅ Telegram ID: 1889923046
+balance-api.js:74 🔄 Загрузка баланса с сервера для 1889923046...
+balance-api.js:431 💰 Balance API loaded!
+case-nft-opener.js:96 ✅ NFT Case opener initialized for 16 cases
+preloader.js:122 ✅ JS: Первая загрузка уже выполнена, контент уже показан
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_expand 
+balance-api.js:75  GET http://localhost:8000/api/balance/1889923046 404 (File not found)
+loadBalance @ balance-api.js:75
+init @ balance-api.js:33
+BalanceAPI @ balance-api.js:17
+(anonymous) @ balance-api.js:426
+(anonymous) @ balance-api.js:433
+balance-api.js:76 📡 Ответ сервера: 404
+balance-api.js:91 ⚠️ Сервер вернул статус 404
+loadBalance @ balance-api.js:91
+await in loadBalance
+init @ balance-api.js:33
+BalanceAPI @ balance-api.js:17
+(anonymous) @ balance-api.js:426
+(anonymous) @ balance-api.js:433
+balance-api.js:43 ✅ Balance API ready (WebSocket mode)
+transactions-live.js:54 ⚠️ .transaction container not found
+setup @ transactions-live.js:54
+init @ transactions-live.js:33
+await in init
+TransactionsList @ transactions-live.js:17
+(anonymous) @ transactions-live.js:306
+(anonymous) @ transactions-live.js:308
+home.js:444 Uncaught ReferenceError: conveyorContainer is not defined
+    at MainSmoothCyclicalConveyor.setupConveyor (home.js:444:34)
+    at MainSmoothCyclicalConveyor.init (home.js:377:14)
+    at new MainSmoothCyclicalConveyor (home.js:367:14)
+    at home.js:596:37
+setupConveyor @ home.js:444
+init @ home.js:377
+MainSmoothCyclicalConveyor @ home.js:367
+(anonymous) @ home.js:596
+setTimeout
+(anonymous) @ home.js:595
+(anonymous) @ home.js:599
+case-nft-opener.js:50 ✅ Конфиг кейса 529₽ загружен: 10 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 250
+case-nft-opener.js:271 ✅ Картинка загружена: 356
+case-nft-opener.js:271 ✅ Картинка загружена: 461
+case-nft-opener.js:271 ✅ Картинка загружена: 567
+case-nft-opener.js:271 ✅ Картинка загружена: 672
+case-nft-opener.js:271 ✅ Картинка загружена: 778
+case-nft-opener.js:271 ✅ Картинка загружена: 883
+case-nft-opener.js:271 ✅ Картинка загружена: 989
+case-nft-opener.js:271 ✅ Картинка загружена: 1094
+case-nft-opener.js:271 ✅ Картинка загружена: 1200
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+s @ manager.js:39
+Pt @ index.js:29
+connectWebSocket @ balance-api.js:348
+init @ balance-api.js:36
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+s @ manager.js:39
+Pt @ index.js:29
+connectWebSocket @ liveprize-realtime.js:194
+init @ liveprize-realtime.js:31
+RealtimeLivePrizes @ liveprize-realtime.js:19
+(anonymous) @ liveprize-realtime.js:371
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+manager.js:108 WebSocket connection to 'ws://localhost:8000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+manager.js:108 WebSocket connection to 'ws://localhost:3000/socket.io/?EIO=4&transport=websocket' failed: 
+value @ websocket.js:44
+value @ transport.js:45
+value @ socket.js:164
+a @ socket.js:105
+value @ manager.js:108
+(anonymous) @ manager.js:331
+liveprize-realtime.js:219 ❌ Socket.IO error: websocket error
+(anonymous) @ liveprize-realtime.js:219
+(anonymous) @ index.mjs:136
+value @ socket.js:415
+(anonymous) @ index.mjs:136
+(anonymous) @ manager.js:122
+(anonymous) @ index.mjs:136
+value @ socket.js:524
+(anonymous) @ index.mjs:136
+value @ transport.js:37
+(anonymous) @ websocket.js:70
+case-nft-opener.js:50 ✅ Конфиг кейса 777₽ загружен: 9 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 350
+case-nft-opener.js:271 ✅ Картинка загружена: 531
+case-nft-opener.js:271 ✅ Картинка загружена: 713
+case-nft-opener.js:271 ✅ Картинка загружена: 894
+case-nft-opener.js:271 ✅ Картинка загружена: 1075
+case-nft-opener.js:271 ✅ Картинка загружена: 1256
+case-nft-opener.js:271 ✅ Картинка загружена: 1438
+case-nft-opener.js:271 ✅ Картинка загружена: 1619
+case-nft-opener.js:271 ✅ Картинка загружена: 1800
+case-nft-opener.js:50 ✅ Конфиг кейса 279₽ загружен: 9 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 100
+case-nft-opener.js:271 ✅ Картинка загружена: 150
+case-nft-opener.js:271 ✅ Картинка загружена: 200
+case-nft-opener.js:271 ✅ Картинка загружена: 250
+case-nft-opener.js:271 ✅ Картинка загружена: 300
+case-nft-opener.js:271 ✅ Картинка загружена: 350
+case-nft-opener.js:271 ✅ Картинка загружена: 400
+case-nft-opener.js:271 ✅ Картинка загружена: 450
+case-nft-opener.js:271 ✅ Картинка загружена: 500
+case-nft-opener.js:271 ✅ Картинка загружена: 250
+case-nft-opener.js:271 ✅ Картинка загружена: 356
+case-nft-opener.js:271 ✅ Картинка загружена: 461
+case-nft-opener.js:271 ✅ Картинка загружена: 567
+case-nft-opener.js:271 ✅ Картинка загружена: 672
+case-nft-opener.js:271 ✅ Картинка загружена: 778
+case-nft-opener.js:271 ✅ Картинка загружена: 883
+case-nft-opener.js:271 ✅ Картинка загружена: 989
+case-nft-opener.js:271 ✅ Картинка загружена: 1094
+case-nft-opener.js:271 ✅ Картинка загружена: 1200
+case-nft-opener.js:50 ✅ Конфиг кейса 479₽ загружен: 10 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 200
+case-nft-opener.js:271 ✅ Картинка загружена: 289
+case-nft-opener.js:271 ✅ Картинка загружена: 378
+case-nft-opener.js:271 ✅ Картинка загружена: 467
+case-nft-opener.js:271 ✅ Картинка загружена: 556
+case-nft-opener.js:271 ✅ Картинка загружена: 644
+case-nft-opener.js:271 ✅ Картинка загружена: 733
+case-nft-opener.js:271 ✅ Картинка загружена: 822
+case-nft-opener.js:271 ✅ Картинка загружена: 911
+case-nft-opener.js:271 ✅ Картинка загружена: 1000
+case-nft-opener.js:50 ✅ Конфиг кейса 819₽ загружен: 9 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 400
+case-nft-opener.js:271 ✅ Картинка загружена: 600
+case-nft-opener.js:271 ✅ Картинка загружена: 800
+case-nft-opener.js:271 ✅ Картинка загружена: 1000
+case-nft-opener.js:271 ✅ Картинка загружена: 1200
+case-nft-opener.js:271 ✅ Картинка загружена: 1400
+case-nft-opener.js:271 ✅ Картинка загружена: 1600
+case-nft-opener.js:271 ✅ Картинка загружена: 1800
+case-nft-opener.js:271 ✅ Картинка загружена: 2000
+case-nft-opener.js:50 ✅ Конфиг кейса 999₽ загружен: 9 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 500
+case-nft-opener.js:271 ✅ Картинка загружена: 813
+case-nft-opener.js:271 ✅ Картинка загружена: 1125
+case-nft-opener.js:271 ✅ Картинка загружена: 1438
+case-nft-opener.js:271 ✅ Картинка загружена: 1750
+case-nft-opener.js:271 ✅ Картинка загружена: 2063
+case-nft-opener.js:271 ✅ Картинка загружена: 2375
+case-nft-opener.js:271 ✅ Картинка загружена: 2688
+case-nft-opener.js:271 ✅ Картинка загружена: 3000
+case-nft-opener.js:50 ✅ Конфиг кейса 329₽ загружен: 9 призов
+case-nft-opener.js:271 ✅ Картинка загружена: 150
+case-nft-opener.js:271 ✅ Картинка загружена: 206
+case-nft-opener.js:271 ✅ Картинка загружена: 263
+case-nft-opener.js:271 ✅ Картинка загружена: 319
+case-nft-opener.js:271 ✅ Картинка загружена: 375
+case-nft-opener.js:271 ✅ Картинка загружена: 431
+case-nft-opener.js:271 ✅ Картинка загружена: 488
+case-nft-opener.js:271 ✅ Картинка загружена: 544
+case-nft-opener.js:271 ✅ Картинка загружена: 600
