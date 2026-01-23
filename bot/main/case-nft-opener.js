@@ -242,7 +242,7 @@
     priceBadge.className = 'prize-price-badge';
     priceBadge.innerHTML = `
       <div class="prize-currency-icon">₽</div>
-      <span class="prize-price-value">${prize.price}</span>
+      <span class="prize-prize-value">${prize.price}</span>
     `;
 
     // Изображение приза
@@ -250,19 +250,24 @@
     img.className = 'prize-image';
     img.src = prize.image;
     img.alt = `Prize ${prize.price}₽`;
-    img.style.width = '100%';
-    img.style.height = '100%';
-    img.style.objectFit = 'contain';
-    img.style.position = 'relative';
-    img.style.zIndex = '1';
-    img.loading = 'eager'; // Принудительная загрузка
+    
+    // КРИТИЧНО! Явные стили для img
+    img.style.cssText = `
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      display: block;
+    `;
+    
+    img.loading = 'eager';
     
     img.onerror = function() {
       console.error('❌ Ошибка загрузки:', this.src);
       this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="40" text-anchor="middle" x="50">🎁</text></svg>';
     };
     
-    // Проверка загрузки
     img.onload = function() {
       console.log('✅ Картинка загружена:', prize.price);
     };
@@ -375,13 +380,17 @@
       // Вставляем выигрышный приз в конец
       carouselPrizes[carouselPrizes.length - 5] = winningPrize;
 
-      carouselPrizes.forEach(prize => {
+      carouselPrizes.forEach((prize, idx) => {
         const card = createPrizeCard(prize);
         card.style.flexShrink = '0';
         card.style.opacity = '1';
         card.style.transform = 'scale(1)';
         card.style.width = '110px';
         card.style.height = '110px';
+        
+        // Отладка
+        console.log(`🎰 Carousel card ${idx}:`, prize.price, card.querySelector('img')?.src);
+        
         carousel.appendChild(card);
       });
 
