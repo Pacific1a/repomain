@@ -199,10 +199,9 @@
 
       container.innerHTML = '';
       container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(80px, 0fr))';
+      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(110px, 1fr))';
+      container.style.gap = '12px';
       container.style.padding = '16px';
-      container.style.columnGap = '26px';
-      container.style.rowGap = '16px';
       container.style.justifyItems = 'center';
 
       prizes.forEach((prize, index) => {
@@ -351,9 +350,13 @@
     return new Promise((resolve) => {
       const contentWindow = document.querySelector('.content-window-item');
       if (!contentWindow) {
+        console.error('❌ .content-window-item не найден!');
         resolve();
         return;
       }
+
+      console.log('🎰 Запуск анимации спина для:', winningPrize);
+      console.log('🎰 Content window:', contentWindow);
 
       contentWindow.innerHTML = '';
       contentWindow.style.display = 'flex';
@@ -377,6 +380,8 @@
         carouselPrizes.push(randomPrize);
       }
       
+      console.log('🎰 Призы для карусели:', carouselPrizes.length);
+      
       // Вставляем выигрышный приз в конец
       carouselPrizes[carouselPrizes.length - 5] = winningPrize;
 
@@ -388,13 +393,19 @@
         card.style.width = '110px';
         card.style.height = '110px';
         
-        // Отладка
-        console.log(`🎰 Carousel card ${idx}:`, prize.price, card.querySelector('img')?.src);
+        const imgElement = card.querySelector('img');
+        console.log(`🎰 Card ${idx}: price=${prize.price}, hasImg=${!!imgElement}, src=${imgElement?.src}`);
         
         carousel.appendChild(card);
       });
 
+      console.log('🎰 Карусель создана, карточек:', carousel.children.length);
+      console.log('🎰 Картинок в карусели:', carousel.querySelectorAll('img').length);
+      
       contentWindow.appendChild(carousel);
+      
+      console.log('🎰 Карусель добавлена в DOM');
+      console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
       // Индикатор центра
       const indicator = document.createElement('div');
