@@ -199,9 +199,10 @@
 
       container.innerHTML = '';
       container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(110px, 1fr))';
-      container.style.gap = '12px';
+      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(80px, 0fr))';
       container.style.padding = '16px';
+      container.style.columnGap = '26px';
+      container.style.rowGap = '16px';
       container.style.justifyItems = 'center';
 
       prizes.forEach((prize, index) => {
@@ -254,9 +255,16 @@
     img.style.objectFit = 'contain';
     img.style.position = 'relative';
     img.style.zIndex = '1';
+    img.loading = 'eager'; // Принудительная загрузка
     
     img.onerror = function() {
+      console.error('❌ Ошибка загрузки:', this.src);
       this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="40" text-anchor="middle" x="50">🎁</text></svg>';
+    };
+    
+    // Проверка загрузки
+    img.onload = function() {
+      console.log('✅ Картинка загружена:', prize.price);
     };
 
     card.appendChild(priceBadge);
@@ -372,6 +380,8 @@
         card.style.flexShrink = '0';
         card.style.opacity = '1';
         card.style.transform = 'scale(1)';
+        card.style.width = '110px';
+        card.style.height = '110px';
         carousel.appendChild(card);
       });
 
