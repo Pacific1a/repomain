@@ -100,11 +100,14 @@
 
 /* === КАРТИНКА ПРИЗА === */
 .prize-image {
-  position: relative;
-  width: 100%;
-  object-fit: contain;
-  z-index: 1;
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  z-index: 1 !important;
+  display: block !important;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
 }
 
 /* === ЦЕНА В УГЛУ (компактная, прозрачная, красивая) === */
