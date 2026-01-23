@@ -6,61 +6,61 @@
     {
       "id": 1,
       "image": "main/content-case/777/1.png",
-      "price": 350,
-      "rarity": "common",
-      "rarityColor": "#7c94ae",
-      "rarityName": "Обычный",
-      "chance": 27
+      "price": 200,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 22
     },
     {
       "id": 2,
       "image": "main/content-case/777/2.png",
-      "price": 531,
+      "price": 250,
       "rarity": "rare",
       "rarityColor": "#4f66e3",
       "rarityName": "Рарный",
-      "chance": 24
+      "chance": 22
     },
     {
       "id": 3,
       "image": "main/content-case/777/3.png",
-      "price": 713,
+      "price": 300,
       "rarity": "epic",
       "rarityColor": "#8e4dde",
       "rarityName": "Эпический",
-      "chance": 17
+      "chance": 16
     },
     {
       "id": 4,
       "image": "main/content-case/777/4.png",
-      "price": 894,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 12
+      "price": 350,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 16
     },
     {
       "id": 5,
       "image": "main/content-case/777/5.png",
-      "price": 1075,
+      "price": 400,
       "rarity": "legendary",
       "rarityColor": "#c32f80",
       "rarityName": "Легендарный",
-      "chance": 8
+      "chance": 11
     },
     {
       "id": 6,
       "image": "main/content-case/777/6.png",
-      "price": 1256,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 5
+      "price": 500,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 7
     },
     {
       "id": 7,
       "image": "main/content-case/777/7.png",
-      "price": 1438,
+      "price": 700,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
@@ -69,7 +69,7 @@
     {
       "id": 8,
       "image": "main/content-case/777/8.png",
-      "price": 1619,
+      "price": 777,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
@@ -78,7 +78,7 @@
     {
       "id": 9,
       "image": "main/content-case/777/9.png",
-      "price": 1800,
+      "price": 888,
       "rarity": "divine",
       "rarityColor": "#da8f4a",
       "rarityName": "Божественный",

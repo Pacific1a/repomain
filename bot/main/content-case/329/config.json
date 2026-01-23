@@ -6,79 +6,79 @@
     {
       "id": 1,
       "image": "main/content-case/329/Rocket голубой как фен.png",
-      "price": 150,
-      "rarity": "rare",
-      "rarityColor": "#4f66e3",
-      "rarityName": "Рарный",
-      "chance": 32
+      "price": 50,
+      "rarity": "common",
+      "rarityColor": "#7c94ae",
+      "rarityName": "Обычный",
+      "chance": 27
     },
     {
       "id": 2,
       "image": "main/content-case/329/Rocket жёлтый.png",
-      "price": 206,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
-      "chance": 23
+      "price": 100,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 24
     },
     {
       "id": 3,
       "image": "main/content-case/329/Rocket оранжевый.png",
-      "price": 263,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 15
+      "price": 150,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 17
     },
     {
       "id": 4,
       "image": "main/content-case/329/Rocket розовый.png",
-      "price": 319,
+      "price": 200,
       "rarity": "legendary",
       "rarityColor": "#c32f80",
       "rarityName": "Легендарный",
-      "chance": 10
+      "chance": 11
     },
     {
       "id": 5,
       "image": "main/content-case/329/Rocket салатовый.png",
-      "price": 375,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 6
+      "price": 250,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 8
     },
     {
       "id": 6,
       "image": "main/content-case/329/Rocket серый.png",
-      "price": 431,
+      "price": 300,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
-      "chance": 6
+      "chance": 5
     },
     {
       "id": 7,
       "image": "main/content-case/329/Rocket синий.png",
-      "price": 488,
+      "price": 350,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
-      "chance": 4
+      "chance": 5
     },
     {
       "id": 8,
       "image": "main/content-case/329/Rocket фиолетовый.png",
-      "price": 544,
-      "rarity": "divine",
-      "rarityColor": "#da8f4a",
-      "rarityName": "Божественный",
-      "chance": 1
+      "price": 400,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
     },
     {
       "id": 9,
       "image": "main/content-case/329/Rocket.png",
-      "price": 600,
+      "price": 500,
       "rarity": "divine",
       "rarityColor": "#da8f4a",
       "rarityName": "Божественный",

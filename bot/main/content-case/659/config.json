@@ -6,70 +6,70 @@
     {
       "id": 1,
       "image": "main/content-case/659/Pingin 1.png",
-      "price": 300,
+      "price": 200,
       "rarity": "rare",
       "rarityColor": "#4f66e3",
       "rarityName": "Рарный",
-      "chance": 24
+      "chance": 21
     },
     {
       "id": 2,
       "image": "main/content-case/659/Pingin 2.png",
-      "price": 433,
+      "price": 250,
       "rarity": "rare",
       "rarityColor": "#4f66e3",
       "rarityName": "Рарный",
-      "chance": 24
+      "chance": 21
     },
     {
       "id": 3,
       "image": "main/content-case/659/Pingin 3.png",
-      "price": 567,
+      "price": 300,
       "rarity": "epic",
       "rarityColor": "#8e4dde",
       "rarityName": "Эпический",
-      "chance": 17
+      "chance": 15
     },
     {
       "id": 4,
       "image": "main/content-case/659/Pingin 4.png",
-      "price": 700,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 12
+      "price": 350,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 15
     },
     {
       "id": 5,
       "image": "main/content-case/659/Pingin 5.png",
-      "price": 833,
+      "price": 400,
       "rarity": "legendary",
       "rarityColor": "#c32f80",
       "rarityName": "Легендарный",
-      "chance": 8
+      "chance": 10
     },
     {
       "id": 6,
       "image": "main/content-case/659/Pingin 6.png",
-      "price": 967,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 5
+      "price": 500,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 7
     },
     {
       "id": 7,
       "image": "main/content-case/659/Pingin 7.png",
-      "price": 1100,
+      "price": 700,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
-      "chance": 5
+      "chance": 4
     },
     {
       "id": 8,
       "image": "main/content-case/659/Pingin 8.png",
-      "price": 1233,
+      "price": 777,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
@@ -78,16 +78,16 @@
     {
       "id": 9,
       "image": "main/content-case/659/Pingin 9.png",
-      "price": 1367,
-      "rarity": "divine",
-      "rarityColor": "#da8f4a",
-      "rarityName": "Божественный",
-      "chance": 1
+      "price": 888,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
     },
     {
       "id": 10,
       "image": "main/content-case/659/Pingin.png",
-      "price": 1500,
+      "price": 1000,
       "rarity": "divine",
       "rarityColor": "#da8f4a",
       "rarityName": "Божественный",

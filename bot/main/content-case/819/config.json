@@ -6,79 +6,79 @@
     {
       "id": 1,
       "image": "main/content-case/819/Crystal 1.png",
-      "price": 400,
+      "price": 250,
       "rarity": "rare",
       "rarityColor": "#4f66e3",
       "rarityName": "Рарный",
-      "chance": 32
+      "chance": 27
     },
     {
       "id": 2,
       "image": "main/content-case/819/Crystal 2.png",
-      "price": 600,
+      "price": 300,
       "rarity": "epic",
       "rarityColor": "#8e4dde",
       "rarityName": "Эпический",
-      "chance": 23
+      "chance": 19
     },
     {
       "id": 3,
       "image": "main/content-case/819/Crystal 4.png",
-      "price": 800,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 15
+      "price": 350,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 19
     },
     {
       "id": 4,
       "image": "main/content-case/819/Crystal 5.png",
-      "price": 1000,
+      "price": 400,
       "rarity": "legendary",
       "rarityColor": "#c32f80",
       "rarityName": "Легендарный",
-      "chance": 10
+      "chance": 13
     },
     {
       "id": 5,
       "image": "main/content-case/819/Crystal 6.png",
-      "price": 1200,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 6
+      "price": 500,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 9
     },
     {
       "id": 6,
       "image": "main/content-case/819/Crystal 7.png",
-      "price": 1400,
+      "price": 700,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
-      "chance": 6
+      "chance": 5
     },
     {
       "id": 7,
       "image": "main/content-case/819/Crystal 8.png",
-      "price": 1600,
+      "price": 777,
       "rarity": "mythical",
       "rarityColor": "#be3a41",
       "rarityName": "Мифический",
-      "chance": 4
+      "chance": 3
     },
     {
       "id": 8,
       "image": "main/content-case/819/Crystal 9.png",
-      "price": 1800,
-      "rarity": "divine",
-      "rarityColor": "#da8f4a",
-      "rarityName": "Божественный",
-      "chance": 1
+      "price": 888,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
     },
     {
       "id": 9,
       "image": "main/content-case/819/Crystal.png",
-      "price": 2000,
+      "price": 1000,
       "rarity": "divine",
       "rarityColor": "#da8f4a",
       "rarityName": "Божественный",
