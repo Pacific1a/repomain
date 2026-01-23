@@ -241,7 +241,7 @@
     priceBadge.className = 'prize-price-badge';
     priceBadge.innerHTML = `
       <div class="prize-currency-icon">₽</div>
-      <span class="prize-prize-value">${prize.price}</span>
+      <span class="prize-price-value">${prize.price}</span>
     `;
 
     // Изображение приза
