@@ -1,0 +1,98 @@
+{
+  "caseId": "479",
+  "caseName": "Кейс 479₽",
+  "casePrice": "479",
+  "prizes": [
+    {
+      "id": 1,
+      "image": "main/content-case/479/Backpack 1.png",
+      "price": 200,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 24
+    },
+    {
+      "id": 2,
+      "image": "main/content-case/479/Backpack 2.png",
+      "price": 289,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 24
+    },
+    {
+      "id": 3,
+      "image": "main/content-case/479/Backpack 3.png",
+      "price": 378,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 17
+    },
+    {
+      "id": 4,
+      "image": "main/content-case/479/Backpack 4.png",
+      "price": 467,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 12
+    },
+    {
+      "id": 5,
+      "image": "main/content-case/479/Backpack 5.png",
+      "price": 556,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 8
+    },
+    {
+      "id": 6,
+      "image": "main/content-case/479/Backpack 6.png",
+      "price": 644,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 5
+    },
+    {
+      "id": 7,
+      "image": "main/content-case/479/Backpack 7.png",
+      "price": 733,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 5
+    },
+    {
+      "id": 8,
+      "image": "main/content-case/479/Backpack 8.png",
+      "price": 822,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
+    },
+    {
+      "id": 9,
+      "image": "main/content-case/479/Backpack 9.png",
+      "price": 911,
+      "rarity": "divine",
+      "rarityColor": "#da8f4a",
+      "rarityName": "Божественный",
+      "chance": 1
+    },
+    {
+      "id": 10,
+      "image": "main/content-case/479/Backpack.png",
+      "price": 1000,
+      "rarity": "divine",
+      "rarityColor": "#da8f4a",
+      "rarityName": "Божественный",
+      "chance": 1
+    }
+  ],
+  "totalChance": 100
+}
