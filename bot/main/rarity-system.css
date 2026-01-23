@@ -9,7 +9,13 @@
   height: 140px;
   border-radius: 12px;
   padding: 8px;
-  background: rgba(20, 20, 20, 0.95);
+  /* Фоновое изображение + затемнение */
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)),
+    url('../assets/bgs-case.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   backdrop-filter: blur(10px);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
