@@ -19,7 +19,7 @@
   transform: translateY(-4px) scale(1.02);
 }
 
-/* Градиентный фон карточки по редкости */
+/* Градиентный фон карточки по редкости (снизу вверх, плавный) */
 .prize-card::before {
   content: '';
   position: absolute;
@@ -27,16 +27,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
-    circle at center,
+  background: linear-gradient(
+    to top,
     var(--rarity-color) 0%,
-    transparent 70%
+    transparent 60%
   );
-  opacity: 0.15;
+  opacity: 0.1;
   z-index: 0;
 }
 
-/* Обводка карточки по редкости */
+/* Обводка карточки по редкости (плавная, менее яркая) */
 .prize-card::after {
   content: '';
   position: absolute;
@@ -44,22 +44,22 @@
   left: 0;
   right: 0;
   bottom: 0;
-  border: 2px solid var(--rarity-color);
+  border: 1.5px solid var(--rarity-color);
   border-radius: 12px;
-  opacity: 0.6;
+  opacity: 0.4;
   pointer-events: none;
   z-index: 3;
   box-shadow: 
-    inset 0 0 20px var(--rarity-color),
-    0 0 15px var(--rarity-color);
+    inset 0 0 15px rgba(0, 0, 0, 0.3),
+    0 0 8px var(--rarity-color);
   transition: all 0.3s ease;
 }
 
 .prize-card:hover::after {
-  opacity: 1;
+  opacity: 0.7;
   box-shadow: 
-    inset 0 0 30px var(--rarity-color),
-    0 0 25px var(--rarity-color);
+    inset 0 0 20px rgba(0, 0, 0, 0.2),
+    0 0 15px var(--rarity-color);
 }
 
 /* === БОЖЕСТВЕННЫЙ === */
@@ -102,56 +102,58 @@
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
 }
 
-/* === ЦЕНА В УГЛУ === */
+/* === ЦЕНА В УГЛУ (компактная, прозрачная, красивая) === */
 .prize-price-badge {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 6px;
+  left: 6px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: 8px;
-  border: 1px solid var(--rarity-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  gap: 3px;
+  padding: 3px 6px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   z-index: 2;
 }
 
-/* Значок валюты (алмаз/рубль) */
+/* Значок рубля */
 .prize-currency-icon {
-  width: 16px;
-  height: 16px;
-  background: linear-gradient(135deg, #4fb3ff 0%, #2d9cff 100%);
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: #ffd700;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
-/* SVG иконка алмаза */
+/* SVG иконка рубля */
 .prize-currency-icon svg {
-  width: 12px;
-  height: 12px;
-  fill: white;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  width: 11px;
+  height: 11px;
+  fill: #ffd700;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 /* Текст цены */
 .prize-price-value {
   font-family: "Montserrat-Bold", Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  line-height: 1;
 }
 
-/* === НАЗВАНИЕ РЕДКОСТИ (опционально) === */
+/* === НАЗВАНИЕ РЕДКОСТИ (отключено по умолчанию) === */
 .prize-rarity-label {
+  display: none;
+  /* Если нужно включить - удалите display: none */
   position: absolute;
   bottom: 8px;
   left: 50%;
