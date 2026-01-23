@@ -208,20 +208,22 @@
       container.style.padding = '4px';
       container.style.justifyItems = 'center';
       
-      // Центрируем последнюю карточку если она одна
-      const itemsPerRow = Math.floor((container.offsetWidth || 300) / 102); // 100px + 2px gap
-      if (prizes.length % itemsPerRow === 1) {
-        // Если последняя карточка одна - центрируем её через grid
-        container.style.gridTemplateColumns = `repeat(auto-fit, minmax(100px, 1fr))`;
-        container.style.justifyContent = 'center';
-      }
-      
       // Сортируем призы: от дорогих к дешевым (легендарные → обычные)
       const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
 
       sortedPrizes.forEach((prize, index) => {
         setTimeout(() => {
           const prizeCard = createPrizeCard(prize);
+          
+          // Центрируем последнюю карточку если она одна в ряду
+          if (index === sortedPrizes.length - 1) {
+            const itemsPerRow = Math.floor((container.offsetWidth || 300) / 102);
+            if (sortedPrizes.length % itemsPerRow === 1) {
+              prizeCard.style.gridColumn = '1 / -1';
+              prizeCard.style.justifySelf = 'center';
+            }
+          }
+          
           container.appendChild(prizeCard);
           
           // Анимация появления
