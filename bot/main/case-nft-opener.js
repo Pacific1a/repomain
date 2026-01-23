@@ -204,8 +204,8 @@
       container.innerHTML = '';
       container.style.display = 'grid';
       container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
-      container.style.gap = '8px';
-      container.style.padding = '12px';
+      container.style.gap = '4px';
+      container.style.padding = '8px';
       container.style.justifyItems = 'center';
 
       prizes.forEach((prize, index) => {
@@ -244,7 +244,7 @@
     // Создаём карусель
     const carousel = document.createElement('div');
     carousel.style.display = 'flex';
-    carousel.style.gap = '12px';
+    carousel.style.gap = '6px';
     carousel.style.position = 'absolute';
     carousel.style.left = '0';
     carousel.style.animation = 'carousel-scroll 20s linear infinite';
@@ -425,7 +425,7 @@
       // Создаём карусель призов
       const carousel = document.createElement('div');
       carousel.style.display = 'flex';
-      carousel.style.gap = '16px';
+      carousel.style.gap = '6px';
       carousel.style.position = 'absolute';
       carousel.style.left = '0';
       carousel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
@@ -478,7 +478,7 @@
 
       // Запускаем прокрутку
       setTimeout(() => {
-        const cardWidth = 110 + 16; // ширина + gap
+        const cardWidth = 110 + 6; // ширина + gap
         const targetOffset = (carouselPrizes.length - 5) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translateX(-${targetOffset}px)`;
       }, 100);
