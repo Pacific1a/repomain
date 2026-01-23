@@ -172,10 +172,90 @@
   </div>
   
   <script>
-    // Загрузка конфигурации кейса
-    fetch('main/content-case/279/config.json')
-      .then(r => r.json())
-      .then(config => {
+    // Конфигурация кейса 279₽ (встроенная)
+    const config = {
+      "caseId": 279,
+      "caseName": "Кейс 279₽",
+      "casePrice": 279,
+      "prizes": [
+        {
+          "id": 1,
+          "image": "main/content-case/279/1769073668757-019be501-9aa7-70f7-84ac-fe6b5108276f.png",
+          "price": 500,
+          "rarity": "divine",
+          "rarityColor": "#da8f4a",
+          "rarityName": "Божественный",
+          "chance": 1
+        },
+        {
+          "id": 2,
+          "image": "main/content-case/279/1769073780432-019be503-56d6-76b5-8bed-198cd3a2d3ca.png",
+          "price": 400,
+          "rarity": "mythical",
+          "rarityColor": "#be3a41",
+          "rarityName": "Мифический",
+          "chance": 3
+        },
+        {
+          "id": 3,
+          "image": "main/content-case/279/1769073833026-019be504-1f22-754b-bede-2c18eb2e710f.png",
+          "price": 350,
+          "rarity": "mythical",
+          "rarityColor": "#be3a41",
+          "rarityName": "Мифический",
+          "chance": 5
+        },
+        {
+          "id": 4,
+          "image": "main/content-case/279/1769073945986-019be505-cb62-701c-8b56-070fab1d4925.png",
+          "price": 300,
+          "rarity": "legendary",
+          "rarityColor": "#c32f80",
+          "rarityName": "Легендарный",
+          "chance": 8
+        },
+        {
+          "id": 5,
+          "image": "main/content-case/279/1769074042419-019be507-3a12-7cea-b979-e02627c7c8df.png",
+          "price": 250,
+          "rarity": "legendary",
+          "rarityColor": "#c32f80",
+          "rarityName": "Легендарный",
+          "chance": 12
+        },
+        {
+          "id": 6,
+          "image": "main/content-case/279/1769074108142-019be508-5a85-7350-91cd-2e5d31cfe6c1.png",
+          "price": 200,
+          "rarity": "epic",
+          "rarityColor": "#8e4dde",
+          "rarityName": "Эпический",
+          "chance": 18
+        },
+        {
+          "id": 7,
+          "image": "main/content-case/279/1769074172138-019be509-3c3a-7c65-959e-bdd0ddecf38b.png",
+          "price": 150,
+          "rarity": "rare",
+          "rarityColor": "#4f66e3",
+          "rarityName": "Рарный",
+          "chance": 25
+        },
+        {
+          "id": 8,
+          "image": "main/content-case/279/1769074260017-019be50a-a733-76e6-9d69-91bcec4a218b.png",
+          "price": 100,
+          "rarity": "common",
+          "rarityColor": "#7c94ae",
+          "rarityName": "Обычный",
+          "chance": 28
+        }
+      ],
+      "totalChance": 100
+    };
+    
+    // Отрисовка призов
+    (function() {
         const grid = document.getElementById('prizes-grid');
         
         config.prizes.forEach((prize, index) => {
@@ -226,12 +306,7 @@
         console.log('✅ Кейс 279₽ загружен!');
         console.log('📊 Призов:', config.prizes.length);
         console.log('💰 RTP:', calculateRTP(config.prizes), '%');
-      })
-      .catch(err => {
-        console.error('❌ Ошибка загрузки конфигурации:', err);
-        document.getElementById('prizes-grid').innerHTML = 
-          '<div style="grid-column: 1/-1; text-align: center; color: #ff6b6b; padding: 20px;">Ошибка загрузки config.json</div>';
-      });
+    })();
     
     // Расчёт RTP
     function calculateRTP(prizes) {
