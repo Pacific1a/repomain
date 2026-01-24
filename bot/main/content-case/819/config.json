@@ -2,32 +2,33 @@
   "caseId": "819",
   "caseName": "Кейс 819₽",
   "casePrice": "819",
+  "caseType": "nft",
   "prizes": [
     {
       "id": 1,
       "image": "main/content-case/819/Crystal 1.png",
       "price": 250,
-      "rarity": "rare",
-      "rarityColor": "#4f66e3",
-      "rarityName": "Рарный",
+      "rarity": "common",
+      "rarityColor": "#7c94ae",
+      "rarityName": "Обычный",
       "chance": 27
     },
     {
       "id": 2,
       "image": "main/content-case/819/Crystal 2.png",
       "price": 300,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
       "chance": 19
     },
     {
       "id": 3,
       "image": "main/content-case/819/Crystal 4.png",
       "price": 350,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
       "chance": 19
     },
     {

@@ -2,6 +2,7 @@
   "caseId": "389",
   "caseName": "Кейс 389₽",
   "casePrice": "389",
+  "caseType": "nft",
   "prizes": [
     {
       "id": 1,
