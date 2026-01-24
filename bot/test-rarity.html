@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 Тест Системы Редкости - Кейс 911₽</title>
+  
+  <link rel="stylesheet" href="main/rarity-system.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Montserrat", -apple-system, sans-serif;
+      background: #151414;
+      padding: 20px;
+      color: white;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      background: linear-gradient(90deg, #da8f4a 0%, #4f66e3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .info-box {
+      background: rgba(33, 154, 172, 0.1);
+      border: 1px solid rgba(33, 154, 172, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .info-box h3 {
+      color: #27A2BF;
+      margin-bottom: 10px;
+    }
+    
+    .info-box p {
+      color: #ffffffa8;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    
+    .prizes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      margin: 30px 0 15px 0;
+      color: #27A2BF;
+    }
+    
+    .rarity-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .rarity-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 2px solid var(--color);
+    }
+    
+    .rarity-color {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      background: var(--color);
+      box-shadow: 0 0 15px var(--color);
+    }
+    
+    .rarity-info {
+      flex: 1;
+    }
+    
+    .rarity-name {
+      font-weight: 600;
+      color: var(--color);
+    }
+    
+    .rarity-chance {
+      font-size: 12px;
+      color: #ffffffa8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Система Редкости - Кейс 911₽</h1>
+    
+    <div class="info-box">
+      <h3>📋 Как работает:</h3>
+      <p>
+        • Каждый приз имеет свою редкость и шанс выпадения<br>
+        • Обводка карточки светится цветом редкости<br>
+        • Цена показана в верхнем левом углу с иконкой 💎<br>
+        • Наведи на карточку чтобы увидеть эффект свечения!
+      </p>
+    </div>
+    
+    <div class="section-title">🎯 Уровни редкости:</div>
+    <div class="rarity-legend">
+      <div class="rarity-item" style="--color: #da8f4a;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Божественный</div>
+          <div class="rarity-chance">1% шанс</div>
+        </div>
+      </div>
+      <div class="rarity-item" style="--color: #be3a41;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Мифический</div>
+          <div class="rarity-chance">8% шанс</div>
+        </div>
+      </div>
+      <div class="rarity-item" style="--color: #c32f80;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Легендарный</div>
+          <div class="rarity-chance">20% шанс</div>
+        </div>
+      </div>
+      <div class="rarity-item" style="--color: #8e4dde;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Эпический</div>
+          <div class="rarity-chance">18% шанс</div>
+        </div>
+      </div>
+      <div class="rarity-item" style="--color: #4f66e3;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Рарный</div>
+          <div class="rarity-chance">25% шанс</div>
+        </div>
+      </div>
+      <div class="rarity-item" style="--color: #7c94ae;">
+        <div class="rarity-color"></div>
+        <div class="rarity-info">
+          <div class="rarity-name">Обычный</div>
+          <div class="rarity-chance">28% шанс</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section-title">🎁 Призы кейса 911₽:</div>
+    <div class="prizes-grid" id="prizes-grid"></div>
+  </div>
+  
+  <script>
+    // Конфигурация кейса 911₽ (загружается из config.json)
+    let config = null;
+    
+    // Загрузка конфигурации
+    fetch('main/content-case/911/config.json')
+      .then(response => response.json())
+      .then(data => {
+        config = data;
+        renderPrizes();
+      })
+      .catch(error => {
+        console.error('❌ Ошибка загрузки config.json:', error);
+        alert('Не удалось загрузить конфигурацию кейса 911. Проверь путь к файлу.');
+      });
+    
+    // Отрисовка призов
+    function renderPrizes() {
+        const grid = document.getElementById('prizes-grid');
+        grid.innerHTML = ''; // Очистка перед рендером
+        
+        config.prizes.forEach((prize, index) => {
+          // Создаём карточку приза
+          const card = document.createElement('div');
+          card.className = 'prize-card';
+          card.setAttribute('data-rarity', prize.rarity);
+          card.style.setProperty('--rarity-color', prize.rarityColor);
+          
+          // Если это кейс с фишками - добавляем атрибут
+          if (config.caseType === 'chips') {
+            card.setAttribute('data-case-type', 'chips');
+          }
+          
+          // Цена в углу с иконкой рубля
+          const priceBadge = document.createElement('div');
+          priceBadge.className = 'prize-price-badge';
+          priceBadge.innerHTML = `
+            <div class="prize-currency-icon">
+              <img src="./main/assets/rubles.png" alt="" style="width: 20px;">
+            </div>
+            <span class="prize-price-value">${prize.price}</span>
+          `;
+          
+          // Картинка приза
+          const img = document.createElement('img');
+          img.className = 'prize-image';
+          img.src = prize.image;
+          img.alt = `Prize ${prize.price}₽`;
+          
+          // Обработка ошибки загрузки
+          img.onerror = function() {
+            console.error('❌ Не удалось загрузить:', this.src);
+            this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="40" text-anchor="middle" x="50">🎁</text></svg>';
+          };
+          
+          // Собираем карточку (без текста редкости)
+          card.appendChild(priceBadge);
+          card.appendChild(img);
+          
+          grid.appendChild(card);
+          
+          console.log(`Prize ${index + 1}:`, prize);
+        });
+        
+        console.log('✅ Кейс 911₽ загружен!');
+        console.log('📊 Призов:', config.prizes.length);
+        console.log('💰 RTP:', calculateRTP(config.prizes, config.casePrice), '%');
+    }
+    
+    // Расчёт RTP
+    function calculateRTP(prizes, casePrice) {
+      let totalValue = 0;
+      let totalChance = 0;
+      
+      prizes.forEach(p => {
+        totalValue += p.price * (p.chance / 100);
+        totalChance += p.chance;
+      });
+      
+      return Math.round((totalValue / casePrice) * 100);
+    }
+  </script>
+</body>
+</html>

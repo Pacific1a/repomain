@@ -275,3 +275,24 @@
     font-size: 15px;
   }
 }
+
+/* ============================================
+   СПЕЦИАЛЬНЫЕ СТИЛИ ДЛЯ КЕЙСОВ С ФИШКАМИ
+   ============================================ */
+
+/* Кейсы с фишками (911 и другие чиповые кейсы) */
+.prize-card[data-case-type="chips"] {
+  padding: 0 !important;
+}
+
+/* Убираем обводку для кейсов с фишками */
+.prize-card[data-case-type="chips"]::after {
+  display: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Убираем градиентный фон для четкости фишек */
+.prize-card[data-case-type="chips"]::before {
+  opacity: 0.05 !important;
+}

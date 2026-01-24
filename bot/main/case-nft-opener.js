@@ -25,6 +25,7 @@
   
   // Текущее состояние
   let currentCase = null;
+  let currentCaseType = null; // Тип кейса (chips, nft, etc)
   let isSpinning = false;
   let wonPrize = null;
   let isPrizeCollected = false;
@@ -112,6 +113,9 @@
       alert('Конфигурация кейса не найдена!');
       return;
     }
+
+    // Сохраняем тип кейса
+    currentCaseType = config.caseType || null;
 
     currentCase = {
       price,
@@ -288,6 +292,12 @@
     card.className = 'prize-card';
     card.setAttribute('data-rarity', prize.rarity);
     card.style.setProperty('--rarity-color', prize.rarityColor);
+    
+    // Если это кейс с фишками - добавляем атрибут
+    if (currentCaseType === 'chips') {
+      card.setAttribute('data-case-type', 'chips');
+    }
+    
     card.style.opacity = '0';
     card.style.transform = 'scale(0.8) translateY(20px)';
     card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
