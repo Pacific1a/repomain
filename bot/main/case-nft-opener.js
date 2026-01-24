@@ -208,8 +208,8 @@
       container.innerHTML = '';
       container.style.display = 'grid';
       container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
-      container.style.gap = '2px';
-      container.style.padding = '4px';
+      container.style.gap = '10px';
+      container.style.padding = '10px';
       container.style.justifyItems = 'center';
       
       // Сортируем призы: от дорогих к дешевым (легендарные → обычные)
@@ -219,16 +219,26 @@
         setTimeout(() => {
           const prizeCard = createPrizeCard(prize);
           
-          // Центрируем последнюю карточку если она одна в ряду
-          if (index === sortedPrizes.length - 1) {
-            const itemsPerRow = Math.floor((container.offsetWidth || 300) / 102);
-            if (sortedPrizes.length % itemsPerRow === 1) {
-              prizeCard.style.gridColumn = '1 / -1';
-              prizeCard.style.justifySelf = 'center';
-            }
-          }
-          
+          // Добавляем в контейнер
           container.appendChild(prizeCard);
+          
+          // Центрируем последнюю карточку если она одна в ряду
+          // Делаем это после добавления, чтобы правильно рассчитать ширину
+          if (index === sortedPrizes.length - 1) {
+            setTimeout(() => {
+              const containerWidth = container.offsetWidth;
+              const cardWidth = 110; // 100px + gap
+              const itemsPerRow = Math.floor(containerWidth / cardWidth);
+              const totalRows = Math.ceil(sortedPrizes.length / itemsPerRow);
+              const itemsInLastRow = sortedPrizes.length % itemsPerRow || itemsPerRow;
+              
+              // Если последний элемент один в ряду - центрируем его
+              if (itemsInLastRow === 1) {
+                prizeCard.style.gridColumn = `1 / -1`;
+                prizeCard.style.justifySelf = 'center';
+              }
+            }, 50);
+          }
           
           // Анимация появления
           requestAnimationFrame(() => {

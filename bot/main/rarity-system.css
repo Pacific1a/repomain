@@ -283,6 +283,8 @@
 /* Кейсы с фишками (911 и другие чиповые кейсы) */
 .prize-card[data-case-type="chips"] {
   padding: 0 !important;
+  background-image: none !important;
+  background-color: transparent !important;
 }
 
 /* Убираем обводку для кейсов с фишками */
@@ -294,5 +296,5 @@
 
 /* Убираем градиентный фон для четкости фишек */
 .prize-card[data-case-type="chips"]::before {
-  opacity: 0.05 !important;
+  display: none !important;
 }
