@@ -1,90 +1,90 @@
-{
-  "caseId": "329",
-  "caseName": "Кейс 329₽",
-  "casePrice": "329",
-  "caseType": "nft",
-  "prizes": [
-    {
-      "id": 1,
-      "image": "main/content-case/329/Rocket голубой как фен.png",
-      "price": 50,
-      "rarity": "common",
-      "rarityColor": "#7c94ae",
-      "rarityName": "Обычный",
-      "chance": 27
-    },
-    {
-      "id": 2,
-      "image": "main/content-case/329/Rocket жёлтый.png",
-      "price": 100,
-      "rarity": "rare",
-      "rarityColor": "#4f66e3",
-      "rarityName": "Рарный",
-      "chance": 24
-    },
-    {
-      "id": 3,
-      "image": "main/content-case/329/Rocket оранжевый.png",
-      "price": 150,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
-      "chance": 17
-    },
-    {
-      "id": 4,
-      "image": "main/content-case/329/Rocket розовый.png",
-      "price": 200,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 11
-    },
-    {
-      "id": 5,
-      "image": "main/content-case/329/Rocket салатовый.png",
-      "price": 250,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 8
-    },
-    {
-      "id": 6,
-      "image": "main/content-case/329/Rocket серый.png",
-      "price": 300,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 5
-    },
-    {
-      "id": 7,
-      "image": "main/content-case/329/Rocket синий.png",
-      "price": 350,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 5
-    },
-    {
-      "id": 8,
-      "image": "main/content-case/329/Rocket фиолетовый.png",
-      "price": 400,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 3
-    },
-    {
-      "id": 9,
-      "image": "main/content-case/329/Rocket.png",
-      "price": 500,
-      "rarity": "divine",
-      "rarityColor": "#da8f4a",
-      "rarityName": "Божественный",
-      "chance": 1
-    }
-  ],
-  "totalChance": 100
+﻿{
+    "caseId":  "329",
+    "caseName":  "Кейс 329₽",
+    "casePrice":  "329",
+    "caseType":  "nft",
+    "prizes":  [
+                   {
+                       "id":  1,
+                       "image":  "main/content-case/329/1.png",
+                       "price":  50,
+                       "rarity":  "common",
+                       "rarityColor":  "#7c94ae",
+                       "rarityName":  "Обычный",
+                       "chance":  27
+                   },
+                   {
+                       "id":  2,
+                       "image":  "main/content-case/329/2.png",
+                       "price":  100,
+                       "rarity":  "rare",
+                       "rarityColor":  "#4f66e3",
+                       "rarityName":  "Рарный",
+                       "chance":  24
+                   },
+                   {
+                       "id":  3,
+                       "image":  "main/content-case/329/3.png",
+                       "price":  150,
+                       "rarity":  "epic",
+                       "rarityColor":  "#8e4dde",
+                       "rarityName":  "Эпический",
+                       "chance":  17
+                   },
+                   {
+                       "id":  4,
+                       "image":  "main/content-case/329/4.png",
+                       "price":  200,
+                       "rarity":  "legendary",
+                       "rarityColor":  "#c32f80",
+                       "rarityName":  "Легендарный",
+                       "chance":  11
+                   },
+                   {
+                       "id":  5,
+                       "image":  "main/content-case/329/5.png",
+                       "price":  250,
+                       "rarity":  "legendary",
+                       "rarityColor":  "#c32f80",
+                       "rarityName":  "Легендарный",
+                       "chance":  8
+                   },
+                   {
+                       "id":  6,
+                       "image":  "main/content-case/329/6.png",
+                       "price":  300,
+                       "rarity":  "mythical",
+                       "rarityColor":  "#be3a41",
+                       "rarityName":  "Мифический",
+                       "chance":  5
+                   },
+                   {
+                       "id":  7,
+                       "image":  "main/content-case/329/7.png",
+                       "price":  350,
+                       "rarity":  "mythical",
+                       "rarityColor":  "#be3a41",
+                       "rarityName":  "Мифический",
+                       "chance":  5
+                   },
+                   {
+                       "id":  8,
+                       "image":  "main/content-case/329/8.png",
+                       "price":  400,
+                       "rarity":  "mythical",
+                       "rarityColor":  "#be3a41",
+                       "rarityName":  "Мифический",
+                       "chance":  3
+                   },
+                   {
+                       "id":  9,
+                       "image":  "main/content-case/329/9.png",
+                       "price":  500,
+                       "rarity":  "divine",
+                       "rarityColor":  "#da8f4a",
+                       "rarityName":  "Божественный",
+                       "chance":  1
+                   }
+               ],
+    "totalChance":  100
 }

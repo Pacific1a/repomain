@@ -1,99 +1,99 @@
-{
-  "caseId": "529",
-  "caseName": "Кейс 529₽",
-  "casePrice": "529",
-  "caseType": "nft",
-  "prizes": [
-    {
-      "id": 1,
-      "image": "main/content-case/529/корона 1.png",
-      "price": 150,
-      "rarity": "common",
-      "rarityColor": "#7c94ae",
-      "rarityName": "Обычный",
-      "chance": 20
-    },
-    {
-      "id": 2,
-      "image": "main/content-case/529/корона 2.png",
-      "price": 200,
-      "rarity": "rare",
-      "rarityColor": "#4f66e3",
-      "rarityName": "Рарный",
-      "chance": 18
-    },
-    {
-      "id": 3,
-      "image": "main/content-case/529/корона 3.png",
-      "price": 250,
-      "rarity": "rare",
-      "rarityColor": "#4f66e3",
-      "rarityName": "Рарный",
-      "chance": 18
-    },
-    {
-      "id": 4,
-      "image": "main/content-case/529/корона 4.png",
-      "price": 300,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
-      "chance": 13
-    },
-    {
-      "id": 5,
-      "image": "main/content-case/529/корона 5.png",
-      "price": 350,
-      "rarity": "epic",
-      "rarityColor": "#8e4dde",
-      "rarityName": "Эпический",
-      "chance": 13
-    },
-    {
-      "id": 6,
-      "image": "main/content-case/529/корона 6.png",
-      "price": 400,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 9
-    },
-    {
-      "id": 7,
-      "image": "main/content-case/529/корона 7.png",
-      "price": 500,
-      "rarity": "legendary",
-      "rarityColor": "#c32f80",
-      "rarityName": "Легендарный",
-      "chance": 6
-    },
-    {
-      "id": 8,
-      "image": "main/content-case/529/корона 8.png",
-      "price": 700,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 2
-    },
-    {
-      "id": 9,
-      "image": "main/content-case/529/корона 9.png",
-      "price": 777,
-      "rarity": "mythical",
-      "rarityColor": "#be3a41",
-      "rarityName": "Мифический",
-      "chance": 2
-    },
-    {
-      "id": 10,
-      "image": "main/content-case/529/корона.png",
-      "price": 888,
-      "rarity": "divine",
-      "rarityColor": "#da8f4a",
-      "rarityName": "Божественный",
-      "chance": 1
-    }
-  ],
-  "totalChance": 100
+﻿{
+    "caseId":  "529",
+    "caseName":  "Кейс 529₽",
+    "casePrice":  "529",
+    "caseType":  "nft",
+    "prizes":  [
+                   {
+                       "id":  1,
+                       "image":  "main/content-case/529/1.png",
+                       "price":  150,
+                       "rarity":  "common",
+                       "rarityColor":  "#7c94ae",
+                       "rarityName":  "Обычный",
+                       "chance":  20
+                   },
+                   {
+                       "id":  2,
+                       "image":  "main/content-case/529/2.png",
+                       "price":  200,
+                       "rarity":  "rare",
+                       "rarityColor":  "#4f66e3",
+                       "rarityName":  "Рарный",
+                       "chance":  18
+                   },
+                   {
+                       "id":  3,
+                       "image":  "main/content-case/529/3.png",
+                       "price":  250,
+                       "rarity":  "rare",
+                       "rarityColor":  "#4f66e3",
+                       "rarityName":  "Рарный",
+                       "chance":  18
+                   },
+                   {
+                       "id":  4,
+                       "image":  "main/content-case/529/4.png",
+                       "price":  300,
+                       "rarity":  "epic",
+                       "rarityColor":  "#8e4dde",
+                       "rarityName":  "Эпический",
+                       "chance":  13
+                   },
+                   {
+                       "id":  5,
+                       "image":  "main/content-case/529/5.png",
+                       "price":  350,
+                       "rarity":  "epic",
+                       "rarityColor":  "#8e4dde",
+                       "rarityName":  "Эпический",
+                       "chance":  13
+                   },
+                   {
+                       "id":  6,
+                       "image":  "main/content-case/529/6.png",
+                       "price":  400,
+                       "rarity":  "legendary",
+                       "rarityColor":  "#c32f80",
+                       "rarityName":  "Легендарный",
+                       "chance":  9
+                   },
+                   {
+                       "id":  7,
+                       "image":  "main/content-case/529/7.png",
+                       "price":  500,
+                       "rarity":  "legendary",
+                       "rarityColor":  "#c32f80",
+                       "rarityName":  "Легендарный",
+                       "chance":  6
+                   },
+                   {
+                       "id":  8,
+                       "image":  "main/content-case/529/8.png",
+                       "price":  700,
+                       "rarity":  "mythical",
+                       "rarityColor":  "#be3a41",
+                       "rarityName":  "Мифический",
+                       "chance":  2
+                   },
+                   {
+                       "id":  9,
+                       "image":  "main/content-case/529/9.png",
+                       "price":  777,
+                       "rarity":  "mythical",
+                       "rarityColor":  "#be3a41",
+                       "rarityName":  "Мифический",
+                       "chance":  2
+                   },
+                   {
+                       "id":  10,
+                       "image":  "main/content-case/529/10.png",
+                       "price":  888,
+                       "rarity":  "divine",
+                       "rarityColor":  "#da8f4a",
+                       "rarityName":  "Божественный",
+                       "chance":  1
+                   }
+               ],
+    "totalChance":  100
 }
