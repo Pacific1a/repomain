@@ -260,7 +260,6 @@
     carousel.style.gap = '6px';
     carousel.style.position = 'absolute';
     carousel.style.left = '0';
-    carousel.style.animation = 'carousel-scroll 20s linear infinite';
 
     // Генерируем последовательность (15 карточек) - от дорогих к дешевым
     const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
@@ -277,20 +276,6 @@
     }
 
     container.appendChild(carousel);
-
-    // Добавляем keyframes для анимации
-    if (!document.getElementById('carousel-demo-style')) {
-      const style = document.createElement('style');
-      style.id = 'carousel-demo-style';
-      style.textContent = `
-        @keyframes carousel-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
     console.log('✨ Демонстрация карусели показана');
   }
 
