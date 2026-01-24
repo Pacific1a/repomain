@@ -1,0 +1,98 @@
+{
+  "caseId": "911",
+  "caseName": "Кейс 911₽",
+  "casePrice": "911",
+  "prizes": [
+    {
+      "id": 1,
+      "image": "main/content-case/911/1.png",
+      "price": 200,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 21
+    },
+    {
+      "id": 2,
+      "image": "main/content-case/911/2.png",
+      "price": 300,
+      "rarity": "rare",
+      "rarityColor": "#4f66e3",
+      "rarityName": "Рарный",
+      "chance": 21
+    },
+    {
+      "id": 3,
+      "image": "main/content-case/911/3.png",
+      "price": 400,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 15
+    },
+    {
+      "id": 4,
+      "image": "main/content-case/911/4.png",
+      "price": 500,
+      "rarity": "epic",
+      "rarityColor": "#8e4dde",
+      "rarityName": "Эпический",
+      "chance": 15
+    },
+    {
+      "id": 5,
+      "image": "main/content-case/911/5.png",
+      "price": 700,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 10
+    },
+    {
+      "id": 6,
+      "image": "main/content-case/911/6.png",
+      "price": 900,
+      "rarity": "legendary",
+      "rarityColor": "#c32f80",
+      "rarityName": "Легендарный",
+      "chance": 7
+    },
+    {
+      "id": 7,
+      "image": "main/content-case/911/7.png",
+      "price": 1200,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 4
+    },
+    {
+      "id": 8,
+      "image": "main/content-case/911/8.png",
+      "price": 1500,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
+    },
+    {
+      "id": 9,
+      "image": "main/content-case/911/9.png",
+      "price": 1800,
+      "rarity": "mythical",
+      "rarityColor": "#be3a41",
+      "rarityName": "Мифический",
+      "chance": 3
+    },
+    {
+      "id": 10,
+      "image": "main/content-case/911/10.png",
+      "price": 2500,
+      "rarity": "divine",
+      "rarityColor": "#da8f4a",
+      "rarityName": "Божественный",
+      "chance": 1
+    }
+  ],
+  "totalChance": 100
+}
