@@ -1,8 +1,8 @@
 ﻿{
     "casePrice":  "993",
     "totalChance":  100,
-    "caseName":  "ÐšÐµÐ¹Ñ 993â‚½",
-    "caseType":  "nft",
+    "caseName":  "ÐšÐµÐ¹Ñ 993",
+    "caseType":  "chips",
     "prizes":  [
                    {
                        "id":  1,
@@ -86,5 +86,6 @@
                        "rarityName":  "Божественный"
                    }
                ],
-    "caseId":  "993"
+    "caseId":  "993",
+    "priceIcon":  "main/assets/chips.png"
 }
