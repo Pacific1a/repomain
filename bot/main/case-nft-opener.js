@@ -637,14 +637,17 @@
   // ================================
   
   async function deductBalance(amount, isChips) {
-    const endpoint = isChips ? '/api/deduct-chips' : '/api/deduct-balance';
+    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+    const endpoint = `/api/balance/${telegramId}/subtract`;
     
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'test',
-        amount: amount
+        rubles: isChips ? 0 : amount,
+        chips: isChips ? amount : 0,
+        reason: 'case_opening',
+        gameType: 'case'
       })
     });
 
@@ -666,14 +669,17 @@
   }
 
   async function addPrizeToBalance(amount, isChips) {
-    const endpoint = isChips ? '/api/add-chips' : '/api/add-balance';
+    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+    const endpoint = `/api/balance/${telegramId}/add`;
     
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        user_id: window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'test',
-        amount: amount
+        rubles: isChips ? 0 : amount,
+        chips: isChips ? amount : 0,
+        source: 'case_win',
+        description: `Won from case`
       })
     });
 
