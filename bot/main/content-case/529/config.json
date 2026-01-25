@@ -80,19 +80,10 @@
                        "id":  9,
                        "image":  "main/content-case/529/9.png",
                        "price":  777,
-                       "rarity":  "mythical",
-                       "rarityColor":  "#be3a41",
-                       "rarityName":  "Мифический",
-                       "chance":  2
-                   },
-                   {
-                       "id":  10,
-                       "image":  "main/content-case/529/10.png",
-                       "price":  888,
                        "rarity":  "divine",
                        "rarityColor":  "#da8f4a",
-                       "rarityName":  "Божественный",
-                       "chance":  1
+                       "rarityName":  "Ð‘Ð¾Ð¶ÐµÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹",
+                       "chance":  3
                    }
                ],
     "totalChance":  100

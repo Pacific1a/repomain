@@ -1,0 +1,90 @@
+﻿{
+    "casePrice":  "314",
+    "totalChance":  100,
+    "caseName":  "ÐšÐµÐ¹Ñ 314â‚½",
+    "caseType":  "nft",
+    "prizes":  [
+                   {
+                       "id":  1,
+                       "rarityColor":  "#7c94ae",
+                       "chance":  27,
+                       "price":  50,
+                       "image":  "main/content-case/314/01d8d2948c27496d.webp",
+                       "rarity":  "common",
+                       "rarityName":  "Обычный"
+                   },
+                   {
+                       "id":  2,
+                       "rarityColor":  "#4f66e3",
+                       "chance":  24,
+                       "price":  100,
+                       "image":  "main/content-case/314/30b5e5632027c1da.webp",
+                       "rarity":  "rare",
+                       "rarityName":  "Рарный"
+                   },
+                   {
+                       "id":  3,
+                       "rarityColor":  "#8e4dde",
+                       "chance":  17,
+                       "price":  150,
+                       "image":  "main/content-case/314/7652060406d86876.webp",
+                       "rarity":  "epic",
+                       "rarityName":  "Эпический"
+                   },
+                   {
+                       "id":  4,
+                       "rarityColor":  "#c32f80",
+                       "chance":  11,
+                       "price":  200,
+                       "image":  "main/content-case/314/b517ad9dae49f1e3.webp",
+                       "rarity":  "legendary",
+                       "rarityName":  "Легендарный"
+                   },
+                   {
+                       "id":  5,
+                       "rarityColor":  "#c32f80",
+                       "chance":  8,
+                       "price":  250,
+                       "image":  "main/content-case/314/c2f79753b47cda32.webp",
+                       "rarity":  "legendary",
+                       "rarityName":  "Легендарный"
+                   },
+                   {
+                       "id":  6,
+                       "rarityColor":  "#be3a41",
+                       "chance":  5,
+                       "price":  300,
+                       "image":  "main/content-case/314/c46b6d6a2e1c355a.webp",
+                       "rarity":  "mythical",
+                       "rarityName":  "Мифический"
+                   },
+                   {
+                       "id":  7,
+                       "rarityColor":  "#be3a41",
+                       "chance":  5,
+                       "price":  350,
+                       "image":  "main/content-case/314/d2e5271b239574b7.webp",
+                       "rarity":  "mythical",
+                       "rarityName":  "Мифический"
+                   },
+                   {
+                       "id":  8,
+                       "rarityColor":  "#be3a41",
+                       "chance":  3,
+                       "price":  400,
+                       "image":  "main/content-case/314/d41a3c0c218c567d.webp",
+                       "rarity":  "mythical",
+                       "rarityName":  "Мифический"
+                   },
+                   {
+                       "id":  9,
+                       "rarityColor":  "#da8f4a",
+                       "chance":  1,
+                       "price":  500,
+                       "image":  "main/content-case/314/e756aece3a9fcb1d.webp",
+                       "rarity":  "divine",
+                       "rarityName":  "Божественный"
+                   }
+               ],
+    "caseId":  "314"
+}
