@@ -315,8 +315,10 @@
     // Badge с ценой
     const priceBadge = document.createElement('div');
     priceBadge.className = 'prize-price-badge';
+    const currencyIcon = currentCaseType === 'chips' ? 'main/assets/chips.png' : 'main/assets/rubles.png';
+    const currencyAlt = currentCaseType === 'chips' ? 'Chips' : '₽';
     priceBadge.innerHTML = `
-      <img class="prize-currency-icon" src="main/assets/rubles.png" alt="₽">
+      <img class="prize-currency-icon" src="${currencyIcon}" alt="${currencyAlt}">
       <span class="prize-price-value">${prize.price}</span>
     `;
 

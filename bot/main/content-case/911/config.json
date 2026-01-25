@@ -1,8 +1,9 @@
 ﻿{
     "caseId":  "911",
-    "caseName":  "Кейс 911₽",
+    "caseName":  "Кейс 911",
     "casePrice":  "911",
     "caseType":  "chips",
+    "priceIcon":  "main/assets/chips.png",
     "prizes":  [
                    {
                        "id":  1,

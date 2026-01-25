@@ -1,8 +1,9 @@
 ﻿{
     "caseId":  "542",
-    "caseName":  "Кейс 542₽",
+    "caseName":  "Кейс 542",
     "casePrice":  "542",
     "caseType":  "chips",
+    "priceIcon":  "main/assets/chips.png",
     "prizes":  [
                    {
                        "id":  1,
