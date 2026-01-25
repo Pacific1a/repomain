@@ -171,19 +171,31 @@
       displayCarouselDemo(contentWindow, config.prizes);
     }
 
-    // Ждём 1 секунду и показываем контент
-    setTimeout(() => {
-      if (caseLoader) {
-        caseLoader.classList.remove('active');
-      }
-      if (modalOverlay) {
-        modalOverlay.classList.remove('loading-state');
-      }
-      if (modalContent) {
-        modalContent.style.opacity = '1';
-        modalContent.style.visibility = 'visible';
-      }
-    }, 1000);
+    // ЖДЁМ ЗАГРУЗКУ ВСЕХ КАРТИНОК
+    const images = modal.querySelectorAll('img[src*="content-case"]');
+    const imagePromises = Array.from(images).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.addEventListener('load', resolve);
+        img.addEventListener('error', resolve); // Даже если ошибка - продолжаем
+        setTimeout(resolve, 3000); // Максимум 3 секунды на картинку
+      });
+    });
+    
+    await Promise.all(imagePromises);
+    console.log('✅ All case images loaded');
+    
+    // Показываем контент после загрузки
+    if (caseLoader) {
+      caseLoader.classList.remove('active');
+    }
+    if (modalOverlay) {
+      modalOverlay.classList.remove('loading-state');
+    }
+    if (modalContent) {
+      modalContent.style.opacity = '1';
+      modalContent.style.visibility = 'visible';
+    }
 
     // Сброс состояния
     isSpinning = false;
@@ -366,10 +378,19 @@
     const balanceEl = document.querySelector('.balance-1 .group-ico-1 span') 
                    || document.querySelector('.balance .element .text-wrapper-2')
                    || document.querySelector('#balance');
-    const balance = parseFloat(balanceEl?.textContent?.replace(/[^0-9.]/g, '')) || 0;
+    const balanceText = balanceEl?.textContent || '0';
+    const balance = parseFloat(balanceText.replace(/[^0-9.]/g, '')) || 0;
+    
+    console.log('🔍 Balance check:', {
+      element: balanceEl,
+      text: balanceText,
+      parsed: balance,
+      casePrice: currentCase.price,
+      enough: balance >= currentCase.price
+    });
     
     if (balance < currentCase.price) {
-      alert('Недостаточно средств!');
+      alert(`Недостаточно средств! Баланс: ${balance}₽, Цена кейса: ${currentCase.price}₽`);
       return;
     }
 
