@@ -362,7 +362,12 @@
   async function spinCase() {
     if (isSpinning || !currentCase) return;
 
-    const balance = parseFloat(document.querySelector('#balance')?.textContent?.replace(/\s/g, '')) || 0;
+    // Получаем баланс из правильного элемента
+    const balanceEl = document.querySelector('.balance-1 .group-ico-1 span') 
+                   || document.querySelector('.balance .element .text-wrapper-2')
+                   || document.querySelector('#balance');
+    const balance = parseFloat(balanceEl?.textContent?.replace(/[^0-9.]/g, '')) || 0;
+    
     if (balance < currentCase.price) {
       alert('Недостаточно средств!');
       return;
@@ -629,9 +634,11 @@
     const data = await response.json();
     
     // Обновляем UI
-    const balanceElement = document.querySelector(isChips ? '#chips-balance' : '#balance');
+    const balanceElement = document.querySelector('.balance-1 .group-ico-1 span') 
+                        || document.querySelector('.balance .element .text-wrapper-2')
+                        || document.querySelector(isChips ? '#chips-balance' : '#balance');
     if (balanceElement) {
-      balanceElement.textContent = data.new_balance;
+      balanceElement.textContent = parseFloat(data.new_balance || data.newBalance || data.balance || 0).toFixed(2);
     }
 
     return data;
@@ -656,9 +663,11 @@
     const data = await response.json();
     
     // Обновляем UI
-    const balanceElement = document.querySelector(isChips ? '#chips-balance' : '#balance');
+    const balanceElement = document.querySelector('.balance-1 .group-ico-1 span') 
+                        || document.querySelector('.balance .element .text-wrapper-2')
+                        || document.querySelector(isChips ? '#chips-balance' : '#balance');
     if (balanceElement) {
-      balanceElement.textContent = data.new_balance;
+      balanceElement.textContent = parseFloat(data.new_balance || data.newBalance || data.balance || 0).toFixed(2);
     }
 
     return data;
