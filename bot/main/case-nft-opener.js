@@ -512,18 +512,6 @@
       console.log('🎰 Карусель добавлена в DOM');
       console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
-      // Индикатор центра
-      const indicator = document.createElement('div');
-      indicator.style.position = 'absolute';
-      indicator.style.left = '50%';
-      indicator.style.top = '0';
-      indicator.style.bottom = '0';
-      indicator.style.width = '3px';
-      indicator.style.background = 'linear-gradient(to bottom, transparent, #fff, transparent)';
-      indicator.style.transform = 'translateX(-50%)';
-      indicator.style.zIndex = '10';
-      contentWindow.appendChild(indicator);
-
       // Запускаем прокрутку
       setTimeout(() => {
         const cardWidth = 110 + 6; // ширина + gap
@@ -546,18 +534,24 @@
     return new Promise((resolve) => {
       const winWindow = document.querySelector('.win-window');
       const contentWindow = document.querySelector('.content-window-item');
+      const openBtn = document.querySelector('.open-btn button');
       
       if (!winWindow) {
         resolve();
         return;
       }
 
-      // Скрываем карусель
+      // Скрываем карусель и кнопку открытия
       if (contentWindow) {
         contentWindow.style.opacity = '0';
         setTimeout(() => {
           contentWindow.style.display = 'none';
         }, 300);
+      }
+      
+      // Скрываем кнопку открытия
+      if (openBtn) {
+        openBtn.style.display = 'none';
       }
 
       // Показываем окно выигрыша
@@ -570,39 +564,53 @@
       winWindow.style.padding = '30px';
       winWindow.style.opacity = '0';
 
-      // Создаём увеличенную карточку приза
-      const winCard = createPrizeCard(prize);
-      winCard.classList.add('won');
-      winCard.style.width = '180px';
-      winCard.style.height = '180px';
-      winCard.style.transform = 'scale(0.5)';
+      // Картинка приза 150x150
+      const prizeImage = document.createElement('img');
+      prizeImage.src = prize.image;
+      prizeImage.style.width = '150px';
+      prizeImage.style.height = '150px';
+      prizeImage.style.objectFit = 'contain';
+      prizeImage.style.transform = 'scale(0.5)';
+      prizeImage.style.transition = 'transform 0.3s ease';
 
-      // Текст поздравления
-      const congratsText = document.createElement('div');
-      congratsText.style.fontSize = '24px';
-      congratsText.style.fontWeight = 'bold';
-      congratsText.style.color = prize.rarityColor;
-      congratsText.style.textAlign = 'center';
-      congratsText.textContent = '🎉 Поздравляем!';
+      // Кнопка "Keep it"
+      const keepButton = document.createElement('button');
+      keepButton.textContent = 'Keep it';
+      keepButton.style.padding = '12px 40px';
+      keepButton.style.fontSize = '18px';
+      keepButton.style.fontWeight = 'bold';
+      keepButton.style.color = '#fff';
+      keepButton.style.background = prize.rarityColor;
+      keepButton.style.border = 'none';
+      keepButton.style.borderRadius = '12px';
+      keepButton.style.cursor = 'pointer';
+      keepButton.style.transition = 'all 0.3s ease';
+      keepButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+      keepButton.style.transform = 'scale(0.9)';
+      
+      keepButton.onmouseover = () => {
+        keepButton.style.transform = 'scale(1.05)';
+        keepButton.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.4)';
+      };
+      
+      keepButton.onmouseout = () => {
+        keepButton.style.transform = 'scale(1)';
+        keepButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+      };
+      
+      keepButton.onclick = () => {
+        keepPrize();
+      };
 
-      const prizeText = document.createElement('div');
-      prizeText.style.fontSize = '18px';
-      prizeText.style.color = '#fff';
-      prizeText.style.textAlign = 'center';
-      prizeText.textContent = `Вы выиграли ${prize.price}₽`;
-
-      winWindow.appendChild(congratsText);
-      winWindow.appendChild(winCard);
-      winWindow.appendChild(prizeText);
+      winWindow.appendChild(prizeImage);
+      winWindow.appendChild(keepButton);
 
       // Анимация появления
       setTimeout(() => {
         winWindow.style.opacity = '1';
-        winCard.style.transform = 'scale(1)';
+        prizeImage.style.transform = 'scale(1)';
+        keepButton.style.transform = 'scale(1)';
       }, 100);
-
-      // Обновляем кнопку
-      updateOpenButton();
       
       resolve();
     });
@@ -621,10 +629,37 @@
       await addPrizeToBalance(wonPrize.price, currentCase.isChipsCase);
       console.log(`✅ Приз ${wonPrize.price} добавлен в баланс`);
       
-      // Закрываем модалку через 500мс
+      // Скрываем окно выигрыша
+      const winWindow = document.querySelector('.win-window');
+      const contentWindow = document.querySelector('.content-window-item');
+      const openBtn = document.querySelector('.open-btn button');
+      
+      if (winWindow) {
+        winWindow.style.opacity = '0';
+        setTimeout(() => {
+          winWindow.style.display = 'none';
+          winWindow.innerHTML = '';
+        }, 300);
+      }
+      
+      // Возвращаем спиннер и кнопку
       setTimeout(() => {
-        closeModal();
-      }, 500);
+        if (contentWindow) {
+          contentWindow.style.display = 'flex';
+          contentWindow.style.opacity = '1';
+        }
+        
+        if (openBtn) {
+          openBtn.style.display = 'block';
+          openBtn.disabled = false;
+          openBtn.style.opacity = '1';
+        }
+        
+        // Сбрасываем состояние
+        wonPrize = null;
+        isPrizeCollected = false;
+        isSpinning = false;
+      }, 400);
       
     } catch (error) {
       console.error('Ошибка добавления приза:', error);
