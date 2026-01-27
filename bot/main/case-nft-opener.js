@@ -840,13 +840,25 @@
   }
 
   // ================================
-  // АВТОЗАПУСК
+  // АВТОЗАПУСК С ПРОВЕРКОЙ ЗАВИСИМОСТЕЙ
   // ================================
   
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCaseOpener);
-  } else {
+  function startCaseOpener() {
+    // Проверяем что BalanceAPI загружен
+    if (!window.BalanceAPI) {
+      console.error('❌ BalanceAPI not loaded! Retrying in 100ms...');
+      setTimeout(startCaseOpener, 100);
+      return;
+    }
+    
+    console.log('✅ BalanceAPI ready, starting case opener...');
     initCaseOpener();
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startCaseOpener);
+  } else {
+    startCaseOpener();
   }
 
   // Экспорт для отладки
