@@ -577,17 +577,17 @@
       contentWindow.appendChild(carousel);
       
       // Даём браузеру отрисовать DOM
-      setTimeout(() => {
-        // КЛАССИЧЕСКАЯ CASINO SLOT MACHINE: Быстро крутится → плавное торможение
-        carousel.style.transition = 'transform 5s ease-out';
-        carousel.style.webkitTransition = '-webkit-transform 5s ease-out';
+      requestAnimationFrame(() => {
+        // КРУТАЯ ПЛАВНАЯ CASINO АНИМАЦИЯ: плавный разгон и мягкая остановка
+        carousel.style.transition = 'transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
+        carousel.style.webkitTransition = '-webkit-transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
         const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
         carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
-      }, 100);
+      });
 
       // Ждём окончания анимации (6s + задержка)
       setTimeout(() => {
