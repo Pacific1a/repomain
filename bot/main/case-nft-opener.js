@@ -757,12 +757,7 @@
         }, 300);
       }
       
-      // Скрываем кнопку Keep it
-      const keepItBtn = document.querySelector('.keep-it');
-      if (keepItBtn) {
-        keepItBtn.style.display = 'none';
-        keepItBtn.style.opacity = '0';
-      }
+      // НЕ скрываем кнопку Keep it - она вернётся к display: block автоматически
       
       // Возвращаем content-window (карусель + индикатор)
       setTimeout(() => {

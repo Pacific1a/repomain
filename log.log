@@ -1,216 +1,188 @@
-PS C:\Users\dev_fenomen\Desktop\duo> ssh root@77.239.125.70
-root@77.239.125.70's password:
-PS C:\Users\dev_fenomen\Desktop\duo> ssh root@77.239.125.70
-root@77.239.125.70's password:
-Permission denied, please try again.
-root@77.239.125.70's password:
-Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-90-generic x86_64)
-
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
-
- System information as of Tue Jan 27 11:32:41 AM UTC 2026
-
-  System load:  0.0                Processes:             105
-  Usage of /:   15.0% of 49.12GB   Users logged in:       0
-  Memory usage: 28%                IPv4 address for ens3: 77.239.125.70
-  Swap usage:   0%
-
-
-Expanded Security Maintenance for Applications is not enabled.
-
-5 updates can be applied immediately.
-To see these additional updates run: apt list --upgradable
-
-Enable ESM Apps to receive additional future security updates.
-See https://ubuntu.com/esm or run: sudo pro status
-
-
-Last login: Tue Jan 27 09:16:53 2026 from 198.163.195.39
-root@duos:~# cd /var/www/duo
-root@duos:/var/www/duo#
-root@duos:/var/www/duo#      # Проверь текущую версию
-root@duos:/var/www/duo#      git log --oneline -1
-ull origin main
-
-     # Проверь что элемент появился:
-     grep -A1 'class="win-window"' bot/index.html
-
-     # Должно показать:
-     # <div class="win-window">
-     #   <div class="win-window-item"></div>
-
-     # Рестарт:
-     pm2 restart duo-server
-73e3a3b (HEAD -> main) Merge branch 'main' of https://github.com/Pacific1a/repomain
-root@duos:/var/www/duo#
-root@duos:/var/www/duo#      # Если НЕ 3d10383, то pull:
-root@duos:/var/www/duo#      git pull origin main
- logs duo-server --lines 20From https://github.com/Pacific1a/repomain
- * branch            main       -> FETCH_HEAD
-Already up to date.
-root@duos:/var/www/duo#
-root@duos:/var/www/duo#      # Проверь что элемент появился:
-root@duos:/var/www/duo#      grep -A1 'class="win-window"' bot/index.html
-      <div class="win-window">
-        <div class="win-window-item"></div>
-root@duos:/var/www/duo#
-root@duos:/var/www/duo#      # Должно показать:
-root@duos:/var/www/duo#      # <div class="win-window">
-root@duos:/var/www/duo#      #   <div class="win-window-item"></div>
-root@duos:/var/www/duo#
-root@duos:/var/www/duo#      # Рестарт:
-root@duos:/var/www/duo#      pm2 restart duo-server
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
-
-[PM2] [duo-server](0) ✓
-┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 2  │ duo-bot           │ default     │ N/A     │ fork    │ 963      │ 2D     │ 0    │ online    │ 0%       │ 226.9mb  │ root     │ disabled │
-│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 67029    │ 0s     │ 16   │ online    │ 0%       │ 17.9mb   │ root     │ disabled │
-│ 1  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 959      │ 2D     │ 0    │ online    │ 0%       │ 81.0mb   │ root     │ disabled │
-└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-root@duos:/var/www/duo#      pm2 logs duo-server --lines 20
-[TAILING] Tailing last 20 lines for [duo-server] process (change the value with --lines option)
-/root/.pm2/logs/duo-server-error.log last 20 lines:
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-0|duo-serv | ❌ Mines: No telegramId in socket handshake
-0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
-
-/root/.pm2/logs/duo-server-out.log last 20 lines:
-0|duo-serv | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
-0|duo-serv | � WebSocket sent: balance_updated_1889923046
-0|duo-serv | ❌ Socket.IO client disconnected: wshEUrLQdxa62n5oAAAH
-0|duo-serv | � GET /api/balance/1889923046
-0|duo-serv | � Socket.IO client connected: 1N8ChCxHB4fxdJWpAAAJ
-0|duo-serv | � GET /api/balance/1889923046
-0|duo-serv | � POST /api/balance/1889923046/subtract
-0|duo-serv |    Amount: 529₽, Chips: 0
-0|duo-serv |    Reason: case_opening, Game: case
-0|duo-serv | ✅ Balance subtracted: 1889923046 -529₽ -0 chips
-0|duo-serv | � WebSocket sent: balance_updated_1889923046
-0|duo-serv | � Периодическое добавление: 4 ботов
-0|duo-serv | � Бот Majer добавлен в игру
-0|duo-serv | � Бот OVI добавлен в игру
-0|duo-serv | � Бот Wal?!!? добавлен в игру
-0|duo-serv | � Бот r1mskyy добавлен в игру
-0|duo-serv | 
-0|duo-serv | ⏹️  Closing database connection...
-0|duo-serv | 
-0|duo-serv | ⏹️  SIGINT signal received: closing HTTP server
-
-0|duo-server  | ========================================
-0|duo-server  | � DUO UNIFIED SERVER
-0|duo-server  | ========================================
-0|duo-server  | � Port: 3000
-0|duo-server  | � Environment: production
-0|duo-server  | � Bot Username: @aasasdasdadsddasdbot
-0|duo-server  | ========================================
-0|duo-server  | � Bot static files: /var/www/duo/bot
-0|duo-server  | � Partner site static files: /var/www/duo/site
-0|duo-server  | � Uploads directory: /var/www/duo/site/uploads
-0|duo-server  | ✅ Auth routes loaded
-0|duo-server  | ✅ Referral routes loaded
-0|duo-server  | ✅ Balance routes loaded
-0|duo-server  | ✅ Transactions routes: Socket.IO instance set
-0|duo-server  | ✅ Transactions routes loaded
-0|duo-server  | ✅ 2FA routes loaded (stubs)
-0|duo-server  | ✅ Withdrawal routes loaded
-0|duo-server  | ✅ Withdrawal admin routes loaded
-0|duo-server  | ✅ Notifications routes loaded
-0|duo-server  | ✅ Connected to SQLite database: ./data/database.db
-0|duo-server  | ✅ Table [users] ready
-0|duo-server  | ✅ Table [referral_stats] ready
-0|duo-server  | ✅ Table [referrals] ready
-0|duo-server  | ✅ Table [referral_events] ready
-0|duo-server  | ✅ Database initialization complete
-0|duo-server  | ✅ Database ready
-0|duo-server  | ✅ Game handlers registered
-0|duo-server  | ✅ Bot scheduler started
-0|duo-server  | ========================================
-0|duo-server  | ✅ SERVER IS RUNNING
-0|duo-server  | ========================================
-0|duo-server  | � Bot miniapp: http://localhost:3000/bot/
-0|duo-server  | � Partner site: http://localhost:3000/partner/
-0|duo-server  | � API: http://localhost:3000/api/
-0|duo-server  | � Health: http://localhost:3000/health
-0|duo-server  | ========================================
-0|duo-server  | � Socket.IO client connected: _qm0quJyn4OXGIsJAAAC
-0|duo-server  | ❌ Mines: No telegramId in socket handshake
-0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
-0|duo-server  | � Socket.IO client connected: gnO9jhe7V02q_itoAAAD
-0|duo-server  | ❌ Mines: No telegramId in socket handshake
-0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
-0|duo-server  | ❌ Socket.IO client disconnected: _qm0quJyn4OXGIsJAAAC
-0|duo-server  | � GET /api/balance/1889923046
-0|duo-server  | � Баланс загружен из Bot DB: 1889923046 → 25500₽
-0|duo-server  | � Socket.IO client connected: g8OCbQNn-3xhu_p1AAAF
-0|duo-server  | ❌ Mines: No telegramId in socket handshake
-0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
-0|duo-server  | � GET /api/balance/1889923046
-0|duo-server  | � POST /api/balance/1889923046/subtract
-0|duo-server  |    Amount: 777₽, Chips: 0
-0|duo-server  |    Reason: case_opening, Game: case
-0|duo-server  | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
-0|duo-server  | � WebSocket sent: balance_updated_1889923046
-^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
-D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
-3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
-;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
-1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
-[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
-[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
-^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
-D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
-3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
-;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
-1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
-[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
-[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
-^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
-D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
-3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
-;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
-1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
-[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
-[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
-^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
-D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
-3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
-;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
-1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
-[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
-[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
-^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
-D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
-3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
-;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
-1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
-[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
-
- Creating prize display: {winWindow: true, winWindowItem: false, prizeSrc: 'main/content-case/777/8-new.png', prizePrice: 777}
-case-nft-opener.js:687 ❌ .win-window-item not found!
-(anonymous) @ case-nft-opener.js:687
-showWinScreen @ case-nft-opener.js:594
-spinCase @ case-nft-opener.js:480
-case-nft-opener.js:698 👁️ Win window visible: {display: 'flex', opacity: '', transform: ''}
+ ✅ Inline: Флаг есть, показываем контент
+ [Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
+ [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
+ [Telegram.WebView] > postEvent web_app_request_theme 
+ [Telegram.WebView] > postEvent web_app_request_viewport 
+ [Telegram.WebView] > postEvent web_app_request_safe_area 
+ [Telegram.WebView] > postEvent web_app_request_content_safe_area 
+ 🔧 Server URL: https://duopartners.xyz
+ 🌍 Current hostname: duopartners.xyz
+ 💰 Balance API initializing...
+ ⚠️ No real Telegram ID found, using default for testing
+getTelegramId @ balance-api.js:68
+init @ balance-api.js:24
+BalanceAPI @ balance-api.js:17
+(anonymous) @ balance-api.js:450
+(anonymous) @ balance-api.js:457
+ ✅ Telegram ID: 1889923046
+ 🔄 Загрузка баланса с сервера для 1889923046...
+ 💰 Balance API loaded!
+ ✅ JS: Первая загрузка уже выполнена, контент уже показан
+ ✅ BalanceAPI ready, starting case opener...
+ 🔧 Initializing case opener...
+ 📦 Found elements: {cards: 16, modal: true, exitBtn: true, openBtn: true, keepBtn: true}
+ 🎯 Attaching click handler to card 1
+ 🎯 Attaching click handler to card 2
+ 🎯 Attaching click handler to card 3
+ 🎯 Attaching click handler to card 4
+ 🎯 Attaching click handler to card 5
+ 🎯 Attaching click handler to card 6
+ 🎯 Attaching click handler to card 7
+ 🎯 Attaching click handler to card 8
+ 🎯 Attaching click handler to card 9
+ 🎯 Attaching click handler to card 10
+ 🎯 Attaching click handler to card 11
+ 🎯 Attaching click handler to card 12
+ 🎯 Attaching click handler to card 13
+ 🎯 Attaching click handler to card 14
+ 🎯 Attaching click handler to card 15
+ 🎯 Attaching click handler to card 16
+ ✅ NFT Case opener initialized for 16 cases
+ [Telegram.WebView] > postEvent web_app_ready 
+ [Telegram.WebView] > postEvent web_app_expand 
+ 📡 Ответ сервера: 200
+ 📦 Данные с сервера: {success: true, telegramId: 1889923046, balance: 14004, chips: 0, rubles: 14004}
+ 💰 Balance loaded from server: {rubles: 14004, chips: 0}
+ ✅ Balance API ready (WebSocket mode)
+ ⚠️ .transaction container not found
+setup @ transactions-live.js:54
+init @ transactions-live.js:33
+await in init
+TransactionsList @ transactions-live.js:17
+(anonymous) @ transactions-live.js:306
+(anonymous) @ transactions-live.js:308
+ 🎨 updateVisual called with: {rubles: 14004, chips: 0}
+ Found .balance-1 blocks: 1
+ Block 0: found 2 .group-ico-1 elements
+ ✅ Updated rubles text node: 14004.00
+ ✅ Updated chips span: 0
+ ✅ Visual updated after balance load
+home.js:444 Uncaught 
+setupConveyor @ home.js:444
+init @ home.js:377
+MainSmoothCyclicalConveyor @ home.js:367
+(anonymous) @ home.js:596
+setTimeout
+(anonymous) @ home.js:595
+(anonymous) @ home.js:599
+ ❌ Socket.IO error: Invalid namespace
+(anonymous) @ liveprize-realtime.js:219
+L.emit @ socket.io.min.js:6
+value @ socket.io.min.js:6
+L.emit @ socket.io.min.js:6
+(anonymous) @ socket.io.min.js:6
+Promise.then
+it @ socket.io.min.js:6
+value @ socket.io.min.js:6
+L.emit @ socket.io.min.js:6
+value @ socket.io.min.js:6
+value @ socket.io.min.js:6
+L.emit @ socket.io.min.js:6
+value @ socket.io.min.js:6
+L.emit @ socket.io.min.js:6
+value @ socket.io.min.js:6
+value @ socket.io.min.js:6
+ws.onmessage @ socket.io.min.js:6
+ ✅ Balance WebSocket connected
+ 🖱️ Card clicked: 
+ ✅ Конфиг кейса 777₽ загружен: 9 призов
+ 🔄 Preloading all case images...
+ ✅ Preloaded 1/9: main/content-case/777/1-new.png
+ ✅ Preloaded 2/9: main/content-case/777/2-new.png
+ ✅ Preloaded 3/9: main/content-case/777/3-new.png
+ ✅ Preloaded 4/9: main/content-case/777/4-new.png
+ ✅ Preloaded 5/9: main/content-case/777/5-new.png
+ ✅ Preloaded 6/9: main/content-case/777/6-new.png
+ ✅ Preloaded 7/9: main/content-case/777/7-new.png
+ ✅ Preloaded 8/9: main/content-case/777/8-new.png
+ ✅ Preloaded 9/9: main/content-case/777/9-new.png
+ ✅ All images preloaded!
+ ✅ Картинка загружена: 888
+ ✅ Картинка загружена: 777
+ ✅ Картинка загружена: 700
+ ✅ Картинка загружена: 500
+ ✅ Картинка загружена: 400
+ ✅ Картинка загружена: 350
+ ✅ Картинка загружена: 300
+ ✅ Картинка загружена: 250
+ ✅ Картинка загружена: 200
+ ✨ Демонстрация карусели показана
+case-nft-opener.js:393 ✅ Картинка загружена: 400
+case-nft-opener.js:393 ✅ Картинка загружена: 700
+case-nft-opener.js:393 ✅ Картинка загружена: 888
+case-nft-opener.js:393 ✅ Картинка загружена: 300
+case-nft-opener.js:393 ✅ Картинка загружена: 200
+case-nft-opener.js:393 ✅ Картинка загружена: 700
+case-nft-opener.js:393 ✅ Картинка загружена: 888
+case-nft-opener.js:393 ✅ Картинка загружена: 777
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 200
+case-nft-opener.js:393 ✅ Картинка загружена: 888
+case-nft-opener.js:393 ✅ Картинка загружена: 700
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 350
+case-nft-opener.js:393 ✅ Картинка загружена: 777
+case-nft-opener.js:418 🆔 Telegram WebApp check: {hasTelegram: true, hasWebApp: true, hasInitData: true, hasUser: false, userId: undefined, …}
+case-nft-opener.js:435 🔍 Balance check (from server): {telegramId: '1889923046', data: {…}, balance: 14004, casePrice: 777, caseType: 'rubles', …}
+case-nft-opener.js:468 🎰 Выбран приз: {id: 4, image: 'main/content-case/777/4-new.png', price: 350, rarity: 'epic', rarityColor: '#8e4dde', …}
+case-nft-opener.js:821 💸 Deducting balance: {amount: 777, isChips: false, telegramId: '1889923046', hasUser: false, userId: undefined, …}amount: 777hasUser: falseisChips: falsetelegramId: "1889923046"userId: undefineduserName: undefined[[Prototype]]: Object
+balance-api.js:385 💰 Balance update received: {rubles: 13227, chips: 0}
+balance-api.js:298 🎨 updateVisual called with: {rubles: 13227, chips: 0}
+balance-api.js:304 Found .balance-1 blocks: 1
+balance-api.js:308 Block 0: found 2 .group-ico-1 elements
+balance-api.js:324 ✅ Updated rubles text node: 13227.00
+balance-api.js:333 ✅ Updated chips span: 0
+case-nft-opener.js:846 ✅ Balance deducted: {success: true, telegramId: 1889923046, newBalance: 13227, newChips: 0, balance: 13227, …}
+balance-api.js:298 🎨 updateVisual called with: {rubles: 13227, chips: 0}
+balance-api.js:304 Found .balance-1 blocks: 1
+balance-api.js:308 Block 0: found 2 .group-ico-1 elements
+balance-api.js:324 ✅ Updated rubles text node: 13227.00
+balance-api.js:333 ✅ Updated chips span: 0
+case-nft-opener.js:524 🎰 Запуск анимации спина для: {id: 4, image: 'main/content-case/777/4-new.png', price: 350, rarity: 'epic', rarityColor: '#8e4dde', …}
+case-nft-opener.js:525 🎰 Content window: <div class=​"content-window-item" style=​"display:​ flex;​ overflow:​ hidden;​ position:​ relative;​ height:​ 160px;​ justify-content:​ flex-start;​">​…​</div>​flex
+case-nft-opener.js:555 🎰 Призы для карусели: 20
+case-nft-opener.js:580 🎰 Карусель создана, карточек: 20
+case-nft-opener.js:581 🎰 Картинок в карусели: 40
+case-nft-opener.js:585 🎰 Карусель добавлена в DOM
+case-nft-opener.js:586 🎰 Проверка: img в content-window: 40
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 200
+case-nft-opener.js:393 ✅ Картинка загружена: 300
+case-nft-opener.js:393 ✅ Картинка загружена: 300
+case-nft-opener.js:393 ✅ Картинка загружена: 777
+case-nft-opener.js:393 ✅ Картинка загружена: 250
+case-nft-opener.js:393 ✅ Картинка загружена: 700
+case-nft-opener.js:393 ✅ Картинка загружена: 777
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 700
+case-nft-opener.js:393 ✅ Картинка загружена: 250
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 300
+case-nft-opener.js:393 ✅ Картинка загружена: 500
+case-nft-opener.js:393 ✅ Картинка загружена: 777
+case-nft-opener.js:393 ✅ Картинка загружена: 350
+case-nft-opener.js:393 ✅ Картинка загружена: 888
+case-nft-opener.js:393 ✅ Картинка загружена: 888
+case-nft-opener.js:393 ✅ Картинка загружена: 400
+case-nft-opener.js:640 🔍 Keep it button before prize: {keepItBtn: true, display: '', opacity: ''}
+case-nft-opener.js:649 🎁 Creating prize display: {winWindow: true, winWindowItem: true, prizeSrc: 'main/content-case/777/4-new.png', prizePrice: 350}
+case-nft-opener.js:674 📸 Prize image added to DOM
+case-nft-opener.js:710 ✅ Keep it container set to: {display: 'block', opacity: '1'}
+case-nft-opener.js:721 ✅ Keep it button set to: {display: 'block', opacity: '1'}
+case-nft-opener.js:666 ✅ Prize image loaded: main/content-case/777/4-new.png
+case-nft-opener.js:692 👁️ Win window visible: {display: 'flex', opacity: '0', transform: ''}
+case-nft-opener.js:865 💰 Adding prize: {amount: 350, isChips: false, telegramId: '1889923046', hasUser: false, userId: undefined, …}
+balance-api.js:385 💰 Balance update received: {rubles: 13577, chips: 0}
+balance-api.js:298 🎨 updateVisual called with: {rubles: 13577, chips: 0}
+balance-api.js:304 Found .balance-1 blocks: 1
+balance-api.js:308 Block 0: found 2 .group-ico-1 elements
+balance-api.js:324 ✅ Updated rubles text node: 13577.00
+balance-api.js:333 ✅ Updated chips span: 0
+case-nft-opener.js:890 ✅ Prize added: {success: true, telegramId: 1889923046, newBalance: 13577, newChips: 0, balance: 13577, …}
+balance-api.js:298 🎨 updateVisual called with: {rubles: 13577, chips: 0}
+balance-api.js:304 Found .balance-1 blocks: 1
+balance-api.js:308 Block 0: found 2 .group-ico-1 elements
+balance-api.js:324 ✅ Updated rubles text node: 13577.00
+balance-api.js:333 ✅ Updated chips span: 0
+case-nft-opener.js:745 ✅ Приз 350 добавлен в баланс
