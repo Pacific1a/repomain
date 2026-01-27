@@ -506,11 +506,13 @@
       carousel.style.position = 'absolute';
       carousel.style.left = '0';
       carousel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+      carousel.style.willChange = 'transform'; // Оптимизация анимации
+      carousel.style.backfaceVisibility = 'hidden'; // Фикс лагов
 
-      // Генерируем рандомную последовательность (30-40 карточек) - от дорогих к дешевым
+      // Генерируем рандомную последовательность (25 карточек вместо 35) - меньше нагрузка
       const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
       const carouselPrizes = [];
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 25; i++) {
         const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
         carouselPrizes.push(randomPrize);
       }
@@ -518,7 +520,7 @@
       console.log('🎰 Призы для карусели:', carouselPrizes.length);
       
       // Вставляем выигрышный приз в конец
-      carouselPrizes[carouselPrizes.length - 5] = winningPrize;
+      carouselPrizes[carouselPrizes.length - 4] = winningPrize;
 
       carouselPrizes.forEach((prize, idx) => {
         const card = createPrizeCard(prize);
@@ -527,9 +529,7 @@
         card.style.transform = 'scale(1)';
         card.style.width = '110px';
         card.style.height = '110px';
-        
-        const imgElement = card.querySelector('img');
-        console.log(`🎰 Card ${idx}: price=${prize.price}, hasImg=${!!imgElement}, src=${imgElement?.src}`);
+        card.style.willChange = 'transform'; // GPU acceleration
         
         carousel.appendChild(card);
       });
@@ -545,12 +545,14 @@
       // Запускаем прокрутку
       setTimeout(() => {
         const cardWidth = 110 + 6; // ширина + gap
-        const targetOffset = (carouselPrizes.length - 5) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
+        const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translateX(-${targetOffset}px)`;
       }, 100);
 
       // Ждём окончания анимации
       setTimeout(() => {
+        // Убираем will-change после анимации
+        carousel.style.willChange = 'auto';
         resolve();
       }, 2700); // 2.5s animation + 200ms
     });
@@ -594,38 +596,44 @@
       winWindow.style.padding = '30px';
       winWindow.style.opacity = '0';
 
-      // Картинка приза 150x150
+      // Картинка приза 250x250
       const prizeImage = document.createElement('img');
       prizeImage.src = prize.image;
-      prizeImage.style.width = '150px';
-      prizeImage.style.height = '150px';
+      prizeImage.style.width = '250px';
+      prizeImage.style.height = '250px';
       prizeImage.style.objectFit = 'contain';
       prizeImage.style.transform = 'scale(0.5)';
-      prizeImage.style.transition = 'transform 0.3s ease';
+      prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      prizeImage.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))';
 
-      // Кнопка "Keep it"
+      // Кнопка "Keep it" - красивая стилизация
       const keepButton = document.createElement('button');
-      keepButton.textContent = 'Keep it';
-      keepButton.style.padding = '12px 40px';
-      keepButton.style.fontSize = '18px';
-      keepButton.style.fontWeight = 'bold';
-      keepButton.style.color = '#fff';
-      keepButton.style.background = prize.rarityColor;
-      keepButton.style.border = 'none';
-      keepButton.style.borderRadius = '12px';
-      keepButton.style.cursor = 'pointer';
-      keepButton.style.transition = 'all 0.3s ease';
-      keepButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
-      keepButton.style.transform = 'scale(0.9)';
+      keepButton.textContent = '✨ Keep it';
+      keepButton.style.cssText = `
+        padding: 16px 60px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, ${prize.rarityColor} 0%, ${adjustColor(prize.rarityColor, -20)} 100%);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transform: scale(0.9);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        font-family: 'Montserrat', sans-serif;
+        letter-spacing: 0.5px;
+      `;
       
       keepButton.onmouseover = () => {
-        keepButton.style.transform = 'scale(1.05)';
-        keepButton.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.4)';
+        keepButton.style.transform = 'scale(1.05) translateY(-2px)';
+        keepButton.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
       };
       
       keepButton.onmouseout = () => {
         keepButton.style.transform = 'scale(1)';
-        keepButton.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+        keepButton.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
       };
       
       keepButton.onclick = () => {
@@ -862,6 +870,19 @@
   }
 
   // Экспорт для отладки
+  // Функция для затемнения цвета
+  function adjustColor(color, percent) {
+    const num = parseInt(color.replace("#",""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000
+      + (G<255?G<1?0:G:255)*0x100
+      + (B<255?B<1?0:B:255))
+      .toString(16).slice(1);
+  }
+
   window.debugCaseOpener = {
     loadCaseConfig,
     selectWinningPrize,
