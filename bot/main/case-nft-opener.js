@@ -378,7 +378,23 @@
     let balance = 0;
     
     try {
-      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+      // Получаем Telegram ID с МАКСИМАЛЬНЫМ логированием
+      const tgWebApp = window.Telegram?.WebApp;
+      const tgUser = tgWebApp?.initDataUnsafe?.user;
+      const telegramId = tgUser?.id || '1889923046';
+      
+      console.log('🆔 Telegram WebApp check:', {
+        hasTelegram: !!window.Telegram,
+        hasWebApp: !!tgWebApp,
+        hasInitData: !!tgWebApp?.initDataUnsafe,
+        hasUser: !!tgUser,
+        userId: tgUser?.id,
+        userFirstName: tgUser?.first_name,
+        finalTelegramId: telegramId,
+        platform: tgWebApp?.platform,
+        version: tgWebApp?.version
+      });
+      
       const response = await fetch(`https://duopartners.xyz/api/balance/${telegramId}`);
       
       if (response.ok) {
@@ -686,10 +702,18 @@
   // ================================
   
   async function deductBalance(amount, isChips) {
-    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const telegramId = tgUser?.id || '1889923046';
     const endpoint = `https://duopartners.xyz/api/balance/${telegramId}/subtract`;
     
-    console.log('💸 Deducting balance:', { amount, isChips, telegramId });
+    console.log('💸 Deducting balance:', { 
+      amount, 
+      isChips, 
+      telegramId,
+      hasUser: !!tgUser,
+      userId: tgUser?.id,
+      userName: tgUser?.first_name
+    });
     
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -722,10 +746,18 @@
   }
 
   async function addPrizeToBalance(amount, isChips) {
-    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const telegramId = tgUser?.id || '1889923046';
     const endpoint = `https://duopartners.xyz/api/balance/${telegramId}/add`;
     
-    console.log('💰 Adding prize:', { amount, isChips, telegramId });
+    console.log('💰 Adding prize:', { 
+      amount, 
+      isChips, 
+      telegramId,
+      hasUser: !!tgUser,
+      userId: tgUser?.id,
+      userName: tgUser?.first_name
+    });
     
     const response = await fetch(endpoint, {
       method: 'POST',
