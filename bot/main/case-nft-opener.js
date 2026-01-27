@@ -496,6 +496,7 @@
         backface-visibility: hidden;
         transform: translate3d(0, 0, 0);
         contain: layout;
+        opacity: 0;
       `;
 
       // ОПТИМИЗАЦИЯ: меньше карточек = быстрее создание
@@ -545,12 +546,13 @@
       contentWindow.appendChild(carousel);
       
       // КРИТИЧНО! Устанавливаем will-change ДО анимации
-      carousel.style.willChange = 'transform';
+      carousel.style.willChange = 'transform, opacity';
       
       // Даём браузеру 2 фрейма: 1) layout, 2) composite layer
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          // КРУТАЯ ПЛАВНАЯ CASINO АНИМАЦИЯ: плавный разгон и мягкая остановка
+          // ПОКАЗЫВАЕМ карусель И запускаем анимацию ОДНОВРЕМЕННО
+          carousel.style.opacity = '1';
           carousel.style.transition = 'transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
           
           // Рассчитываем финальную позицию (выигрышный приз по центру)
