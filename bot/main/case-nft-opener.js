@@ -567,6 +567,7 @@
       const winWindow = document.querySelector('.win-window');
       const contentWindow = document.querySelector('.content-window-item');
       const openBtn = document.querySelector('.open-btn button');
+      const indicatorArrow = document.querySelector('.indicator-arrow'); // Индикатор
       
       if (!winWindow) {
         resolve();
