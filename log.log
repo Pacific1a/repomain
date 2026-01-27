@@ -1,104 +1,209 @@
-Windows PowerShell
-Copyright (C) Microsoft Corporation. All rights reserved.
+0|duo-serv | � Socket.IO client connected: dDko8KRXtjwUqIEjAAAf
+0|duo-serv | ❌ Socket.IO client disconnected: dDko8KRXtjwUqIEjAAAf
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: VY4O9GbkrfqV36uFAAAh
+0|duo-serv | ❌ Socket.IO client disconnected: VY4O9GbkrfqV36uFAAAh
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: 9hu3yes1JGwyBdWPAAAj
+0|duo-serv | � POST /api/balance/1889923046/subtract: {
+0|duo-serv |   subtractAmount: 777,
+0|duo-serv |   subtractChips: 0,
+0|duo-serv |   gameType: 'case',
+0|duo-serv |   reason: 'case_opening'
+0|duo-serv | }
+0|duo-serv | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
+0|duo-serv | � WebSocket sent: balance_updated_1889923046
+0|duo-serv | � Socket.IO client connected: 7QVpatuV_PQEHgaEAAAl
+0|duo-serv | ❌ Socket.IO client disconnected: 7QVpatuV_PQEHgaEAAAl
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: TsCZMP_K53V3i9swAAAn
+0|duo-serv | ❌ Socket.IO client disconnected: TsCZMP_K53V3i9swAAAn
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: x_S2UnDGPeGBkC2IAAAp
+0|duo-serv | ❌ Socket.IO client disconnected: 9hu3yes1JGwyBdWPAAAj
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: lbBmTfX708fLHz3nAAAr
+0|duo-serv | � POST /api/balance/1889923046/subtract: {
+0|duo-serv |   subtractAmount: 529,
+0|duo-serv |   subtractChips: 0,
+0|duo-serv |   gameType: 'case',
+0|duo-serv |   reason: 'case_opening'
+0|duo-serv | }
+0|duo-serv | ✅ Balance subtracted: 1889923046 -529₽ -0 chips
+0|duo-serv | � WebSocket sent: balance_updated_1889923046
+0|duo-serv | ❌ Socket.IO client disconnected: x_S2UnDGPeGBkC2IAAAp
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: khS1notCJDJSNF43AAAt
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: ZS6hNmuMJT9hABKZAAAv
+0|duo-serv | ❌ Socket.IO client disconnected: ZS6hNmuMJT9hABKZAAAv
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: QeBWaraYBXr8P1I4AAAx
+0|duo-serv | ❌ Socket.IO client disconnected: khS1notCJDJSNF43AAAt
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: 7ru1dQiXON24xL7RAAAz
+0|duo-serv | ❌ Socket.IO client disconnected: 7ru1dQiXON24xL7RAAAz
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: ikeDePc34EHFgBhiAAA1
+0|duo-serv | ❌ Socket.IO client disconnected: ikeDePc34EHFgBhiAAA1
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: p7-xPOvFawsguFN2AAA3
 
-PS C:\Windows\system32> $body1 = @{adminKey="G3ce12soSjWJK38jyGq"} | ConvertTo-Json
->>      Invoke-RestMethod -Uri "https://duopartners.xyz/api/balance/admin/clear" -Method
->>      Post -Body $body1 -ContentType "application/json"
-Invoke-RestMethod : Missing an argument for parameter 'Method'. Specify a parameter of type 'Microsoft.PowerShell.Comma
-nds.WebRequestMethod' and try again.
-At line:2 char:79
-+ ... Method -Uri "https://duopartners.xyz/api/balance/admin/clear" -Method
-+                                                                   ~~~~~~~
-    + CategoryInfo          : InvalidArgument: (:) [Invoke-RestMethod], ParameterBindingException
-    + FullyQualifiedErrorId : MissingArgument,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
+/root/.pm2/logs/duo-server-error.log last 50 lines:
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
 
-Post : The term 'Post' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the
- spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:3 char:6
-+      Post -Body $body1 -ContentType "application/json"
-+      ~~~~
-    + CategoryInfo          : ObjectNotFound: (Post:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
-
-PS C:\Windows\system32> $body2 =
->>      @{adminKey="G3ce12soSjWJK38jyGq";telegramId="1889923046";rubles=50000;chips=0} |
->>      ConvertTo-Json
->>      Invoke-RestMethod -Uri "https://duopartners.xyz/api/balance/admin/set" -Method
->>      Post -Body $body2 -ContentType "application/json"
-Invoke-RestMethod : Missing an argument for parameter 'Method'. Specify a parameter of type 'Microsoft.PowerShell.Comma
-nds.WebRequestMethod' and try again.
-At line:4 char:77
-+ ... stMethod -Uri "https://duopartners.xyz/api/balance/admin/set" -Method
-+                                                                   ~~~~~~~
-    + CategoryInfo          : InvalidArgument: (:) [Invoke-RestMethod], ParameterBindingException
-    + FullyQualifiedErrorId : MissingArgument,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
-
-Post : The term 'Post' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the
- spelling of the name, or if a path was included, verify that the path is correct and try again.
-At line:5 char:6
-+      Post -Body $body2 -ContentType "application/json"
-+      ~~~~
-    + CategoryInfo          : ObjectNotFound: (Post:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
-
-PS C:\Windows\system32>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-PS C:\Users\dev_fenomen\Desktop\duo> cd C:\Users\dev_fenomen\Desktop\duo
-PS C:\Users\dev_fenomen\Desktop\duo>      .\test-endpoints.ps1
-Testing admin endpoints...
-
-Test 1: /api/balance/admin/clear
-OK - Endpoint exists (403 Forbidden)
-
-Test 2: /api/balance/admin/set
-OK - Endpoint exists (403 Forbidden)
-
-If endpoints not found, deploy on server:
-ssh root@77.239.125.70
-cd /var/www/duo && git pull origin main && pm2 restart duo-server
-PS C:\Users\dev_fenomen\Desktop\duo> .\reset-balance.ps1
-ðŸ—‘ï¸  Clearing all balances...
-âœ… All balances cleared!
-
-ðŸ’° Setting balance for ID 1889923046...
-âœ… Balance set: ‚½ / 0 chips
-
-@{success=True; message=Balance set successfully; balance=}
-
-ðŸŽ‰ Balance reset complete!
-PS C:\Users\dev_fenomen\Desktop\duo> $body1 = @{adminKey="G3ce12soSjWJK38jyGq"} | ConvertTo-Json
->>      Invoke-RestMethod -Uri "https://duopartners.xyz/api/balance/admin/clear" -Method
->>      Post -Body $body1 -ContentType "application/json"
-Invoke-RestMethod : Missing an argument for parameter 'Method'. Specify a parameter of type 'Microsoft.PowerShell.Commands.WebRequestMethod' and try again.
-At line:2 char:79
-+ ... Method -Uri "https://duopartners.xyz/api/balance/admin/clear" -Method
-+                                                                   ~~~~~~~
-    + CategoryInfo          : InvalidArgument: (:) [Invoke-RestMethod], ParameterBindingException
-    + FullyQualifiedErrorId : MissingArgument,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
- 
-Post : The term 'Post' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that
- the path is correct and try again.
-At line:3 char:6
-+      Post -Body $body1 -ContentType "application/json"
-+      ~~~~
-    + CategoryInfo          : ObjectNotFound: (Post:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
-PS C:\Users\dev_fenomen\Desktop\duo>
+0|duo-server  | ❌ Socket.IO client disconnected: p7-xPOvFawsguFN2AAA3
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: BjTfe5QPD1Ys9s3FAAA5
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | ❌ Socket.IO client disconnected: BjTfe5QPD1Ys9s3FAAA5
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: XW7BOLX50du1kEt4AAA7
+0|duo-server  | � Mines: Player 1889923046 connected
+0|duo-server  | � BlackJack: Player 1889923046 connected
+0|duo-server  | � Socket.IO client connected: -pI6Mn9z-o_ir0k4AAA9
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | � BlackJack: 1889923046 disconnected
+0|duo-server  | ❌ Socket.IO client disconnected: XW7BOLX50du1kEt4AAA7
+0|duo-server  | ❌ Socket.IO client disconnected: -pI6Mn9z-o_ir0k4AAA9
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: Mjfpo1uHRJpa-SvOAAA_
+0|duo-server  | � Mines: Player 1889923046 connected
+0|duo-server  | � BlackJack: Player 1889923046 connected
+0|duo-server  | � BlackJack: 1889923046 disconnected
+0|duo-server  | ❌ Socket.IO client disconnected: Mjfpo1uHRJpa-SvOAAA_
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � /api/referral/1889923046: GET referral data
+0|duo-server  | � Socket.IO client connected: 5NvoHe_Sk7YOmLjqAABB
+0|duo-server  | � Mines: Player 1889923046 connected
+0|duo-server  | � BlackJack: Player 1889923046 connected
+0|duo-server  | � Player joined Crash
+0|duo-server  | � Socket.IO client connected: 88ZXG-S6iM2xUhCxAABD
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.43x
+0|duo-server  | � POST /api/balance/1889923046/subtract: {
+0|duo-server  |   subtractAmount: 500,
+0|duo-server  |   subtractChips: 0,
+0|duo-server  |   gameType: 'unknown',
+0|duo-server  |   reason: 'game'
+0|duo-server  | }
+0|duo-server  | ✅ Balance subtracted: 1889923046 -500₽ -0 chips
+0|duo-server  | � WebSocket sent: balance_updated_1889923046
+0|duo-server  | � POST /api/transactions/1889923046: { type: 'subtract', amount: 500, source: 'game' }
+0|duo-server  | ✅ Transaction added: 1889923046 subtract 500
+0|duo-server  | � WebSocket event sent: transaction_added_1889923046
+0|duo-server  | ⚠️ Нельзя ставить во время игры (статус: flying)
+0|duo-server  | � Crash ended at: 1.43x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.20x
+0|duo-server  | � Crash ended at: 1.20x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.27x
+0|duo-server  | � Crash ended at: 1.27x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.62x
+0|duo-server  | � Crash ended at: 1.62x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.34x
+0|duo-server  | � Crash ended at: 1.34x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 3.46x
+0|duo-server  | ✅ Admin set balance: 1889923046 -> 50000₽ / 0 chips
+0|duo-server  | ❌ Socket.IO client disconnected: QeBWaraYBXr8P1I4AAAx
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: pUOVsG-TGYsDes7NAABF
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | ❌ Socket.IO client disconnected: pUOVsG-TGYsDes7NAABF
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: KHvF6eYU6m2HmwcyAABH
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � POST /api/balance/1889923046/subtract: {
+0|duo-server  |   subtractAmount: 777,
+0|duo-server  |   subtractChips: 0,
+0|duo-server  |   gameType: 'case',
+0|duo-server  |   reason: 'case_opening'
+0|duo-server  | }
+0|duo-server  | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
+0|duo-server  | � WebSocket sent: balance_updated_1889923046
+0|duo-server  | � Crash ended at: 3.46x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | � Crash started! Will crash at: 1.49x
+0|duo-server  | ✅ Admin set balance: 1889923046 -> 50000₽ / 0 chips
+0|duo-server  | � Crash ended at: 1.49x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...
+0|duo-server  | ❌ Socket.IO client disconnected: KHvF6eYU6m2HmwcyAABH
+0|duo-server  | � Crash started! Will crash at: 1.90x
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Socket.IO client connected: SEG5NqauKc82VZnPAABJ
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � POST /api/balance/1889923046/subtract: {
+0|duo-server  |   subtractAmount: 777,
+0|duo-server  |   subtractChips: 0,
+0|duo-server  |   gameType: 'case',
+0|duo-server  |   reason: 'case_opening'
+0|duo-server  | }
+0|duo-server  | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
+0|duo-server  | � WebSocket sent: balance_updated_1889923046
+0|duo-server  | � POST /api/balance/1889923046/add: { addAmount: 200, addChips: 0, source: 'case_win' }
+0|duo-server  | ✅ Balance added: 1889923046 +200₽ +0 chips
+0|duo-server  | � WebSocket sent: balance_updated_1889923046
+0|duo-server  | � Crash ended at: 1.90x
+0|duo-server  | ⏳ Crash: Ожидание 5 сек...

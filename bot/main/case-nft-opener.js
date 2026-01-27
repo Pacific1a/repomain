@@ -687,7 +687,9 @@
   
   async function deductBalance(amount, isChips) {
     const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
-    const endpoint = `/api/balance/${telegramId}/subtract`;
+    const endpoint = `https://duopartners.xyz/api/balance/${telegramId}/subtract`;
+    
+    console.log('💸 Deducting balance:', { amount, isChips, telegramId });
     
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -705,13 +707,15 @@
     }
 
     const data = await response.json();
+    console.log('✅ Balance deducted:', data);
     
-    // Обновляем UI
-    const balanceElement = document.querySelector('.balance-1 .group-ico-1 span') 
-                        || document.querySelector('.balance .element .text-wrapper-2')
-                        || document.querySelector(isChips ? '#chips-balance' : '#balance');
-    if (balanceElement) {
-      balanceElement.textContent = parseFloat(data.new_balance || data.newBalance || data.balance || 0).toFixed(2);
+    // Обновляем через BalanceAPI
+    if (window.BalanceAPI) {
+      window.BalanceAPI.balance = {
+        rubles: parseFloat(data.balance || data.newBalance || 0),
+        chips: parseInt(data.chips || data.newChips || 0)
+      };
+      window.BalanceAPI.updateVisual();
     }
 
     return data;
@@ -719,7 +723,9 @@
 
   async function addPrizeToBalance(amount, isChips) {
     const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
-    const endpoint = `/api/balance/${telegramId}/add`;
+    const endpoint = `https://duopartners.xyz/api/balance/${telegramId}/add`;
+    
+    console.log('💰 Adding prize:', { amount, isChips, telegramId });
     
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -737,13 +743,15 @@
     }
 
     const data = await response.json();
+    console.log('✅ Prize added:', data);
     
-    // Обновляем UI
-    const balanceElement = document.querySelector('.balance-1 .group-ico-1 span') 
-                        || document.querySelector('.balance .element .text-wrapper-2')
-                        || document.querySelector(isChips ? '#chips-balance' : '#balance');
-    if (balanceElement) {
-      balanceElement.textContent = parseFloat(data.new_balance || data.newBalance || data.balance || 0).toFixed(2);
+    // Обновляем через BalanceAPI
+    if (window.BalanceAPI) {
+      window.BalanceAPI.balance = {
+        rubles: parseFloat(data.balance || data.newBalance || 0),
+        chips: parseInt(data.chips || data.newChips || 0)
+      };
+      window.BalanceAPI.updateVisual();
     }
 
     return data;

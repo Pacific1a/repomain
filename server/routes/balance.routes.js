@@ -208,7 +208,9 @@ router.post('/:telegramId/subtract', async (req, res) => {
         const subtractAmount = amount || rubles || 0;
         const subtractChips = chips || 0;
         
-        console.log(`📥 POST /api/balance/${telegramId}/subtract:`, { subtractAmount, subtractChips, gameType, reason });
+        console.log(`📥 POST /api/balance/${telegramId}/subtract`);
+        console.log(`   Amount: ${subtractAmount}₽, Chips: ${subtractChips}`);
+        console.log(`   Reason: ${reason}, Game: ${gameType}`);
         
         const currentBalance = balances.get(telegramId) || { rubles: 0, chips: 0 };
         
