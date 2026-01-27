@@ -605,6 +605,7 @@
       prizeImage.style.transform = 'scale(0.5)';
       prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
       prizeImage.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))';
+      prizeImage.style.borderRadius = '12px';
 
       // Кнопка "Keep it" - красивая стилизация
       const keepButton = document.createElement('button');
