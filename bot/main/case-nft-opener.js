@@ -493,10 +493,8 @@
         align-items: center;
         position: absolute;
         left: 0;
-        will-change: transform;
         backface-visibility: hidden;
         transform: translate3d(0, 0, 0);
-        -webkit-transform: translate3d(0, 0, 0);
         contain: layout;
       `;
 
@@ -546,17 +544,20 @@
       contentWindow.innerHTML = '';
       contentWindow.appendChild(carousel);
       
-      // Даём браузеру отрисовать DOM
+      // КРИТИЧНО! Устанавливаем will-change ДО анимации
+      carousel.style.willChange = 'transform';
+      
+      // Даём браузеру 2 фрейма: 1) layout, 2) composite layer
       requestAnimationFrame(() => {
-        // КРУТАЯ ПЛАВНАЯ CASINO АНИМАЦИЯ: плавный разгон и мягкая остановка
-        carousel.style.transition = 'transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
-        carousel.style.webkitTransition = '-webkit-transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
-        
-        // Рассчитываем финальную позицию (выигрышный приз по центру)
-        const cardWidth = 110 + 6; // ширина карточки + gap
-        const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
-        carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
-        carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
+        requestAnimationFrame(() => {
+          // КРУТАЯ ПЛАВНАЯ CASINO АНИМАЦИЯ: плавный разгон и мягкая остановка
+          carousel.style.transition = 'transform 6s cubic-bezier(0.33, 1, 0.68, 1)';
+          
+          // Рассчитываем финальную позицию (выигрышный приз по центру)
+          const cardWidth = 110 + 6; // ширина карточки + gap
+          const targetOffset = (carouselPrizes.length - 3) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
+          carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
+        });
       });
 
       // Ждём окончания анимации (6s + задержка)
