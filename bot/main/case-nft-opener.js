@@ -567,7 +567,7 @@
     return new Promise((resolve) => {
       const winWindow = document.querySelector('.win-window');
       const contentWindow = document.querySelector('.content-window'); // Весь контейнер с индикатором
-      const openBtn = document.querySelector('.open-btn button');
+      const openButton = document.querySelector('.open-btn button');
       
       if (!winWindow) {
         resolve();
@@ -583,8 +583,8 @@
       }
       
       // Скрываем кнопку открытия
-      if (openBtn) {
-        openBtn.style.display = 'none';
+      if (openButton) {
+        openButton.style.display = 'none';
       }
 
       // Находим существующую кнопку Keep it
