@@ -583,8 +583,8 @@
 
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // Включаем анимацию
-        carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        // Включаем анимацию (увеличено до 6.5s)
+        carousel.style.transition = 'transform 6.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
@@ -592,12 +592,12 @@
         carousel.style.transform = `translateX(-${targetOffset}px)`;
       }, 50);
 
-      // Ждём окончания анимации (3.5s + задержка)
+      // Ждём окончания анимации (6.5s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 3900); // 3.5s animation + 400ms
+      }, 6900); // 6.5s animation + 400ms
     });
   }
 
