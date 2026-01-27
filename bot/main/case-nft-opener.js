@@ -374,18 +374,34 @@
   async function spinCase() {
     if (isSpinning || !currentCase) return;
 
-    // Получаем баланс из BalanceAPI напрямую (НЕ из DOM!)
-    const balance = currentCase.isChipsCase 
-      ? (window.BalanceAPI?.getChips() || 0)
-      : (window.BalanceAPI?.getRubles() || 0);
+    // ЕДИНСТВЕННЫЙ ИСТОЧНИК ПРАВДЫ - загружаем с сервера КАЖДЫЙ РАЗ
+    let balance = 0;
     
-    console.log('🔍 Balance check:', {
-      source: 'BalanceAPI',
-      balance: balance,
-      casePrice: currentCase.price,
-      caseType: currentCase.isChipsCase ? 'chips' : 'rubles',
-      enough: balance >= currentCase.price
-    });
+    try {
+      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || '1889923046';
+      const response = await fetch(`https://duopartners.xyz/api/balance/${telegramId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        balance = currentCase.isChipsCase ? (data.chips || 0) : (data.rubles || 0);
+        console.log('🔍 Balance check (from server):', {
+          telegramId: telegramId,
+          data: data,
+          balance: balance,
+          casePrice: currentCase.price,
+          caseType: currentCase.isChipsCase ? 'chips' : 'rubles',
+          enough: balance >= currentCase.price
+        });
+      } else {
+        console.error('❌ Failed to fetch balance:', response.status);
+        alert('Ошибка загрузки баланса!');
+        return;
+      }
+    } catch (error) {
+      console.error('❌ Error checking balance:', error);
+      alert('Ошибка проверки баланса!');
+      return;
+    }
     
     if (balance < currentCase.price) {
       alert(`Недостаточно средств! Баланс: ${balance}${currentCase.isChipsCase ? ' chips' : '₽'}, Цена кейса: ${currentCase.price}${currentCase.isChipsCase ? ' chips' : '₽'}`);
