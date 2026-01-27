@@ -178,7 +178,14 @@
 
     // Очищаем предыдущий контент
     if (itemPreview) itemPreview.innerHTML = '';
-    if (winWindow) winWindow.innerHTML = '';
+    // НЕ очищаем winWindow, только скрываем
+    if (winWindow) {
+      winWindow.style.display = 'none';
+      winWindow.style.opacity = '0';
+      // Очищаем только внутренний элемент
+      const winWindowItem = winWindow.querySelector('.win-window-item');
+      if (winWindowItem) winWindowItem.innerHTML = '';
+    }
 
     // ПРЕДЗАГРУЗКА: Загружаем ВСЕ картинки на заднем плане ДО показа
     console.log('🔄 Preloading all case images...');
