@@ -335,9 +335,8 @@ button {
         width: 100%;
         height: 100%;
         z-index: 10000;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        background: rgba(21, 20, 20, 0.8);
+        /* УБРАН backdrop-filter blur - очень лагает! */
+        background: rgba(21, 20, 20, 0.95);
         align-items: center;
         justify-content: center;
         padding: 20px;
@@ -392,7 +391,7 @@ button {
         width: 101%;
         max-width: 800px;
         min-height: 152px;
-        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        /* УБРАН transition - лагает */
         height: 140px;
         position: relative;
         overflow: hidden;
@@ -400,16 +399,21 @@ button {
         border-radius: 15px;
         display: flex;
         align-items: center;
+        /* ЗАПРЕТ ПРОКРУТКИ */
+        touch-action: none;
+        overscroll-behavior: contain;
       }
       .modal-window .content-window-item {
         display: flex;
-        overflow: hidden;
+        overflow: visible;
         position: absolute;
         left: 0;
         width: 100%;
         height: 160px;
         align-items: center;
         justify-content: flex-start;
+        /* ЗАПРЕТ ВЗАИМОДЕЙСТВИЯ для предотвращения прокрутки */
+        pointer-events: none;
       }
       .modal-window .content-window-item img {
         width: 25px;
@@ -425,7 +429,7 @@ button {
         flex-direction: column;
         opacity: 0;
         transform: scale(0.7);
-        transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* УБРАН transition - лагает при показе приза */
       }
       .modal-window .win-window-item {
         display: flex;
@@ -441,8 +445,8 @@ button {
         width: auto;
         height: auto;
         object-fit: contain;
-        transform: scale(0.8);
-        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: scale(1);
+        /* УБРАН transition - лагает */
       }
       .modal-window .btn-open {
         display: flex;
@@ -452,7 +456,7 @@ button {
       .modal-window .keep-it {
         opacity: 0;
         transform: translateY(20px);
-        transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        /* УБРАН transition - лагает */
       }
       .modal-window .btn-open button {
         padding: 15px 40px;
@@ -461,15 +465,13 @@ button {
         border: none;
         border-radius: 10px;
         cursor: pointer;
-        transition: all 0.3s;
+        /* УБРАН transition - не нужен на мобильных */
       }
       .modal-window .open-btn button {
         background: linear-gradient(90deg, #FFAC4E 0%, #FF8A37 100%);
         color: white;
       }
-      .modal-window .open-btn button:hover {
-        background: linear-gradient(90deg, #FF8A37 0%, #FFAC4E 100%);
-      }
+      /* УБРАН hover - не нужен на мобильных */
       .modal-window .open-btn button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -481,9 +483,7 @@ button {
         background: linear-gradient(90deg, #FF3B5E 0%, #DD2C4B 100%);
         color: white;
       }
-      .modal-window .keep-it button:hover {
-        background: linear-gradient(90deg, #DD2C4B 0%, #FF3B5E 100%);
-      }
+      /* УБРАН hover - не нужен на мобильных */
       .modal-window .item-preview {
         width: 100%;
         max-width: 800px;
