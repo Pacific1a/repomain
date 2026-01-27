@@ -519,18 +519,21 @@
 
       // Создаём карусель призов
       const carousel = document.createElement('div');
-      carousel.style.display = 'flex';
-      carousel.style.gap = '6px';
-      carousel.style.position = 'absolute';
-      carousel.style.left = '0';
-      carousel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
-      carousel.style.willChange = 'transform'; // Оптимизация анимации
-      carousel.style.backfaceVisibility = 'hidden'; // Фикс лагов
+      carousel.style.cssText = `
+        display: flex;
+        gap: 6px;
+        position: absolute;
+        left: 0;
+        transition: transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        will-change: transform;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+      `;
 
-      // Генерируем рандомную последовательность (25 карточек вместо 35) - меньше нагрузка
+      // Генерируем рандомную последовательность (20 карточек) - оптимизация
       const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
       const carouselPrizes = [];
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 20; i++) {
         const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
         carouselPrizes.push(randomPrize);
       }
@@ -560,19 +563,19 @@
       console.log('🎰 Карусель добавлена в DOM');
       console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
-      // Запускаем прокрутку
+      // Запускаем прокрутку с небольшой задержкой
       setTimeout(() => {
         const cardWidth = 110 + 6; // ширина + gap
         const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translateX(-${targetOffset}px)`;
-      }, 100);
+      }, 200);
 
-      // Ждём окончания анимации
+      // Ждём окончания анимации (3.5s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 2700); // 2.5s animation + 200ms
+      }, 3900); // 3.5s animation + 400ms
     });
   }
 
@@ -657,13 +660,20 @@
         console.error('❌ .win-window-item not found!');
       }
       
-      winWindow.style.display = 'flex';
-      winWindow.style.opacity = '1';
-      
-      console.log('👁️ Win window visible:', {
-        display: winWindow.style.display,
-        opacity: winWindow.style.opacity
-      });
+      // Показываем win-window с задержкой для плавности
+      setTimeout(() => {
+        winWindow.style.display = 'flex';
+        setTimeout(() => {
+          winWindow.style.opacity = '1';
+          winWindow.style.transform = 'scale(1)';
+        }, 50);
+        
+        console.log('👁️ Win window visible:', {
+          display: winWindow.style.display,
+          opacity: winWindow.style.opacity,
+          transform: winWindow.style.transform
+        });
+      }, 100);
       
       // Скрываем кнопку Open
       if (openBtn) {
