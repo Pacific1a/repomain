@@ -610,31 +610,60 @@
       
       // Показываем окно выигрыша с картинкой
       const winWindowItem = winWindow.querySelector('.win-window-item');
+      
+      console.log('🎁 Creating prize display:', {
+        winWindow: !!winWindow,
+        winWindowItem: !!winWindowItem,
+        prizeSrc: prize.image,
+        prizePrice: prize.price
+      });
+      
       if (winWindowItem) {
         winWindowItem.innerHTML = '';
         
         // Картинка приза
         const prizeImage = document.createElement('img');
         prizeImage.src = prize.image;
-        prizeImage.style.width = '100%';
-        prizeImage.style.height = 'auto';
-        prizeImage.style.maxWidth = '500px';
-        prizeImage.style.objectFit = 'contain';
-        prizeImage.style.transform = 'scale(0.7)';
-        prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        prizeImage.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))';
-        prizeImage.style.borderRadius = '12px';
+        prizeImage.style.cssText = `
+          width: 100%;
+          height: auto;
+          max-width: 500px;
+          object-fit: contain;
+          transform: scale(0.7);
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+          border-radius: 12px;
+          display: block;
+          margin: 0 auto;
+        `;
+        
+        prizeImage.onload = () => {
+          console.log('✅ Prize image loaded:', prize.image);
+        };
+        
+        prizeImage.onerror = () => {
+          console.error('❌ Prize image failed to load:', prize.image);
+        };
         
         winWindowItem.appendChild(prizeImage);
+        
+        console.log('📸 Prize image added to DOM');
         
         // Анимация появления
         setTimeout(() => {
           prizeImage.style.transform = 'scale(1)';
         }, 100);
+      } else {
+        console.error('❌ .win-window-item not found!');
       }
       
       winWindow.style.display = 'flex';
       winWindow.style.opacity = '1';
+      
+      console.log('👁️ Win window visible:', {
+        display: winWindow.style.display,
+        opacity: winWindow.style.opacity
+      });
       
       // Скрываем кнопку Open
       if (openBtn) {
