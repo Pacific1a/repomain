@@ -753,7 +753,11 @@
         winWindow.style.opacity = '0';
         setTimeout(() => {
           winWindow.style.display = 'none';
-          winWindow.innerHTML = '';
+          // Очищаем только внутренний элемент, НЕ весь winWindow
+          const winWindowItem = winWindow.querySelector('.win-window-item');
+          if (winWindowItem) {
+            winWindowItem.innerHTML = '';
+          }
         }, 300);
       }
       
