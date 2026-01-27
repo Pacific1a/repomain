@@ -539,7 +539,6 @@
         align-items: center;
         position: absolute;
         left: 0;
-        transition: none;
         will-change: transform;
         backface-visibility: hidden;
         transform: translateX(0);
@@ -561,8 +560,15 @@
       carouselPrizes.forEach((prize, idx) => {
         const card = createPrizeCard(prize);
         card.style.flexShrink = '0';
-        card.style.width = '25px';
-        card.style.height = '25px';
+        card.style.width = '110px';
+        card.style.height = '110px';
+        
+        // Уменьшаем только картинку внутри до 25px
+        const img = card.querySelector('img');
+        if (img) {
+          img.style.width = '25px';
+          img.style.height = '25px';
+        }
         
         carousel.appendChild(card);
       });
@@ -575,18 +581,16 @@
       console.log('🎰 Карусель добавлена в DOM');
       console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
-      // Запускаем прокрутку
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Включаем анимацию
-          carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-          
-          // Рассчитываем финальную позицию (выигрышный приз по центру)
-          const cardWidth = 25 + 6; // ширина + gap
-          const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 12.5;
-          carousel.style.transform = `translateX(-${targetOffset}px)`;
-        });
-      });
+      // Даём браузеру отрисовать DOM
+      setTimeout(() => {
+        // Включаем анимацию
+        carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        // Рассчитываем финальную позицию (выигрышный приз по центру)
+        const cardWidth = 110 + 6; // ширина карточки + gap
+        const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
+        carousel.style.transform = `translateX(-${targetOffset}px)`;
+      }, 50);
 
       // Ждём окончания анимации (3.5s + задержка)
       setTimeout(() => {
