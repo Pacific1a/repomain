@@ -348,6 +348,7 @@
       position: relative;
       z-index: 1;
       display: block;
+      border-radius: 12px;
     `;
     
     img.loading = 'eager';
