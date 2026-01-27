@@ -594,9 +594,9 @@
 
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // Включаем анимацию: БЫСТРОЕ НАЧАЛО → МЕДЛЕННЫЙ КОНЕЦ
-        carousel.style.transition = 'transform 6.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        carousel.style.webkitTransition = '-webkit-transform 6.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        // CASINO STYLE: Очень быстрый разгон → медленная остановка (держит напряжение!)
+        carousel.style.transition = 'transform 5s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
+        carousel.style.webkitTransition = '-webkit-transform 5s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
@@ -605,12 +605,12 @@
         carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
       }, 100);
 
-      // Ждём окончания анимации (6.5s + задержка)
+      // Ждём окончания анимации (5s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 6900); // 6.5s animation + 400ms
+      }, 5400); // 5s animation + 400ms
     });
   }
 
