@@ -787,6 +787,16 @@
           openBtn.style.opacity = '1';
         }
         
+        // Возвращаем keep-it display: block
+        const keepItContainer = document.querySelector('.keep-it');
+        if (keepItContainer) {
+          keepItContainer.style.display = 'block';
+          const keepItButton = keepItContainer.querySelector('button');
+          if (keepItButton) {
+            keepItButton.style.display = 'block';
+          }
+        }
+        
         // Сбрасываем состояние
         wonPrize = null;
         isPrizeCollected = false;
