@@ -587,73 +587,49 @@
         openBtn.style.display = 'none';
       }
 
-      // Показываем окно выигрыша
-      winWindow.innerHTML = '';
+      // Находим существующую кнопку Keep it
+      const keepItBtn = document.querySelector('.keep-it');
+      const openBtn = document.querySelector('.open-btn');
+      
+      // Показываем окно выигрыша с картинкой
+      const winWindowItem = winWindow.querySelector('.win-window-item');
+      if (winWindowItem) {
+        winWindowItem.innerHTML = '';
+        
+        // Картинка приза
+        const prizeImage = document.createElement('img');
+        prizeImage.src = prize.image;
+        prizeImage.style.width = '100%';
+        prizeImage.style.height = 'auto';
+        prizeImage.style.maxWidth = '500px';
+        prizeImage.style.objectFit = 'contain';
+        prizeImage.style.transform = 'scale(0.7)';
+        prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        prizeImage.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))';
+        prizeImage.style.borderRadius = '12px';
+        
+        winWindowItem.appendChild(prizeImage);
+        
+        // Анимация появления
+        setTimeout(() => {
+          prizeImage.style.transform = 'scale(1)';
+        }, 100);
+      }
+      
       winWindow.style.display = 'flex';
-      winWindow.style.flexDirection = 'column';
-      winWindow.style.alignItems = 'center';
-      winWindow.style.justifyContent = 'center';
-      winWindow.style.gap = '20px';
-      winWindow.style.padding = '30px';
-      winWindow.style.opacity = '0';
-
-      // Картинка приза 500x500
-      const prizeImage = document.createElement('img');
-      prizeImage.src = prize.image;
-      prizeImage.style.width = '500px';
-      prizeImage.style.height = '500px';
-      prizeImage.style.objectFit = 'contain';
-      prizeImage.style.transform = 'scale(0.5)';
-      prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      prizeImage.style.filter = 'drop-shadow(0 10px 30px rgba(0,0,0,0.3))';
-      prizeImage.style.borderRadius = '12px';
-
-      // Кнопка "Keep it" - красивая стилизация
-      const keepButton = document.createElement('button');
-      keepButton.textContent = 'Keep it';
-      keepButton.style.cssText = `
-        width: 100%;
-        padding: 18px 60px;
-        font-size: 20px;
-        font-weight: 700;
-        color: #fff;
-        background: linear-gradient(135deg, #FF3B5E 0%, #DD2C4B 100%);
-        border: none;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 8px 24px rgba(255, 59, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        transform: scale(0.9);
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        font-family: 'Montserrat', sans-serif;
-        letter-spacing: 0.5px;
-      `;
+      winWindow.style.opacity = '1';
       
-      keepButton.onmouseover = () => {
-        keepButton.style.transform = 'scale(1.05) translateY(-2px)';
-        keepButton.style.boxShadow = '0 12px 36px rgba(255, 59, 94, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
-        keepButton.style.background = 'linear-gradient(135deg, #FF4D6D 0%, #E63854 100%)';
-      };
+      // Скрываем кнопку Open
+      if (openBtn) {
+        openBtn.style.display = 'none';
+      }
       
-      keepButton.onmouseout = () => {
-        keepButton.style.transform = 'scale(1)';
-        keepButton.style.boxShadow = '0 8px 24px rgba(255, 59, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-        keepButton.style.background = 'linear-gradient(135deg, #FF3B5E 0%, #DD2C4B 100%)';
-      };
-      
-      keepButton.onclick = () => {
-        keepPrize();
-      };
-
-      winWindow.appendChild(prizeImage);
-      winWindow.appendChild(keepButton);
-
-      // Анимация появления
-      setTimeout(() => {
-        winWindow.style.opacity = '1';
-        prizeImage.style.transform = 'scale(1)';
-        keepButton.style.transform = 'scale(1)';
-      }, 100);
+      // Показываем кнопку Keep it
+      if (keepItBtn) {
+        keepItBtn.style.display = 'block';
+        keepItBtn.style.opacity = '1';
+        keepItBtn.style.transform = 'translateY(0)';
+      }
       
       resolve();
     });
@@ -683,6 +659,13 @@
           winWindow.style.display = 'none';
           winWindow.innerHTML = '';
         }, 300);
+      }
+      
+      // Скрываем кнопку Keep it
+      const keepItBtn = document.querySelector('.keep-it');
+      if (keepItBtn) {
+        keepItBtn.style.display = 'none';
+        keepItBtn.style.opacity = '0';
       }
       
       // Возвращаем content-window (карусель + индикатор)
