@@ -83,9 +83,16 @@
                         rubles: parseFloat(data.rubles) || 0,
                         chips: parseInt(data.chips) || 0
                     };
-                    this.updateVisual();
-                    this.notifyCallbacks();
+                    
                     console.log('💰 Balance loaded from server:', this.balance);
+                    
+                    // Обновляем UI через небольшую задержку чтобы DOM успел загрузиться
+                    setTimeout(() => {
+                        this.updateVisual();
+                        console.log('✅ Visual updated after balance load');
+                    }, 100);
+                    
+                    this.notifyCallbacks();
                     return true;
                 } else {
                     console.warn(`⚠️ Сервер вернул статус ${response.status}`);
@@ -288,18 +295,34 @@
         }
         
         updateVisual() {
+            console.log('🎨 updateVisual called with:', this.balance);
+            
             // Обновляем ВСЕ элементы с балансом на странице
             
             // 1. Основной баланс (.balance-1)
             const balanceBlocks = document.querySelectorAll('.balance-1');
-            balanceBlocks.forEach(block => {
+            console.log('Found .balance-1 blocks:', balanceBlocks.length);
+            
+            balanceBlocks.forEach((block, idx) => {
                 const groups = block.querySelectorAll('.group-ico-1');
+                console.log(`Block ${idx}: found ${groups.length} .group-ico-1 elements`);
+                
                 if (groups.length >= 2) {
                     // Рубли (первый блок)
                     const rublesGroup = groups[0];
-                    const rublesText = rublesGroup.childNodes[0];
-                    if (rublesText && rublesText.nodeType === Node.TEXT_NODE) {
-                        rublesText.textContent = `${this.balance.rubles.toFixed(2)} `;
+                    const rublesSpan = rublesGroup.querySelector('span');
+                    
+                    // Пробуем несколько способов обновления
+                    if (rublesSpan) {
+                        rublesSpan.textContent = this.balance.rubles.toFixed(2);
+                        console.log(`✅ Updated rubles span: ${this.balance.rubles.toFixed(2)}`);
+                    } else {
+                        // Fallback: обновляем текстовую ноду
+                        const rublesText = rublesGroup.childNodes[0];
+                        if (rublesText && rublesText.nodeType === Node.TEXT_NODE) {
+                            rublesText.textContent = `${this.balance.rubles.toFixed(2)} `;
+                            console.log(`✅ Updated rubles text node: ${this.balance.rubles.toFixed(2)}`);
+                        }
                     }
                     
                     // Фишки (второй блок)
@@ -307,6 +330,7 @@
                     const chipsSpan = chipsGroup.querySelector('span');
                     if (chipsSpan) {
                         chipsSpan.textContent = this.balance.chips.toString();
+                        console.log(`✅ Updated chips span: ${this.balance.chips}`);
                     }
                 }
             });
