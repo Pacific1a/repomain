@@ -561,11 +561,8 @@
       carouselPrizes.forEach((prize, idx) => {
         const card = createPrizeCard(prize);
         card.style.flexShrink = '0';
-        card.style.opacity = '1';
-        card.style.transform = 'scale(1)';
-        card.style.width = '110px';
-        card.style.height = '110px';
-        card.style.willChange = 'transform'; // GPU acceleration
+        card.style.width = '25px';
+        card.style.height = '25px';
         
         carousel.appendChild(card);
       });
@@ -578,16 +575,18 @@
       console.log('🎰 Карусель добавлена в DOM');
       console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
-      // Запускаем прокрутку с задержкой для плавности
-      setTimeout(() => {
-        // Включаем анимацию
-        carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        
-        // Рассчитываем финальную позицию (выигрышный приз по центру)
-        const cardWidth = 110 + 6; // ширина + gap
-        const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
-        carousel.style.transform = `translateX(-${targetOffset}px)`;
-      }, 100);
+      // Запускаем прокрутку
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Включаем анимацию
+          carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          
+          // Рассчитываем финальную позицию (выигрышный приз по центру)
+          const cardWidth = 25 + 6; // ширина + gap
+          const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 12.5;
+          carousel.style.transform = `translateX(-${targetOffset}px)`;
+        });
+      });
 
       // Ждём окончания анимации (3.5s + задержка)
       setTimeout(() => {
