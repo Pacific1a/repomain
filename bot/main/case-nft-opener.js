@@ -524,7 +524,7 @@
       console.log('🎰 Запуск анимации спина для:', winningPrize);
       console.log('🎰 Content window:', contentWindow);
 
-      contentWindow.innerHTML = '';
+      // НЕ очищаем contentWindow - анимация начнётся от дефолтных карточек!
       contentWindow.style.display = 'flex';
       contentWindow.style.overflow = 'hidden';
       contentWindow.style.position = 'relative';
@@ -586,17 +586,16 @@
 
       console.log('🎰 Карусель создана, карточек:', carousel.children.length);
       console.log('🎰 Картинок в карусели:', carousel.querySelectorAll('img').length);
-      
+
+      // Очищаем старые дефолтные карточки И добавляем новую карусель
+      contentWindow.innerHTML = '';
       contentWindow.appendChild(carousel);
       
-      console.log('🎰 Карусель добавлена в DOM');
-      console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
-
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // CASINO STYLE: Очень быстрый разгон → медленная остановка (держит напряжение!)
-        carousel.style.transition = 'transform 5s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
-        carousel.style.webkitTransition = '-webkit-transform 5s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
+        // CASINO STYLE: 8 секунд захватывающей анимации!
+        carousel.style.transition = 'transform 8s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
+        carousel.style.webkitTransition = '-webkit-transform 8s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
@@ -605,12 +604,12 @@
         carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
       }, 100);
 
-      // Ждём окончания анимации (5s + задержка)
+      // Ждём окончания анимации (8s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 5400); // 5s animation + 400ms
+      }, 8400); // 8s animation + 400ms
     });
   }
 
