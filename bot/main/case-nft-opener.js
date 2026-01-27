@@ -259,40 +259,27 @@
       const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
 
       sortedPrizes.forEach((prize, index) => {
-        setTimeout(() => {
-          const prizeCard = createPrizeCard(prize);
-          
-          // Добавляем в контейнер
-          container.appendChild(prizeCard);
-          
-          // Центрируем последнюю карточку если она одна в ряду
-          // Делаем это после добавления, чтобы правильно рассчитать ширину
-          if (index === sortedPrizes.length - 1) {
-            setTimeout(() => {
-              const containerWidth = container.offsetWidth;
-              const cardWidth = 110; // 100px + gap
-              const itemsPerRow = Math.floor(containerWidth / cardWidth);
-              const totalRows = Math.ceil(sortedPrizes.length / itemsPerRow);
-              const itemsInLastRow = sortedPrizes.length % itemsPerRow || itemsPerRow;
-              
-              // Если последний элемент один в ряду - центрируем его
-              if (itemsInLastRow === 1) {
-                prizeCard.style.gridColumn = `1 / -1`;
-                prizeCard.style.justifySelf = 'center';
-              }
-            }, 50);
-          }
-          
-          // Анимация появления
-          requestAnimationFrame(() => {
-            prizeCard.style.opacity = '1';
-            prizeCard.style.transform = 'scale(1) translateY(0)';
-          });
-          
-          if (index === prizes.length - 1) {
-            setTimeout(() => resolve(), 100);
-          }
-        }, index * 50);
+        const prizeCard = createPrizeCard(prize);
+        
+        // Добавляем в контейнер СРАЗУ без задержек
+        container.appendChild(prizeCard);
+        
+        // Центрируем последнюю карточку если она одна в ряду
+        if (index === sortedPrizes.length - 1) {
+          setTimeout(() => {
+            const containerWidth = container.offsetWidth;
+            const cardWidth = 110;
+            const itemsPerRow = Math.floor(containerWidth / cardWidth);
+            const itemsInLastRow = sortedPrizes.length % itemsPerRow || itemsPerRow;
+            
+            if (itemsInLastRow === 1) {
+              prizeCard.style.gridColumn = `1 / -1`;
+              prizeCard.style.justifySelf = 'center';
+            }
+            
+            resolve();
+          }, 50);
+        }
       });
     });
   }
@@ -351,9 +338,7 @@
       card.setAttribute('data-case-type', 'chips');
     }
     
-    card.style.opacity = '0';
-    card.style.transform = 'scale(0.8) translateY(20px)';
-    card.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    // БЕЗ opacity 0 и scale - карточки появляются сразу!
 
     // Badge с ценой
     const priceBadge = document.createElement('div');
@@ -604,12 +589,12 @@
         carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
       }, 100);
 
-      // Ждём окончания анимации (5s + задержка)
+      // Ждём окончания анимации (6s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 5400); // 5s animation + 400ms
+      }, 6400); // 6s animation + 400ms
     });
   }
 
