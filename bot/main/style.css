@@ -1528,13 +1528,40 @@
   -webkit-background-clip: text!important;
   -webkit-text-fill-color: transparent!important;
 }
-.exit{
-  width: 100%;
+.exit {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
-  justify-content: end;
-  /* Сдвинуть крестик правее на 3px */
-  padding-right: 3px;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.exit:hover {
+  background: rgba(255, 59, 94, 0.2);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.exit:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+.exit svg {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+}
+
+.exit:hover svg path {
+  fill: #FF3B5E;
 }
 .img-block{
   width: 100%;

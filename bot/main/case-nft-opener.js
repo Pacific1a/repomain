@@ -610,18 +610,19 @@
 
       // Кнопка "Keep it" - красивая стилизация
       const keepButton = document.createElement('button');
-      keepButton.textContent = '✨ Keep it';
+      keepButton.textContent = 'Keep it';
       keepButton.style.cssText = `
-        padding: 16px 60px;
+        width: 100%;
+        padding: 18px 60px;
         font-size: 20px;
         font-weight: 700;
         color: #fff;
-        background: linear-gradient(135deg, ${prize.rarityColor} 0%, ${adjustColor(prize.rarityColor, -20)} 100%);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, #FF3B5E 0%, #DD2C4B 100%);
+        border: none;
         border-radius: 16px;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 24px rgba(255, 59, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         transform: scale(0.9);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         font-family: 'Montserrat', sans-serif;
@@ -630,12 +631,14 @@
       
       keepButton.onmouseover = () => {
         keepButton.style.transform = 'scale(1.05) translateY(-2px)';
-        keepButton.style.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+        keepButton.style.boxShadow = '0 12px 36px rgba(255, 59, 94, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+        keepButton.style.background = 'linear-gradient(135deg, #FF4D6D 0%, #E63854 100%)';
       };
       
       keepButton.onmouseout = () => {
         keepButton.style.transform = 'scale(1)';
-        keepButton.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+        keepButton.style.boxShadow = '0 8px 24px rgba(255, 59, 94, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+        keepButton.style.background = 'linear-gradient(135deg, #FF3B5E 0%, #DD2C4B 100%)';
       };
       
       keepButton.onclick = () => {
@@ -834,12 +837,27 @@
   function closeModal() {
     const modal = document.querySelector('.modal-window');
     const modalOverlay = document.querySelector('.modal-overlay');
+    const winWindow = document.querySelector('.win-window');
+    const contentWindow = document.querySelector('.content-window');
     
+    // Скрываем модалку
     if (modal) {
       modal.style.display = 'none';
     }
     if (modalOverlay) {
       modalOverlay.classList.remove('loading-state');
+    }
+    
+    // Очищаем win-window если приз не забран
+    if (winWindow) {
+      winWindow.style.display = 'none';
+      winWindow.innerHTML = '';
+    }
+    
+    // Показываем content-window обратно
+    if (contentWindow) {
+      contentWindow.style.display = 'flex';
+      contentWindow.style.opacity = '1';
     }
     
     document.body.style.overflow = '';
