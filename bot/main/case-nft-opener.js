@@ -541,7 +541,7 @@
         left: 0;
         will-change: transform;
         backface-visibility: hidden;
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0);
       `;
 
       // Генерируем рандомную последовательность (20 карточек) - оптимизация
@@ -559,15 +559,19 @@
 
       carouselPrizes.forEach((prize, idx) => {
         const card = createPrizeCard(prize);
-        card.style.flexShrink = '0';
-        card.style.width = '110px';
-        card.style.height = '110px';
+        card.style.cssText = `
+          flex-shrink: 0;
+          width: 110px;
+          height: 110px;
+        `;
         
         // Уменьшаем только картинку внутри до 25px
         const img = card.querySelector('img');
         if (img) {
-          img.style.width = '25px';
-          img.style.height = '25px';
+          img.style.cssText = `
+            width: 25px;
+            height: 25px;
+          `;
         }
         
         carousel.appendChild(card);
@@ -583,14 +587,14 @@
 
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // Включаем анимацию (увеличено до 6.5s)
-        carousel.style.transition = 'transform 6.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        // Включаем анимацию с ease-out (быстрое начало, медленный конец)
+        carousel.style.transition = 'transform 6.5s cubic-bezier(0.11, 0, 0.5, 0)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
         const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
-        carousel.style.transform = `translateX(-${targetOffset}px)`;
-      }, 50);
+        carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
+      }, 100);
 
       // Ждём окончания анимации (6.5s + задержка)
       setTimeout(() => {
@@ -747,6 +751,14 @@
           setTimeout(() => {
             contentWindow.style.opacity = '1'; // Плавное появление
           }, 50);
+        }
+        
+        // Показываем кнопку Open обратно
+        const openBtnElement = document.querySelector('.open-btn button');
+        if (openBtnElement) {
+          openBtnElement.style.display = 'block';
+          openBtnElement.disabled = false;
+          openBtnElement.style.opacity = '1';
         }
         
         if (openBtn) {
