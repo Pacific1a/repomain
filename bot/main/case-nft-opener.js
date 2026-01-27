@@ -630,25 +630,39 @@
       
       if (winWindowItem) {
         winWindowItem.innerHTML = '';
+        winWindowItem.style.display = 'flex';
         
         // Картинка приза
         const prizeImage = document.createElement('img');
         prizeImage.src = prize.image;
+        prizeImage.alt = `Prize ${prize.price}`;
         prizeImage.style.cssText = `
-          width: 100%;
+          width: 90%;
           height: auto;
-          max-width: 500px;
+          max-width: 400px;
+          min-width: 250px;
           object-fit: contain;
-          transform: scale(0.7);
+          transform: scale(0.8);
           transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
           filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
           border-radius: 12px;
-          display: block;
-          margin: 0 auto;
+          display: block !important;
+          margin: 20px auto;
+          opacity: 1;
+          visibility: visible;
         `;
         
         prizeImage.onload = () => {
           console.log('✅ Prize image loaded:', prize.image);
+          console.log('🖼️ Image element:', {
+            src: prizeImage.src,
+            complete: prizeImage.complete,
+            naturalWidth: prizeImage.naturalWidth,
+            naturalHeight: prizeImage.naturalHeight,
+            display: prizeImage.style.display,
+            width: prizeImage.offsetWidth,
+            height: prizeImage.offsetHeight
+          });
         };
         
         prizeImage.onerror = () => {
@@ -658,11 +672,17 @@
         winWindowItem.appendChild(prizeImage);
         
         console.log('📸 Prize image added to DOM');
+        console.log('📦 Parent element:', {
+          display: winWindowItem.style.display,
+          width: winWindowItem.offsetWidth,
+          height: winWindowItem.offsetHeight,
+          children: winWindowItem.children.length
+        });
         
         // Анимация появления
         setTimeout(() => {
           prizeImage.style.transform = 'scale(1)';
-        }, 100);
+        }, 200);
       } else {
         console.error('❌ .win-window-item not found!');
       }
