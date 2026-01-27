@@ -19,7 +19,7 @@ G3ce12soSjWJK38jyGq
 cd /var/www/duo
 git pull origin main
 pm2 restart duo-server
-G3ce12soSjWJK38jyGq
+
 git add . 
 git commit -m "111"
 git push
