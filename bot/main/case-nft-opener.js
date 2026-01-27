@@ -637,6 +637,12 @@
       const keepItBtn = document.querySelector('.keep-it');
       const openBtn = document.querySelector('.open-btn');
       
+      console.log('🔍 Keep it button before prize:', {
+        keepItBtn: !!keepItBtn,
+        display: keepItBtn?.style.display,
+        opacity: keepItBtn?.style.opacity
+      });
+      
       // Показываем окно выигрыша с картинкой
       const winWindowItem = winWindow.querySelector('.win-window-item');
       
@@ -701,12 +707,24 @@
         keepItBtn.style.opacity = '1';
         keepItBtn.style.transform = 'translateY(0)';
         
+        console.log('✅ Keep it container set to:', {
+          display: keepItBtn.style.display,
+          opacity: keepItBtn.style.opacity
+        });
+        
         // Показываем саму кнопку внутри
         const keepItButton = keepItBtn.querySelector('button');
         if (keepItButton) {
           keepItButton.style.display = 'block';  // Сама кнопка <button>
           keepItButton.style.opacity = '1';
+          
+          console.log('✅ Keep it button set to:', {
+            display: keepItButton.style.display,
+            opacity: keepItButton.style.opacity
+          });
         }
+      } else {
+        console.error('❌ keepItBtn not found!');
       }
       
       resolve();
