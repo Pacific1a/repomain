@@ -768,10 +768,15 @@
           }, 50);
         }
         
-        // Показываем кнопку Open обратно
+        // Показываем кнопку Open обратно (И контейнер, И кнопку!)
+        const openBtnContainer = document.querySelector('.open-btn');
+        if (openBtnContainer) {
+          openBtnContainer.style.display = 'block';  // Контейнер .open-btn
+        }
+        
         const openBtnElement = document.querySelector('.open-btn button');
         if (openBtnElement) {
-          openBtnElement.style.display = 'block';
+          openBtnElement.style.display = 'block';  // Кнопка внутри
           openBtnElement.disabled = false;
           openBtnElement.style.opacity = '1';
         }
