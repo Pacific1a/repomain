@@ -596,11 +596,11 @@
       winWindow.style.padding = '30px';
       winWindow.style.opacity = '0';
 
-      // Картинка приза 250x250
+      // Картинка приза 500x500
       const prizeImage = document.createElement('img');
       prizeImage.src = prize.image;
-      prizeImage.style.width = '250px';
-      prizeImage.style.height = '250px';
+      prizeImage.style.width = '500px';
+      prizeImage.style.height = '500px';
       prizeImage.style.objectFit = 'contain';
       prizeImage.style.transform = 'scale(0.5)';
       prizeImage.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
