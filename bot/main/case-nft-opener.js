@@ -180,27 +180,34 @@
     if (itemPreview) itemPreview.innerHTML = '';
     if (winWindow) winWindow.innerHTML = '';
 
-    // СТАДИЯ 1: ОТОБРАЖЕНИЕ PREVIEW (возможные призы)
+    // ПРЕДЗАГРУЗКА: Загружаем ВСЕ картинки на заднем плане ДО показа
+    console.log('🔄 Preloading all case images...');
+    const preloadPromises = config.prizes.map((prize, index) => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          console.log(`✅ Preloaded ${index + 1}/${config.prizes.length}:`, prize.image);
+          resolve();
+        };
+        img.onerror = () => {
+          console.error(`❌ Failed to preload ${index + 1}/${config.prizes.length}:`, prize.image);
+          resolve(); // Продолжаем даже если ошибка
+        };
+        img.src = prize.image;
+        setTimeout(resolve, 5000); // Максимум 5 сек на картинку
+      });
+    });
+    
+    await Promise.all(preloadPromises);
+    console.log('✅ All images preloaded!');
+    
+    // СТАДИЯ 1: ОТОБРАЖЕНИЕ PREVIEW (возможные призы) - теперь мгновенно
     await displayPrizesPreview(itemPreview, config.prizes);
     
     // ДЕМОНСТРАЦИЯ: Показываем карусель для красоты (без спина)
     if (contentWindow) {
       displayCarouselDemo(contentWindow, config.prizes);
     }
-
-    // ЖДЁМ ЗАГРУЗКУ ВСЕХ КАРТИНОК
-    const images = modal.querySelectorAll('img[src*="content-case"]');
-    const imagePromises = Array.from(images).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise((resolve) => {
-        img.addEventListener('load', resolve);
-        img.addEventListener('error', resolve); // Даже если ошибка - продолжаем
-        setTimeout(resolve, 3000); // Максимум 3 секунды на картинку
-      });
-    });
-    
-    await Promise.all(imagePromises);
-    console.log('✅ All case images loaded');
     
     // Показываем контент после загрузки
     if (caseLoader) {
