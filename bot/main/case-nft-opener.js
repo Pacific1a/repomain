@@ -374,23 +374,21 @@
   async function spinCase() {
     if (isSpinning || !currentCase) return;
 
-    // Получаем баланс из правильного элемента
-    const balanceEl = document.querySelector('.balance-1 .group-ico-1 span') 
-                   || document.querySelector('.balance .element .text-wrapper-2')
-                   || document.querySelector('#balance');
-    const balanceText = balanceEl?.textContent || '0';
-    const balance = parseFloat(balanceText.replace(/[^0-9.]/g, '')) || 0;
+    // Получаем баланс из BalanceAPI напрямую (НЕ из DOM!)
+    const balance = currentCase.isChipsCase 
+      ? (window.BalanceAPI?.getChips() || 0)
+      : (window.BalanceAPI?.getRubles() || 0);
     
     console.log('🔍 Balance check:', {
-      element: balanceEl,
-      text: balanceText,
-      parsed: balance,
+      source: 'BalanceAPI',
+      balance: balance,
       casePrice: currentCase.price,
+      caseType: currentCase.isChipsCase ? 'chips' : 'rubles',
       enough: balance >= currentCase.price
     });
     
     if (balance < currentCase.price) {
-      alert(`Недостаточно средств! Баланс: ${balance}₽, Цена кейса: ${currentCase.price}₽`);
+      alert(`Недостаточно средств! Баланс: ${balance}${currentCase.isChipsCase ? ' chips' : '₽'}, Цена кейса: ${currentCase.price}${currentCase.isChipsCase ? ' chips' : '₽'}`);
       return;
     }
 
