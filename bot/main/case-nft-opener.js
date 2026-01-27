@@ -719,6 +719,11 @@
         keepItBtn.style.display = 'block';
         keepItBtn.style.opacity = '1';
         keepItBtn.style.transform = 'translateY(0)';
+        // Показываем саму кнопку внутри
+        const keepItButton = keepItBtn.querySelector('button');
+        if (keepItButton) {
+          keepItButton.style.display = 'block';
+        }
       }
       
       resolve();
