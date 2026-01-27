@@ -1069,6 +1069,8 @@ button {
     <script src="main/home.js" defer></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" defer></script>
     <script src="upgrade/liveprize-realtime.js" defer></script>
+    <!-- CRITICAL: config.js MUST load BEFORE balance-api.js -->
+    <script src="config.js"></script>
     <script src="balance-api.js" defer></script>
     <script src="main/case-nft-opener.js" defer></script>
     <script>

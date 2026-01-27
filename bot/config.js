@@ -6,15 +6,11 @@
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         window.GAME_SERVER_URL = 'http://localhost:3000';
     }
-    // Для продакшена на Render
-    else if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app')) {
-        // Новый унифицированный сервер
+    // Для продакшена - ВСЕГДА используем duopartners.xyz
+    else {
         window.GAME_SERVER_URL = 'https://duopartners.xyz';
     }
-    // Для других доменов - используем тот же origin
-    else {
-        window.GAME_SERVER_URL = window.location.origin;
-    }
     
-    console.log('🔧 Сервер настроен:', window.GAME_SERVER_URL);
+    console.log('🔧 Server URL:', window.GAME_SERVER_URL);
+    console.log('🌍 Current hostname:', window.location.hostname);
 })();
