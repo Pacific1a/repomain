@@ -949,7 +949,10 @@
     // Очищаем win-window если приз не забран
     if (winWindow) {
       winWindow.style.display = 'none';
-      winWindow.innerHTML = '';
+      const winWindowItem = winWindow.querySelector('.win-window-item');
+      if (winWindowItem) {
+        winWindowItem.innerHTML = '';
+      }
     }
     
     // Показываем content-window обратно
