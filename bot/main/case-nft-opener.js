@@ -677,6 +677,7 @@
       const winWindow = document.querySelector('.win-window');
       const contentWindow = document.querySelector('.content-window-item');
       const openBtn = document.querySelector('.open-btn button');
+      const indicatorArrow = document.querySelector('.indicator-arrow');
       
       if (winWindow) {
         winWindow.style.opacity = '0';
@@ -684,6 +685,11 @@
           winWindow.style.display = 'none';
           winWindow.innerHTML = '';
         }, 300);
+      }
+      
+      // Возвращаем индикатор Group 8.png
+      if (indicatorArrow) {
+        indicatorArrow.style.opacity = '1';
       }
       
       // Возвращаем спиннер и кнопку
