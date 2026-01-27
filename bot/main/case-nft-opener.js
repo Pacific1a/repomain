@@ -542,12 +542,14 @@
         will-change: transform;
         backface-visibility: hidden;
         transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+        contain: layout;
       `;
 
-      // Генерируем рандомную последовательность (20 карточек) - оптимизация
+      // Генерируем рандомную последовательность (15 карточек) - мобильная оптимизация
       const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
       const carouselPrizes = [];
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 15; i++) {
         const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
         carouselPrizes.push(randomPrize);
       }
@@ -563,6 +565,9 @@
           flex-shrink: 0;
           width: 110px;
           height: 110px;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          backface-visibility: hidden;
         `;
         
         // Уменьшаем только картинку внутри до 25px
@@ -571,6 +576,8 @@
           img.style.cssText = `
             width: 25px;
             height: 25px;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
           `;
         }
         
@@ -589,11 +596,13 @@
       setTimeout(() => {
         // Включаем анимацию: БЫСТРОЕ НАЧАЛО → МЕДЛЕННЫЙ КОНЕЦ
         carousel.style.transition = 'transform 6.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        carousel.style.webkitTransition = '-webkit-transform 6.5s cubic-bezier(0.25, 1, 0.5, 1)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
         const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
+        carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
       }, 100);
 
       // Ждём окончания анимации (6.5s + задержка)
