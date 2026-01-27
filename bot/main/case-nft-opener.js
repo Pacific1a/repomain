@@ -682,28 +682,22 @@
         winWindowItem.appendChild(prizeImage);
         console.log('📸 Prize image added to DOM');
         
-        // Анимация появления
-        setTimeout(() => {
-          prizeImage.style.transform = 'scale(1)';
-        }, 200);
+        // Анимация появления (ОТКЛЮЧЕНА для производительности)
+        prizeImage.style.transform = 'scale(1)';
       } else {
         console.error('❌ .win-window-item not found!');
       }
       
-      // Показываем win-window с задержкой для плавности
-      setTimeout(() => {
-        winWindow.style.display = 'flex';
-        setTimeout(() => {
-          winWindow.style.opacity = '1';
-          winWindow.style.transform = 'scale(1)';
-        }, 50);
-        
-        console.log('👁️ Win window visible:', {
-          display: winWindow.style.display,
-          opacity: winWindow.style.opacity,
-          transform: winWindow.style.transform
-        });
-      }, 100);
+      // Показываем win-window МГНОВЕННО (без задержек для производительности)
+      winWindow.style.display = 'flex';
+      winWindow.style.opacity = '1';
+      winWindow.style.transform = 'scale(1)';
+      
+      console.log('👁️ Win window visible:', {
+        display: winWindow.style.display,
+        opacity: winWindow.style.opacity,
+        transform: winWindow.style.transform
+      });
       
       // Скрываем кнопку Open
       if (openBtn) {
