@@ -62,22 +62,39 @@
   // ================================
   
   function initCaseOpener() {
+    console.log('🔧 Initializing case opener...');
+    
     const cards = document.querySelectorAll('.case-card .cards');
     const modal = document.querySelector('.modal-window');
     const exitBtn = modal?.querySelector('.exit');
     const openBtn = modal?.querySelector('.open-btn button');
     const keepBtn = modal?.querySelector('.keep-it button');
     
+    console.log('📦 Found elements:', {
+      cards: cards.length,
+      modal: !!modal,
+      exitBtn: !!exitBtn,
+      openBtn: !!openBtn,
+      keepBtn: !!keepBtn
+    });
+    
     if (!cards.length) {
-      console.warn('Cases not found on page');
+      console.error('❌ No case cards found!');
+      return;
+    }
+    
+    if (!modal) {
+      console.error('❌ Modal window not found!');
       return;
     }
 
     modal.style.display = 'none';
 
-    cards.forEach(card => {
+    cards.forEach((card, index) => {
+      console.log(`🎯 Attaching click handler to card ${index + 1}`);
       card.addEventListener('click', function(e) {
         e.preventDefault();
+        console.log('🖱️ Card clicked:', card);
         openCaseModal(card);
       });
     });
