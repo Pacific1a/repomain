@@ -593,9 +593,9 @@
       
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // CASINO STYLE: 8 секунд захватывающей анимации!
-        carousel.style.transition = 'transform 8s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
-        carousel.style.webkitTransition = '-webkit-transform 8s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
+        // CASINO STYLE: 12 секунд ДРАМАТИЧНОЙ анимации!
+        carousel.style.transition = 'transform 12s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
+        carousel.style.webkitTransition = '-webkit-transform 12s cubic-bezier(0.05, 0.7, 0.1, 0.99)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
@@ -604,12 +604,12 @@
         carousel.style.webkitTransform = `translate3d(-${targetOffset}px, 0, 0)`;
       }, 100);
 
-      // Ждём окончания анимации (8s + задержка)
+      // Ждём окончания анимации (12s + задержка)
       setTimeout(() => {
         // Убираем will-change после анимации
         carousel.style.willChange = 'auto';
         resolve();
-      }, 8400); // 8s animation + 400ms
+      }, 12400); // 12s animation + 400ms
     });
   }
 
