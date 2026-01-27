@@ -15,6 +15,17 @@ const BOT_DB_PATH = path.join(__dirname, '../../bot/autoshop/tgbot/data/database
 // In-memory balance cache (для быстрого доступа, НО с синхронизацией с Python БД)
 const balances = new Map();
 
+// Функция для экспорта балансов (для доступа из других модулей)
+router.clearAllBalances = () => {
+    balances.clear();
+    console.log('🗑️ All balances cleared!');
+};
+
+router.setBalance = (telegramId, rubles, chips = 0) => {
+    balances.set(telegramId, { rubles, chips });
+    console.log(`✅ Balance set: ${telegramId} -> ${rubles}₽ / ${chips} chips`);
+};
+
 // Функция для получения баланса из Python БД
 function getBalanceFromBotDB(telegramId) {
     return new Promise((resolve, reject) => {
@@ -238,6 +249,86 @@ router.post('/:telegramId/subtract', async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Error subtracting balance:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
+/**
+ * POST /api/balance/admin/clear
+ * Clear all balances (admin only)
+ */
+router.post('/admin/clear', (req, res) => {
+    try {
+        const { adminKey } = req.body;
+        
+        // Простая защита - проверка ключа
+        if (adminKey !== 'G3ce12soSjWJK38jyGq') {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid admin key'
+            });
+        }
+        
+        balances.clear();
+        console.log('🗑️ All balances cleared by admin!');
+        
+        res.json({
+            success: true,
+            message: 'All balances cleared'
+        });
+    } catch (error) {
+        console.error('❌ Error clearing balances:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
+/**
+ * POST /api/balance/admin/set
+ * Set balance for specific user (admin only)
+ */
+router.post('/admin/set', (req, res) => {
+    try {
+        const { adminKey, telegramId, rubles, chips } = req.body;
+        
+        // Простая защита - проверка ключа
+        if (adminKey !== 'G3ce12soSjWJK38jyGq') {
+            return res.status(403).json({
+                success: false,
+                message: 'Invalid admin key'
+            });
+        }
+        
+        const newBalance = {
+            rubles: parseFloat(rubles) || 0,
+            chips: parseInt(chips) || 0
+        };
+        
+        balances.set(telegramId, newBalance);
+        
+        // Отправляем WebSocket событие
+        const io = require('../server').io;
+        if (io) {
+            io.emit(`balance_updated_${telegramId}`, {
+                rubles: newBalance.rubles,
+                chips: newBalance.chips
+            });
+        }
+        
+        console.log(`✅ Admin set balance: ${telegramId} -> ${newBalance.rubles}₽ / ${newBalance.chips} chips`);
+        
+        res.json({
+            success: true,
+            message: 'Balance set successfully',
+            balance: newBalance
+        });
+    } catch (error) {
+        console.error('❌ Error setting balance:', error);
         res.status(500).json({
             success: false,
             message: 'Server error'
