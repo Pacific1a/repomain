@@ -581,6 +581,12 @@
         }, 300);
       }
       
+      // Скрываем индикатор Group 8.png
+      if (indicatorArrow) {
+        indicatorArrow.style.opacity = '0';
+        indicatorArrow.style.transition = 'opacity 0.3s ease';
+      }
+      
       // Скрываем кнопку открытия
       if (openBtn) {
         openBtn.style.display = 'none';

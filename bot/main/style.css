@@ -1000,13 +1000,12 @@
 }
 
 .main .background {
-  /* Индикатор убран - не нужен */
+  /* Индикатор теперь управляется через HTML (.indicator-arrow) */
   position: absolute;
   width: 180px;
   height: 197px;
   top: 0;
   left: 0;
-  display: none; /* Скрыт */
 }
 
 .main .heart {
