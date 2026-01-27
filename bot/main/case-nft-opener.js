@@ -757,7 +757,12 @@
         }, 300);
       }
       
-      // НЕ скрываем кнопку Keep it - она вернётся к display: block автоматически
+      // Скрываем кнопку Keep it
+      const keepItBtn = document.querySelector('.keep-it');
+      if (keepItBtn) {
+        keepItBtn.style.display = 'none';
+        keepItBtn.style.opacity = '0';
+      }
       
       // Возвращаем content-window (карусель + индикатор)
       setTimeout(() => {
@@ -787,15 +792,7 @@
           openBtn.style.opacity = '1';
         }
         
-        // Возвращаем keep-it display: block
-        const keepItContainer = document.querySelector('.keep-it');
-        if (keepItContainer) {
-          keepItContainer.style.display = 'block';
-          const keepItButton = keepItContainer.querySelector('button');
-          if (keepItButton) {
-            keepItButton.style.display = 'block';
-          }
-        }
+        // keep-it остаётся скрытой, показываем только Open
         
         // Сбрасываем состояние
         wonPrize = null;
