@@ -1,6 +1,86 @@
-root@duos:/var/www/duo# pm2 logs duo-server
-[TAILING] Tailing last 15 lines for [duo-server] process (change the value with --lines option)
-/root/.pm2/logs/duo-server-error.log last 15 lines:
+PS C:\Users\dev_fenomen\Desktop\duo> ssh root@77.239.125.70
+root@77.239.125.70's password:
+PS C:\Users\dev_fenomen\Desktop\duo> ssh root@77.239.125.70
+root@77.239.125.70's password:
+Permission denied, please try again.
+root@77.239.125.70's password:
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-90-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Tue Jan 27 11:32:41 AM UTC 2026
+
+  System load:  0.0                Processes:             105
+  Usage of /:   15.0% of 49.12GB   Users logged in:       0
+  Memory usage: 28%                IPv4 address for ens3: 77.239.125.70
+  Swap usage:   0%
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+5 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+
+Last login: Tue Jan 27 09:16:53 2026 from 198.163.195.39
+root@duos:~# cd /var/www/duo
+root@duos:/var/www/duo#
+root@duos:/var/www/duo#      # Проверь текущую версию
+root@duos:/var/www/duo#      git log --oneline -1
+ull origin main
+
+     # Проверь что элемент появился:
+     grep -A1 'class="win-window"' bot/index.html
+
+     # Должно показать:
+     # <div class="win-window">
+     #   <div class="win-window-item"></div>
+
+     # Рестарт:
+     pm2 restart duo-server
+73e3a3b (HEAD -> main) Merge branch 'main' of https://github.com/Pacific1a/repomain
+root@duos:/var/www/duo#
+root@duos:/var/www/duo#      # Если НЕ 3d10383, то pull:
+root@duos:/var/www/duo#      git pull origin main
+ logs duo-server --lines 20From https://github.com/Pacific1a/repomain
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+root@duos:/var/www/duo#
+root@duos:/var/www/duo#      # Проверь что элемент появился:
+root@duos:/var/www/duo#      grep -A1 'class="win-window"' bot/index.html
+      <div class="win-window">
+        <div class="win-window-item"></div>
+root@duos:/var/www/duo#
+root@duos:/var/www/duo#      # Должно показать:
+root@duos:/var/www/duo#      # <div class="win-window">
+root@duos:/var/www/duo#      #   <div class="win-window-item"></div>
+root@duos:/var/www/duo#
+root@duos:/var/www/duo#      # Рестарт:
+root@duos:/var/www/duo#      pm2 restart duo-server
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [duo-server](ids: [ 0 ])
+
+[PM2] [duo-server](0) ✓
+┌────┬───────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name              │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼───────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 2  │ duo-bot           │ default     │ N/A     │ fork    │ 963      │ 2D     │ 0    │ online    │ 0%       │ 226.9mb  │ root     │ disabled │
+│ 0  │ duo-server        │ default     │ 2.0.0   │ fork    │ 67029    │ 0s     │ 16   │ online    │ 0%       │ 17.9mb   │ root     │ disabled │
+│ 1  │ withdrawal-bot    │ default     │ 1.0.0   │ fork    │ 959      │ 2D     │ 0    │ online    │ 0%       │ 81.0mb   │ root     │ disabled │
+└────┴───────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@duos:/var/www/duo#      pm2 logs duo-server --lines 20
+[TAILING] Tailing last 20 lines for [duo-server] process (change the value with --lines option)
+/root/.pm2/logs/duo-server-error.log last 20 lines:
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
+0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
+0|duo-serv | ❌ Mines: No telegramId in socket handshake
 0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
 0|duo-serv | ❌ Mines: No telegramId in socket handshake
 0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
@@ -17,49 +97,120 @@ root@duos:/var/www/duo# pm2 logs duo-server
 0|duo-serv | ❌ Mines: No telegramId in socket handshake
 0|duo-serv | ❌ BlackJack: No telegramId in socket handshake
 
-/root/.pm2/logs/duo-server-out.log last 15 lines:
-0|duo-serv |   gameType: 'case',
-0|duo-serv |   reason: 'case_opening'
-0|duo-serv | }
+/root/.pm2/logs/duo-server-out.log last 20 lines:
+0|duo-serv | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
+0|duo-serv | � WebSocket sent: balance_updated_1889923046
+0|duo-serv | ❌ Socket.IO client disconnected: wshEUrLQdxa62n5oAAAH
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � Socket.IO client connected: 1N8ChCxHB4fxdJWpAAAJ
+0|duo-serv | � GET /api/balance/1889923046
+0|duo-serv | � POST /api/balance/1889923046/subtract
+0|duo-serv |    Amount: 529₽, Chips: 0
+0|duo-serv |    Reason: case_opening, Game: case
 0|duo-serv | ✅ Balance subtracted: 1889923046 -529₽ -0 chips
 0|duo-serv | � WebSocket sent: balance_updated_1889923046
-0|duo-serv | � Crash ended at: 1.88x
-0|duo-serv | ⏳ Crash: Ожидание 5 сек...
-0|duo-serv | � Crash started! Will crash at: 1.34x
-0|duo-serv | � Crash ended at: 1.34x
-0|duo-serv | ⏳ Crash: Ожидание 5 сек...
-0|duo-serv | � Crash started! Will crash at: 1.28x
-0|duo-serv | � Crash ended at: 1.28x
-0|duo-serv | ⏳ Crash: Ожидание 5 сек...
-0|duo-serv | � Crash started! Will crash at: 1.17x
-0|duo-serv | � Crash ended at: 1.17x
+0|duo-serv | � Периодическое добавление: 4 ботов
+0|duo-serv | � Бот Majer добавлен в игру
+0|duo-serv | � Бот OVI добавлен в игру
+0|duo-serv | � Бот Wal?!!? добавлен в игру
+0|duo-serv | � Бот r1mskyy добавлен в игру
+0|duo-serv | 
+0|duo-serv | ⏹️  Closing database connection...
+0|duo-serv | 
+0|duo-serv | ⏹️  SIGINT signal received: closing HTTP server
 
-0|duo-server  | ⏳ Crash: Ожидание 5 сек...
-0|duo-server  | � Crash started! Will crash at: 1.45x
-0|duo-server  | � Crash ended at: 1.45x
-0|duo-server  | ⏳ Crash: Ожидание 5 сек...
-0|duo-server  | � Crash started! Will crash at: 1.29x
-0|duo-server  | � Crash ended at: 1.29x
-0|duo-server  | ⏳ Crash: Ожидание 5 сек...
-0|duo-server  | � Crash started! Will crash at: 1.65x
-0|duo-server  | � GET /api/balance/1889923046
-0|duo-server  | � Socket.IO client connected: iXq6hQ1gLqNLwQPoAABj
+0|duo-server  | ========================================
+0|duo-server  | � DUO UNIFIED SERVER
+0|duo-server  | ========================================
+0|duo-server  | � Port: 3000
+0|duo-server  | � Environment: production
+0|duo-server  | � Bot Username: @aasasdasdadsddasdbot
+0|duo-server  | ========================================
+0|duo-server  | � Bot static files: /var/www/duo/bot
+0|duo-server  | � Partner site static files: /var/www/duo/site
+0|duo-server  | � Uploads directory: /var/www/duo/site/uploads
+0|duo-server  | ✅ Auth routes loaded
+0|duo-server  | ✅ Referral routes loaded
+0|duo-server  | ✅ Balance routes loaded
+0|duo-server  | ✅ Transactions routes: Socket.IO instance set
+0|duo-server  | ✅ Transactions routes loaded
+0|duo-server  | ✅ 2FA routes loaded (stubs)
+0|duo-server  | ✅ Withdrawal routes loaded
+0|duo-server  | ✅ Withdrawal admin routes loaded
+0|duo-server  | ✅ Notifications routes loaded
+0|duo-server  | ✅ Connected to SQLite database: ./data/database.db
+0|duo-server  | ✅ Table [users] ready
+0|duo-server  | ✅ Table [referral_stats] ready
+0|duo-server  | ✅ Table [referrals] ready
+0|duo-server  | ✅ Table [referral_events] ready
+0|duo-server  | ✅ Database initialization complete
+0|duo-server  | ✅ Database ready
+0|duo-server  | ✅ Game handlers registered
+0|duo-server  | ✅ Bot scheduler started
+0|duo-server  | ========================================
+0|duo-server  | ✅ SERVER IS RUNNING
+0|duo-server  | ========================================
+0|duo-server  | � Bot miniapp: http://localhost:3000/bot/
+0|duo-server  | � Partner site: http://localhost:3000/partner/
+0|duo-server  | � API: http://localhost:3000/api/
+0|duo-server  | � Health: http://localhost:3000/health
+0|duo-server  | ========================================
+0|duo-server  | � Socket.IO client connected: _qm0quJyn4OXGIsJAAAC
 0|duo-server  | ❌ Mines: No telegramId in socket handshake
 0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
-0|duo-server  | � Crash ended at: 1.65x
-0|duo-server  | ⏳ Crash: Ожидание 5 сек...
-0|duo-server  | � Crash started! Will crash at: 2.16x
-0|duo-server  | � Crash ended at: 2.16x
-0|duo-server  | ⏳ Crash: Ожидание 5 сек...
-
-
-
-с пк 0|duo-server  | � GET /api/balance/1889923046
-0|duo-server  | � POST /api/balance/1889923046/subtract: {
-0|duo-server  |   subtractAmount: 777,
-0|duo-server  |   subtractChips: 0,
-0|duo-server  |   gameType: 'case',
-0|duo-server  |   reason: 'case_opening'
-0|duo-server  | }
+0|duo-server  | � Socket.IO client connected: gnO9jhe7V02q_itoAAAD
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | ❌ Socket.IO client disconnected: _qm0quJyn4OXGIsJAAAC
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � Баланс загружен из Bot DB: 1889923046 → 25500₽
+0|duo-server  | � Socket.IO client connected: g8OCbQNn-3xhu_p1AAAF
+0|duo-server  | ❌ Mines: No telegramId in socket handshake
+0|duo-server  | ❌ BlackJack: No telegramId in socket handshake
+0|duo-server  | � GET /api/balance/1889923046
+0|duo-server  | � POST /api/balance/1889923046/subtract
+0|duo-server  |    Amount: 777₽, Chips: 0
+0|duo-server  |    Reason: case_opening, Game: case
 0|duo-server  | ✅ Balance subtracted: 1889923046 -777₽ -0 chips
 0|duo-server  | � WebSocket sent: balance_updated_1889923046
+^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
+D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
+3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
+;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
+1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
+[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
+[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
+^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
+D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
+3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
+;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
+1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
+[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
+[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
+^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
+D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
+3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
+;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
+1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
+[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
+[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
+^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
+D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
+3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
+;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
+1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
+[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^
+[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
+^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3
+D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;
+3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1
+;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[
+1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D^[
+[1;3D^[[1;3D^[[1;3D^[[1;3D^[[1;3D
+
+ Creating prize display: {winWindow: true, winWindowItem: false, prizeSrc: 'main/content-case/777/8-new.png', prizePrice: 777}
+case-nft-opener.js:687 ❌ .win-window-item not found!
+(anonymous) @ case-nft-opener.js:687
+showWinScreen @ case-nft-opener.js:594
+spinCase @ case-nft-opener.js:480
+case-nft-opener.js:698 👁️ Win window visible: {display: 'flex', opacity: '', transform: ''}
