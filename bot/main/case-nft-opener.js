@@ -531,43 +531,44 @@
         contain: layout;
       `;
 
-      // Генерируем рандомную последовательность (15 карточек) - мобильная оптимизация
-      const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
+      // ОПТИМИЗАЦИЯ: меньше карточек = быстрее создание
       const carouselPrizes = [];
-      for (let i = 0; i < 15; i++) {
-        const randomPrize = sortedPrizes[Math.floor(Math.random() * sortedPrizes.length)];
+      for (let i = 0; i < 12; i++) {
+        const randomPrize = currentCase.prizes[Math.floor(Math.random() * currentCase.prizes.length)];
         carouselPrizes.push(randomPrize);
       }
       
-      console.log('🎰 Призы для карусели:', carouselPrizes.length);
-      
       // Вставляем выигрышный приз в конец
-      carouselPrizes[carouselPrizes.length - 4] = winningPrize;
+      carouselPrizes[carouselPrizes.length - 3] = winningPrize;
 
-      carouselPrizes.forEach((prize, idx) => {
+      // ОПТИМИЗАЦИЯ: создаём DocumentFragment для batch вставки
+      const fragment = document.createDocumentFragment();
+      
+      carouselPrizes.forEach((prize) => {
         const card = createPrizeCard(prize);
         card.style.cssText = `
           flex-shrink: 0;
           width: 110px;
           height: 110px;
           transform: translateZ(0);
-          -webkit-transform: translateZ(0);
           backface-visibility: hidden;
         `;
         
         // Уменьшаем только картинку внутри до 25px
-        const img = card.querySelector('img');
+        const img = card.querySelector('img.prize-image');
         if (img) {
           img.style.cssText = `
             width: 25px;
             height: 25px;
             transform: translateZ(0);
-            -webkit-transform: translateZ(0);
           `;
         }
         
-        carousel.appendChild(card);
+        fragment.appendChild(card);
       });
+      
+      // Одна операция DOM вместо 12
+      carousel.appendChild(fragment);
 
       console.log('🎰 Карусель создана, карточек:', carousel.children.length);
       console.log('🎰 Картинок в карусели:', carousel.querySelectorAll('img').length);
