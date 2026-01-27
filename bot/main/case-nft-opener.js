@@ -338,48 +338,17 @@
       card.setAttribute('data-case-type', 'chips');
     }
     
-    // БЕЗ opacity 0 и scale - карточки появляются сразу!
-
-    // Badge с ценой
-    const priceBadge = document.createElement('div');
-    priceBadge.className = 'prize-price-badge';
+    // ОПТИМИЗАЦИЯ: используем innerHTML вместо множества createElement
     const currencyIcon = currentCaseType === 'chips' ? 'main/assets/chips.png' : 'main/assets/rubles.png';
     const currencyAlt = currentCaseType === 'chips' ? 'Chips' : '₽';
-    priceBadge.innerHTML = `
-      <img class="prize-currency-icon" src="${currencyIcon}" alt="${currencyAlt}">
-      <span class="prize-price-value">${prize.price}</span>
+    
+    card.innerHTML = `
+      <div class="prize-price-badge">
+        <img class="prize-currency-icon" src="${currencyIcon}" alt="${currencyAlt}">
+        <span class="prize-price-value">${prize.price}</span>
+      </div>
+      <img class="prize-image" src="${prize.image}" alt="Prize ${prize.price}" loading="eager" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;">
     `;
-
-    // Изображение приза
-    const img = document.createElement('img');
-    img.className = 'prize-image';
-    img.src = prize.image;
-    img.alt = `Prize ${prize.price}₽`;
-    
-    // КРИТИЧНО! Явные стили для img
-    img.style.cssText = `
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      position: relative;
-      z-index: 1;
-      display: block;
-      border-radius: 12px;
-    `;
-    
-    img.loading = 'eager';
-    
-    img.onerror = function() {
-      console.error('❌ Ошибка загрузки:', this.src);
-      this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="50" font-size="40" text-anchor="middle" x="50">🎁</text></svg>';
-    };
-    
-    img.onload = function() {
-      console.log('✅ Картинка загружена:', prize.price);
-    };
-
-    card.appendChild(priceBadge);
-    card.appendChild(img);
 
     return card;
   }
