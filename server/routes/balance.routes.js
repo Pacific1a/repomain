@@ -158,6 +158,16 @@ router.post('/:telegramId/add', async (req, res) => {
         
         console.log(`✅ Balance added: ${telegramId} +${addAmount}₽ +${addChips} chips`);
         
+        // Отправляем WebSocket событие об обновлении баланса
+        const io = require('../server').io;
+        if (io) {
+            io.emit(`balance_updated_${telegramId}`, {
+                rubles: currentBalance.rubles,
+                chips: currentBalance.chips
+            });
+            console.log(`📡 WebSocket sent: balance_updated_${telegramId}`);
+        }
+        
         res.json({
             success: true,
             telegramId: parseInt(telegramId),
@@ -205,6 +215,16 @@ router.post('/:telegramId/subtract', async (req, res) => {
         balances.set(telegramId, currentBalance);
         
         console.log(`✅ Balance subtracted: ${telegramId} -${subtractAmount}₽ -${subtractChips} chips`);
+        
+        // Отправляем WebSocket событие об обновлении баланса
+        const io = require('../server').io;
+        if (io) {
+            io.emit(`balance_updated_${telegramId}`, {
+                rubles: currentBalance.rubles,
+                chips: currentBalance.chips
+            });
+            console.log(`📡 WebSocket sent: balance_updated_${telegramId}`);
+        }
         
         // Referral tracking is handled by referral-integration.js on client side
         

@@ -475,7 +475,7 @@
       carousel.style.gap = '6px';
       carousel.style.position = 'absolute';
       carousel.style.left = '0';
-      carousel.style.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)';
+      carousel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
 
       // Генерируем рандомную последовательность (30-40 карточек) - от дорогих к дешевым
       const sortedPrizes = [...currentCase.prizes].sort((a, b) => b.price - a.price);
@@ -522,7 +522,7 @@
       // Ждём окончания анимации
       setTimeout(() => {
         resolve();
-      }, 4500);
+      }, 2700); // 2.5s animation + 200ms
     });
   }
 
