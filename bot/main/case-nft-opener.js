@@ -565,27 +565,20 @@
   function showWinScreen(prize) {
     return new Promise((resolve) => {
       const winWindow = document.querySelector('.win-window');
-      const contentWindow = document.querySelector('.content-window-item');
+      const contentWindow = document.querySelector('.content-window'); // Весь контейнер с индикатором
       const openBtn = document.querySelector('.open-btn button');
-      const indicatorArrow = document.querySelector('.indicator-arrow'); // Индикатор
       
       if (!winWindow) {
         resolve();
         return;
       }
 
-      // Скрываем карусель и кнопку открытия
+      // Полностью скрываем content-window (карусель + индикатор)
       if (contentWindow) {
         contentWindow.style.opacity = '0';
         setTimeout(() => {
-          contentWindow.style.display = 'none';
+          contentWindow.style.display = 'none'; // Убираем из DOM полностью
         }, 300);
-      }
-      
-      // Скрываем индикатор Group 8.png
-      if (indicatorArrow) {
-        indicatorArrow.style.opacity = '0';
-        indicatorArrow.style.transition = 'opacity 0.3s ease';
       }
       
       // Скрываем кнопку открытия
@@ -676,9 +669,8 @@
       
       // Скрываем окно выигрыша
       const winWindow = document.querySelector('.win-window');
-      const contentWindow = document.querySelector('.content-window-item');
+      const contentWindow = document.querySelector('.content-window'); // Весь контейнер
       const openBtn = document.querySelector('.open-btn button');
-      const indicatorArrow = document.querySelector('.indicator-arrow');
       
       if (winWindow) {
         winWindow.style.opacity = '0';
@@ -688,16 +680,13 @@
         }, 300);
       }
       
-      // Возвращаем индикатор Group 8.png
-      if (indicatorArrow) {
-        indicatorArrow.style.opacity = '1';
-      }
-      
-      // Возвращаем спиннер и кнопку
+      // Возвращаем content-window (карусель + индикатор)
       setTimeout(() => {
         if (contentWindow) {
-          contentWindow.style.display = 'flex';
-          contentWindow.style.opacity = '1';
+          contentWindow.style.display = 'flex'; // Восстанавливаем в DOM
+          setTimeout(() => {
+            contentWindow.style.opacity = '1'; // Плавное появление
+          }, 50);
         }
         
         if (openBtn) {
