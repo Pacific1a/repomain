@@ -587,8 +587,8 @@
 
       // Даём браузеру отрисовать DOM
       setTimeout(() => {
-        // Включаем анимацию с ease-out (быстрое начало, медленный конец)
-        carousel.style.transition = 'transform 6.5s cubic-bezier(0.11, 0, 0.5, 0)';
+        // Включаем анимацию: БЫСТРОЕ НАЧАЛО → МЕДЛЕННЫЙ КОНЕЦ
+        carousel.style.transition = 'transform 6.5s cubic-bezier(0.25, 1, 0.5, 1)';
         
         // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина карточки + gap
@@ -695,15 +695,17 @@
         openBtn.style.display = 'none';
       }
       
-      // Показываем кнопку Keep it
+      // Показываем кнопку Keep it (и контейнер, и саму кнопку)
       if (keepItBtn) {
-        keepItBtn.style.display = 'block';
+        keepItBtn.style.display = 'block';  // Контейнер .keep-it
         keepItBtn.style.opacity = '1';
         keepItBtn.style.transform = 'translateY(0)';
+        
         // Показываем саму кнопку внутри
         const keepItButton = keepItBtn.querySelector('button');
         if (keepItButton) {
-          keepItButton.style.display = 'block';
+          keepItButton.style.display = 'block';  // Сама кнопка <button>
+          keepItButton.style.opacity = '1';
         }
       }
       
