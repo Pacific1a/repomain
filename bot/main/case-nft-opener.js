@@ -536,12 +536,13 @@
       carousel.style.cssText = `
         display: flex;
         gap: 6px;
+        align-items: center;
         position: absolute;
         left: 0;
-        transition: transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        transition: none;
         will-change: transform;
         backface-visibility: hidden;
-        transform: translateZ(0);
+        transform: translateX(0);
       `;
 
       // Генерируем рандомную последовательность (20 карточек) - оптимизация
@@ -577,12 +578,16 @@
       console.log('🎰 Карусель добавлена в DOM');
       console.log('🎰 Проверка: img в content-window:', document.querySelectorAll('.content-window-item img').length);
 
-      // Запускаем прокрутку с небольшой задержкой
+      // Запускаем прокрутку с задержкой для плавности
       setTimeout(() => {
+        // Включаем анимацию
+        carousel.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        
+        // Рассчитываем финальную позицию (выигрышный приз по центру)
         const cardWidth = 110 + 6; // ширина + gap
         const targetOffset = (carouselPrizes.length - 4) * cardWidth - (contentWindow.offsetWidth / 2) + 55;
         carousel.style.transform = `translateX(-${targetOffset}px)`;
-      }, 200);
+      }, 100);
 
       // Ждём окончания анимации (3.5s + задержка)
       setTimeout(() => {
