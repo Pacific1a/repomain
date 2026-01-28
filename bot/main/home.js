@@ -341,6 +341,39 @@
   // =====================
   // Smooth conveyor for streak (identical to upgrade)
   // =====================
+  let conveyorAutoPauseBound = false;
+  function bindConveyorAutoPause() {
+    if (conveyorAutoPauseBound) return;
+    conveyorAutoPauseBound = true;
+
+    let resumeTimer = null;
+    const pauseNow = () => {
+      const conveyor = window.MainSmoothConveyor;
+      if (conveyor && typeof conveyor.pause === 'function') {
+        conveyor.pause();
+      }
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        const c = window.MainSmoothConveyor;
+        if (document.visibilityState === 'visible' && c && typeof c.resume === 'function') {
+          c.resume();
+        }
+      }, 160);
+    };
+
+    window.addEventListener('scroll', pauseNow, { passive: true });
+    window.addEventListener('touchmove', pauseNow, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      const c = window.MainSmoothConveyor;
+      if (!c) return;
+      if (document.visibilityState !== 'visible') {
+        if (typeof c.pause === 'function') c.pause();
+      } else {
+        if (typeof c.resume === 'function') c.resume();
+      }
+    });
+  }
+
   class MainSmoothCyclicalConveyor {
     constructor() {
         this.isActive = false;
@@ -410,23 +443,15 @@
                 gap: 15px;
                 will-change: transform;
                 backface-visibility: hidden;
-                perspective: 1000px;
-                transform-style: preserve-3d;
+                transition: none;
             }
             
             .smooth-prize {
                 flex-shrink: 0;
                 position: relative;
             }
-            
-            .smooth-prize img {
-                display: block;
-                transition: filter 0.3s ease;
-            }
-            
-            .smooth-prize img:hover {
-                filter: brightness(1.1) saturate(1.1);
-            }
+
+            .smooth-prize img { display: block; }
         `;
         document.head.appendChild(style);
     }
@@ -435,6 +460,8 @@
         const existingPrizes = this.streakContainer.querySelectorAll('.img-2, .img-3');
         const frameElement = this.streakContainer.querySelector('.frame');
 
+        const conveyorContainer = document.createElement('div');
+        conveyorContainer.className = 'smooth-conveyor-container';
 
         // Создаем движущуюся дорожку
         const conveyorTrack = document.createElement('div');
@@ -541,7 +568,6 @@
         }
     
         if (this.conveyorTrack) {
-            this.conveyorTrack.style.transition = 'none';
             this.conveyorTrack.style.transform = `translate3d(${this.position}px, 0, 0)`;
         }
     
@@ -589,11 +615,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             window.MainSmoothConveyor = new MainSmoothCyclicalConveyor();
+            bindConveyorAutoPause();
         }, 300);
     });
   } else {
     setTimeout(() => {
         window.MainSmoothConveyor = new MainSmoothCyclicalConveyor();
+        bindConveyorAutoPause();
     }, 300);
   }
 })();

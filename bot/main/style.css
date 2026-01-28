@@ -1451,6 +1451,15 @@
   width: 100%;
   margin-bottom: 100px;
 }
+.case-card > .cards{
+  contain: content;
+}
+@supports (content-visibility: auto) {
+  .case-card > .cards{
+    content-visibility: auto;
+    contain-intrinsic-size: 180px 250px;
+  }
+}
 .cards{
   position: relative;
   display: flex;
@@ -1838,4 +1847,27 @@
   border-radius: 14px;
   position: absolute;
   top: 0;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .menu{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: rgba(60, 60, 60, 0.55);
+  }
+  .select-filter{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.22s ease, width 0.22s ease;
+  }
+  .exit{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
+  }
+  .content-window-item img{
+    filter: none;
+    -webkit-filter: none;
+  }
 }
