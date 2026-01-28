@@ -6,6 +6,17 @@
     
     <!-- Critical CSS для мгновенного показа loader -->
     <style>
+      .content-window-item {
+   transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.prize-card {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
       body { overflow: hidden; }
       #app { opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
       
@@ -1076,7 +1087,7 @@ button {
     <!-- CRITICAL: Load in order WITHOUT defer -->
     <script src="config.js"></script>
     <script src="balance-api.js"></script>
-    <script src="main/case-nft-opener.js"></script>
+    <script src="main/case-nft-opener-optimized.js"></script>
     <script>
       (function () {
         const loader = document.getElementById('app-loader');
