@@ -14,6 +14,87 @@
   let isSpinning = false;
   let wonPrize = null;
   let isPrizeCollected = false;
+  const isCoarsePointer = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+  let pausedMainConveyor = false;
+
+  function pauseBackgroundAnimations() {
+    const conveyor = window.MainSmoothConveyor;
+    if (conveyor && typeof conveyor.pause === 'function') {
+      conveyor.pause();
+      pausedMainConveyor = true;
+    }
+  }
+
+  function resumeBackgroundAnimations() {
+    if (!pausedMainConveyor) return;
+    pausedMainConveyor = false;
+    const conveyor = window.MainSmoothConveyor;
+    if (conveyor && typeof conveyor.resume === 'function') {
+      conveyor.resume();
+    }
+  }
+
+  function preloadImage(src, timeoutMs = 1200) {
+    return new Promise((resolve) => {
+      if (!src) {
+        resolve();
+        return;
+      }
+      const img = new Image();
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        resolve();
+      };
+      const t = setTimeout(finish, timeoutMs);
+      img.onload = () => {
+        if (typeof img.decode === 'function') {
+          Promise.race([
+            img.decode().catch(() => {}),
+            new Promise((r) => setTimeout(r, timeoutMs))
+          ]).finally(() => {
+            clearTimeout(t);
+            finish();
+          });
+        } else {
+          clearTimeout(t);
+          finish();
+        }
+      };
+      img.onerror = () => {
+        clearTimeout(t);
+        finish();
+      };
+      img.src = src;
+    });
+  }
+
+  function createSpinItem(prize, sizePx, imgPx) {
+    const wrap = document.createElement('div');
+    wrap.className = 'spin-item';
+    wrap.style.width = `${sizePx}px`;
+    wrap.style.height = `${sizePx}px`;
+    wrap.style.flexShrink = '0';
+    wrap.style.display = 'flex';
+    wrap.style.alignItems = 'center';
+    wrap.style.justifyContent = 'center';
+    wrap.style.willChange = 'transform';
+
+    const img = document.createElement('img');
+    img.src = prize.image;
+    img.alt = `Prize ${prize.price}`;
+    img.loading = 'eager';
+    img.decoding = 'async';
+    img.style.width = `${imgPx}px`;
+    img.style.height = `${imgPx}px`;
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+    img.style.transform = 'translate3d(0,0,0)';
+    wrap.appendChild(img);
+
+    return wrap;
+  }
 
   async function loadCaseConfig(casePrice) {
     if (configCache[casePrice]) {
@@ -91,6 +172,7 @@
     if (modalOverlay) modalOverlay.classList.add('loading-state');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    pauseBackgroundAnimations();
     
     if (modalContent) {
       modalContent.style.opacity = '0';
@@ -195,14 +277,32 @@
     
     const currencyIcon = currentCaseType === 'chips' ? 'main/assets/chips.png' : 'main/assets/rubles.png';
     const currencyAlt = currentCaseType === 'chips' ? 'Chips' : '₽';
-    
-    card.innerHTML = `
-      <div class="prize-price-badge">
-        <img class="prize-currency-icon" src="${currencyIcon}" alt="${currencyAlt}">
-        <span class="prize-price-value">${prize.price}</span>
-      </div>
-      <img class="prize-image" src="${prize.image}" alt="Prize ${prize.price}" loading="eager" style="width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;">
-    `;
+
+    const badge = document.createElement('div');
+    badge.className = 'prize-price-badge';
+
+    const icon = document.createElement('img');
+    icon.className = 'prize-currency-icon';
+    icon.src = currencyIcon;
+    icon.alt = currencyAlt;
+    icon.loading = 'lazy';
+    icon.decoding = 'async';
+
+    const value = document.createElement('span');
+    value.className = 'prize-price-value';
+    value.textContent = String(prize.price);
+
+    badge.append(icon, value);
+
+    const img = document.createElement('img');
+    img.className = 'prize-image';
+    img.src = prize.image;
+    img.alt = `Prize ${prize.price}`;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;';
+
+    card.append(badge, img);
 
     return card;
   }
@@ -269,7 +369,25 @@
   // 🎰 ИДЕАЛЬНО ПЛАВНАЯ АНИМАЦИЯ
   // ================================
   
-  function playSmoothLongAnimation(prize) {
+  async function playSmoothLongAnimation(prize) {
+    const totalCards = isCoarsePointer ? 24 : 35;
+    const winIndex = isCoarsePointer ? 18 : 30;
+    const gap = isCoarsePointer ? 4 : 6;
+    const itemSize = isCoarsePointer ? 92 : 110;
+    const imgSize = isCoarsePointer ? 44 : 32;
+    const durationMs = isCoarsePointer ? 6200 : 8000;
+
+    const carouselPrizes = [];
+    for (let i = 0; i < totalCards; i++) {
+      const randomPrize = currentCase.prizes[Math.floor(Math.random() * currentCase.prizes.length)];
+      carouselPrizes.push(randomPrize);
+    }
+    carouselPrizes[winIndex] = prize;
+
+    const uniqueSources = Array.from(new Set(carouselPrizes.map((p) => p?.image).filter(Boolean)));
+    const preloadLimit = isCoarsePointer ? 10 : 18;
+    await Promise.all(uniqueSources.slice(0, preloadLimit).map((src) => preloadImage(src, 1200)));
+
     return new Promise((resolve) => {
       const contentWindow = document.querySelector('.content-window-item');
       if (!contentWindow) {
@@ -277,7 +395,7 @@
         return;
       }
 
-      console.log('🎰 Starting SMOOTH long animation: 35 cards, 8 seconds');
+      console.log(`🎰 Starting SMOOTH long animation: ${totalCards} cards, ${Math.round(durationMs/100)/10}s`);
 
       contentWindow.style.display = 'flex';
       contentWindow.style.overflow = 'hidden';
@@ -287,7 +405,7 @@
       const carousel = document.createElement('div');
       carousel.style.cssText = `
         display: flex;
-        gap: 6px;
+        gap: ${gap}px;
         align-items: center;
         position: absolute;
         left: 0;
@@ -295,72 +413,48 @@
         transform: translate3d(0, 0, 0);
       `;
 
-      // Генерируем 35 карточек
-      const carouselPrizes = [];
-      for (let i = 0; i < 35; i++) {
-        const randomPrize = currentCase.prizes[Math.floor(Math.random() * currentCase.prizes.length)];
-        carouselPrizes.push(randomPrize);
-      }
-      
-      carouselPrizes[30] = prize;
-
       const fragment = document.createDocumentFragment();
       
       carouselPrizes.forEach((prizeItem) => {
-        const card = createPrizeCard(prizeItem);
-        card.style.cssText = `
-          flex-shrink: 0;
-          width: 110px;
-          height: 110px;
-          will-change: transform;
-        `;
-        
-        const img = card.querySelector('img.prize-image');
-        if (img) {
-          img.style.cssText = `
-            width: 25px;
-            height: 25px;
-          `;
-        }
-        
-        fragment.appendChild(card);
+        fragment.appendChild(createSpinItem(prizeItem, itemSize, imgSize));
       });
       
       carousel.appendChild(fragment);
       contentWindow.innerHTML = '';
       contentWindow.appendChild(carousel);
       
-      const cardWidth = 110 + 6;
-      const targetOffset = 30 * cardWidth - (contentWindow.offsetWidth / 2) + 55;
+      const cardWidth = itemSize + gap;
+      const targetOffset = winIndex * cardWidth - (contentWindow.clientWidth / 2) + (itemSize / 2);
       
-      // 🎰 ОДНА ПЛАВНАЯ АНИМАЦИЯ от начала до конца (БЕЗ РЫВКОВ!)
-      // Идеальная кривая ease-in-out для плавного замедления
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          carousel.style.transition = 'transform 8s cubic-bezier(0.25, 0.1, 0.25, 1)';
+          carousel.style.transition = `transform ${durationMs}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
           carousel.style.transform = `translate3d(-${targetOffset}px, 0, 0)`;
         });
       });
 
-      // Финальная вспышка победной карточки (БЕЗ покачиваний!)
       setTimeout(() => {
-        const winCard = carousel.children[30];
+        const winCard = carousel.children[winIndex];
         if (winCard) {
-          winCard.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+          winCard.style.transition = isCoarsePointer ? 'transform 0.26s ease' : 'transform 0.3s ease, box-shadow 0.3s ease';
           winCard.style.transform = 'scale(1.12)';
-          winCard.style.boxShadow = '0 0 20px rgba(180, 150, 50, 0.5)';
+          if (!isCoarsePointer) {
+            winCard.style.boxShadow = '0 0 20px rgba(180, 150, 50, 0.5)';
+          }
           
           setTimeout(() => {
             winCard.style.transform = 'scale(1)';
-            winCard.style.boxShadow = '';
+            if (!isCoarsePointer) {
+              winCard.style.boxShadow = '';
+            }
           }, 300);
         }
-      }, 7800);
+      }, Math.max(0, durationMs - 200));
 
       setTimeout(() => {
         carousel.style.willChange = 'auto';
         resolve();
-      }, 8300);
+      }, durationMs + 300);
     });
   }
 
@@ -412,6 +506,7 @@
         prizeImage.src = prize.image;
         prizeImage.alt = `Prize ${prize.price}`;
         prizeImage.className = 'prize-image';
+        prizeImage.decoding = 'async';
         
         winWindowItem.appendChild(prizeImage);
       }
@@ -424,12 +519,12 @@
         winWindow.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
         winWindow.style.opacity = '1';
         winWindow.style.transform = 'scale(1)';
-        
-        winWindow.style.filter = 'drop-shadow(0 0 20px rgba(180, 150, 50, 0.4))';
-        
-        setTimeout(() => {
-          winWindow.style.filter = '';
-        }, 500);
+        if (!isCoarsePointer) {
+          winWindow.style.filter = 'drop-shadow(0 0 20px rgba(180, 150, 50, 0.4))';
+          setTimeout(() => {
+            winWindow.style.filter = '';
+          }, 500);
+        }
       }, 100);
       
       const openBtn = document.querySelector('.open-btn');
@@ -643,6 +738,7 @@
     }
     
     document.body.style.overflow = '';
+    resumeBackgroundAnimations();
     
     currentCase = null;
     isSpinning = false;
