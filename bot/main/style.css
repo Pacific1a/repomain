@@ -1577,8 +1577,7 @@
 }
 .img-block img{
   width: 100%;
-  /* Оставляем минимальную оптимизацию без изменения цвета */
-  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
 }
@@ -1594,7 +1593,7 @@
 }
 
 /* Изображения призов в карусели - размер 110x110px */
-.content-window-item img {
+.content-window-item > img {
   width: 110px;
   height: 110px;
   flex-shrink: 0;
@@ -1604,13 +1603,9 @@
   /* Убрали filter - он может размывать на мобильных */
   /* filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); */
   transition: all 0.3s ease;
-  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  /* Принудительная четкость */
-  -webkit-filter: contrast(1.05);
-  filter: contrast(1.05);
 }
 
 /* Обертка для создания мутного фона позади каждой фишки */
@@ -1619,12 +1614,12 @@
 }
 
 /* Создаем мутное свечение позади фишек через box-shadow */
-.content-window-item img {
+.content-window-item > img {
   position: relative;
 }
 
 /* Альтернатива - мутный фон через shadow */
-.content-window-item img {
+.content-window-item > img {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) 
           drop-shadow(0 0 40px rgba(255, 255, 255, 0.08))
           drop-shadow(0 0 60px rgba(255, 255, 255, 0.04));
@@ -1708,7 +1703,7 @@
 }
 
 /* Изображения в превью возможных призов - размер 110x110px */
-.item-preview-item img {
+.item-preview-item > img {
   width: 110px;
   height: 110px;
   aspect-ratio: 1 / 1;
@@ -1719,13 +1714,9 @@
   /* Убрали filter - он может размывать */
   /* filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)); */
   display: block;
-  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  /* Принудительная четкость */
-  -webkit-filter: contrast(1.05);
-  filter: contrast(1.05);
 }
 
 .item-preview-item img:hover {

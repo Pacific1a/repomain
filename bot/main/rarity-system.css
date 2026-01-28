@@ -9,93 +9,67 @@
   height: 100px;
   border-radius: 12px;
   padding: 8px;
-  /* Фоновое изображение + затемнение */
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0)),
-    url('./assets/bgs-case.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  backdrop-filter: blur(10px);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  --rarity-color: #7c94ae;
+  --rarity-color-rgb: 124, 148, 174;
+  background-color: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(var(--rarity-color-rgb), 0.26);
+  contain: content;
+  isolation: isolate;
 }
 
-.prize-card:hover {
-  transform: translateY(-4px) scale(1.02);
-}
-
-/* Градиентный фон карточки по редкости (снизу вверх, плавный) */
 .prize-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to top,
-    var(--rarity-color) 0%,
-    transparent 60%
-  );
-  opacity: 0.1;
-  z-index: 0;
-}
-
-/* Обводка карточки по редкости (плавная, менее яркая) */
-.prize-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 2.2px solid var(--rarity-color);
-  border-radius: 15px;
-  opacity: 0.4;
+  inset: -1px;
+  border-radius: inherit;
   pointer-events: none;
-  z-index: 3;
-  box-shadow: 
-    inset 0 0 15px rgba(0, 0, 0, 0.3),
-    0 0 8px var(--rarity-color);
-  transition: all 0.3s ease;
+  z-index: 0;
+  opacity: 0.65;
+  box-shadow:
+    0 0 10px rgba(var(--rarity-color-rgb), 0.28),
+    0 0 18px rgba(var(--rarity-color-rgb), 0.14);
+  animation: rarityHaloPulse 2.4s ease-in-out infinite;
 }
 
-.prize-card:hover::after {
-  opacity: 0.7;
-  box-shadow: 
-    inset 0 0 20px rgba(0, 0, 0, 0.2),
-    0 0 15px var(--rarity-color);
+@keyframes rarityHaloPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.85; }
 }
 
 /* === БОЖЕСТВЕННЫЙ === */
 .prize-card[data-rarity="divine"] {
   --rarity-color: #da8f4a;
+  --rarity-color-rgb: 218, 143, 74;
 }
 
 /* === МИФИЧЕСКИЙ === */
 .prize-card[data-rarity="mythical"] {
   --rarity-color: #be3a41;
+  --rarity-color-rgb: 190, 58, 65;
 }
 
 /* === ЛЕГЕНДАРНЫЙ === */
 .prize-card[data-rarity="legendary"] {
   --rarity-color: #c32f80;
+  --rarity-color-rgb: 195, 47, 128;
 }
 
 /* === ЭПИЧЕСКИЙ === */
 .prize-card[data-rarity="epic"] {
   --rarity-color: #8e4dde;
+  --rarity-color-rgb: 142, 77, 222;
 }
 
 /* === РАРНЫЙ === */
 .prize-card[data-rarity="rare"] {
   --rarity-color: #4f66e3;
+  --rarity-color-rgb: 79, 102, 227;
 }
 
 /* === ОБЫЧНЫЙ === */
 .prize-card[data-rarity="common"] {
   --rarity-color: #7c94ae;
+  --rarity-color-rgb: 124, 148, 174;
 }
 
 /* === КАРТИНКА ПРИЗА === */
@@ -106,7 +80,6 @@
   object-fit: contain !important;
   z-index: 1 !important;
   display: block !important;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
   pointer-events: none;
 }
 
@@ -191,7 +164,7 @@
 
 /* === АНИМАЦИЯ ПОЯВЛЕНИЯ === */
 .prize-card {
-  animation: prizeCardAppear 0.4s ease both;
+  animation: none;
 }
 
 @keyframes prizeCardAppear {
@@ -217,7 +190,7 @@
 
 /* === СВЕЧЕНИЕ ПРИ ВЫИГРЫШЕ === */
 .prize-card.won {
-  animation: prizeWinGlow 1.5s ease-in-out infinite;
+  animation: none;
 }
 
 @keyframes prizeWinGlow {
@@ -238,6 +211,46 @@
 /* === АДАПТАЦИЯ ДЛЯ SPIN (карусель) === */
 .content-window-item .prize-card {
   flex-shrink: 0;
+}
+
+.content-window-item .prize-card,
+.content-window-item .prize-card::before,
+.content-window-item .prize-card::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+.content-window-item .prize-card {
+  background-color: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(var(--rarity-color-rgb), 0.22) !important;
+}
+
+.content-window-item .prize-card::before {
+  inset: -1px !important;
+  opacity: 0.55 !important;
+  box-shadow:
+    0 0 8px rgba(var(--rarity-color-rgb), 0.24),
+    0 0 14px rgba(var(--rarity-color-rgb), 0.12) !important;
+}
+
+.content-window-item .prize-image,
+.content-window-item .prize-currency-icon,
+.content-window-item .prize-currency-icon svg {
+  filter: none !important;
+}
+
+.content-window-item .prize-price-badge {
+  display: none !important;
+}
+
+.item-preview-item .prize-price-badge { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prize-card::before { animation: none !important; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .prize-card::before { animation-duration: 3.2s; }
 }
 
 /* === POSSIBLE PRIZES GRID === */
@@ -282,19 +295,8 @@
 
 /* Кейсы с фишками (911 и другие чиповые кейсы) */
 .prize-card[data-case-type="chips"] {
-  padding: 0 !important;
-  background-image: none !important;
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
 }
 
-/* Убираем обводку для кейсов с фишками */
-.prize-card[data-case-type="chips"]::after {
-  display: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Убираем градиентный фон для четкости фишек */
-.prize-card[data-case-type="chips"]::before {
-  display: none !important;
-}
+/* Убираем лишнюю “рамку” бейджа для фишек, сохраняя свечение редкости */
+.prize-card[data-case-type="chips"] .prize-price-badge { display: none !important; }

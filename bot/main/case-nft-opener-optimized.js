@@ -17,6 +17,60 @@
   const isCoarsePointer = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
   let pausedMainConveyor = false;
 
+  function parseColorToRgb(color) {
+    const c = String(color || '').trim();
+    if (!c) return null;
+
+    const hex = c.startsWith('#') ? c.slice(1) : c;
+    if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return [r, g, b];
+    }
+    if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+      const r = parseInt(hex[0] + hex[0], 16);
+      const g = parseInt(hex[1] + hex[1], 16);
+      const b = parseInt(hex[2] + hex[2], 16);
+      return [r, g, b];
+    }
+
+    const m = c.match(/^rgba?\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})(?:\s*,\s*(?:0|1|0?\.[0-9]+))?\s*\)$/i);
+    if (m) {
+      const r = Math.max(0, Math.min(255, parseInt(m[1], 10)));
+      const g = Math.max(0, Math.min(255, parseInt(m[2], 10)));
+      const b = Math.max(0, Math.min(255, parseInt(m[3], 10)));
+      return [r, g, b];
+    }
+    return null;
+  }
+
+  function setRarityVars(card, prize) {
+    const rarity = prize?.rarity;
+    const rarityColor = prize?.rarityColor;
+    if (rarityColor) {
+      card.style.setProperty('--rarity-color', rarityColor);
+      const rgb = parseColorToRgb(rarityColor);
+      if (rgb) {
+        card.style.setProperty('--rarity-color-rgb', `${rgb[0]}, ${rgb[1]}, ${rgb[2]}`);
+        return;
+      }
+    }
+
+    const fallback = {
+      divine: [218, 143, 74],
+      mythical: [190, 58, 65],
+      legendary: [195, 47, 128],
+      epic: [142, 77, 222],
+      rare: [79, 102, 227],
+      common: [124, 148, 174]
+    };
+    const f = fallback[String(rarity || '').toLowerCase()];
+    if (f) {
+      card.style.setProperty('--rarity-color-rgb', `${f[0]}, ${f[1]}, ${f[2]}`);
+    }
+  }
+
   function pauseBackgroundAnimations() {
     const conveyor = window.MainSmoothConveyor;
     if (conveyor && typeof conveyor.pause === 'function') {
@@ -70,30 +124,13 @@
     });
   }
 
-  function createSpinItem(prize, sizePx, imgPx) {
-    const wrap = document.createElement('div');
-    wrap.className = 'spin-item';
-    wrap.style.width = `${sizePx}px`;
-    wrap.style.height = `${sizePx}px`;
-    wrap.style.flexShrink = '0';
-    wrap.style.display = 'flex';
-    wrap.style.alignItems = 'center';
-    wrap.style.justifyContent = 'center';
-    wrap.style.willChange = 'transform';
-
-    const img = document.createElement('img');
-    img.src = prize.image;
-    img.alt = `Prize ${prize.price}`;
-    img.loading = 'eager';
-    img.decoding = 'async';
-    img.style.width = `${imgPx}px`;
-    img.style.height = `${imgPx}px`;
-    img.style.objectFit = 'contain';
-    img.style.display = 'block';
-    img.style.transform = 'translate3d(0,0,0)';
-    wrap.appendChild(img);
-
-    return wrap;
+  function createSpinCard(prize, sizePx) {
+    const card = createPrizeCard(prize);
+    card.style.width = `${sizePx}px`;
+    card.style.height = `${sizePx}px`;
+    card.style.flexShrink = '0';
+    card.style.willChange = 'transform';
+    return card;
   }
 
   async function loadCaseConfig(casePrice) {
@@ -269,7 +306,7 @@
     const card = document.createElement('div');
     card.className = 'prize-card';
     card.setAttribute('data-rarity', prize.rarity);
-    card.style.setProperty('--rarity-color', prize.rarityColor);
+    setRarityVars(card, prize);
     
     if (currentCaseType === 'chips') {
       card.setAttribute('data-case-type', 'chips');
@@ -374,7 +411,6 @@
     const winIndex = isCoarsePointer ? 18 : 30;
     const gap = isCoarsePointer ? 4 : 6;
     const itemSize = isCoarsePointer ? 92 : 110;
-    const imgSize = isCoarsePointer ? 44 : 32;
     const durationMs = isCoarsePointer ? 6200 : 8000;
 
     const carouselPrizes = [];
@@ -416,7 +452,7 @@
       const fragment = document.createDocumentFragment();
       
       carouselPrizes.forEach((prizeItem) => {
-        fragment.appendChild(createSpinItem(prizeItem, itemSize, imgSize));
+        fragment.appendChild(createSpinCard(prizeItem, itemSize));
       });
       
       carousel.appendChild(fragment);
@@ -436,17 +472,11 @@
       setTimeout(() => {
         const winCard = carousel.children[winIndex];
         if (winCard) {
-          winCard.style.transition = isCoarsePointer ? 'transform 0.26s ease' : 'transform 0.3s ease, box-shadow 0.3s ease';
+          winCard.style.transition = 'transform 0.22s ease';
           winCard.style.transform = 'scale(1.12)';
-          if (!isCoarsePointer) {
-            winCard.style.boxShadow = '0 0 20px rgba(180, 150, 50, 0.5)';
-          }
           
           setTimeout(() => {
             winCard.style.transform = 'scale(1)';
-            if (!isCoarsePointer) {
-              winCard.style.boxShadow = '';
-            }
           }, 300);
         }
       }, Math.max(0, durationMs - 200));

@@ -178,7 +178,7 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
                                 except Exception as json_err:
                                     print(f"❌ Error parsing JSON response: {json_err}")
                                     print(f"Response was: {response_text}")
-                                    return
+                                    result = {}
                                 
                                 if resp.status == 200 and result.get('success'):
                                     # ✅ СОХРАНИТЬ referrer_code в БД
