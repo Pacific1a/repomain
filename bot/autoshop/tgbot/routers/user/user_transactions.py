@@ -25,7 +25,7 @@ router = Router(name=__name__)
 ################################################################################
 ############################ 🧪 ТЕСТОВОЕ ПОПОЛНЕНИЕ ############################
 # Команда для тестового пополнения (только для админов)
-@router.message(F.text.in_(('/test_balance', '/test', '🧪 ТЕСТ')))
+@router.message(F.text == '🧪 ТЕСТ')
 async def test_refill_balance(message: Message, bot: Bot, state: FSM, arSession: ARS):
     from tgbot.data.config import get_admins
     
@@ -79,7 +79,13 @@ async def deposit_start(call: CallbackQuery, bot: Bot, state: FSM, arSession: AR
 
     await state.update_data(here_pay_method="CactusPay")
     await state.set_state("here_refill_amount")
-    await call.message.edit_text("<b>💰 Введите сумму пополнения</b>")
+    try:
+        await call.message.edit_text("<b>💰 Введите сумму пополнения</b>")
+    except:
+        try:
+            await call.message.edit_caption("<b>💰 Введите сумму пополнения</b>")
+        except:
+            await call.message.answer("<b>💰 Введите сумму пополнения</b>")
 
 
 # Выбор способа пополнения

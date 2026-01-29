@@ -193,14 +193,7 @@ img:not([width]):not([height]) {
 }
 
 
-.content-window-item img,
-.item-preview-item img {
-  width: 110px;
-  height: 110px;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-  display: block;
-}
+
 
 /* win-window-item img управляется отдельно в JS */
 
@@ -1292,6 +1285,7 @@ button {
         init();
       })();
     </script>
+    <script src="deposit-global.js" defer></script>
     <script src="transactions-live.js" defer></script>
     
     <!-- Скрипт предзагрузки изображений -->

@@ -19,6 +19,9 @@ def user_welcome_finl(bot_username: str) -> InlineKeyboardMarkup:
         ikb("🎮 Играть", web_app=WebAppInfo(url=f"https://duopartners.xyz/bot/"))
     )
     keyboard.row(
+        ikb("💰 Пополнить баланс", data="deposit_start")
+    )
+    keyboard.row(
         ikb("📢 Канал проекта", url="https://t.me/TwinsUP")
     )
     keyboard.row(

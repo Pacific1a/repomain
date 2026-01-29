@@ -58,7 +58,7 @@ async def user_available(message: Message, bot: Bot, state: FSM, arSession: ARS)
         await message.answer("<b>🎁 Увы, товары в данное время отсутствуют.</b>")
 
 # Открытие FAQ
-@router.message(F.text.in_(('❔ FAQ', '/faq')))
+@router.message(F.text == '❔ FAQ')
 async def user_faq(message: Message, bot: Bot, state: FSM, arSession: ARS):
     await state.clear()
 
@@ -79,7 +79,7 @@ async def user_faq(message: Message, bot: Bot, state: FSM, arSession: ARS):
 
 
 # Открытие сообщения с ссылкой на поддержку
-@router.message(F.text.in_(('☎️ Поддержка', '/support')))
+@router.message(F.text == '☎️ Поддержка')
 async def user_support(message: Message, bot: Bot, state: FSM, arSession: ARS):
     await state.clear()
 
@@ -102,11 +102,6 @@ async def user_support(message: Message, bot: Bot, state: FSM, arSession: ARS):
 
 
 # Получение версии бота
-@router.message(Command(commands=['version']))
-async def admin_version(message: Message, bot: Bot, state: FSM, arSession: ARS):
-    await state.clear()
-
-    await message.answer(f"<b>❇️ Текущая версия бота: <code>{BOT_VERSION}</code></b>")
 
 
 # Получение информации о боте

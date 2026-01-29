@@ -101,23 +101,6 @@ async def filter_refill_callback(call: CallbackQuery, bot: Bot, state: FSM, arSe
 
 ################################################################################
 #################################### ПРОЧЕЕ ####################################
-# Пополнение баланса
-@router.message(Command('deposit'))
-async def deposit_command(message: Message, bot: Bot, state: FSM, arSession: ARS):
-    await state.clear()
-    get_settings = Settingsx.get()
-    if get_settings.status_refill != "True":
-        return await message.answer("<b>⛔ Пополнение временно отключено.</b>")
-
-    get_payment = Paymentsx.get()
-    if get_payment.way_cactuspay != "True":
-        return await message.answer("<b>❗️ Пополнения временно недоступны</b>")
-
-    await message.answer(
-        "<b>💰 Пополнение баланса</b>",
-        reply_markup=deposit_start_finl(),
-    )
-
 # Открытие главного меню  
 @router.message(F.text.regexp(r'^(/start|🔙 Главное меню)'))
 async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
