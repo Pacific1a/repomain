@@ -45,9 +45,10 @@ def create_dbx():
         ############################################################
         # Создание таблицы с хранением - пользователей
         # Было 8 колонок, после добавления user_referrer стало 9
-        if len(con.execute("PRAGMA table_info(storage_users)").fetchall()) >= 8:
-            print("DB was found(1/8)")
-        else:
+        users_cols = con.execute("PRAGMA table_info(storage_users)").fetchall()
+        users_col_names = [c.get("name") for c in users_cols] if users_cols else []
+
+        if len(users_cols) == 0:
             con.execute(
                 ded(f"""
                     CREATE TABLE storage_users(
@@ -58,11 +59,16 @@ def create_dbx():
                         user_balance REAL,
                         user_refill REAL,
                         user_give REAL,
-                        user_unix INTEGER
+                        user_unix INTEGER,
+                        user_referrer TEXT
                     )
                 """)
             )
             print("DB was not found(1/8) | Creating...")
+        else:
+            if "user_referrer" not in users_col_names:
+                con.execute("ALTER TABLE storage_users ADD COLUMN user_referrer TEXT")
+            print("DB was found(1/8)")
 
         # Создание таблицы с хранением - настроек
         if len(con.execute("PRAGMA table_info(storage_settings)").fetchall()) == 10:

@@ -15,7 +15,11 @@
   function openTelegramLink(url) {
     const tg = window.Telegram?.WebApp;
     if (tg && typeof tg.openTelegramLink === 'function') {
-      tg.openTelegramLink(url);
+      try { tg.openTelegramLink(url); } catch (e) {}
+      return;
+    }
+    if (tg && typeof tg.openLink === 'function') {
+      try { tg.openLink(url); } catch (e) {}
       return;
     }
     window.location.href = url;
@@ -31,7 +35,14 @@
   function init() {
     const btn = document.querySelector('.deposit-button');
     if (!btn) return;
+    btn.style.cursor = 'pointer';
+    btn.setAttribute('role', 'button');
+    btn.tabIndex = 0;
     btn.addEventListener('click', onDepositClick);
+    btn.addEventListener('pointerup', onDepositClick);
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') onDepositClick(e);
+    });
   }
 
   if (document.readyState === 'loading') {

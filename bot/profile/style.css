@@ -231,6 +231,7 @@
   padding: 8px;
   position: relative;
   border-radius: 10px;
+  cursor: pointer;
   background: linear-gradient(
       180deg,
       rgba(223, 47, 85, 1) 0%,

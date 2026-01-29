@@ -1,4 +1,5 @@
 log
+*.log
 bot/autoshop/settings.ini
 
 *.db

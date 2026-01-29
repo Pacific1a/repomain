@@ -15,6 +15,7 @@ from tgbot.services.api_cactuspay import CactusPayAPI
 from tgbot.utils.const_functions import is_number, to_number, gen_id
 from tgbot.utils.misc.bot_models import FSM, ARS
 from tgbot.utils.misc_functions import send_admins
+from tgbot.database.db_settings import Settingsx
 
 min_refill_rub = 100  # Минимальная сумма пополнения в рублях
 
@@ -63,6 +64,22 @@ async def test_refill_balance(message: Message, bot: Bot, state: FSM, arSession:
 
 ################################################################################
 ################################# ПОПОЛНЕНИЕ ###################################
+
+@router.callback_query(F.data == "deposit_start")
+async def deposit_start(call: CallbackQuery, bot: Bot, state: FSM, arSession: ARS):
+    await state.clear()
+
+    get_settings = Settingsx.get()
+    if get_settings.status_refill != "True":
+        return await call.answer("⛔ Пополнение временно отключено.", True)
+
+    get_payment = Paymentsx.get()
+    if get_payment.way_cactuspay != "True":
+        return await call.answer("❗️ Пополнения временно недоступны", True)
+
+    await state.update_data(here_pay_method="CactusPay")
+    await state.set_state("here_refill_amount")
+    await call.message.edit_text("<b>💰 Введите сумму пополнения</b>")
 
 
 # Выбор способа пополнения

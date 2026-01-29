@@ -33,8 +33,21 @@ def user_profile_finl() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardBuilder()
 
     keyboard.row(
-        ikb("💰 Пополнить", data="user_refill"),
-        ikb("🎁 Мои покупки", data="user_purchases"),
+        ikb("💰 Пополнить баланс", data="deposit_start"),
+    )
+
+    return keyboard.as_markup()
+
+
+def deposit_start_finl() -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(
+        ikb("💰 Пополнить баланс", data="deposit_start"),
+    )
+
+    keyboard.row(
+        ikb("🔙 Вернуться", data="user_profile"),
     )
 
     return keyboard.as_markup()
