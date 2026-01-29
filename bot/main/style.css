@@ -1473,6 +1473,68 @@
   /* Важно: не обрезать дочерние элементы (HOT badge) */
   overflow: hidden;
 }
+
+.price-badge{
+ --badge-accent-rgb: 255, 172, 78;
+    --badge-bg: rgba(0, 0, 0, 0.58);
+    --badge-border: rgba(var(--badge-accent-rgb), 0.28);
+    --badge-fg: rgba(255, 255, 255, 0.95);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0px 5px 0px 5px;
+    border-radius: 12px;
+    background: var(--badge-bg);
+    border: 1px solid var(--badge-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+    font-family: "Montserrat", Helvetica;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--badge-fg);
+    letter-spacing: 0.1px;
+    white-space: nowrap;
+    user-select: none;
+    justify-content: space-between;
+}
+
+.price-badge::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0));
+  pointer-events: none;
+}
+
+.price-badge__icon{
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  display: block;
+  image-rendering: auto;
+}
+
+.price-badge__value{
+  position: relative;
+  z-index: 1;
+}
+
+.price-badge--rubles{
+  --badge-accent-rgb: 255, 172, 78;
+}
+
+.price-badge--chips{
+  --badge-accent-rgb: 57, 255, 149;
+}
+
+.cards .price-badge{
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 11;
+}
 .text-block span{
   display: flex;
   align-items: center;

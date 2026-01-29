@@ -447,17 +447,17 @@
     const currencyAlt = currentCaseType === 'chips' ? 'Chips' : '₽';
 
     const badge = document.createElement('div');
-    badge.className = 'prize-price-badge';
+    badge.className = `prize-price-badge price-badge ${currentCaseType === 'chips' ? 'price-badge--chips' : 'price-badge--rubles'}`;
 
     const icon = document.createElement('img');
-    icon.className = 'prize-currency-icon';
+    icon.className = 'prize-currency-icon price-badge__icon';
     icon.src = currencyIcon;
     icon.alt = currencyAlt;
     icon.loading = 'lazy';
     icon.decoding = 'async';
 
     const value = document.createElement('span');
-    value.className = 'prize-price-value';
+    value.className = 'prize-price-value price-badge__value';
     value.textContent = String(prize.price);
 
     badge.append(icon, value);

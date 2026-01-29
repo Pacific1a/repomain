@@ -301,6 +301,7 @@
     });
   }
 
+
   function bindFilters(){
     if (!sectionMenu) return;
     // Query items by order, excluding .select-filter
