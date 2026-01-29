@@ -124,6 +124,55 @@
     });
   }
 
+  function waitForImagesInElement(root, timeoutMs = 5000) {
+    const imgs = Array.from(root?.querySelectorAll?.('img') || []);
+    if (!imgs.length) return Promise.resolve();
+
+    const waitOne = (img) => new Promise((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        resolve();
+      };
+      const t = setTimeout(finish, timeoutMs);
+
+      const onLoad = () => {
+        if (typeof img.decode === 'function') {
+          Promise.race([
+            img.decode().catch(() => {}),
+            new Promise((r) => setTimeout(r, timeoutMs))
+          ]).finally(() => {
+            clearTimeout(t);
+            finish();
+          });
+        } else {
+          clearTimeout(t);
+          finish();
+        }
+      };
+
+      const onError = () => {
+        clearTimeout(t);
+        finish();
+      };
+
+      if (img.complete && img.naturalWidth > 0) {
+        onLoad();
+        return;
+      }
+
+      img.addEventListener('load', onLoad, { once: true });
+      img.addEventListener('error', onError, { once: true });
+    });
+
+    return Promise.all(imgs.map(waitOne)).then(() => {});
+  }
+
+  function nextPaint() {
+    return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
   function createSpinCard(prize, sizePx) {
     const card = createPrizeCard(prize);
     card.style.width = `${sizePx}px`;
@@ -187,15 +236,6 @@
     const isChipsCase = card.getAttribute('data-chips') === 'true';
     const caseName = card.querySelector('.text-block h4')?.textContent || 'Case';
     const caseStyle = card.querySelector('.text-block h4')?.getAttribute('style') || '';
-    
-    const config = await loadCaseConfig(price);
-    if (!config || !config.prizes || config.prizes.length === 0) {
-      alert('Конфигурация кейса не найдена!');
-      return;
-    }
-
-    currentCaseType = config.caseType || null;
-    currentCase = { price, isChipsCase, caseName, caseStyle, prizes: config.prizes, card };
 
     const modalOverlay = document.querySelector('.modal-overlay');
     const modal = document.querySelector('.modal-window');
@@ -231,25 +271,27 @@
       if (winWindowItem) winWindowItem.innerHTML = '';
     }
 
-    console.log('⚡ Preloading first 3 images...');
-    const preloadPromises = config.prizes.slice(0, 3).map((prize) => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        img.src = prize.image;
-        setTimeout(resolve, 1500);
-      });
-    });
-    
-    await Promise.all(preloadPromises);
-    
-    await displayPrizesPreview(itemPreview, config.prizes);
-    
-    if (contentWindow) {
-      contentWindow.innerHTML = '';
+    const config = await loadCaseConfig(price);
+    if (!config || !config.prizes || config.prizes.length === 0) {
+      if (caseLoader) caseLoader.classList.remove('active');
+      if (modalOverlay) modalOverlay.classList.remove('loading-state');
+      if (modalContent) {
+        modalContent.style.opacity = '1';
+        modalContent.style.visibility = 'visible';
+      }
+      alert('Конфигурация кейса не найдена!');
+      return;
     }
-    
+
+    currentCaseType = config.caseType || null;
+    currentCase = { price, isChipsCase, caseName, caseStyle, prizes: config.prizes, card };
+
+    if (contentWindow) contentWindow.innerHTML = '';
+
+    await displayPrizesPreview(itemPreview, config.prizes);
+    await waitForImagesInElement(itemPreview, 6000);
+    await nextPaint();
+
     if (caseLoader) caseLoader.classList.remove('active');
     if (modalOverlay) modalOverlay.classList.remove('loading-state');
     if (modalContent) {
@@ -263,43 +305,38 @@
     updateOpenButton();
   }
 
-  function displayPrizesPreview(container, prizes) {
-    return new Promise((resolve) => {
-      if (!container) {
-        resolve();
-        return;
-      }
+  async function displayPrizesPreview(container, prizes) {
+    if (!container) return;
 
-      container.innerHTML = '';
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
-      container.style.gap = '10px';
-      container.style.padding = '10px';
-      container.style.justifyItems = 'center';
-      
-      const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
+    container.innerHTML = '';
+    container.style.display = 'grid';
+    container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(100px, 1fr))';
+    container.style.gap = '10px';
+    container.style.padding = '10px';
+    container.style.justifyItems = 'center';
+    
+    const sortedPrizes = [...prizes].sort((a, b) => b.price - a.price);
 
-      sortedPrizes.forEach((prize, index) => {
-        const prizeCard = createPrizeCard(prize);
-        container.appendChild(prizeCard);
-        
-        if (index === sortedPrizes.length - 1) {
-          setTimeout(() => {
-            const containerWidth = container.offsetWidth;
-            const cardWidth = 110;
-            const itemsPerRow = Math.floor(containerWidth / cardWidth);
-            const itemsInLastRow = sortedPrizes.length % itemsPerRow || itemsPerRow;
-            
-            if (itemsInLastRow === 1) {
-              prizeCard.style.gridColumn = `1 / -1`;
-              prizeCard.style.justifySelf = 'center';
-            }
-            
-            resolve();
-          }, 50);
-        }
-      });
+    let lastCard = null;
+    sortedPrizes.forEach((prize) => {
+      const prizeCard = createPrizeCard(prize);
+      const img = prizeCard.querySelector('img.prize-image');
+      if (img) img.loading = 'eager';
+      container.appendChild(prizeCard);
+      lastCard = prizeCard;
     });
+
+    await nextPaint();
+    if (!lastCard) return;
+
+    const containerWidth = container.clientWidth;
+    const cardWidth = 110;
+    const itemsPerRow = Math.max(1, Math.floor(containerWidth / cardWidth));
+    const itemsInLastRow = sortedPrizes.length % itemsPerRow || itemsPerRow;
+    if (itemsInLastRow === 1) {
+      lastCard.style.gridColumn = '1 / -1';
+      lastCard.style.justifySelf = 'center';
+    }
   }
 
   function createPrizeCard(prize) {
