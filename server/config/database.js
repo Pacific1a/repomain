@@ -86,6 +86,56 @@ function initDatabase() {
                     console.log('✅ Table [referrals] ready');
                 }
             });
+
+            db.run(`CREATE TABLE IF NOT EXISTS miniapp_balances (
+                telegram_id TEXT PRIMARY KEY,
+                rubles REAL NOT NULL DEFAULT 0,
+                chips INTEGER NOT NULL DEFAULT 0,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`, (err) => {
+                if (err) {
+                    console.error('❌ Error creating miniapp_balances table:', err);
+                } else {
+                    console.log('✅ Table [miniapp_balances] ready');
+                }
+            });
+
+            db.run(`CREATE TABLE IF NOT EXISTS miniapp_transactions (
+                id TEXT PRIMARY KEY,
+                telegram_id TEXT NOT NULL,
+                type TEXT NOT NULL,
+                amount REAL NOT NULL,
+                source TEXT,
+                description TEXT,
+                timestamp INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`, (err) => {
+                if (err) {
+                    console.error('❌ Error creating miniapp_transactions table:', err);
+                } else {
+                    console.log('✅ Table [miniapp_transactions] ready');
+                }
+            });
+
+            db.run(`CREATE TABLE IF NOT EXISTS miniapp_payment_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                provider TEXT NOT NULL,
+                provider_order_id TEXT NOT NULL,
+                telegram_id TEXT,
+                amount REAL,
+                currency TEXT,
+                status TEXT,
+                raw_json TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(provider, provider_order_id)
+            )`, (err) => {
+                if (err) {
+                    console.error('❌ Error creating miniapp_payment_events table:', err);
+                } else {
+                    console.log('✅ Table [miniapp_payment_events] ready');
+                }
+            });
             
             // Table: referral_events (timeline events for charts)
             db.run(`CREATE TABLE IF NOT EXISTS referral_events (
