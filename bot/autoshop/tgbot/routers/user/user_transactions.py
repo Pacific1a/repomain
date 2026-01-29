@@ -79,13 +79,8 @@ async def deposit_start(call: CallbackQuery, bot: Bot, state: FSM, arSession: AR
 
     await state.update_data(here_pay_method="CactusPay")
     await state.set_state("here_refill_amount")
-    try:
-        await call.message.edit_text("<b>💰 Введите сумму пополнения</b>")
-    except:
-        try:
-            await call.message.edit_caption("<b>💰 Введите сумму пополнения</b>")
-        except:
-            await call.message.answer("<b>💰 Введите сумму пополнения</b>")
+    await call.answer()
+    await call.message.answer("<b>💰 Введите сумму пополнения</b>")
 
 
 # Выбор способа пополнения

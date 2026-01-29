@@ -1,7 +1,7 @@
  (function() {
    'use strict';
  
-   async function getBotUsername() {
+  async function getBotUsername() {
      try {
        const resp = await fetch('/api/public-config', { cache: 'no-store' });
        if (!resp.ok) return null;
@@ -12,6 +12,23 @@
      }
    }
  
+  function deriveBotUsernameFromDom() {
+    const candidates = [
+      '.bot .text-wrapper-3',
+      '.bot',
+      '[data-bot-username]',
+    ];
+    for (const sel of candidates) {
+      const el = document.querySelector(sel);
+      const raw = (el && (el.getAttribute('data-bot-username') || el.textContent)) ? String(el.getAttribute('data-bot-username') || el.textContent) : '';
+      const trimmed = raw.trim();
+      if (!trimmed) continue;
+      const withoutAt = trimmed.startsWith('@') ? trimmed.slice(1) : trimmed;
+      if (withoutAt) return withoutAt;
+    }
+    return null;
+  }
+
    function openTelegramLink(url) {
      const tg = window.Telegram?.WebApp;
      if (tg && typeof tg.openTelegramLink === 'function') {
@@ -25,13 +42,23 @@
      window.location.href = url;
    }
  
-   async function goDeposit(e) {
+  let cachedUsername = null;
+  let usernameFetchStarted = false;
+
+  function prefetchUsername() {
+    if (usernameFetchStarted) return;
+    usernameFetchStarted = true;
+    getBotUsername().then((u) => {
+      if (u) cachedUsername = u;
+    }).catch(() => {});
+  }
+
+  function goDeposit(e) {
      if (e) {
        e.preventDefault?.();
        e.stopPropagation?.();
      }
-     const botUsername = await getBotUsername();
-     const username = botUsername || 'TwinsHelperBot';
+    const username = cachedUsername || deriveBotUsernameFromDom() || 'TwinsHelperBot';
      openTelegramLink(`https://t.me/${username}?start=deposit`);
    }
  
@@ -53,6 +80,9 @@
    }
  
    function install() {
+    cachedUsername = deriveBotUsernameFromDom() || cachedUsername;
+    prefetchUsername();
+
      document.addEventListener('click', (e) => {
        const root = findDepositRoot(e.target);
        if (!root) return;
@@ -78,6 +108,8 @@
          el.style.cursor = 'pointer';
          el.setAttribute('role', 'button');
          if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+        const link = el.matches('a') ? el : el.querySelector('a');
+        if (link && link.getAttribute('href') === '') link.setAttribute('href', '#');
        } catch (e) {}
      });
    }
