@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
 const confirmIndex = process.argv.indexOf('--confirm');
 const confirmValue = confirmIndex >= 0 ? process.argv[confirmIndex + 1] : null;
@@ -14,7 +15,15 @@ const keepBotCatalog = !process.argv.includes('--wipe-bot-catalog');
 const serverDbPath = process.env.DATABASE_PATH || path.join(__dirname, '../data/database.db');
 const botDbPath = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
 
-function openDb(dbPath, mode = sqlite3.OPEN_READWRITE) {
+function ensureParentDir(dbPath) {
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+}
+
+function openDb(dbPath, mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE) {
+    ensureParentDir(dbPath);
     return new sqlite3.Database(dbPath, mode);
 }
 
