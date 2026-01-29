@@ -71,7 +71,7 @@ class CactusPayAPI:
             return None
 
     # Генерация платежа
-    async def bill(self, pay_amount: float) -> tuple[str, str, int]:
+    async def bill(self, pay_amount: float, user_id: Union[str, int] = None) -> tuple[str, str, str]:
         # Проверяем минимальную сумму CactusPay
         if pay_amount < 100:
             error_msg = ded(f"""
@@ -84,7 +84,8 @@ class CactusPayAPI:
             """)
             return error_msg, None, None
             
-        bill_receipt    = gen_id()
+        base_receipt = str(gen_id())
+        bill_receipt = f"{user_id}_{base_receipt}" if user_id is not None else base_receipt
         bill_url        = await self.get_payment_url(pay_amount, bill_receipt)
         
         if not bill_url:

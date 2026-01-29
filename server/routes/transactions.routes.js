@@ -5,12 +5,25 @@
 
 const express = require('express');
 const router = express.Router();
-
-// In-memory transactions storage
-const transactions = new Map();
+const { db } = require('../config/database');
+const { webhookAuth } = require('../middleware/webhook');
 
 // Socket.IO instance (will be set by server.js)
 let io = null;
+
+db.run(
+    `CREATE TABLE IF NOT EXISTS miniapp_transactions (
+        id TEXT PRIMARY KEY,
+        telegram_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        amount REAL NOT NULL,
+        source TEXT,
+        description TEXT,
+        timestamp INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
+);
 
 // Function to set Socket.IO instance
 router.setIO = function(ioInstance) {
@@ -25,15 +38,23 @@ router.setIO = function(ioInstance) {
 router.get('/:telegramId', async (req, res) => {
     try {
         const { telegramId } = req.params;
+        const limit = Math.max(1, Math.min(200, parseInt(req.query.limit, 10) || 50));
         
         console.log(`📥 GET /api/transactions/${telegramId}`);
-        
-        const userTransactions = transactions.get(telegramId) || [];
+
+        const rows = await db.allAsync(
+            `SELECT id, type, amount, source, description, timestamp, date
+             FROM miniapp_transactions
+             WHERE telegram_id = ?
+             ORDER BY timestamp DESC
+             LIMIT ?`,
+            [telegramId, limit]
+        );
         
         res.json({
             success: true,
             telegramId: parseInt(telegramId),
-            transactions: userTransactions.slice(-50) // Last 50
+            transactions: rows || []
         });
     } catch (error) {
         console.error('❌ Error getting transactions:', error);
@@ -48,28 +69,37 @@ router.get('/:telegramId', async (req, res) => {
  * POST /api/transactions/:telegramId
  * Add transaction
  */
-router.post('/:telegramId', async (req, res) => {
+router.post('/:telegramId', webhookAuth, async (req, res) => {
     try {
         const { telegramId } = req.params;
         const { type, amount, source, description } = req.body;
         
         console.log(`📥 POST /api/transactions/${telegramId}:`, { type, amount, source });
-        
-        if (!transactions.has(telegramId)) {
-            transactions.set(telegramId, []);
-        }
-        
+
         const transaction = {
             id: Date.now().toString(),
             type: type || 'add',
-            amount: amount || 0,
+            amount: typeof amount === 'number' ? amount : parseFloat(amount) || 0,
             source: source || 'unknown',
             description: description || '',
             timestamp: Date.now(),
             date: new Date().toISOString()
         };
-        
-        transactions.get(telegramId).push(transaction);
+
+        await db.runAsync(
+            `INSERT INTO miniapp_transactions (id, telegram_id, type, amount, source, description, timestamp, date)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                transaction.id,
+                telegramId,
+                transaction.type,
+                transaction.amount,
+                transaction.source,
+                transaction.description,
+                transaction.timestamp,
+                transaction.date
+            ]
+        );
         
         console.log(`✅ Transaction added: ${telegramId} ${type} ${amount}`);
         

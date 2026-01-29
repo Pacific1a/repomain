@@ -136,7 +136,7 @@ async def refill_amount_get(message: Message, bot: Bot, state: FSM, arSession: A
                 bot=bot,
                 arSession=arSession,
             )
-        ).bill(pay_amount)
+        ).bill(pay_amount, user_id=message.from_user.id)
 
     if bill_message:
         # Если bill_link равен None, значит произошла ошибка
@@ -279,7 +279,7 @@ async def refill_check_qiwi(call: CallbackQuery, bot: Bot, state: FSM, arSession
 async def create_transaction(user_id: int, amount: float, transaction_type: str, source: str, description: str):
     """Создает транзакцию на сервере Mini App"""
     import aiohttp
-    from tgbot.data.config import SERVER_API_URL
+    from tgbot.data.config import SERVER_API_URL, PARTNER_API_SECRET
     
     SERVER_URL = SERVER_API_URL
     
@@ -293,6 +293,7 @@ async def create_transaction(user_id: int, amount: float, transaction_type: str,
                     "source": source,
                     "description": description
                 },
+                headers={'X-API-Secret': PARTNER_API_SECRET},
                 timeout=aiohttp.ClientTimeout(total=5)
             ) as response:
                 if response.status == 200:

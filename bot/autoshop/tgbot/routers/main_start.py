@@ -7,7 +7,7 @@ import asyncio
 
 from tgbot.data.config import SERVER_API_URL, PARTNER_API_SECRET
 from tgbot.database.db_settings import Settingsx
-from tgbot.keyboards.inline_user import user_support_finl, user_welcome_finl
+from tgbot.keyboards.inline_user import user_support_finl, user_welcome_finl, user_profile_finl
 from tgbot.utils.const_functions import ded
 from tgbot.utils.misc.bot_filters import IsBuy, IsRefill, IsWork
 from tgbot.utils.misc.bot_models import FSM, ARS
@@ -99,6 +99,16 @@ async def filter_refill_callback(call: CallbackQuery, bot: Bot, state: FSM, arSe
 
 ################################################################################
 #################################### ПРОЧЕЕ ####################################
+# Пополнение баланса
+@router.message(Command('deposit'))
+async def deposit_command(message: Message, bot: Bot, state: FSM, arSession: ARS):
+    await state.clear()
+    await message.answer(
+        "<b>💰 Пополнение баланса</b>\n\nНажмите кнопку ниже и выберите способ пополнения.",
+        reply_markup=user_profile_finl(),
+        parse_mode="html"
+    )
+
 # Открытие главного меню  
 @router.message(F.text.regexp(r'^(/start|🔙 Главное меню)'))
 async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
@@ -110,6 +120,14 @@ async def main_start(message: Message, bot: Bot, state: FSM, arSession: ARS):
         
         if len(parts) > 1:  # Есть параметр
             args = parts[1].strip()
+
+            if args.lower() == 'deposit':
+                await message.answer(
+                    "<b>💰 Пополнение баланса</b>\n\nНажмите кнопку ниже и выберите способ пополнения.",
+                    reply_markup=user_profile_finl(),
+                    parse_mode="html"
+                )
+                return
             
             try:
                 # Убираем префикс 'ref_' если есть

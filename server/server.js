@@ -182,6 +182,14 @@ console.log('✅ Withdrawal admin routes loaded');
 app.use('/api/notifications', require('./routes/notifications.routes'));
 console.log('✅ Notifications routes loaded');
 
+// Payments (CactusPay webhook)
+app.use('/api/payments/cactuspay', require('./routes/payments.cactuspay.routes'));
+console.log('✅ Payments routes loaded');
+
+// Public config (safe subset for miniapp)
+app.use('/api/public-config', require('./routes/public-config.routes'));
+console.log('✅ Public config routes loaded');
+
 // ============================================
 // ROOT ROUTES
 // ============================================
