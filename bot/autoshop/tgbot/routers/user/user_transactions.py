@@ -308,7 +308,7 @@ async def create_transaction(user_id: int, amount: float, transaction_type: str,
 async def update_miniapp_balance(user_id: int, amount: float):
     """Отправляет обновление баланса на сервер Mini App (необязательная операция)"""
     import aiohttp
-    from tgbot.data.config import SERVER_API_URL
+    from tgbot.data.config import SERVER_API_URL, PARTNER_API_SECRET
     from tgbot.database.db_users import Userx
     
     # URL вашего сервера Mini App
@@ -331,6 +331,7 @@ async def update_miniapp_balance(user_id: int, amount: float):
             async with session.post(
                 f"{SERVER_URL}/api/balance/{user_id}",
                 json={"rubles": float(total_rubles), "chips": 0},
+                headers={'X-API-Secret': PARTNER_API_SECRET},
                 timeout=aiohttp.ClientTimeout(total=5)
             ) as response:
                 if response.status == 200:

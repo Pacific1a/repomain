@@ -16,6 +16,96 @@
   let isPrizeCollected = false;
   const isCoarsePointer = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
   let pausedMainConveyor = false;
+  let modalOpen = false;
+  let exitLocked = false;
+  let modalHistoryPushed = false;
+  let popstateBound = false;
+  let tgBackHandler = null;
+
+  function getExitButton() {
+    return document.querySelector('.modal-window .exit');
+  }
+
+  function syncExitUi() {
+    const exitBtn = getExitButton();
+    if (!exitBtn) return;
+    exitBtn.style.pointerEvents = exitLocked ? 'none' : '';
+    exitBtn.style.opacity = exitLocked ? '0.45' : '';
+    exitBtn.style.filter = exitLocked ? 'grayscale(1)' : '';
+  }
+
+  function setExitLocked(nextLocked) {
+    exitLocked = !!nextLocked;
+    syncExitUi();
+  }
+
+  function pushModalHistory() {
+    if (modalHistoryPushed) return;
+    try {
+      history.pushState({ caseModal: true }, '');
+      modalHistoryPushed = true;
+    } catch (e) {}
+  }
+
+  function attemptCloseModal() {
+    if (exitLocked) return;
+    closeModal();
+  }
+
+  function onPopState() {
+    if (!modalOpen) return;
+    if (exitLocked) {
+      pushModalHistory();
+      return;
+    }
+    attemptCloseModal();
+  }
+
+  function bindBackInterception() {
+    if (!popstateBound) {
+      window.addEventListener('popstate', onPopState);
+      popstateBound = true;
+    }
+    pushModalHistory();
+
+    const tg = window.Telegram?.WebApp;
+    if (tg?.BackButton) {
+      tg.BackButton.show();
+      tgBackHandler = () => {
+        if (exitLocked) return;
+        attemptCloseModal();
+      };
+      if (typeof tg.BackButton.onClick === 'function') {
+        tg.BackButton.onClick(tgBackHandler);
+      }
+    }
+  }
+
+  function unbindBackInterception() {
+    if (popstateBound) {
+      window.removeEventListener('popstate', onPopState);
+      popstateBound = false;
+    }
+
+    const tg = window.Telegram?.WebApp;
+    if (tg?.BackButton) {
+      if (tgBackHandler && typeof tg.BackButton.offClick === 'function') {
+        tg.BackButton.offClick(tgBackHandler);
+      }
+      tgBackHandler = null;
+      tg.BackButton.hide();
+    }
+
+    if (modalHistoryPushed) {
+      const shouldBack = !!(history?.state && history.state.caseModal);
+      modalHistoryPushed = false;
+      if (shouldBack) {
+        try {
+          history.back();
+        } catch (e) {}
+      }
+    }
+  }
 
   function parseColorToRgb(color) {
     const c = String(color || '').trim();
@@ -224,7 +314,7 @@
       });
     });
 
-    if (exitBtn) exitBtn.addEventListener('click', closeModal);
+    if (exitBtn) exitBtn.addEventListener('click', attemptCloseModal);
     if (openBtn) openBtn.addEventListener('click', spinCase);
     if (keepBtn) keepBtn.addEventListener('click', keepPrize);
 
@@ -250,6 +340,9 @@
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     pauseBackgroundAnimations();
+    modalOpen = true;
+    setExitLocked(false);
+    bindBackInterception();
     
     if (modalContent) {
       modalContent.style.opacity = '0';
@@ -279,6 +372,7 @@
         modalContent.style.opacity = '1';
         modalContent.style.visibility = 'visible';
       }
+      setExitLocked(false);
       alert('Конфигурация кейса не найдена!');
       return;
     }
@@ -412,6 +506,7 @@
     }
 
     isSpinning = true;
+    setExitLocked(true);
     const openBtn = document.querySelector('.open-btn button');
     if (openBtn) {
       openBtn.disabled = true;
@@ -426,6 +521,7 @@
     } catch (error) {
       console.error('Ошибка списания баланса:', error);
       isSpinning = false;
+      setExitLocked(false);
       if (openBtn) {
         openBtn.disabled = false;
         openBtn.style.opacity = '1';
@@ -630,6 +726,7 @@
     
     try {
       await addPrizeToBalance(wonPrize.price, currentCase.isChipsCase);
+      setExitLocked(false);
       
       const winWindow = document.querySelector('.win-window');
       const contentWindow = document.querySelector('.content-window');
@@ -779,16 +876,21 @@
   }
 
   function closeModal() {
+    if (exitLocked) return;
     const modal = document.querySelector('.modal-window');
     const modalOverlay = document.querySelector('.modal-overlay');
     const winWindow = document.querySelector('.win-window');
     const contentWindow = document.querySelector('.content-window');
+    const caseLoader = document.getElementById('case-loader');
     
     if (modal) {
       modal.style.display = 'none';
     }
     if (modalOverlay) {
       modalOverlay.classList.remove('loading-state');
+    }
+    if (caseLoader) {
+      caseLoader.classList.remove('active');
     }
     
     if (winWindow) {
@@ -806,6 +908,9 @@
     
     document.body.style.overflow = '';
     resumeBackgroundAnimations();
+    unbindBackInterception();
+    modalOpen = false;
+    setExitLocked(false);
     
     currentCase = null;
     isSpinning = false;

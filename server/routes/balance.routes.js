@@ -8,12 +8,23 @@ const router = express.Router();
 const { db } = require('../config/database');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const { webhookAuth } = require('../middleware/webhook');
 
 // Путь к БД Python бота (из config.py: PATH_DATABASE = "tgbot/data/database.db")
 const BOT_DB_PATH = path.join(__dirname, '../../bot/autoshop/tgbot/data/database.db');
 
 // In-memory balance cache (для быстрого доступа, НО с синхронизацией с Python БД)
 const balances = new Map();
+
+// Persistent miniapp balances (server-side source of truth for miniapp)
+db.run(
+    `CREATE TABLE IF NOT EXISTS miniapp_balances (
+        telegram_id TEXT PRIMARY KEY,
+        rubles REAL NOT NULL DEFAULT 0,
+        chips INTEGER NOT NULL DEFAULT 0,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`
+);
 
 // Функция для экспорта балансов (для доступа из других модулей)
 router.clearAllBalances = () => {
@@ -59,6 +70,75 @@ function getBalanceFromBotDB(telegramId) {
     });
 }
 
+function ensureMiniappBalanceRow(telegramId) {
+    return db.getAsync('SELECT telegram_id, rubles, chips FROM miniapp_balances WHERE telegram_id = ?', [telegramId])
+        .then(async (row) => {
+            if (row) {
+                return { rubles: parseFloat(row.rubles) || 0, chips: parseInt(row.chips, 10) || 0 };
+            }
+
+            const botBalance = await getBalanceFromBotDB(telegramId);
+            const initial = botBalance || { rubles: 0, chips: 0 };
+            await db.runAsync(
+                'INSERT INTO miniapp_balances (telegram_id, rubles, chips) VALUES (?, ?, ?)',
+                [telegramId, initial.rubles || 0, initial.chips || 0]
+            );
+            return { rubles: initial.rubles || 0, chips: initial.chips || 0 };
+        });
+}
+
+function updateBotDbRublesDelta(telegramId, deltaRubles) {
+    return new Promise((resolve) => {
+        const botDB = new sqlite3.Database(BOT_DB_PATH, sqlite3.OPEN_READWRITE, (err) => {
+            if (err) {
+                console.error('❌ Error opening bot DB for write:', err);
+                resolve(false);
+                return;
+            }
+
+            botDB.run(
+                'UPDATE storage_users SET user_balance = COALESCE(user_balance, 0) + ? WHERE user_id = ?',
+                [deltaRubles, telegramId],
+                function (err) {
+                    botDB.close();
+                    if (err) {
+                        console.error('❌ Error updating bot DB balance:', err);
+                        resolve(false);
+                        return;
+                    }
+                    resolve(this.changes > 0);
+                }
+            );
+        });
+    });
+}
+
+function updateBotDbRublesSet(telegramId, rubles) {
+    return new Promise((resolve) => {
+        const botDB = new sqlite3.Database(BOT_DB_PATH, sqlite3.OPEN_READWRITE, (err) => {
+            if (err) {
+                console.error('❌ Error opening bot DB for write:', err);
+                resolve(false);
+                return;
+            }
+
+            botDB.run(
+                'UPDATE storage_users SET user_balance = ? WHERE user_id = ?',
+                [rubles, telegramId],
+                function (err) {
+                    botDB.close();
+                    if (err) {
+                        console.error('❌ Error setting bot DB balance:', err);
+                        resolve(false);
+                        return;
+                    }
+                    resolve(this.changes > 0);
+                }
+            );
+        });
+    });
+}
+
 /**
  * GET /api/balance/:telegramId
  * Get user balance (синхронизировано с Python БД)
@@ -68,23 +148,9 @@ router.get('/:telegramId', async (req, res) => {
         const { telegramId } = req.params;
         
         console.log(`📥 GET /api/balance/${telegramId}`);
-        
-        // 1. Проверить кэш
-        let balance = balances.get(telegramId);
-        
-        // 2. Если нет в кэше - прочитать из Python БД
-        if (!balance) {
-            balance = await getBalanceFromBotDB(telegramId);
-            
-            if (balance) {
-                // Сохранить в кэш
-                balances.set(telegramId, balance);
-                console.log(`💾 Баланс загружен из Bot DB: ${telegramId} → ${balance.rubles}₽`);
-            } else {
-                // Если пользователя нет в БД - вернуть 0
-                balance = { rubles: 0, chips: 0 };
-            }
-        }
+
+        const balance = await ensureMiniappBalanceRow(telegramId);
+        balances.set(telegramId, balance);
         
         res.json({
             success: true,
@@ -106,7 +172,7 @@ router.get('/:telegramId', async (req, res) => {
  * POST /api/balance/:telegramId
  * SET user balance (УСТАНАВЛИВАЕТ, не добавляет!)
  */
-router.post('/:telegramId', async (req, res) => {
+router.post('/:telegramId', webhookAuth, async (req, res) => {
     try {
         const { telegramId } = req.params;
         const { rubles, chips } = req.body;
@@ -119,7 +185,20 @@ router.post('/:telegramId', async (req, res) => {
             chips: chips !== undefined ? parseInt(chips) : 0
         };
         
-        // Сохранить
+        await db.runAsync(
+            `INSERT INTO miniapp_balances (telegram_id, rubles, chips)
+             VALUES (?, ?, ?)
+             ON CONFLICT(telegram_id) DO UPDATE SET
+               rubles = excluded.rubles,
+               chips = excluded.chips,
+               updated_at = CURRENT_TIMESTAMP`,
+            [telegramId, newBalance.rubles, newBalance.chips]
+        );
+
+        if (newBalance.rubles !== undefined) {
+            await updateBotDbRublesSet(telegramId, newBalance.rubles);
+        }
+
         balances.set(telegramId, newBalance);
         
         console.log(`✅ Balance SET: ${telegramId} -> ${newBalance.rubles}₽ / ${newBalance.chips} chips`);
@@ -156,18 +235,24 @@ router.post('/:telegramId/add', async (req, res) => {
         
         console.log(`📥 POST /api/balance/${telegramId}/add:`, { addAmount, addChips, source });
         
-        // Получить текущий баланс (из кэша или БД)
-        let currentBalance = balances.get(telegramId);
-        if (!currentBalance) {
-            currentBalance = await getBalanceFromBotDB(telegramId) || { rubles: 0, chips: 0 };
-        }
-        
-        currentBalance.rubles = (currentBalance.rubles || 0) + addAmount;
-        currentBalance.chips = (currentBalance.chips || 0) + addChips;
-        
+        await ensureMiniappBalanceRow(telegramId);
+        await db.runAsync(
+            `UPDATE miniapp_balances
+             SET rubles = rubles + ?,
+                 chips = chips + ?,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE telegram_id = ?`,
+            [addAmount, addChips, telegramId]
+        );
+
+        const currentBalance = await ensureMiniappBalanceRow(telegramId);
         balances.set(telegramId, currentBalance);
         
         console.log(`✅ Balance added: ${telegramId} +${addAmount}₽ +${addChips} chips`);
+
+        if (addAmount) {
+            await updateBotDbRublesDelta(telegramId, addAmount);
+        }
         
         // Отправляем WebSocket событие об обновлении баланса
         const io = require('../server').io;
@@ -212,7 +297,7 @@ router.post('/:telegramId/subtract', async (req, res) => {
         console.log(`   Amount: ${subtractAmount}₽, Chips: ${subtractChips}`);
         console.log(`   Reason: ${reason}, Game: ${gameType}`);
         
-        const currentBalance = balances.get(telegramId) || { rubles: 0, chips: 0 };
+        const currentBalance = await ensureMiniappBalanceRow(telegramId);
         
         // Проверить достаточно ли средств
         if (currentBalance.rubles < subtractAmount || currentBalance.chips < subtractChips) {
@@ -221,20 +306,31 @@ router.post('/:telegramId/subtract', async (req, res) => {
                 message: 'Insufficient balance'
             });
         }
-        
-        currentBalance.rubles = (currentBalance.rubles || 0) - subtractAmount;
-        currentBalance.chips = (currentBalance.chips || 0) - subtractChips;
-        
-        balances.set(telegramId, currentBalance);
+
+        await db.runAsync(
+            `UPDATE miniapp_balances
+             SET rubles = rubles - ?,
+                 chips = chips - ?,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE telegram_id = ?`,
+            [subtractAmount, subtractChips, telegramId]
+        );
+
+        const newBalance = await ensureMiniappBalanceRow(telegramId);
+        balances.set(telegramId, newBalance);
         
         console.log(`✅ Balance subtracted: ${telegramId} -${subtractAmount}₽ -${subtractChips} chips`);
+
+        if (subtractAmount) {
+            await updateBotDbRublesDelta(telegramId, -subtractAmount);
+        }
         
         // Отправляем WebSocket событие об обновлении баланса
         const io = require('../server').io;
         if (io) {
             io.emit(`balance_updated_${telegramId}`, {
-                rubles: currentBalance.rubles,
-                chips: currentBalance.chips
+                rubles: newBalance.rubles,
+                chips: newBalance.chips
             });
             console.log(`📡 WebSocket sent: balance_updated_${telegramId}`);
         }
@@ -244,10 +340,10 @@ router.post('/:telegramId/subtract', async (req, res) => {
         res.json({
             success: true,
             telegramId: parseInt(telegramId),
-            newBalance: currentBalance.rubles,
-            newChips: currentBalance.chips,
-            balance: currentBalance.rubles,
-            chips: currentBalance.chips
+            newBalance: newBalance.rubles,
+            newChips: newBalance.chips,
+            balance: newBalance.rubles,
+            chips: newBalance.chips
         });
     } catch (error) {
         console.error('❌ Error subtracting balance:', error);
